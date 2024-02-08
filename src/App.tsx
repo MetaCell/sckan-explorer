@@ -4,7 +4,7 @@ import {Box, CircularProgress} from "@mui/material";
 import {getLayoutManagerInstance} from "@metacell/geppetto-meta-client/common/layout/LayoutManager";
 import {addWidget} from '@metacell/geppetto-meta-client/common/layout/actions';
 import {connectionsWidget, connectivityGridWidget} from "./layout-manager/widgets.ts";
-import '@metacell/geppetto-meta-ui/flex-layout/style/dark.scss'
+import '@metacell/geppetto-meta-ui/flex-layout/style/light.scss'
 
 const App = () => {
     const store = useStore();
