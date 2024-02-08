@@ -1,2 +1,2 @@
 # sckan-explorer
-A repo fo SCKAN Explorer 
+A repo for SCKAN Explorer Fiesta App
