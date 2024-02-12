@@ -1,10 +1,11 @@
+import { Box } from "@mui/material"
 
 function ConnectivityGrid() {
 
     return (
-        <div>
+        <Box p={1}>
             Connectivity Grid
-        </div>
+        </Box>
     )
 }
 
