@@ -31,7 +31,7 @@ function Header() {
   return (
     <>
       <AppBar position="fixed">
-        <Container maxWidth="xl" sx={{padding: 0}}>
+        <Container maxWidth={false} sx={{padding: 0}}>
           <Toolbar disableGutters>
             <Typography
               variant="h6"

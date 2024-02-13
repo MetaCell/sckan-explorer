@@ -69,11 +69,21 @@ theme = createTheme({
           padding: 1rem;
           border-radius: 16px 16px 0 0;
         }
+        .flexlayout__layout {
+          overflow: inherit;
+        }
+        .flexlayout__border_bottom {
+          border: 0;
+          background: transparent;
+        }
         .flexlayout__tab {
-          top: 2rem !important;
+          margin-top: 0.4em;
+          border-radius: 0 0.5rem 0.5rem 0.5rem;
         }
         .flexlayout__tabset {
           background: transparent;
+
+
 
           .flexlayout__tabset_tabbar_outer_top {
             border-bottom: none;
@@ -168,7 +178,7 @@ theme = createTheme({
         },
         paper: {
           borderRadius: 12,
-          maxWidth: '550px',
+          maxWidth: '34.375rem',
           '& .MuiIconButton-root' : {
             color: gray400,
             borderRadius: 0,
