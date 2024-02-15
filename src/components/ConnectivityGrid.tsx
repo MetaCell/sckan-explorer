@@ -2,6 +2,7 @@ import { Box, Button } from "@mui/material";
 import React, { useState, FC } from "react";
 import HeatMap from "react-heatmap-grid";
 import { MinusIcon, PlusIcon } from "./icons";
+import CustomFilterDropdown from "./common/CustomFilterDropdown";
 
 interface ListItem {
   label: string;
@@ -204,8 +205,47 @@ interface CollapsibleListProps {
 }
 
 const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
-  const renderOptions = (options: (ListItem | string)[], expanded: boolean) => (
-    <Box sx={{ paddingLeft: '0.75rem', position: 'relative' }}>
+  const renderOptions = (options: (ListItem | string)[], expanded: boolean, index?: number) => (
+    <Box sx={{
+        paddingLeft: '0.75rem',
+        position: 'relative',
+
+        '&:before': {
+            content: '""',
+            height: '100%',
+            width: '0.0625rem',
+            background: 'rgba(241, 242, 244, 1)',
+            position: 'absolute',
+            left: '0.3125rem',
+            top: 0
+        },
+
+        '& .MuiButton-root': {
+            position: 'relative',
+            '&:hover:before': {
+                content: '""',
+                height: '100%',
+                width: '0.0625rem',
+                background: 'rgba(155, 24, 216, 1)',
+                position: 'absolute',
+                left: '-0.4375rem',
+                top: 0
+            },
+            '&:focus': {
+                color: 'rgba(94, 0, 138, 1)',
+                fontWeight: 600,
+                '&:before': {
+                    content: '""',
+                    height: '100%',
+                    width: '0.0625rem',
+                    background: 'rgba(155, 24, 216, 1)',
+                    position: 'absolute',
+                    left: '-0.4375rem',
+                    top: 0
+                },
+            }
+        }
+    }}>
       {expanded &&
         options.map((option, optionIndex) => (
           <React.Fragment key={optionIndex}>
@@ -225,10 +265,14 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
                   alignItems: 'center',
                   padding: '0 0.5rem',
                   height: '2rem',
-                  background: 'rgba(246, 247, 249, 1)',
+                  background: 'transparent',
                   color: 'rgba(74, 76, 79, 1)',
                   '&:hover': {
-                    background: 'rgba(246, 247, 249, 1)',
+                    background: 'rgba(252, 252, 253, 1)',
+                    color: 'rgba(74, 76, 79, 1)',
+                  },
+                  '&:focus': {
+                    background: 'rgba(252, 252, 253, 1)',
                     color: 'rgba(74, 76, 79, 1)',
                   },
                 }}
@@ -252,17 +296,21 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
                     alignItems: 'center',
                     padding: '0 0.5rem',
                     height: '2rem',
-                    background: 'rgba(237, 239, 242, 1)',
+                    background: index === 0 ? 'rgba(252, 252, 253, 1)' : 'rgba(246, 247, 249, 1)',
                     color: 'rgba(74, 76, 79, 1)',
                     '&:hover': {
-                      background: 'rgba(237, 239, 242, 1)',
-                      color: 'rgba(74, 76, 79, 1)',
+                        background: index === 0 ? 'rgba(246, 247, 249, 1)' : 'rgba(237, 239, 242, 1)',
+                        color: 'rgba(74, 76, 79, 1)',
+                    },
+                    '&:focus': {
+                        background: index === 0 ? 'rgba(246, 247, 249, 1)' : 'rgba(237, 239, 242, 1)',
+                        color: 'rgba(74, 76, 79, 1)',
                     },
                   }}
                 >
                   {option.label} {option.expanded ? <MinusIcon /> : <PlusIcon />}
                 </Button>
-                {renderOptions(option.options, option.expanded)}
+                {renderOptions(option.options, option.expanded, optionIndex)}
               </>
             )}
           </React.Fragment>
@@ -271,7 +319,7 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
   );
 
   return (
-  <Box sx={{ width: '15.625rem' }}>
+  <Box sx={{ width: '15.625rem', position: 'absolute', bottom: 0 }}>
     {list.map((item, index) => (
       <Box key={index} style={{ padding: '0.125rem 0.125rem 0.125rem 0' }}>
         <Button
@@ -290,11 +338,18 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
             padding: '0 0.5rem',
             height: '2rem',
             background: 'rgba(237, 239, 242, 1)',
+            border: '0.0625rem solid transparent',
             color: 'rgba(74, 76, 79, 1)',
             '&:hover': {
               background: 'rgba(237, 239, 242, 1)',
               color: 'rgba(74, 76, 79, 1)',
+              borderColor: 'rgba(210, 215, 223, 1)'
             },
+            '&:focus': {
+                background: 'rgba(237, 239, 242, 1)',
+                color: 'rgba(74, 76, 79, 1)',
+                borderColor: 'rgba(210, 215, 223, 1)'
+              },
           }}
         >
           {item.label} {item.expanded ? <MinusIcon /> : <PlusIcon />}
@@ -304,6 +359,178 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
     ))}
   </Box>)
 };
+
+const mockEntities = [
+  {
+    "id": "5304",
+    "group": 'Origins',
+    "label": "('Aortic arch', 'arch of aorta')",
+    "content": [
+      {
+        "title": "Name",
+        "value": "('Aortic arch', 'arch of aorta')"
+      },
+      {
+        "title": "Ontology URI",
+        "value": "http://purl.obolibrary.org/obo/UBERON_0001508"
+      }
+    ]
+  },
+  {
+    "id": "32845",
+    "group": 'Origins',
+    "label": "(embryonic) hindbrain flexure",
+    "content": [
+      {
+        "title": "Name",
+        "value": "(embryonic) hindbrain flexure"
+      },
+      {
+        "title": "Ontology URI",
+        "value": "http://purl.obolibrary.org/obo/UBERON_0005820"
+      }
+    ]
+  },
+  {
+    "id": "47428",
+    "group": 'Origins',
+    "label": "(mid-third) lateral capsular ligament",
+    "content": [
+      {
+        "title": "Name",
+        "value": "(mid-third) lateral capsular ligament"
+      },
+      {
+        "title": "Ontology URI",
+        "value": "http://purl.obolibrary.org/obo/UBERON_0014899"
+      }
+    ]
+  },
+  {
+    "id": "12822",
+    "group": 'Origins',
+    "label": "(pre-)piriform cortex",
+    "content": [
+      {
+        "title": "Name",
+        "value": "(pre-)piriform cortex"
+      },
+      {
+        "title": "Ontology URI",
+        "value": "http://purl.obolibrary.org/obo/UBERON_0002590"
+      }
+    ]
+  },
+  {
+    "id": "1798",
+    "group": 'Origins',
+    "label": "02 optic nerve",
+    "content": [
+      {
+        "title": "Name",
+        "value": "02 optic nerve"
+      },
+      {
+        "title": "Ontology URI",
+        "value": "http://purl.obolibrary.org/obo/UBERON_0000941"
+      }
+    ]
+  },
+  {
+    "id": "53259",
+    "group": 'Origins',
+    "label": "10 R+L thoracic",
+    "content": [
+      {
+        "title": "Name",
+        "value": "10 R+L thoracic"
+      },
+      {
+        "title": "Ontology URI",
+        "value": "http://purl.obolibrary.org/obo/UBERON_0039167"
+      }
+    ]
+  },
+  {
+    "id": "6604",
+    "group": 'Origins',
+    "label": "10n",
+    "content": [
+      {
+        "title": "Name",
+        "value": "10n"
+      },
+      {
+        "title": "Ontology URI",
+        "value": "http://purl.obolibrary.org/obo/UBERON_0001759"
+      }
+    ]
+  },
+  {
+    "id": "52948",
+    "group": 'Origins',
+    "label":"11 R+L thoracic",
+    "content": [
+      {
+        "title": "Name",
+        "value": "11 R+L thoracic"
+      },
+      {
+        "title": "Ontology URI",
+        "value": "http://purl.obolibrary.org/obo/UBERON_0038635"
+      }
+    ]
+  },
+  {
+    "id": "52950",
+    "group": 'Origins',
+    "label": "11 thoracic lymph node",
+    "content": [
+      {
+        "title": "Name",
+        "value": "11 thoracic lymph node"
+      },
+      {
+        "title": "Ontology URI",
+        "value": "http://purl.obolibrary.org/obo/UBERON_0038635"
+      }
+    ]
+  },
+  {
+    "id": "52956",
+    "group": 'Origins',
+    "label": "12R+L thoracic lymph node",
+    "content": [
+      {
+        "title": "Name",
+        "value": "12R+L thoracic lymph node"
+      },
+      {
+        "title": "Ontology URI",
+        "value": "http://purl.obolibrary.org/obo/UBERON_0038638"
+      }
+    ]
+  },
+  {
+    "id": "6050",
+    "group": 'Origins',
+    "label": "12n",
+    "content": [
+      {
+        "title": "Name",
+        "value": "12n"
+      },
+      {
+        "title": "Ontology URI",
+        "value": "http://purl.obolibrary.org/obo/UBERON_0001650"
+      }
+    ]
+  }
+];
+const getEntities = (searchValue: string) => mockEntities;
+const updateOriginsInStatment = (options: any, id: string) => {
+  return false;
+}
 
 function ConnectivityGrid() {
   const [collapsed, setCollapsed] = useState<boolean>(true);
@@ -377,6 +604,17 @@ function ConnectivityGrid() {
 
   return (
     <Box p={3} py={10} fontSize={14}>
+      <CustomFilterDropdown
+        placeholder="Origin"
+        options={{
+          value: mockEntities[0] ?? "" ,
+          id:"origins",
+          placeholder: "Origin1",
+          searchPlaceholder: "Search origin",
+          fieldName: "origins",
+          onSearch: (searchValue: string) => getEntities(searchValue),
+        }}
+      />
       <Box position='relative' sx={{
         '& > div:first-of-type': {
         '& > div:first-of-type': {
@@ -388,11 +626,32 @@ function ConnectivityGrid() {
               alignItems: 'center',
               fontSize: '0.875rem',
               fontWeight: '500',
-              marginLeft: '0.125rem',
-              paddingBottom: '0.875rem',
+              marginLeft: '0.1563rem',
+              padding: '0.875rem 0',
+              position: 'relative',
+              borderRadius: '0.25rem',
+
+              '&:hover': {
+                background: 'rgba(246, 247, 249, 1)',
+                '&:before': {
+                    content: '""',
+                    width: '100%',
+                    height: '0.0625rem',
+                    background: 'rgba(155, 24, 216, 1)',
+                    position: 'absolute',
+                    top: '-0.25rem',
+                    left: 0
+                },
+              },
 
               '&:first-of-type': {
                   marginLeft: 0,
+                  '&:hover': {
+                    background: 'none',
+                    '&:before': {
+                        display: 'none'
+                    }
+                  }
               }
             }
           }
@@ -411,16 +670,20 @@ function ConnectivityGrid() {
         onClick={(x: any, y: any) => alert(`Clicked ${x}, ${y}`)}
 
 
-        cellStyle={(_background: any, value: number, min: number, max: number, _data: any, _x: any, _y: any) => ({
-            background: `rgb(131, 0, 191, ${1 - (max - value) / (max - min)})`,
-            fontSize: "0.7188rem",
-            color: "#444",
-            widht: '2.6875rem',
-            height: '2rem',
-            borderRadius: '0.25rem',
-            border: '0.0625rem solid rgba(255, 255, 255, 0.2)',
-            margin: '0.125rem'
-        })}
+        cellStyle={(_background: any, value: number, min: number, max: number, _data: any, _x: any, _y: any) => {
+            console.log(`rgba(131, 0, 191, ${1 - (max - value) / (max - min)})`)
+            return {
+                background: `rgba(131, 0, 191, ${1 - (max - value) / (max - min)})`,
+                fontSize: "0.7188rem",
+                color: "#444",
+                widht: '2.6875rem',
+                height: '2rem',
+                borderRadius: '0.25rem',
+                border: '0.0625rem solid',
+                borderColor: 1 - (max - value) / (max - min) <= 0.1  ? 'rgba(241, 242, 244, 1)' : 'rgba(255, 255, 255, 0.2)',
+                margin: '0.125rem'
+            }
+        }}
         cellRender={(_value: any) => <></>}
       />
 
