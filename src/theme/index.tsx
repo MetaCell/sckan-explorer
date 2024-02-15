@@ -9,12 +9,16 @@ const {
   baseBg,
   baseWhite,
   baseContainerBg,
+  primarypurple700,
+  primarypurple500,
   gray800,
   gray600,
   gray700,
   gray400,
   gray100,
-  gray25
+  gray500,
+  gray300,
+  gray25,
 } = vars
 
 let theme = createTheme();
@@ -34,6 +38,9 @@ theme = createTheme({
       fontSize: '0.875rem',
       fontWeight: 400,
       lineHeight: '1.25rem',
+    },
+    body2: {
+      color: gray700,
     },
     h6: {
       fontSize: '0.875rem',
@@ -149,10 +156,19 @@ theme = createTheme({
             color: 'white',
             margin: 0,
             fontWeight: 500,
-            marginRight: 2,
+            marginRight: 6,
+            border: '1px solid transparent',
             textTransform: 'none',
-            padding: '0.375rem 0.875rem',
-            '&.active, &:hover': {
+            padding: '0.2rem 0.875rem',
+            '&.active': {
+              background: gray700,
+              borderColor: primarypurple500,
+            },
+            '&:focus': {
+              borderColor: 'transparent',
+              outline: '4px solid #9B18D83D',
+            },
+            '&:hover': {
               background: gray700,
             },
           }
@@ -229,7 +245,50 @@ theme = createTheme({
           }
         }
       }
-    }
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          border: `1px ${gray100} solid`,
+          boxShadow: "0 0 4px rgba(0, 0, 0, 0.1)",
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'transparent',
+          },
+          '&:hover': {
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'transparent'
+            }
+          },
+          '&.Mui-focused': {
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: primarypurple700,
+            }
+          }
+        }
+      }
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: gray600,
+          fontWeight: 600,
+          '&.Mui-focused': {
+            color: primary600,
+          }
+        }
+      }
+    },
+    MuiFormControl: {
+      styleOverrides: {
+        root: {
+          '& .MuiSvgIcon-root': {
+            marginRight: '0.5rem',
+            marginLeft: '0.875rem',
+            color: gray600,
+          }
+        }
+      }
+    },
   }
 });
 
