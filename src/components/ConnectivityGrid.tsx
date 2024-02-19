@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Tooltip, Typography } from "@mui/material";
 import React, { useState, FC } from "react";
 import HeatMap from "react-heatmap-grid";
 import { MinusIcon, PlusIcon } from "./icons";
@@ -10,7 +10,7 @@ interface ListItem {
   expanded: boolean;
 }
 
-const xLabels: string[] = ["Brain", "Lungs", "Cervical", "Spinal", "Thoraic"];
+const xLabels: string[] = ["Brain", "Lungs", "Cervical", "Spinal", "Thoraic", "Kidney", "Urinary Tract", "Muscle organ", "Small Intestine", "Pancreas", "Skin", "Spleen", "Stomach", "Urinary bladder"];
 const initialList: ListItem[] = [
   {
     label: "Brain",
@@ -194,7 +194,7 @@ const initialData: number[][] = initialList.reduce((acc, item) => {
     .fill(0)
     .map(() => Math.floor(Math.random() * 100));
   const optionRows: number[][] = item.options.map(() =>
-    new Array(xLabels.length).fill(0).map(() => Math.floor(Math.random() * 100))
+    new Array(xLabels.length).fill(0).map((v:any, i:number) => i%3 === 0 ? Math.floor(Math.random() * 100) : 0)
   );
   return [...acc, mainRow, ...optionRows];
 }, []);
@@ -207,44 +207,44 @@ interface CollapsibleListProps {
 const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
   const renderOptions = (options: (ListItem | string)[], expanded: boolean, index?: number) => (
     <Box sx={{
-      paddingLeft: '0.75rem',
-      position: 'relative',
-
-      '&:before': {
-        content: '""',
-        height: '100%',
-        width: '0.0625rem',
-        background: 'rgba(241, 242, 244, 1)',
-        position: 'absolute',
-        left: '0.3125rem',
-        top: 0
-      },
-
-      '& .MuiButton-root': {
+        paddingLeft: '0.75rem',
         position: 'relative',
-        '&:hover:before': {
-          content: '""',
-          height: '100%',
-          width: '0.0625rem',
-          background: 'rgba(155, 24, 216, 1)',
-          position: 'absolute',
-          left: '-0.4375rem',
-          top: 0
-        },
-        '&:focus': {
-          color: 'rgba(94, 0, 138, 1)',
-          fontWeight: 600,
-          '&:before': {
+
+        '&:before': {
             content: '""',
             height: '100%',
             width: '0.0625rem',
-            background: 'rgba(155, 24, 216, 1)',
+            background: 'rgba(241, 242, 244, 1)',
             position: 'absolute',
-            left: '-0.4375rem',
+            left: '0.3125rem',
             top: 0
-          },
+        },
+
+        '& .MuiButton-root': {
+            position: 'relative',
+            '&:hover:before': {
+                content: '""',
+                height: '100%',
+                width: '0.0625rem',
+                background: 'rgba(155, 24, 216, 1)',
+                position: 'absolute',
+                left: '-0.4375rem',
+                top: 0
+            },
+            '&:focus': {
+                color: 'rgba(94, 0, 138, 1)',
+                fontWeight: 600,
+                '&:before': {
+                    content: '""',
+                    height: '100%',
+                    width: '0.0625rem',
+                    background: 'rgba(155, 24, 216, 1)',
+                    position: 'absolute',
+                    left: '-0.4375rem',
+                    top: 0
+                },
+            }
         }
-      }
     }}>
       {expanded &&
         options.map((option, optionIndex) => (
@@ -299,12 +299,12 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
                     background: index === 0 ? 'rgba(252, 252, 253, 1)' : 'rgba(246, 247, 249, 1)',
                     color: 'rgba(74, 76, 79, 1)',
                     '&:hover': {
-                      background: index === 0 ? 'rgba(246, 247, 249, 1)' : 'rgba(237, 239, 242, 1)',
-                      color: 'rgba(74, 76, 79, 1)',
+                        background: index === 0 ? 'rgba(246, 247, 249, 1)' : 'rgba(237, 239, 242, 1)',
+                        color: 'rgba(74, 76, 79, 1)',
                     },
                     '&:focus': {
-                      background: index === 0 ? 'rgba(246, 247, 249, 1)' : 'rgba(237, 239, 242, 1)',
-                      color: 'rgba(74, 76, 79, 1)',
+                        background: index === 0 ? 'rgba(246, 247, 249, 1)' : 'rgba(237, 239, 242, 1)',
+                        color: 'rgba(74, 76, 79, 1)',
                     },
                   }}
                 >
@@ -319,45 +319,45 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
   );
 
   return (
-    <Box sx={{ width: '15.625rem', position: 'absolute', bottom: 0 }}>
-      {list.map((item, index) => (
-        <Box key={index} style={{ padding: '0.125rem 0.125rem 0.125rem 0' }}>
-          <Button
-            variant="contained"
-            disableElevation
-            onClick={() => onItemClick(item)}
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              width: '100%',
-              borderRadius: '0.25rem',
-              boxSizing: 'border-box',
-              fontSize: '0.875rem',
-              fontWeight: '500',
-              alignItems: 'center',
-              padding: '0 0.5rem',
-              height: '2rem',
+  <Box sx={{ width: '15.625rem', position: 'absolute', bottom: 0 }}>
+    {list.map((item, index) => (
+      <Box key={index} style={{ padding: '0.125rem 0.125rem 0.125rem 0' }}>
+        <Button
+          variant="contained"
+          disableElevation
+          onClick={() => onItemClick(item)}
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            width: '100%',
+            borderRadius: '0.25rem',
+            boxSizing: 'border-box',
+            fontSize: '0.875rem',
+            fontWeight: '500',
+            alignItems: 'center',
+            padding: '0 0.5rem',
+            height: '2rem',
+            background: 'rgba(237, 239, 242, 1)',
+            border: '0.0625rem solid transparent',
+            color: 'rgba(74, 76, 79, 1)',
+            '&:hover': {
               background: 'rgba(237, 239, 242, 1)',
-              border: '0.0625rem solid transparent',
               color: 'rgba(74, 76, 79, 1)',
-              '&:hover': {
+              borderColor: 'rgba(210, 215, 223, 1)'
+            },
+            '&:focus': {
                 background: 'rgba(237, 239, 242, 1)',
                 color: 'rgba(74, 76, 79, 1)',
                 borderColor: 'rgba(210, 215, 223, 1)'
               },
-              '&:focus': {
-                background: 'rgba(237, 239, 242, 1)',
-                color: 'rgba(74, 76, 79, 1)',
-                borderColor: 'rgba(210, 215, 223, 1)'
-              },
-            }}
-          >
-            {item.label} {item.expanded ? <MinusIcon /> : <PlusIcon />}
-          </Button>
-          {renderOptions(item.options, item.expanded)}
-        </Box>
-      ))}
-    </Box>)
+          }}
+        >
+          {item.label} {item.expanded ? <MinusIcon /> : <PlusIcon />}
+        </Button>
+        {renderOptions(item.options, item.expanded)}
+      </Box>
+    ))}
+  </Box>)
 };
 
 const mockEntities = [
@@ -469,7 +469,7 @@ const mockEntities = [
   {
     "id": "52948",
     "group": 'Origins',
-    "label": "11 R+L thoracic",
+    "label":"11 R+L thoracic",
     "content": [
       {
         "title": "Name",
@@ -594,174 +594,335 @@ function ConnectivityGrid() {
     list.forEach(item => {
       const label = typeof item === 'string' ? item : item.label;
       const fullLabel = prefix ? `${prefix} - ${label}` : label;
-      labels.push('');
+      labels.push(label);
       if (typeof item !== 'string' && item.expanded && item.options) {
-        labels = labels.concat(generateYLabels(item.options, fullLabel));
+          labels = labels.concat(generateYLabels(item.options, fullLabel));
       }
-    });
+  });
     return labels;
-  };
+};
 
   return (
-    <Box p={1.5} py={2} fontSize={14}>
+    <Box minHeight='100%' p={3} pb={0} fontSize={14} display='flex' flexDirection='column' alignItems='flex-start'>
       <Box pb={2.5}>
         <Typography variant="h6">Connection Origin to End Organ</Typography>
       </Box>
+
       <Box display="flex">
-        <Box pb={4} mr={1}>
-          <CustomFilterDropdown
-            placeholder="Origin"
-            options={{
-              value: mockEntities[0] ?? "",
-              id: "origins",
-              placeholder: "Origin1",
-              searchPlaceholder: "Search origin",
-              fieldName: "origins",
-              onSearch: (searchValue: string) => getEntities(searchValue),
-            }}
-          />
-        </Box>
-        <Box pb={4} mr={1}>
-          <CustomFilterDropdown
-            placeholder="End organ"
-            options={{
-              value: mockEntities[0] ?? "",
-              id: "origins",
-              placeholder: "Origin1",
-              searchPlaceholder: "End organ",
-              fieldName: "origins",
-              onSearch: (searchValue: string) => getEntities(searchValue),
-            }}
-          />
-        </Box>
-        <Box pb={4} mr={1}>
-          <CustomFilterDropdown
-            placeholder="Species"
-            options={{
-              value: mockEntities[0] ?? "",
-              id: "origins",
-              placeholder: "Origin1",
-              searchPlaceholder: "Species",
-              fieldName: "origins",
-              onSearch: (searchValue: string) => getEntities(searchValue),
-            }}
-          />
-        </Box>
-        <Box pb={4} mr={1}>
-          <CustomFilterDropdown
-            placeholder="Phenotype"
-            options={{
-              value: mockEntities[0] ?? "",
-              id: "origins",
-              placeholder: "Origin1",
-              searchPlaceholder: "Phenotype",
-              fieldName: "origins",
-              onSearch: (searchValue: string) => getEntities(searchValue),
-            }}
-          />
-        </Box>
-        <Box pb={4} mr={1}>
-          <CustomFilterDropdown
-            placeholder="ApiNATOMY"
-            options={{
-              value: mockEntities[0] ?? "",
-              id: "origins",
-              placeholder: "Origin1",
-              searchPlaceholder: "ApiNATOMY",
-              fieldName: "origins",
-              onSearch: (searchValue: string) => getEntities(searchValue),
-            }}
-          />
-        </Box>
-        <Box pb={4} mr={1}>
-          <CustomFilterDropdown
-            placeholder="Via"
-            options={{
-              value: mockEntities[0] ?? "",
-              id: "origins",
-              placeholder: "Origin1",
-              searchPlaceholder: "Via",
-              fieldName: "origins",
-              onSearch: (searchValue: string) => getEntities(searchValue),
-            }}
-          />
-        </Box>
+         <Box pb={4} mr={1}>
+           <CustomFilterDropdown
+             placeholder="Origin"
+             options={{
+               value: "",
+               id: "origins",
+               placeholder: "Origin1",
+               searchPlaceholder: "Search origin",
+               fieldName: "origins",
+               onSearch: (searchValue: string) => getEntities(searchValue),
+             }}
+           />
+         </Box>
+         <Box pb={4} mr={1}>
+           <CustomFilterDropdown
+             placeholder="End organ"
+             options={{
+               value: mockEntities[0] ?? "",
+               id: "origins",
+               placeholder: "Origin1",
+               searchPlaceholder: "End organ",
+               fieldName: "origins",
+               onSearch: (searchValue: string) => getEntities(searchValue),
+             }}
+           />
+         </Box>
+         <Box pb={4} mr={1}>
+           <CustomFilterDropdown
+             placeholder="Species"
+             options={{
+               value: mockEntities[0] ?? "",
+               id: "origins",
+               placeholder: "Origin1",
+               searchPlaceholder: "Species",
+               fieldName: "origins",
+               onSearch: (searchValue: string) => getEntities(searchValue),
+             }}
+           />
+         </Box>
+         <Box pb={4} mr={1}>
+           <CustomFilterDropdown
+             placeholder="Phenotype"
+             options={{
+               value: mockEntities[0] ?? "",
+               id: "origins",
+               placeholder: "Origin1",
+               searchPlaceholder: "Phenotype",
+               fieldName: "origins",
+               onSearch: (searchValue: string) => getEntities(searchValue),
+             }}
+           />
+         </Box>
+         <Box pb={4} mr={1}>
+           <CustomFilterDropdown
+             placeholder="ApiNATOMY"
+             options={{
+               value: mockEntities[0] ?? "",
+               id: "origins",
+               placeholder: "Origin1",
+               searchPlaceholder: "ApiNATOMY",
+               fieldName: "origins",
+               onSearch: (searchValue: string) => getEntities(searchValue),
+             }}
+           />
+         </Box>
+         <Box pb={4} mr={1}>
+           <CustomFilterDropdown
+             placeholder="Via"
+             options={{
+               value: mockEntities[0] ?? "",
+               id: "origins",
+               placeholder: "Origin1",
+               searchPlaceholder: "Via",
+               fieldName: "origins",
+               onSearch: (searchValue: string) => getEntities(searchValue),
+             }}
+           />
+          </Box>
       </Box>
-      <Box position='relative' sx={{
-        '& > div:first-of-type': {
-          '& > div:first-of-type': {
-            '& > div': {
-              writingMode: 'sideways-lr',
-              lineHeight: 1,
-              display: 'flex',
-              justifyContent: 'flex-start',
-              alignItems: 'center',
-              fontSize: '0.875rem',
-              fontWeight: '500',
-              marginLeft: '0.1563rem',
-              padding: '0.875rem 0',
-              position: 'relative',
-              borderRadius: '0.25rem',
 
-              '&:hover': {
-                background: 'rgba(246, 247, 249, 1)',
-                '&:before': {
-                  content: '""',
-                  width: '100%',
-                  height: '0.0625rem',
-                  background: 'rgba(155, 24, 216, 1)',
-                  position: 'absolute',
-                  top: '-0.25rem',
-                  left: 0
-                },
+      <Box flex={1} mt={3} display='inline-flex' flexDirection='column'>
+        <Box mb={2.5} pl="17.375rem">
+          <Typography sx={{
+            textAlign: 'center',
+            fontSize: '0.875rem',
+            fontWeight: 400,
+            lineHeight: '1.25rem',
+            minWidth: '4.0625rem',
+            color: 'rgba(129, 136, 152, 1)'
+
+          }}>End organ</Typography>
+        </Box>
+        <Box display='flex' alignItems='center'>
+          <Typography sx={{
+            textAlign: 'center',
+            fontSize: '0.875rem',
+            marginTop: '4.875rem',
+            paddingRight: '0.75rem',
+            fontWeight: 400,
+            writingMode: 'vertical-lr',
+            lineHeight: 1,
+            color: 'rgba(129, 136, 152, 1)'
+
+          }}>Connection Origin</Typography>
+
+          <Box position='relative' sx={{
+            '& > div:last-of-type': {
+              '& > div': {
+
               },
+            },
+            '& > div:first-of-type': {
+              '& > div:last-of-type': {
+                '& > div': {
+                  '& > div': {
+                    '&:not(:first-of-type)': {
+                      '&:hover': {
+                        boxShadow: '0rem 0.0625rem 0.125rem 0rem #1018280F, 0rem 0.0625rem 0.1875rem 0rem #1018281A'
+                      },
+                      '& > div': {
+                        paddingTop: '0 !important',
+                        height: '100%',
 
-              '&:first-of-type': {
-                marginLeft: 0,
-                '&:hover': {
-                  background: 'none',
-                  '&:before': {
-                    display: 'none'
+                        '& > div': {
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }
+                      }
+                    },
+                    '&:first-of-type': {
+                      width: '15.625rem',
+                      flex: 'none !important',
+                      '& > div': {
+                        opacity: 0
+                      }
+                    }
+                  }
+                }
+              },
+            '& > div:first-of-type': {
+              '& > div': {
+                  writingMode: 'vertical-lr',
+                  lineHeight: 1,
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  alignItems: 'center',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  marginLeft: '0.1563rem',
+                  padding: '0.875rem 0',
+                  position: 'relative',
+                  borderRadius: '0.25rem',
+
+                  '&:hover': {
+                    background: 'rgba(246, 247, 249, 1)',
+                    '&:before': {
+                        content: '""',
+                        width: '100%',
+                        height: '0.0625rem',
+                        background: 'rgba(155, 24, 216, 1)',
+                        position: 'absolute',
+                        top: '-0.25rem',
+                        left: 0
+                    },
+                  },
+
+                  '&:first-of-type': {
+                      marginLeft: 0,
+                      width: '15.625rem',
+                      flex: 'none !important',
+                      '&:hover': {
+                        background: 'none',
+                        '&:before': {
+                            display: 'none'
+                        }
+                      }
                   }
                 }
               }
             }
+          }}>
+          <HeatMap
+            xLabels={xLabels}
+            yLabels={generateYLabels(list)}
+            xLabelsLocation={"top"}
+            xLabelsVisibility={xLabels.map(() => true)}
+            xLabelWidth={160}
+            yLabelWidth={250}
+            data={data}
+            squares
+            height={43}
+            onClick={(x: any, y: any) => alert(`Clicked ${x}, ${y}`)}
+            cellStyle={(_background: any, value: number, min: number, max: number, _data: any, _x: any, _y: any) => {
+              return {
+                background: `rgba(131, 0, 191, ${1 - (max - value) / (max - min)})`,
+                fontSize: "0.7188rem",
+                color: "#444",
+                widht: '2.6875rem',
+                height: '2rem',
+                borderRadius: '0.25rem',
+                border: '0.0625rem solid',
+                borderColor: 1 - (max - value) / (max - min) <= 0.1  ? 'rgba(241, 242, 244, 1)' : 'rgba(255, 255, 255, 0.2)',
+                margin: '0.125rem'
+              }
+            }}
+            cellRender={(value: any, x: any, y: any) => (
+              <Tooltip
+                arrow
+                placement="right"
+                title={
+                  <Box>
+                    <Typography sx={{
+                      fontSize: '0.75rem',
+                      fontWeight: 500,
+                      lineHeight: '1.125rem',
+                      color: 'rgba(180, 188, 202, 1)'
+
+                    }}>{`${x} -> ${y}`}</Typography>
+                    <Typography sx={{
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      lineHeight: '1.125rem',
+                      color: 'rgba(252, 252, 253, 1)',
+                      marginTop: '0.125rem'
+
+                    }}>{`${value}`} connections</Typography>
+                  </Box>
+                }
+              >
+                <Box sx={{ opacity: 0 }}>{value}</Box>
+              </Tooltip>
+            )}
+            title={(_value: any) => null}
+          />
+
+          {collapsed ? (
+            <CollapsibleList list={list} onItemClick={handleItemClick} />
+          ) : null}
+          </Box>
+        </Box>
+
+      </Box>
+
+      <Box
+        py={1.5}
+        borderTop='0.0625rem solid #F1F2F4'
+        width={1}
+        display='flex'
+        alignItems='center'
+        justifyContent='space-between'
+      >
+        <Button variant="text" sx={{
+          fontSize: '0.875rem',
+          fontWeight: 600,
+          lineHeight: '1.25rem',
+          color: '#8300BF',
+          padding: 0,
+
+          '&:hover': {
+            background: 'transparent'
           }
-        }
-      }}>
-        <HeatMap
-          xLabels={xLabels}
-          yLabels={generateYLabels(list)}
-          xLabelsLocation={"top"}
-          xLabelsVisibility={xLabels.map(() => true)}
-          xLabelWidth={160}
-          yLabelWidth={250}
-          data={data}
-          squares
-          height={43}
-          onClick={(x: any, y: any) => alert(`Clicked ${x}, ${y}`)}
+        }}>Reset grid</Button>
 
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          height: '1.875rem',
+          padding: '0 0.75rem',
+          borderRadius: '0.25rem',
+          background: '#FCFCFD',
+          border: '0.0625rem solid #F1F2F4',
+          gap: '0.75rem'
 
-          cellStyle={(_background: any, value: number, min: number, max: number, _data: any, _x: any, _y: any) => {
-            console.log(`rgba(131, 0, 191, ${1 - (max - value) / (max - min)})`)
-            return {
-              background: `rgba(131, 0, 191, ${1 - (max - value) / (max - min)})`,
-              fontSize: "0.7188rem",
-              color: "#444",
-              widht: '2.6875rem',
-              height: '2rem',
-              borderRadius: '0.25rem',
-              border: '0.0625rem solid',
-              borderColor: 1 - (max - value) / (max - min) <= 0.1 ? 'rgba(241, 242, 244, 1)' : 'rgba(255, 255, 255, 0.2)',
-              margin: '0.125rem'
-            }
-          }}
-          cellRender={(_value: any) => <></>}
-        />
+        }}>
+          <Typography sx={{
+            fontSize: '0.75rem',
+            fontWeight: 500,
+            lineHeight: '1.125rem',
+            color: '#818898'
+          }}>Connections</Typography>
 
-        {collapsed ? (
-          <CollapsibleList list={list} onItemClick={handleItemClick} />
-        ) : null}
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.25rem'
+          }}>
+            <Typography sx={{
+              fontSize: '0.75rem',
+              fontWeight: 400,
+              lineHeight: '1.125rem',
+              color: '#9DA4AF'
+            }}>1</Typography>
+
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
+            }}>
+              {[1,2,3,4,5,6].reverse().map((el: any) => <Box sx={{
+                width: '1.5rem',
+                height: '1rem',
+                background: `rgba(131, 0, 191, ${1 - (el/6.5)})`,
+              }} />)}
+            </Box>
+
+            <Typography sx={{
+              fontSize: '0.75rem',
+              fontWeight: 400,
+              lineHeight: '1.125rem',
+              color: '#9DA4AF'
+            }}>100+</Typography>
+          </Box>
+        </Box>
       </Box>
     </Box>
   )

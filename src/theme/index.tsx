@@ -13,11 +13,12 @@ const {
   primarypurple500,
   gray800,
   gray600,
-  gray500,
   gray700,
-  gray700A,
   gray400,
   gray100,
+  gray500,
+  gray300,
+  gray700A,
   gray25,
 } = vars
 
@@ -37,16 +38,16 @@ theme = createTheme({
     body1: {
       fontSize: '0.875rem',
       fontWeight: 400,
-      color: gray700,
       lineHeight: '1.25rem',
+      color: gray700,
     },
     body2: {
       color: gray700,
     },
     h6: {
       fontSize: '0.875rem',
-      fontWeight:400,
-      color: gray700A,
+      fontWeight:600,
+      color: gray700A
     },
     button: {
       fontSize: '0.875rem',
@@ -147,6 +148,26 @@ theme = createTheme({
         root: {
           background: baseBg,
           boxShadow: 'none',
+        }
+      }
+    },
+    MuiTooltip: {
+      styleOverrides: {
+        arrow: {
+          color: '#161718',
+        },
+        popper: {
+          '&[data-popper-placement*="right"]': {
+            '& .MuiTooltip-tooltip': {
+              marginLeft: '0 !important'
+            }
+          }
+        },
+        tooltip: {
+          background: '#161718',
+          borderRadius: '8px',
+          fontFamily: primaryFont,
+          padding: '6px 12px'
         }
       }
     },
@@ -280,20 +301,13 @@ theme = createTheme({
         }
       }
     },
-    MuiPopper: {
-      styleOverrides:{
-        root: {
-          // width: 'auto !important'
-        }
-      }
-    },
     MuiFormControl: {
       styleOverrides: {
         root: {
           '& .MuiSvgIcon-root': {
+            marginRight: '0.5rem',
             marginLeft: '0.875rem',
-            color: gray500,
-            fontSize: '1.2rem',
+            color: gray600,
           }
         }
       }
