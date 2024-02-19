@@ -6,6 +6,8 @@ import { CheckedItemIcon, UncheckedItemIcon } from "../icons";
 import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 // import NoResultField from './NoResultField';
 import { vars } from '../../theme/variables';
 
@@ -15,22 +17,13 @@ type OptionDetail = {
 };
 
 const {
-  buttonOutlinedBorderColor,
-  darkBlue,
+  gray100,
+  gray700,
+  gray400,
+  primary600,
   whiteColor,
-  dropdownBorderColor,
-  buttonOutlinedColor,
-  lightBlue,
-  inputTextColor,
-  dropdownChipColor,
-  captionColor,
-  bodyBgColor,
-  badgeBg,
-  drodownDetailBg,
-  dropdownHeadingColor,
-  dropdownTextColor,
-  grey400,
-  popperBorderColor
+  gray600,
+  gray500,
 } = vars;
 
 
@@ -48,16 +41,19 @@ const transition = {
 const styles = {
   root: {
     gap: '0.5rem',
-    minHeight: '2.5rem',
-    borderRadius: '0.5rem',
-    border: `0.0625rem solid ${buttonOutlinedBorderColor}`,
+    minHeight: '2.25rem',
+    borderRadius: '0.25rem',
+    border: `0.0625rem solid ${gray100}`,
     cursor: 'pointer',
     background: whiteColor,
     display: 'flex',
     alignItems: 'center',
-    padding: '0.5rem 0.75rem',
+    padding: '0.33rem 0.75rem',
     boxShadow: '0 0.0625rem 0.125rem 0 rgba(16, 24, 40, 0.05)',
     ...transition,
+    '& .expand': {
+      fontSize: '1.5rem',
+    },
     '&:after': {
       content: '""',
       width: '4.125rem',
@@ -67,20 +63,15 @@ const styles = {
       top: '0.0625rem',
       pointerEvents: 'none',
       background: 'linear-gradient(270deg, #FFF 67.69%, rgba(255, 255, 255, 0.00) 116.94%)',
-      borderRadius: '0 0.5rem 0.5rem 0'
+      borderRadius: '0 0.25rem 0.25rem 0'
     }
   },
 
   rootHover: {
     '&:hover': {
-      borderColor: dropdownBorderColor,
-      boxShadow: '0rem 0rem 0rem 0.25rem #CEDDED, 0rem 0.0625rem 0.125rem 0rem rgba(16, 24, 40, 0.05)'
+      borderColor: 'none',
+      // boxShadow: '0rem 0rem 0rem 0.25rem #CEDDED, 0rem 0.0625rem 0.125rem 0rem rgba(16, 24, 40, 0.05)'
     }
-  },
-
-  rootOpen: {
-    borderColor: dropdownBorderColor,
-    boxShadow: '0rem 0rem 0rem 0.25rem #CEDDED, 0rem 0.0625rem 0.125rem 0rem rgba(16, 24, 40, 0.05)'
   },
 
   chip: {
@@ -92,29 +83,30 @@ const styles = {
     maxWidth: '8rem',
     fontWeight: 500,
 
-    '&.MuiChip-filled': {
-      borderRadius: '1rem',
-      background: lightBlue,
-      color: darkBlue,
-      mixBlendMode: 'multiply',
-    },
-
     '&.MuiChip-outlined': {
-      color: buttonOutlinedColor,
       background: whiteColor,
-      border: `0.0625rem solid ${buttonOutlinedBorderColor}`,
+      border: 0,
+      padding: 0,
+      '&:hover': {
+        background: 'transparent',
+      }
     },
 
 
     '& .MuiChip-label': {
-      padding: 0
+      padding: 0,
+      fontWeight: 600,
+      fontSize: '0.875rem',
+      color: primary600,
     },
 
     '& .MuiChip-deleteIcon': {
       margin: 0,
-      color: grey400,
-      fontSize: '0.75rem',
-      // zIndex: 10000
+      color: primary600,
+      fontSize: '1rem',
+      '&:hover': {
+        color: primary600,
+      }
     }
   },
 
@@ -123,13 +115,13 @@ const styles = {
     position: 'relative',
     zIndex: 9,
     fontSize: '1.25rem',
-    color: captionColor
+    color: gray600
   },
 
   placeholder: {
-    color: captionColor,
+    color: gray600,
     fontSize: '0.875rem',
-    fontWeight: 400,
+    fontWeight: 600,
     userSelect: 'none'
   },
 
@@ -141,13 +133,14 @@ const styles = {
   },
 
   badge: {
-    display: 'block',
+    position: 'inherit',
+    display: 'inline-block',
     '& .MuiBadge-badge': {
       position: 'absolute',
       width: '1.375rem',
       height: '1.375rem',
-      color: darkBlue,
-      background: badgeBg,
+      color: gray400,
+      display: 'none',
       textAlign: 'center',
       fontSize: '0.75rem',
       borderRadius: '3.125rem',
@@ -157,12 +150,11 @@ const styles = {
   },
 
   details: {
-    background: drodownDetailBg,
     width: '50%',
     overflow: 'auto',
     flexShrink: 0,
     '& .MuiTypography-body2': {
-      color: dropdownHeadingColor,
+      color: gray700,
       fontSize: '0.875rem',
       fontWeight: 400,
       lineHeight: '142.857%',
@@ -170,7 +162,6 @@ const styles = {
     },
 
     '& .MuiTypography-body1': {
-      color: dropdownTextColor,
       fontSize: '0.75rem',
       fontWeight: 500,
       lineHeight: '150%',
@@ -318,7 +309,7 @@ export default function CustomEntitiesDropdown({
               ))}
             </Box>
           )}
-          {open ? <ArrowDropUpIcon sx={styles.toggleIcon} /> : <ArrowDropDownIcon sx={styles.toggleIcon} />}
+          {open ? <ExpandLessIcon className='expand' sx={styles.toggleIcon} /> : <ExpandMoreIcon className='expand' sx={styles.toggleIcon} />}
         </Box>
       </Badge>
 
@@ -330,11 +321,10 @@ export default function CustomEntitiesDropdown({
         sx={{
             height: "28.125rem",
             borderRadius: '0.5rem',
-            border: `0.0625rem solid ${popperBorderColor}`,
             background: whiteColor,
             boxShadow: '0 0.5rem 0.5rem -0.25rem rgba(7, 8, 8, 0.03), 0 1.25rem 1.5rem -0.25rem rgba(7, 8, 8, 0.08)',
             m: '0.25rem 0  !important',
-            width: autocompleteOptions.length > 0 ? '55.5rem' : '27.75rem',
+            width: autocompleteOptions.length > 0 ? '27.75rem' : '27.75rem',
             display: 'flex',
             flexDirection: 'column',
             zIndex: 999
@@ -347,9 +337,8 @@ export default function CustomEntitiesDropdown({
             flexWrap='wrap'
             gap={1}
             sx={{
-              borderBottom: `0.0625rem solid ${popperBorderColor}`,
               height: autocompleteOptions.length > 0 ? '2.75rem' : 'auto',
-              padding: autocompleteOptions.length > 0 ? '0 0.875rem' : '0.875rem'
+              padding: autocompleteOptions.length > 0 ? '0 0.625rem' : '0.625rem'
             }}
           >
             <Typography variant="body2">
@@ -367,7 +356,7 @@ export default function CustomEntitiesDropdown({
                   label={
                     <>
                       <Typography
-                        sx={{ verticalAlign: 'text-bottom', display: 'inline-block', mr: '0.25rem', borderRadius: '0.1875rem', background: dropdownChipColor, px: '0.25rem', fontSize: '0.75rem', color: buttonOutlinedColor, fontWeight: 600, height: '1.125rem' }}
+                        sx={{ verticalAlign: 'text-bottom', display: 'inline-block', mr: '0.25rem', borderRadius: '0.1875rem', px: '0.25rem', fontSize: '0.75rem', fontWeight: 600, height: '1.125rem' }}
                         component='span'
                       >
                         {index + 1}
@@ -383,12 +372,10 @@ export default function CustomEntitiesDropdown({
         <Box display='flex' flex={1} height={autocompleteOptions.length > 0 ? 'calc(100% - 2.75rem)' : 'auto'}>
           <Box sx={{
             ...styles.list,
-            width: autocompleteOptions.length > 0 ? '50%' : '100%'
+            width: autocompleteOptions.length > 0 ? '100%' : '100%'
           }}>
             <Box sx={{
-              borderBottom: `0.0625rem solid ${popperBorderColor}`,
-              height: '3.125rem',
-              padding: '0 0.875rem',
+              height: '2.8rem',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
@@ -396,14 +383,15 @@ export default function CustomEntitiesDropdown({
 
               '& .MuiOutlinedInput-input': {
                 padding: 0,
-                fontSize: '0.75rem',
-                color: inputTextColor,
+                fontSize: '0.875rem',
+                color: gray500,
                 fontWeight: '400',
-                height: '3.125rem',
+                height: '2.8rem',
 
                 '&::placeholder': {
-                  fontSize: '0.75rem',
-                  color: inputTextColor,
+                  fontSize: '0.875rem',
+                  color: gray500,
+                  opacity: 1,
                   fontWeight: '400',
                 }
               },
@@ -413,9 +401,13 @@ export default function CustomEntitiesDropdown({
               },
 
               '& .MuiOutlinedInput-root': {
-                border: 'none',
                 boxShadow: 'none',
-                padding: '0'
+                padding: '0',
+                border: `${gray100} 1px solid`,
+                borderRadius: '0.5rem 0.5rem 0 0'
+              },
+              '& .MuiBox-SearchMenu': {
+                outline: 0,
               }
             }}>
               <TextField
@@ -425,26 +417,26 @@ export default function CustomEntitiesDropdown({
                 onChange={handleInputChange}
                 placeholder={searchPlaceholder}
                 InputProps={{
-                  startAdornment: <InputAdornment position='start'><SearchIcon sx={{ fontSize: '1rem', color: captionColor }} /></InputAdornment>
+                  startAdornment: <InputAdornment position='start'><SearchIcon sx={{ fontSize: '1rem', color: gray600 }} /></InputAdornment>
                 }}
               />
             </Box>
             {autocompleteOptions.length > 0 ? (
               <>
-                <Box overflow='auto' height='calc(100% - (2.75rem + 3.125rem))'>
+                <Box overflow='auto' border={`1px solid ${gray100}`} borderTop={0} borderRadius="0 0 0.5rem 0.5rem">
                   {Object.keys(groupedOptions).map((group) => (
                     <Box sx={{
-                      padding: '0 0.375rem',
                       '& .MuiListSubheader-root': {
-                        padding: '0 0 0 0.625rem',
-                        height: '1.875rem',
-                        margin: '0.375rem 0 0.125rem',
+                        padding: '0 0.625rem',
+                        height: '2.2rem',
+                        border: `1px solid ${gray100}`,
+                        borderLeft: 0,
 
                         '& .MuiTypography-root': {
                           fontSize: '0.75rem',
                           lineHeight: '1.125rem',
                           fontWeight: 600,
-                          color: buttonOutlinedColor
+                          color: gray700,
                         },
                       },
                       '& .MuiCheckbox-root': {
@@ -453,36 +445,35 @@ export default function CustomEntitiesDropdown({
                       '& .MuiButton-root': {
                         padding: 0,
                         height: '1.625rem',
-                        width: '5.0625rem',
                         fontSize: '0.75rem',
+                        textTransform: 'none',
                         lineHeight: '1.125rem',
                         fontWeight: 600,
-                        color: darkBlue
+                        color: gray400
                       },
 
                       '& ul': {
                         margin: 0,
                         listStyle: 'none',
-                        padding: '0',
+                        padding: '0.5rem 0 0',
+                        borderTop: 0,
 
                         '& li': {
-                          padding: '0.6875rem 0.625rem',
+                          padding: '0.6875rem 1rem',
                           display: 'flex',
                           gap: '0.5rem',
                           cursor: 'pointer',
 
                           '&:hover': {
                             borderRadius: '0.375rem',
-                            background: bodyBgColor
                           },
 
                           '&.selected': {
                             borderRadius: '0.375rem',
-                            background: bodyBgColor
                           },
 
                           '& .MuiTypography-body1': {
-                            color: buttonOutlinedColor,
+                            color: gray700,
                             fontSize: '0.875rem',
                             fontWeight: 500,
                             lineHeight: '142.857%',
@@ -490,7 +481,7 @@ export default function CustomEntitiesDropdown({
                           },
 
                           '& .MuiTypography-body2': {
-                            color: captionColor,
+                            color: gray500,
                             fontSize: '0.75rem',
                             fontWeight: 400,
                             lineHeight: '150%',
@@ -505,10 +496,10 @@ export default function CustomEntitiesDropdown({
                         style={{
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: "space-between",
+                          justifyContent: "flex-end",
                         }}
                       >
-                        <Button>RESET SELECTION</Button>
+                        <Button>Reset Selection</Button>
                       </ListSubheader>
                       <ul>
                         {groupedOptions[group]
@@ -540,31 +531,7 @@ export default function CustomEntitiesDropdown({
                     </Box>
                   ))}
                 </Box>
-                <Box
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  sx={{
-                    borderTop: `0.0625rem solid ${popperBorderColor}`,
-                    height: '2.75rem',
 
-                    '& .MuiButton-root': {
-                      color: inputTextColor,
-                      fontSize: "0.875rem",
-                      fontWeight: 600,
-                      height: '100%',
-                      lineHeight: "1.25rem",
-                      zIndex: 200000,
-                      width: '100%',
-                      borderRadius: 0,
-                      p: 0,
-                      '&:hover': {
-                        background: bodyBgColor
-                      }
-                    }
-                  }}
-                >
-                </Box>
               </>
             ) : (
              <> "no result"</>

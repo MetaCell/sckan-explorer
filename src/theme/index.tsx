@@ -13,11 +13,11 @@ const {
   primarypurple500,
   gray800,
   gray600,
+  gray500,
   gray700,
+  gray700A,
   gray400,
   gray100,
-  gray500,
-  gray300,
   gray25,
 } = vars
 
@@ -37,6 +37,7 @@ theme = createTheme({
     body1: {
       fontSize: '0.875rem',
       fontWeight: 400,
+      color: gray700,
       lineHeight: '1.25rem',
     },
     body2: {
@@ -44,7 +45,8 @@ theme = createTheme({
     },
     h6: {
       fontSize: '0.875rem',
-      fontWeight:600,
+      fontWeight:400,
+      color: gray700A,
     },
     button: {
       fontSize: '0.875rem',
@@ -278,13 +280,20 @@ theme = createTheme({
         }
       }
     },
+    MuiPopper: {
+      styleOverrides:{
+        root: {
+          // width: 'auto !important'
+        }
+      }
+    },
     MuiFormControl: {
       styleOverrides: {
         root: {
           '& .MuiSvgIcon-root': {
-            marginRight: '0.5rem',
             marginLeft: '0.875rem',
-            color: gray600,
+            color: gray500,
+            fontSize: '1.2rem',
           }
         }
       }

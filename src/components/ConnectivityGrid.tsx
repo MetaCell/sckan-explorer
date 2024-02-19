@@ -1,4 +1,4 @@
-import { Box, Button } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import React, { useState, FC } from "react";
 import HeatMap from "react-heatmap-grid";
 import { MinusIcon, PlusIcon } from "./icons";
@@ -207,44 +207,44 @@ interface CollapsibleListProps {
 const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
   const renderOptions = (options: (ListItem | string)[], expanded: boolean, index?: number) => (
     <Box sx={{
-        paddingLeft: '0.75rem',
-        position: 'relative',
+      paddingLeft: '0.75rem',
+      position: 'relative',
 
-        '&:before': {
+      '&:before': {
+        content: '""',
+        height: '100%',
+        width: '0.0625rem',
+        background: 'rgba(241, 242, 244, 1)',
+        position: 'absolute',
+        left: '0.3125rem',
+        top: 0
+      },
+
+      '& .MuiButton-root': {
+        position: 'relative',
+        '&:hover:before': {
+          content: '""',
+          height: '100%',
+          width: '0.0625rem',
+          background: 'rgba(155, 24, 216, 1)',
+          position: 'absolute',
+          left: '-0.4375rem',
+          top: 0
+        },
+        '&:focus': {
+          color: 'rgba(94, 0, 138, 1)',
+          fontWeight: 600,
+          '&:before': {
             content: '""',
             height: '100%',
             width: '0.0625rem',
-            background: 'rgba(241, 242, 244, 1)',
+            background: 'rgba(155, 24, 216, 1)',
             position: 'absolute',
-            left: '0.3125rem',
+            left: '-0.4375rem',
             top: 0
-        },
-
-        '& .MuiButton-root': {
-            position: 'relative',
-            '&:hover:before': {
-                content: '""',
-                height: '100%',
-                width: '0.0625rem',
-                background: 'rgba(155, 24, 216, 1)',
-                position: 'absolute',
-                left: '-0.4375rem',
-                top: 0
-            },
-            '&:focus': {
-                color: 'rgba(94, 0, 138, 1)',
-                fontWeight: 600,
-                '&:before': {
-                    content: '""',
-                    height: '100%',
-                    width: '0.0625rem',
-                    background: 'rgba(155, 24, 216, 1)',
-                    position: 'absolute',
-                    left: '-0.4375rem',
-                    top: 0
-                },
-            }
+          },
         }
+      }
     }}>
       {expanded &&
         options.map((option, optionIndex) => (
@@ -299,12 +299,12 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
                     background: index === 0 ? 'rgba(252, 252, 253, 1)' : 'rgba(246, 247, 249, 1)',
                     color: 'rgba(74, 76, 79, 1)',
                     '&:hover': {
-                        background: index === 0 ? 'rgba(246, 247, 249, 1)' : 'rgba(237, 239, 242, 1)',
-                        color: 'rgba(74, 76, 79, 1)',
+                      background: index === 0 ? 'rgba(246, 247, 249, 1)' : 'rgba(237, 239, 242, 1)',
+                      color: 'rgba(74, 76, 79, 1)',
                     },
                     '&:focus': {
-                        background: index === 0 ? 'rgba(246, 247, 249, 1)' : 'rgba(237, 239, 242, 1)',
-                        color: 'rgba(74, 76, 79, 1)',
+                      background: index === 0 ? 'rgba(246, 247, 249, 1)' : 'rgba(237, 239, 242, 1)',
+                      color: 'rgba(74, 76, 79, 1)',
                     },
                   }}
                 >
@@ -319,45 +319,45 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
   );
 
   return (
-  <Box sx={{ width: '15.625rem', position: 'absolute', bottom: 0 }}>
-    {list.map((item, index) => (
-      <Box key={index} style={{ padding: '0.125rem 0.125rem 0.125rem 0' }}>
-        <Button
-          variant="contained"
-          disableElevation
-          onClick={() => onItemClick(item)}
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            width: '100%',
-            borderRadius: '0.25rem',
-            boxSizing: 'border-box',
-            fontSize: '0.875rem',
-            fontWeight: '500',
-            alignItems: 'center',
-            padding: '0 0.5rem',
-            height: '2rem',
-            background: 'rgba(237, 239, 242, 1)',
-            border: '0.0625rem solid transparent',
-            color: 'rgba(74, 76, 79, 1)',
-            '&:hover': {
+    <Box sx={{ width: '15.625rem', position: 'absolute', bottom: 0 }}>
+      {list.map((item, index) => (
+        <Box key={index} style={{ padding: '0.125rem 0.125rem 0.125rem 0' }}>
+          <Button
+            variant="contained"
+            disableElevation
+            onClick={() => onItemClick(item)}
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              width: '100%',
+              borderRadius: '0.25rem',
+              boxSizing: 'border-box',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              alignItems: 'center',
+              padding: '0 0.5rem',
+              height: '2rem',
               background: 'rgba(237, 239, 242, 1)',
+              border: '0.0625rem solid transparent',
               color: 'rgba(74, 76, 79, 1)',
-              borderColor: 'rgba(210, 215, 223, 1)'
-            },
-            '&:focus': {
+              '&:hover': {
                 background: 'rgba(237, 239, 242, 1)',
                 color: 'rgba(74, 76, 79, 1)',
                 borderColor: 'rgba(210, 215, 223, 1)'
               },
-          }}
-        >
-          {item.label} {item.expanded ? <MinusIcon /> : <PlusIcon />}
-        </Button>
-        {renderOptions(item.options, item.expanded)}
-      </Box>
-    ))}
-  </Box>)
+              '&:focus': {
+                background: 'rgba(237, 239, 242, 1)',
+                color: 'rgba(74, 76, 79, 1)',
+                borderColor: 'rgba(210, 215, 223, 1)'
+              },
+            }}
+          >
+            {item.label} {item.expanded ? <MinusIcon /> : <PlusIcon />}
+          </Button>
+          {renderOptions(item.options, item.expanded)}
+        </Box>
+      ))}
+    </Box>)
 };
 
 const mockEntities = [
@@ -469,7 +469,7 @@ const mockEntities = [
   {
     "id": "52948",
     "group": 'Origins',
-    "label":"11 R+L thoracic",
+    "label": "11 R+L thoracic",
     "content": [
       {
         "title": "Name",
@@ -596,29 +596,101 @@ function ConnectivityGrid() {
       const fullLabel = prefix ? `${prefix} - ${label}` : label;
       labels.push('');
       if (typeof item !== 'string' && item.expanded && item.options) {
-          labels = labels.concat(generateYLabels(item.options, fullLabel));
+        labels = labels.concat(generateYLabels(item.options, fullLabel));
       }
-  });
+    });
     return labels;
-};
+  };
 
   return (
-    <Box p={3} py={10} fontSize={14}>
-      <CustomFilterDropdown
-        placeholder="Origin"
-        options={{
-          value: mockEntities[0] ?? "" ,
-          id:"origins",
-          placeholder: "Origin1",
-          searchPlaceholder: "Search origin",
-          fieldName: "origins",
-          onSearch: (searchValue: string) => getEntities(searchValue),
-        }}
-      />
+    <Box p={1.5} py={2} fontSize={14}>
+      <Box pb={2.5}>
+        <Typography variant="h6">Connection Origin to End Organ</Typography>
+      </Box>
+      <Box display="flex">
+        <Box pb={4} mr={1}>
+          <CustomFilterDropdown
+            placeholder="Origin"
+            options={{
+              value: mockEntities[0] ?? "",
+              id: "origins",
+              placeholder: "Origin1",
+              searchPlaceholder: "Search origin",
+              fieldName: "origins",
+              onSearch: (searchValue: string) => getEntities(searchValue),
+            }}
+          />
+        </Box>
+        <Box pb={4} mr={1}>
+          <CustomFilterDropdown
+            placeholder="End organ"
+            options={{
+              value: mockEntities[0] ?? "",
+              id: "origins",
+              placeholder: "Origin1",
+              searchPlaceholder: "End organ",
+              fieldName: "origins",
+              onSearch: (searchValue: string) => getEntities(searchValue),
+            }}
+          />
+        </Box>
+        <Box pb={4} mr={1}>
+          <CustomFilterDropdown
+            placeholder="Species"
+            options={{
+              value: mockEntities[0] ?? "",
+              id: "origins",
+              placeholder: "Origin1",
+              searchPlaceholder: "Species",
+              fieldName: "origins",
+              onSearch: (searchValue: string) => getEntities(searchValue),
+            }}
+          />
+        </Box>
+        <Box pb={4} mr={1}>
+          <CustomFilterDropdown
+            placeholder="Phenotype"
+            options={{
+              value: mockEntities[0] ?? "",
+              id: "origins",
+              placeholder: "Origin1",
+              searchPlaceholder: "Phenotype",
+              fieldName: "origins",
+              onSearch: (searchValue: string) => getEntities(searchValue),
+            }}
+          />
+        </Box>
+        <Box pb={4} mr={1}>
+          <CustomFilterDropdown
+            placeholder="ApiNATOMY"
+            options={{
+              value: mockEntities[0] ?? "",
+              id: "origins",
+              placeholder: "Origin1",
+              searchPlaceholder: "ApiNATOMY",
+              fieldName: "origins",
+              onSearch: (searchValue: string) => getEntities(searchValue),
+            }}
+          />
+        </Box>
+        <Box pb={4} mr={1}>
+          <CustomFilterDropdown
+            placeholder="Via"
+            options={{
+              value: mockEntities[0] ?? "",
+              id: "origins",
+              placeholder: "Origin1",
+              searchPlaceholder: "Via",
+              fieldName: "origins",
+              onSearch: (searchValue: string) => getEntities(searchValue),
+            }}
+          />
+        </Box>
+      </Box>
       <Box position='relative' sx={{
         '& > div:first-of-type': {
-        '& > div:first-of-type': {
-          '& > div': {
+          '& > div:first-of-type': {
+            '& > div': {
               writingMode: 'sideways-lr',
               lineHeight: 1,
               display: 'flex',
@@ -634,62 +706,62 @@ function ConnectivityGrid() {
               '&:hover': {
                 background: 'rgba(246, 247, 249, 1)',
                 '&:before': {
-                    content: '""',
-                    width: '100%',
-                    height: '0.0625rem',
-                    background: 'rgba(155, 24, 216, 1)',
-                    position: 'absolute',
-                    top: '-0.25rem',
-                    left: 0
+                  content: '""',
+                  width: '100%',
+                  height: '0.0625rem',
+                  background: 'rgba(155, 24, 216, 1)',
+                  position: 'absolute',
+                  top: '-0.25rem',
+                  left: 0
                 },
               },
 
               '&:first-of-type': {
-                  marginLeft: 0,
-                  '&:hover': {
-                    background: 'none',
-                    '&:before': {
-                        display: 'none'
-                    }
+                marginLeft: 0,
+                '&:hover': {
+                  background: 'none',
+                  '&:before': {
+                    display: 'none'
                   }
+                }
               }
             }
           }
         }
-    }}>
-      <HeatMap
-        xLabels={xLabels}
-        yLabels={generateYLabels(list)}
-        xLabelsLocation={"top"}
-        xLabelsVisibility={xLabels.map(() => true)}
-        xLabelWidth={160}
-        yLabelWidth={250}
-        data={data}
-        squares
-        height={43}
-        onClick={(x: any, y: any) => alert(`Clicked ${x}, ${y}`)}
+      }}>
+        <HeatMap
+          xLabels={xLabels}
+          yLabels={generateYLabels(list)}
+          xLabelsLocation={"top"}
+          xLabelsVisibility={xLabels.map(() => true)}
+          xLabelWidth={160}
+          yLabelWidth={250}
+          data={data}
+          squares
+          height={43}
+          onClick={(x: any, y: any) => alert(`Clicked ${x}, ${y}`)}
 
 
-        cellStyle={(_background: any, value: number, min: number, max: number, _data: any, _x: any, _y: any) => {
+          cellStyle={(_background: any, value: number, min: number, max: number, _data: any, _x: any, _y: any) => {
             console.log(`rgba(131, 0, 191, ${1 - (max - value) / (max - min)})`)
             return {
-                background: `rgba(131, 0, 191, ${1 - (max - value) / (max - min)})`,
-                fontSize: "0.7188rem",
-                color: "#444",
-                widht: '2.6875rem',
-                height: '2rem',
-                borderRadius: '0.25rem',
-                border: '0.0625rem solid',
-                borderColor: 1 - (max - value) / (max - min) <= 0.1  ? 'rgba(241, 242, 244, 1)' : 'rgba(255, 255, 255, 0.2)',
-                margin: '0.125rem'
+              background: `rgba(131, 0, 191, ${1 - (max - value) / (max - min)})`,
+              fontSize: "0.7188rem",
+              color: "#444",
+              widht: '2.6875rem',
+              height: '2rem',
+              borderRadius: '0.25rem',
+              border: '0.0625rem solid',
+              borderColor: 1 - (max - value) / (max - min) <= 0.1 ? 'rgba(241, 242, 244, 1)' : 'rgba(255, 255, 255, 0.2)',
+              margin: '0.125rem'
             }
-        }}
-        cellRender={(_value: any) => <></>}
-      />
+          }}
+          cellRender={(_value: any) => <></>}
+        />
 
-      {collapsed ? (
-        <CollapsibleList list={list} onItemClick={handleItemClick} />
-      ) : null}
+        {collapsed ? (
+          <CollapsibleList list={list} onItemClick={handleItemClick} />
+        ) : null}
       </Box>
     </Box>
   )
