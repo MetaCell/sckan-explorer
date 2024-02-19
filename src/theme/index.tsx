@@ -16,8 +16,6 @@ const {
   gray700,
   gray400,
   gray100,
-  gray500,
-  gray300,
   gray700A,
   gray25,
 } = vars
@@ -47,7 +45,12 @@ theme = createTheme({
     h6: {
       fontSize: '0.875rem',
       fontWeight:600,
-      color: gray700A
+      color: gray800,
+    },
+    caption: {
+      fontSize: '0.875rem',
+      fontWeight: 400,
+      color: gray700A,
     },
     button: {
       fontSize: '0.875rem',

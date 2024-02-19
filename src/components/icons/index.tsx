@@ -12,46 +12,39 @@ export const PlusIcon = () => (
 )
 
 export const UncheckedItemIcon = (props: SvgIconProps) => (
-    <SvgIcon {...props} viewBox="0 0 16 16" sx={{ width: 16, height: 16 }}>
-      <rect x="0.5" y="0.5" width="15" height="15" rx="3.5" fill="white" />
-      <rect
-        x="0.5"
-        y="0.5"
-        width="15"
-        height="15"
-        rx="3.5"
-        stroke="#D0D5DD"
-        fill="none"
-      />
-    </SvgIcon>
-  );
-  
-  export const CheckedItemIcon = (props: SvgIconProps) => (
-    <SvgIcon {...props} viewBox="0 0 16 16" sx={{ width: 16, height: 16 }}>
-      <rect x="0.5" y="0.5" width="15" height="15" rx="3.5" fill="#E2ECFB" />
-      <path
-        d="M12 5L6.5 10.5L4 8"
-        stroke="#3779E1"
-        strokeWidth="1.6666"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <rect
-        x="0.5"
-        y="0.5"
-        width="15"
-        height="15"
-        rx="3.5"
-        stroke="#3779E1"
-        fill="none"
-      />
-    </SvgIcon>
-  );
-  
-  export const CheckedItemIconBG = (props: SvgIconProps) => (
-    <SvgIcon {...props} viewBox="0 0 16 16" sx={{ width: 16, height: 16 }}>
-      <rect x="0.5" y="0.5" width="15" height="15" rx="3.5" fill="#C6D9F6"/>
-      <rect x="0.5" y="0.5" width="15" height="15" rx="3.5" stroke="#3779E1"/>
-    </SvgIcon>
-  );
+  <SvgIcon {...props} viewBox="0 0 16 16" sx={{ width: 16, height: 16 }}>
+    <rect x="0.5" y="0.5" width="15" height="15" rx="3.5" fill="white" />
+    <rect
+      x="0.5"
+      y="0.5"
+      width="15"
+      height="15"
+      rx="3.5"
+      stroke="#B4BCCA"
+      fill="none"
+    />
+  </SvgIcon>
+);
+
+export const CheckedItemIcon = (props: SvgIconProps) => (
+  <SvgIcon {...props} viewBox="0 0 16 16" sx={{ width: 16, height: 16 }}>
+    <rect x="0.5" y="0.5" width="15" height="15" rx="3.5" fill="#8300BF" />
+    <path
+      d="M12 5L6.5 10.5L4 8"
+      stroke="#fff"
+      strokeWidth="1.6666"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    />
+    <rect
+      x="0.5"
+      y="0.5"
+      width="15"
+      height="15"
+      rx="3.5"
+      stroke="#8300BF"
+      fill="none"
+    />
+  </SvgIcon>
+);

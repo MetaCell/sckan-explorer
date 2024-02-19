@@ -323,7 +323,7 @@ export default function CustomEntitiesDropdown({
             background: whiteColor,
             boxShadow: '0 0.5rem 0.5rem -0.25rem rgba(7, 8, 8, 0.03), 0 1.25rem 1.5rem -0.25rem rgba(7, 8, 8, 0.08)',
             m: '0.25rem 0  !important',
-            width: autocompleteOptions.length > 0 ? '27.75rem' : '27.75rem',
+            width: 'auto',
             display: 'flex',
             flexDirection: 'column',
             zIndex: 999
@@ -379,7 +379,12 @@ export default function CustomEntitiesDropdown({
               alignItems: 'center',
               gap: '0.5rem',
               flexWrap: 'wrap',
-
+              '& .MuiSvgIcon-root': {
+                fontSize: '1rem',
+                marginRight: '0 !important',
+                width: '1.2rem',
+                height: '1.2rem'
+              },
               '& .MuiOutlinedInput-input': {
                 padding: 0,
                 fontSize: '0.875rem',
