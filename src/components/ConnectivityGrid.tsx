@@ -615,7 +615,7 @@ function ConnectivityGrid() {
              options={{
                value: "",
                id: "origins",
-               placeholder: "Origin1",
+               placeholder: "Origin",
                searchPlaceholder: "Search origin",
                fieldName: "origins",
                onSearch: (searchValue: string) => getEntities(searchValue),

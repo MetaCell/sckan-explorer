@@ -184,8 +184,7 @@ export default function CustomEntitiesDropdown({
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popper' : undefined;
 
-  const [selectedOptions, setSelectedOptions] = useState<Option[]>(
-    [value] || []
+  const [selectedOptions, setSelectedOptions] = useState<Option[]>([]
   );
   const [autocompleteOptions, setAutocompleteOptions] = useState<Option[]>([]);
   const [inputValue, setInputValue] = useState('');
