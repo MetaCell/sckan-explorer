@@ -598,10 +598,15 @@ function ConnectivityGrid() {
       if (typeof item !== 'string' && item.expanded && item.options) {
           labels = labels.concat(generateYLabels(item.options, fullLabel));
       }
-  });
-    return labels;
-};
+    });
+      return labels;
+  };
 
+  const [selectedCell, setSelectedCell] = useState(null);
+
+  const handleClick = (x, y) => {
+    setSelectedCell({ x, y });
+  };
   return (
     <Box minHeight='100%' p={3} pb={0} fontSize={14} display='flex' flexDirection='column' alignItems='flex-start'>
       <Box pb={2.5}>
@@ -785,14 +790,15 @@ function ConnectivityGrid() {
             data={data}
             squares
             height={43}
-            onClick={(x: any, y: any) => alert(`Clicked ${x}, ${y}`)}
+            onClick={(x, y) => handleClick(x, y)}
             cellStyle={(_background: any, value: number, min: number, max: number, _data: any, _x: any, _y: any) => {
               return {
                 fontSize: "0.7188rem",
                 widht: '2.6875rem',
                 height: '2rem',
                 borderRadius: '0.25rem',
-                border: '0.0625rem solid',
+                // border: '0.0625rem solid',
+                border: selectedCell?.x === _x && selectedCell?.y === _y ? '2px solid #8300BF' : 'none',
                 borderColor: 1 - (max - value) / (max - min) <= 0.1  ? gray100 : 'rgba(255, 255, 255, 0.2)',
                 background: 1 - (max - value) / (max - min) <= 0.1  ? gray25 : `rgba(131, 0, 191, ${1 - (max - value) / (max - min)})`,
                 margin: '0.125rem'
