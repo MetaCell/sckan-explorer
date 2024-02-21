@@ -3,12 +3,15 @@ import React, { useState, FC } from "react";
 import HeatMap from "react-heatmap-grid";
 import { MinusIcon, PlusIcon } from "./icons";
 import CustomFilterDropdown from "./common/CustomFilterDropdown";
+import { vars } from "../theme/variables";
 
 interface ListItem {
   label: string;
   options: (ListItem | string)[];
   expanded: boolean;
 }
+
+const { gray500, baseWhite, gray25, gray100, gray300, primary600, gray200, gray700, gray400, gray50, primarypurple900, primarypurple500 } = vars;
 
 const xLabels: string[] = ["Brain", "Lungs", "Cervical", "Spinal", "Thoraic", "Kidney", "Urinary Tract", "Muscle organ", "Small Intestine", "Pancreas", "Skin", "Spleen", "Stomach", "Urinary bladder"];
 const initialList: ListItem[] = [
@@ -214,9 +217,9 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
             content: '""',
             height: '100%',
             width: '0.0625rem',
-            background: 'rgba(241, 242, 244, 1)',
+            background: gray100,
             position: 'absolute',
-            left: '0.3125rem',
+            left: '0.4375rem',
             top: 0
         },
 
@@ -225,22 +228,22 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
             '&:hover:before': {
                 content: '""',
                 height: '100%',
-                width: '0.0625rem',
-                background: 'rgba(155, 24, 216, 1)',
+                width: '0.0938rem',
+                background: primarypurple900,
                 position: 'absolute',
-                left: '-0.4375rem',
+                left: '-0.3125rem',
                 top: 0
             },
             '&:focus': {
-                color: 'rgba(94, 0, 138, 1)',
+                color: primarypurple500,
                 fontWeight: 600,
                 '&:before': {
                     content: '""',
                     height: '100%',
-                    width: '0.0625rem',
-                    background: 'rgba(155, 24, 216, 1)',
+                    width: '0.0938rem',
+                    background: primarypurple900,
                     position: 'absolute',
-                    left: '-0.4375rem',
+                    left: '-0.3125rem',
                     top: 0
                 },
             }
@@ -266,14 +269,14 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
                   padding: '0 0.5rem',
                   height: '2rem',
                   background: 'transparent',
-                  color: 'rgba(74, 76, 79, 1)',
+                  color: gray700,
                   '&:hover': {
-                    background: 'rgba(252, 252, 253, 1)',
-                    color: 'rgba(74, 76, 79, 1)',
+                    background: gray25,
+                    color: gray700,
                   },
                   '&:focus': {
-                    background: 'rgba(252, 252, 253, 1)',
-                    color: 'rgba(74, 76, 79, 1)',
+                    background: gray25,
+                    color: gray700,
                   },
                 }}
               >
@@ -296,15 +299,15 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
                     alignItems: 'center',
                     padding: '0 0.5rem',
                     height: '2rem',
-                    background: index === 0 ? 'rgba(252, 252, 253, 1)' : 'rgba(246, 247, 249, 1)',
-                    color: 'rgba(74, 76, 79, 1)',
+                    background: index === 0 ? gray25 : gray50,
+                    color: gray700,
                     '&:hover': {
-                        background: index === 0 ? 'rgba(246, 247, 249, 1)' : 'rgba(237, 239, 242, 1)',
-                        color: 'rgba(74, 76, 79, 1)',
+                        background: index === 0 ? gray50 : gray200,
+                        color: gray700,
                     },
                     '&:focus': {
-                        background: index === 0 ? 'rgba(246, 247, 249, 1)' : 'rgba(237, 239, 242, 1)',
-                        color: 'rgba(74, 76, 79, 1)',
+                        background: index === 0 ? gray50 : gray200,
+                        color: gray700,
                     },
                   }}
                 >
@@ -337,18 +340,18 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
             alignItems: 'center',
             padding: '0 0.5rem',
             height: '2rem',
-            background: 'rgba(237, 239, 242, 1)',
+            background: gray200,
             border: '0.0625rem solid transparent',
-            color: 'rgba(74, 76, 79, 1)',
+            color: gray700,
             '&:hover': {
-              background: 'rgba(237, 239, 242, 1)',
-              color: 'rgba(74, 76, 79, 1)',
-              borderColor: 'rgba(210, 215, 223, 1)'
+              background: gray200,
+              color: gray700,
+              borderColor: gray200
             },
             '&:focus': {
-                background: 'rgba(237, 239, 242, 1)',
-                color: 'rgba(74, 76, 79, 1)',
-                borderColor: 'rgba(210, 215, 223, 1)'
+                background: gray200,
+                color: gray700,
+                borderColor: gray200
               },
           }}
         >
@@ -528,9 +531,6 @@ const mockEntities = [
   }
 ];
 const getEntities = (searchValue: string) => mockEntities;
-const updateOriginsInStatment = (options: any, id: string) => {
-  return false;
-}
 
 function ConnectivityGrid() {
   const [collapsed, setCollapsed] = useState<boolean>(true);
@@ -608,96 +608,84 @@ function ConnectivityGrid() {
         <Typography variant="h6">Connection Origin to End Organ</Typography>
       </Box>
 
-      <Box display="flex">
-         <Box pb={4} mr={1}>
-           <CustomFilterDropdown
-             placeholder="Origin"
-             options={{
-               value: "",
-               id: "origins",
-               placeholder: "Origin",
-               searchPlaceholder: "Search origin",
-               fieldName: "origins",
-               onSearch: (searchValue: string) => getEntities(searchValue),
-             }}
-           />
-         </Box>
-         <Box pb={4} mr={1}>
-           <CustomFilterDropdown
-             placeholder="End organ"
-             options={{
-               value: mockEntities[0] ?? "",
-               id: "origins",
-               placeholder: "Origin1",
-               searchPlaceholder: "End organ",
-               fieldName: "origins",
-               onSearch: (searchValue: string) => getEntities(searchValue),
-             }}
-           />
-         </Box>
-         <Box pb={4} mr={1}>
-           <CustomFilterDropdown
-             placeholder="Species"
-             options={{
-               value: mockEntities[0] ?? "",
-               id: "origins",
-               placeholder: "Origin1",
-               searchPlaceholder: "Species",
-               fieldName: "origins",
-               onSearch: (searchValue: string) => getEntities(searchValue),
-             }}
-           />
-         </Box>
-         <Box pb={4} mr={1}>
-           <CustomFilterDropdown
-             placeholder="Phenotype"
-             options={{
-               value: mockEntities[0] ?? "",
-               id: "origins",
-               placeholder: "Origin1",
-               searchPlaceholder: "Phenotype",
-               fieldName: "origins",
-               onSearch: (searchValue: string) => getEntities(searchValue),
-             }}
-           />
-         </Box>
-         <Box pb={4} mr={1}>
-           <CustomFilterDropdown
-             placeholder="ApiNATOMY"
-             options={{
-               value: mockEntities[0] ?? "",
-               id: "origins",
-               placeholder: "Origin1",
-               searchPlaceholder: "ApiNATOMY",
-               fieldName: "origins",
-               onSearch: (searchValue: string) => getEntities(searchValue),
-             }}
-           />
-         </Box>
-         <Box pb={4} mr={1}>
-           <CustomFilterDropdown
-             placeholder="Via"
-             options={{
-               value: mockEntities[0] ?? "",
-               id: "origins",
-               placeholder: "Origin1",
-               searchPlaceholder: "Via",
-               fieldName: "origins",
-               onSearch: (searchValue: string) => getEntities(searchValue),
-             }}
-           />
-          </Box>
+      <Box display="flex" gap={1} flexWrap='wrap'>
+        <CustomFilterDropdown
+          placeholder="Origin"
+          options={{
+            value: "",
+            id: "origins",
+            placeholder: "Origin",
+            searchPlaceholder: "Search origin",
+            fieldName: "origins",
+            onSearch: (searchValue: string) => getEntities(searchValue),
+          }}
+        />
+        <CustomFilterDropdown
+          placeholder="End organ"
+          options={{
+            value: mockEntities[0] ?? "",
+            id: "origins",
+            placeholder: "Origin1",
+            searchPlaceholder: "End organ",
+            fieldName: "origins",
+            onSearch: (searchValue: string) => getEntities(searchValue),
+          }}
+        />
+        <CustomFilterDropdown
+          placeholder="Species"
+          options={{
+            value: mockEntities[0] ?? "",
+            id: "origins",
+            placeholder: "Origin1",
+            searchPlaceholder: "Species",
+            fieldName: "origins",
+            onSearch: (searchValue: string) => getEntities(searchValue),
+          }}
+        />
+        <CustomFilterDropdown
+          placeholder="Phenotype"
+          options={{
+            value: mockEntities[0] ?? "",
+            id: "origins",
+            placeholder: "Origin1",
+            searchPlaceholder: "Phenotype",
+            fieldName: "origins",
+            onSearch: (searchValue: string) => getEntities(searchValue),
+          }}
+        />
+        <CustomFilterDropdown
+          placeholder="ApiNATOMY"
+          options={{
+            value: mockEntities[0] ?? "",
+            id: "origins",
+            placeholder: "Origin1",
+            searchPlaceholder: "ApiNATOMY",
+            fieldName: "origins",
+            onSearch: (searchValue: string) => getEntities(searchValue),
+          }}
+        />
+        <CustomFilterDropdown
+          placeholder="Via"
+          options={{
+            value: mockEntities[0] ?? "",
+            id: "origins",
+            placeholder: "Origin1",
+            searchPlaceholder: "Via",
+            fieldName: "origins",
+            onSearch: (searchValue: string) => getEntities(searchValue),
+          }}
+        />
       </Box>
 
-      <Box flex={1} mt={3} display='inline-flex' flexDirection='column'>
-        <Box mb={2.5} pl="17.375rem">
+      <Box flex={1} my={3} display='inline-flex' flexDirection='column'>
+        <Box mb={1.5} pl="17.375rem">
           <Typography sx={{
             textAlign: 'center',
             fontSize: '0.875rem',
             fontWeight: 400,
             lineHeight: '1.25rem',
             minWidth: '4.0625rem',
-            color: 'rgba(129, 136, 152, 1)'
+            color: gray500
 
           }}>End organ</Typography>
         </Box>
@@ -710,16 +698,11 @@ function ConnectivityGrid() {
             fontWeight: 400,
             writingMode: 'vertical-lr',
             lineHeight: 1,
-            color: 'rgba(129, 136, 152, 1)'
+            color: gray500
 
           }}>Connection Origin</Typography>
 
           <Box position='relative' sx={{
-            '& > div:last-of-type': {
-              '& > div': {
-
-              },
-            },
             '& > div:first-of-type': {
               '& > div:last-of-type': {
                 '& > div': {
@@ -765,12 +748,12 @@ function ConnectivityGrid() {
                   borderRadius: '0.25rem',
 
                   '&:hover': {
-                    background: 'rgba(246, 247, 249, 1)',
+                    background: gray50,
                     '&:before': {
                         content: '""',
                         width: '100%',
                         height: '0.0625rem',
-                        background: 'rgba(155, 24, 216, 1)',
+                        background: primarypurple900,
                         position: 'absolute',
                         top: '-0.25rem',
                         left: 0
@@ -805,14 +788,13 @@ function ConnectivityGrid() {
             onClick={(x: any, y: any) => alert(`Clicked ${x}, ${y}`)}
             cellStyle={(_background: any, value: number, min: number, max: number, _data: any, _x: any, _y: any) => {
               return {
-                background: `rgba(131, 0, 191, ${1 - (max - value) / (max - min)})`,
                 fontSize: "0.7188rem",
-                color: "#444",
                 widht: '2.6875rem',
                 height: '2rem',
                 borderRadius: '0.25rem',
                 border: '0.0625rem solid',
-                borderColor: 1 - (max - value) / (max - min) <= 0.1  ? 'rgba(241, 242, 244, 1)' : 'rgba(255, 255, 255, 0.2)',
+                borderColor: 1 - (max - value) / (max - min) <= 0.1  ? gray100 : 'rgba(255, 255, 255, 0.2)',
+                background: 1 - (max - value) / (max - min) <= 0.1  ? gray25 : `rgba(131, 0, 191, ${1 - (max - value) / (max - min)})`,
                 margin: '0.125rem'
               }
             }}
@@ -826,14 +808,14 @@ function ConnectivityGrid() {
                       fontSize: '0.75rem',
                       fontWeight: 500,
                       lineHeight: '1.125rem',
-                      color: 'rgba(180, 188, 202, 1)'
+                      color: gray300
 
                     }}>{`${x} -> ${y}`}</Typography>
                     <Typography sx={{
                       fontSize: '0.75rem',
                       fontWeight: 600,
                       lineHeight: '1.125rem',
-                      color: 'rgba(252, 252, 253, 1)',
+                      color: gray25,
                       marginTop: '0.125rem'
 
                     }}>{`${value}`} connections</Typography>
@@ -856,17 +838,20 @@ function ConnectivityGrid() {
 
       <Box
         py={1.5}
-        borderTop='0.0625rem solid #F1F2F4'
+        borderTop={`0.0625rem solid ${gray100}`}
         width={1}
         display='flex'
         alignItems='center'
         justifyContent='space-between'
+        position='sticky'
+        bottom={0}
+        sx={{ background: baseWhite }}
       >
         <Button variant="text" sx={{
           fontSize: '0.875rem',
           fontWeight: 600,
           lineHeight: '1.25rem',
-          color: '#8300BF',
+          color: primary600,
           padding: 0,
 
           '&:hover': {
@@ -880,8 +865,8 @@ function ConnectivityGrid() {
           height: '1.875rem',
           padding: '0 0.75rem',
           borderRadius: '0.25rem',
-          background: '#FCFCFD',
-          border: '0.0625rem solid #F1F2F4',
+          background: gray25,
+          border: `0.0625rem solid ${gray100}`,
           gap: '0.75rem'
 
         }}>
@@ -889,7 +874,7 @@ function ConnectivityGrid() {
             fontSize: '0.75rem',
             fontWeight: 500,
             lineHeight: '1.125rem',
-            color: '#818898'
+            color: gray500
           }}>Connections</Typography>
 
           <Box sx={{
@@ -901,7 +886,7 @@ function ConnectivityGrid() {
               fontSize: '0.75rem',
               fontWeight: 400,
               lineHeight: '1.125rem',
-              color: '#9DA4AF'
+              color: gray400
             }}>1</Typography>
 
             <Box sx={{
@@ -919,7 +904,7 @@ function ConnectivityGrid() {
               fontSize: '0.75rem',
               fontWeight: 400,
               lineHeight: '1.125rem',
-              color: '#9DA4AF'
+              color: gray400
             }}>100+</Typography>
           </Box>
         </Box>

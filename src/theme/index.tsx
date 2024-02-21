@@ -139,6 +139,16 @@ theme = createTheme({
       `
     },
 
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          '&:active': {
+            boxShadow: 'none'
+          }
+        }
+      }
+    },
+
     MuiCircularProgress: {
       styleOverrides: {
         root: {

@@ -4,11 +4,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import { TextField, Box, Typography, Button, Checkbox, ListSubheader, Chip } from '@mui/material';
 import { CheckedItemIcon, UncheckedItemIcon } from "../icons";
 import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-// import NoResultField from './NoResultField';
 import { vars } from '../../theme/variables';
 
 type OptionDetail = {
@@ -24,6 +21,7 @@ const {
   whiteColor,
   gray600,
   gray500,
+  primarypurple700
 } = vars;
 
 
@@ -50,27 +48,17 @@ const styles = {
     alignItems: 'center',
     padding: '0.33rem 0.75rem',
     boxShadow: '0 0.0625rem 0.125rem 0 rgba(16, 24, 40, 0.05)',
+    // position: 'relative',
     ...transition,
     '& .expand': {
       fontSize: '1.5rem',
     },
-    '&:after': {
-      content: '""',
-      width: '4.125rem',
-      height: 'calc(100% - 0.125rem)',
-      position: 'absolute',
-      right: '0.0625rem',
-      top: '0.0625rem',
-      pointerEvents: 'none',
-      background: 'linear-gradient(270deg, #FFF 67.69%, rgba(255, 255, 255, 0.00) 116.94%)',
-      borderRadius: '0 0.25rem 0.25rem 0'
-    }
   },
 
   rootHover: {
+    borderColor: primarypurple700,
     '&:hover': {
       borderColor: 'none',
-      // boxShadow: '0rem 0rem 0rem 0.25rem #CEDDED, 0rem 0.0625rem 0.125rem 0rem rgba(16, 24, 40, 0.05)'
     }
   },
 
@@ -80,7 +68,6 @@ const styles = {
     height: '1.5rem',
     borderRadius: '0.375rem',
     fontSize: '0.875rem',
-    maxWidth: '8rem',
     fontWeight: 500,
 
     '&.MuiChip-outlined': {
@@ -172,7 +159,7 @@ const styles = {
 
 export default function CustomEntitiesDropdown({
   placeholder,
-  options: { entity = null, statement, searchPlaceholder, noResultReason, onSearch, value, header = {}, CustomInputChip = null },
+  options: { searchPlaceholder, onSearch, value, header = {}, CustomInputChip = null },
 }: any) {
   const [searchValue, setSearchValue] = useState("");
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -184,10 +171,19 @@ export default function CustomEntitiesDropdown({
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popper' : undefined;
 
-  const [selectedOptions, setSelectedOptions] = useState<Option[]>([]
-  );
+  const [selectedOptions, setSelectedOptions] = useState<Option[]>([]);
+  const [updatedSelectedOptions, setUpdatedSelectedOptions] = useState<Option[]>([]);
   const [autocompleteOptions, setAutocompleteOptions] = useState<Option[]>([]);
   const [inputValue, setInputValue] = useState('');
+
+  React.useEffect(() => {
+    if (selectedOptions?.length > 1) {
+      const temp = selectedOptions.slice(0, 1);
+      setUpdatedSelectedOptions(temp)
+    } else {
+      setUpdatedSelectedOptions(selectedOptions)
+    }
+  }, [selectedOptions])
 
   React.useEffect(() => {
     searchValue !== undefined &&
@@ -203,49 +199,13 @@ export default function CustomEntitiesDropdown({
     return grouped;
   }, {});
 
-  // const handleSelectAll = (group: string) => {
-  //   const newSelectedOptions = [...selectedOptions];
-  //   autocompleteOptions.filter((option: Option) => option.group === group).forEach((item) => {
-  //     if (
-  //       !newSelectedOptions.some(
-  //         (selectedItem) => selectedItem.id === item.id,
-  //       )
-  //     ) {
-  //       newSelectedOptions.push(item);
-  //     }
-  //   });
-  //   setSelectedOptions(newSelectedOptions);
-  // };
-
-  // const handleDeselectAll = (group: string) => {
-  //   const newSelectedOptions = selectedOptions.filter(
-  //     (item) =>
-  //       !autocompleteOptions.filter((option: Option) => option.group === group).some((selectedItem) => selectedItem.id === item.id),
-  //   );
-  //   setSelectedOptions(newSelectedOptions);
-  // };
-
-  // const getGroupButton = (group: string) => {
-  //   const allObjectsExist = autocompleteOptions.filter((option: Option) => option.group === group).every((obj1) =>
-  //     selectedOptions.some(
-  //       (obj2) => JSON.stringify(obj1) === JSON.stringify(obj2),
-  //     ),
-  //   );
-  //   return (
-  //     <Button
-  //       variant="text"
-  //       sx={{
-  //         color: darkBlue,
-  //         fontSize: "0.75rem",
-  //         fontWeight: 600,
-  //         lineHeight: "1.125rem",
-  //       }}
-  //       onClick={() => allObjectsExist ? handleDeselectAll(group) : handleSelectAll(group)}
-  //     >
-  //       {allObjectsExist ? `Deselect` : `Select`} All
-  //     </Button>
-  //   )
-  // };
+  const resetSelection = () => {
+    const newSelectedOptions = selectedOptions.filter(
+      (item) =>
+        !autocompleteOptions.filter((selectedItem) => selectedItem.id === item.id),
+    );
+    setSelectedOptions(newSelectedOptions);
+  };
 
   const handleOptionSelection = (option: Option) => {
     const isOptionAlreadySelected = selectedOptions.some((selected) => selected.id === option.id);
@@ -257,11 +217,6 @@ export default function CustomEntitiesDropdown({
     }
   };
 
-  const handleChipRemove = (chip: Option) => {
-    const updatedChips = selectedOptions.filter((c: Option) => c !== chip);
-    setSelectedOptions(updatedChips);
-  };
-
   const handleInputChange = (event: any) => {
     setInputValue(event.target.value);
   };
@@ -269,46 +224,42 @@ export default function CustomEntitiesDropdown({
   const isOptionSelected = (option: Option) => {
     return selectedOptions.some((selected) => selected.id === option.id);
   };
-  // show the disable message only in case of forward connections
-  // const formIsDisabled = !statement.destination && entity === 'Connections';
 
   return (
     <>
       <Badge sx={styles.badge} badgeContent={selectedOptions?.length}>
         <Box
           aria-describedby={id}
-          sx={
-            open ?
-              { ...styles.root, ...styles.rootOpen } : selectedOptions.length === 0 ? styles.root : { ...styles.root, ...styles.rootHover }}
+          sx={open && selectedOptions.length > 0 || selectedOptions.length > 0 ? { ...styles.root, ...styles.rootHover } : styles.root}
           onClick={handleClick}
         >
           {selectedOptions.length === 0 ? (
             <Typography sx={styles.placeholder}>{placeholder}</Typography>
           ) : (
-            <Box gap={1} display='flex' flexWrap='wrap'>
-              {selectedOptions?.map((item: Option) => (
-                <Tooltip title={item?.label} placement='top' arrow>
-                  {CustomInputChip ? <CustomInputChip sx={styles.chip} entity={item} /> : (
-                    <Chip
-                      key={item?.id}
-                      sx={styles.chip}
-                      variant={'outlined'}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                      deleteIcon={<ClearOutlinedIcon />}
-                      onDelete={(e) => {
-                        e.stopPropagation();
-                        handleChipRemove(item);
-                      }}
-                      label={item?.label}
-                    />
-                  )}
-                </Tooltip>
-              ))}
+            <Box gap={0} display='flex' flexWrap='wrap' alignItems='center'>
+              {updatedSelectedOptions?.map((item: Option) => {
+                return (
+                  <Tooltip title={item?.label} placement='top' arrow>
+                    {CustomInputChip ? <CustomInputChip sx={styles.chip} entity={item} /> : (
+                      <Chip
+                        key={item?.id}
+                        sx={styles.chip}
+                        variant={'outlined'}
+                        onClick={(e) => {
+                          handleClick(e);
+                          e.stopPropagation();
+
+                        }}
+                        label={`${item?.label}`}
+                      />
+                    )}
+                  </Tooltip>
+                )
+              })}
+              {selectedOptions?.length > 1 && <Typography sx={{...styles.chip, display: 'flex', alignItems: 'center', padding: 0, fontWeight: 600, fontSize: '0.875rem', color: primary600,}}>{`, +${selectedOptions?.length - 1}`}</Typography>}
             </Box>
           )}
-          {open ? <ExpandLessIcon className='expand' sx={styles.toggleIcon} /> : <ExpandMoreIcon className='expand' sx={styles.toggleIcon} />}
+          {selectedOptions?.length ? <ClearOutlinedIcon onClick={(e) => {e.stopPropagation(); setSelectedOptions([])}} sx={{...styles.toggleIcon, color: primary600}} /> : open ? <ExpandLessIcon className='expand' sx={styles.toggleIcon} /> : <ExpandMoreIcon className='expand' sx={styles.toggleIcon} />}
         </Box>
       </Badge>
 
@@ -407,7 +358,7 @@ export default function CustomEntitiesDropdown({
               '& .MuiOutlinedInput-root': {
                 boxShadow: 'none',
                 padding: '0',
-                border: `${gray100} 1px solid`,
+                border: `${gray100} 0.0625rem solid`,
                 borderRadius: '0.5rem 0.5rem 0 0'
               },
               '& .MuiBox-SearchMenu': {
@@ -427,13 +378,13 @@ export default function CustomEntitiesDropdown({
             </Box>
             {autocompleteOptions.length > 0 ? (
               <>
-                <Box overflow='auto' border={`1px solid ${gray100}`} borderTop={0} borderRadius="0 0 0.5rem 0.5rem">
+                <Box overflow='auto' border={`0.0625rem solid ${gray100}`} borderTop={0} borderRadius="0 0 0.5rem 0.5rem">
                   {Object.keys(groupedOptions).map((group) => (
                     <Box sx={{
                       '& .MuiListSubheader-root': {
                         padding: '0 0.625rem',
                         height: '2.2rem',
-                        border: `1px solid ${gray100}`,
+                        border: `0.0625rem solid ${gray100}`,
                         borderLeft: 0,
 
                         '& .MuiTypography-root': {
@@ -465,6 +416,7 @@ export default function CustomEntitiesDropdown({
                         '& li': {
                           padding: '0.6875rem 1rem',
                           display: 'flex',
+                          alignItems: 'center',
                           gap: '0.5rem',
                           cursor: 'pointer',
 
@@ -481,7 +433,7 @@ export default function CustomEntitiesDropdown({
                             fontSize: '0.875rem',
                             fontWeight: 500,
                             lineHeight: '142.857%',
-                            padding: 0
+                            padding: 0,
                           },
 
                           '& .MuiTypography-body2': {
@@ -503,7 +455,7 @@ export default function CustomEntitiesDropdown({
                           justifyContent: "flex-end",
                         }}
                       >
-                        <Button>Reset Selection</Button>
+                        <Button onClick={resetSelection}>Reset Selection</Button>
                       </ListSubheader>
                       <ul>
                         {groupedOptions[group]
@@ -513,7 +465,6 @@ export default function CustomEntitiesDropdown({
                           .map((option: Option) => (
                             <li
                               key={option.id}
-                              // onMouseEnter={() => setHoveredOption(option)}
                               onClick={() => handleOptionSelection(option)}
                               className={isOptionSelected(option) ? 'selected' : ''}
                             >
@@ -539,7 +490,6 @@ export default function CustomEntitiesDropdown({
               </>
             ) : (
              <> "no result"</>
-              // <NoResultField noResultReason={noResultReason} />
             )}
           </Box>
         </Box>
