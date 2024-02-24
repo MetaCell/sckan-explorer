@@ -16,6 +16,7 @@ export const vars = {
   gray400: '#9DA4AF',
   gray300: '#B4BCCA',
   gray100: '#edeff2',
+  gray100A: '#F1F2F4',
   gray200: '#D2D7DF',
   gray50: '#f6f7f9',
   gray25: '#FCFCFD',

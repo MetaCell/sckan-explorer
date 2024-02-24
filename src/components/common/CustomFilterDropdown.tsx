@@ -21,7 +21,8 @@ const {
   whiteColor,
   gray600,
   gray500,
-  primarypurple700
+  primarypurple700,
+  gray50
 } = vars;
 
 
@@ -53,6 +54,11 @@ const styles = {
     '& .expand': {
       fontSize: '1.5rem',
     },
+    '&:hover': {
+      background: gray50,
+    }
+    
+    
   },
 
   rootHover: {
@@ -410,17 +416,18 @@ export default function CustomEntitiesDropdown({
                       '& ul': {
                         margin: 0,
                         listStyle: 'none',
-                        padding: '0.5rem 0 0',
+                        padding: '0.5rem 0.375rem 0',
                         borderTop: 0,
 
                         '& li': {
-                          padding: '0.6875rem 1rem',
+                          padding: '0.5625rem 0.625rem',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '0.5rem',
                           cursor: 'pointer',
 
                           '&:hover': {
+                            background: gray50,
                             borderRadius: '0.375rem',
                           },
 
@@ -429,7 +436,6 @@ export default function CustomEntitiesDropdown({
                           },
 
                           '& .MuiTypography-body1': {
-                            color: gray700,
                             fontSize: '0.875rem',
                             fontWeight: 500,
                             lineHeight: '142.857%',

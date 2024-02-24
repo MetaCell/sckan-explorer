@@ -11,7 +11,7 @@ interface ListItem {
   expanded: boolean;
 }
 
-const { gray500, baseWhite, gray25, gray100, gray300, primary600, gray200, gray700, gray400, gray50, primarypurple900, primarypurple500 } = vars;
+const { gray100A, gray500, baseWhite, gray25, gray100, gray300, primary600, gray200, gray700, gray400, gray50, primarypurple900, primarypurple500 } = vars;
 
 const xLabels: string[] = ["Brain", "Lungs", "Cervical", "Spinal", "Thoraic", "Kidney", "Urinary Tract", "Muscle organ", "Small Intestine", "Pancreas", "Skin", "Spleen", "Stomach", "Urinary bladder"];
 const initialList: ListItem[] = [
@@ -340,17 +340,17 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
             alignItems: 'center',
             padding: '0 0.5rem',
             height: '2rem',
-            background: gray200,
+            background: gray100,
             border: '0.0625rem solid transparent',
             color: gray700,
             '&:hover': {
-              background: gray200,
+              background: gray100,
               color: gray700,
               borderColor: gray200
             },
             '&:focus': {
-                background: gray200,
-                color: gray700,
+                background: gray100,
+                color: primarypurple500,
                 borderColor: gray200
               },
           }}
@@ -602,15 +602,15 @@ function ConnectivityGrid() {
       return labels;
   };
 
-  const [selectedCell, setSelectedCell] = useState(null);
+  const [selectedCell, setSelectedCell] = useState<any>(null);
 
-  const handleClick = (x, y) => {
+  const handleClick = (x: any, y: any) => {
     setSelectedCell({ x, y });
   };
   return (
     <Box minHeight='100%' p={3} pb={0} fontSize={14} display='flex' flexDirection='column' alignItems='flex-start'>
       <Box pb={2.5}>
-        <Typography variant="h6">Connection Origin to End Organ</Typography>
+        <Typography variant="h6" sx={{fontWeight: 400}}>Connection Origin to End Organ</Typography>
       </Box>
 
       <Box display="flex" gap={1} flexWrap='wrap'>
@@ -790,16 +790,17 @@ function ConnectivityGrid() {
             data={data}
             squares
             height={43}
-            onClick={(x, y) => handleClick(x, y)}
+            onClick={(x: any, y: any) => handleClick(x, y)}
             cellStyle={(_background: any, value: number, min: number, max: number, _data: any, _x: any, _y: any) => {
+              const isSelectedCell = selectedCell?.x === _x && selectedCell?.y === _y
               return {
                 fontSize: "0.7188rem",
                 widht: '2.6875rem',
                 height: '2rem',
                 borderRadius: '0.25rem',
-                // border: '0.0625rem solid',
-                border: selectedCell?.x === _x && selectedCell?.y === _y ? '2px solid #8300BF' : 'none',
-                borderColor: 1 - (max - value) / (max - min) <= 0.1  ? gray100 : 'rgba(255, 255, 255, 0.2)',
+                borderWidth: isSelectedCell ? '0.125rem' : '0.0625rem',
+                borderStyle: 'solid',
+                borderColor: isSelectedCell ? '#8300BF' : 1 - (max - value) / (max - min) <= 0.1  ? gray100A : 'rgba(255, 255, 255, 0.2)',
                 background: 1 - (max - value) / (max - min) <= 0.1  ? gray25 : `rgba(131, 0, 191, ${1 - (max - value) / (max - min)})`,
                 margin: '0.125rem'
               }
