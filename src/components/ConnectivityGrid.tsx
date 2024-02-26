@@ -635,8 +635,7 @@ function ConnectivityGrid() {
           placeholder="Origin"
           options={{
             value: "",
-            id: "origins",
-            placeholder: "Origin",
+            id: "origin",
             searchPlaceholder: "Search origin",
             onSearch: (searchValue: string): Option[] => getEntities(searchValue),
           }}
@@ -646,9 +645,8 @@ function ConnectivityGrid() {
           placeholder="End organ"
           options={{
             value: "",
-            id: "origins",
-            placeholder: "Origin1",
-            searchPlaceholder: "End organ",
+            id: "endorgan",
+            searchPlaceholder: "Search End organ",
             onSearch: (searchValue: string) => getEntities(searchValue),
           }}
         />
@@ -657,9 +655,8 @@ function ConnectivityGrid() {
           placeholder="Species"
           options={{
             value: "",
-            id: "origins",
-            placeholder: "Origin1",
-            searchPlaceholder: "Species",
+            id: "species",
+            searchPlaceholder: "Search Species",
             onSearch: (searchValue: string) => getEntities(searchValue),
           }}
         />
@@ -668,9 +665,8 @@ function ConnectivityGrid() {
           placeholder="Phenotype"
           options={{
             value: "",
-            id: "origins",
-            placeholder: "Origin1",
-            searchPlaceholder: "Phenotype",
+            id: "phenotype",
+            searchPlaceholder: "Search Phenotype",
             onSearch: (searchValue: string) => getEntities(searchValue),
           }}
         />
@@ -679,9 +675,8 @@ function ConnectivityGrid() {
           placeholder="ApiNATOMY"
           options={{
             value: "",
-            id: "origins",
-            placeholder: "Origin1",
-            searchPlaceholder: "ApiNATOMY",
+            id: "ApiNATOMY",
+            searchPlaceholder: "Search ApiNATOMY",
             onSearch: (searchValue: string) => getEntities(searchValue),
           }}
         />
@@ -690,9 +685,8 @@ function ConnectivityGrid() {
           placeholder="Via"
           options={{
             value: "",
-            id: "origins",
-            placeholder: "Origin1",
-            searchPlaceholder: "Via",
+            id: "via",
+            searchPlaceholder: "Search Via",
             onSearch: (searchValue: string) => getEntities(searchValue),
           }}
         />
