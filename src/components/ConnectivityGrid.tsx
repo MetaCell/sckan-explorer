@@ -10,6 +10,16 @@ interface ListItem {
   options: (ListItem | string)[];
   expanded: boolean;
 }
+type OptionDetail = {
+  title: string; // What to display as the title/label for the property.
+  value: string; // The actual value/content for the property.
+};
+type Option = {
+  id: string;
+  label: string;
+  group: string;
+  content: OptionDetail[];
+}
 
 const { gray100A, gray500, baseWhite, gray25, gray100, gray300, primary600, gray200, gray700, gray400, gray50, primarypurple900, primarypurple500 } = vars;
 
@@ -191,13 +201,13 @@ const initialList: ListItem[] = [
   },
 ];
 
-
-const initialData: number[][] = initialList.reduce((acc, item) => {
+const initialData: number[][] = initialList.reduce((acc: number[][], item: ListItem) => {
   const mainRow: number[] = new Array(xLabels.length)
     .fill(0)
     .map(() => Math.floor(Math.random() * 100));
   const optionRows: number[][] = item.options.map(() =>
-    new Array(xLabels.length).fill(0).map((v:any, i:number) => i%3 === 0 ? Math.floor(Math.random() * 100) : 0)
+   /* remove the logic , it is just to show empty values as well */
+    new Array(xLabels.length).fill(0).map((v:number, i:number) => i%3 === 0 ? Math.floor(Math.random() * 100) : 0)
   );
   return [...acc, mainRow, ...optionRows];
 }, []);
@@ -363,7 +373,7 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
   </Box>)
 };
 
-const mockEntities = [
+const mockEntities: Option[] = [
   {
     "id": "5304",
     "group": 'Origins',
@@ -530,10 +540,16 @@ const mockEntities = [
     ]
   }
 ];
-const getEntities = (searchValue: string) => mockEntities;
+const getEntities = (searchValue: string /* unused */): Option[] => {
+
+  console.log(`Received search value: ${searchValue}`);
+
+  // Return mockEntities or perform other logic
+  return mockEntities;
+};
 
 function ConnectivityGrid() {
-  const [collapsed, setCollapsed] = useState<boolean>(true);
+  const [collapsed] = useState<boolean>(true);
   const [list, setList] = useState<ListItem[]>(initialList);
   const [data, setData] = useState<number[][]>(initialData);
 
@@ -543,7 +559,7 @@ function ConnectivityGrid() {
       alert(`Clicked on ${item}`);
     } else if (item.options) {
       const updateList = (list: ListItem[], selectedItem: ListItem) => {
-        return list.map((listItem) => {
+        return list.map((listItem): ListItem => {
           if (listItem.label === selectedItem.label) {
             return { ...listItem, expanded: !listItem.expanded };
           } else if (listItem.options) {
@@ -602,9 +618,9 @@ function ConnectivityGrid() {
       return labels;
   };
 
-  const [selectedCell, setSelectedCell] = useState<any>(null);
+  const [selectedCell, setSelectedCell] = useState<{ x: number, y: number } | null>(null);
 
-  const handleClick = (x: any, y: any) => {
+  const handleClick = (x: number, y: number) => {
     setSelectedCell({ x, y });
   };
   return (
@@ -615,68 +631,68 @@ function ConnectivityGrid() {
 
       <Box display="flex" gap={1} flexWrap='wrap'>
         <CustomFilterDropdown
+          key={"Origin"}
           placeholder="Origin"
           options={{
             value: "",
             id: "origins",
             placeholder: "Origin",
             searchPlaceholder: "Search origin",
-            fieldName: "origins",
-            onSearch: (searchValue: string) => getEntities(searchValue),
+            onSearch: (searchValue: string): Option[] => getEntities(searchValue),
           }}
         />
         <CustomFilterDropdown
+          key={"End Origin"}
           placeholder="End organ"
           options={{
-            value: mockEntities[0] ?? "",
+            value: "",
             id: "origins",
             placeholder: "Origin1",
             searchPlaceholder: "End organ",
-            fieldName: "origins",
             onSearch: (searchValue: string) => getEntities(searchValue),
           }}
         />
         <CustomFilterDropdown
+          key={"Species"}
           placeholder="Species"
           options={{
-            value: mockEntities[0] ?? "",
+            value: "",
             id: "origins",
             placeholder: "Origin1",
             searchPlaceholder: "Species",
-            fieldName: "origins",
             onSearch: (searchValue: string) => getEntities(searchValue),
           }}
         />
         <CustomFilterDropdown
+          key={"Phenotype"}
           placeholder="Phenotype"
           options={{
-            value: mockEntities[0] ?? "",
+            value: "",
             id: "origins",
             placeholder: "Origin1",
             searchPlaceholder: "Phenotype",
-            fieldName: "origins",
             onSearch: (searchValue: string) => getEntities(searchValue),
           }}
         />
         <CustomFilterDropdown
+          key={"ApiNATOMY"}
           placeholder="ApiNATOMY"
           options={{
-            value: mockEntities[0] ?? "",
+            value: "",
             id: "origins",
             placeholder: "Origin1",
             searchPlaceholder: "ApiNATOMY",
-            fieldName: "origins",
             onSearch: (searchValue: string) => getEntities(searchValue),
           }}
         />
         <CustomFilterDropdown
+          key={"Via"}
           placeholder="Via"
           options={{
-            value: mockEntities[0] ?? "",
+            value: "",
             id: "origins",
             placeholder: "Origin1",
             searchPlaceholder: "Via",
-            fieldName: "origins",
             onSearch: (searchValue: string) => getEntities(searchValue),
           }}
         />
@@ -790,8 +806,8 @@ function ConnectivityGrid() {
             data={data}
             squares
             height={43}
-            onClick={(x: any, y: any) => handleClick(x, y)}
-            cellStyle={(_background: any, value: number, min: number, max: number, _data: any, _x: any, _y: any) => {
+            onClick={(x: number, y: number) => handleClick(x, y)}
+            cellStyle={(_background: string, value: number, min: number, max: number, _data: string, _x: number, _y: number) => {
               const isSelectedCell = selectedCell?.x === _x && selectedCell?.y === _y
               return {
                 fontSize: "0.7188rem",
@@ -805,7 +821,7 @@ function ConnectivityGrid() {
                 margin: '0.125rem'
               }
             }}
-            cellRender={(value: any, x: any, y: any) => (
+            cellRender={(value: string, x: number, y: number) => (
               <Tooltip
                 arrow
                 placement="right"
@@ -832,7 +848,6 @@ function ConnectivityGrid() {
                 <Box sx={{ opacity: 0 }}>{value}</Box>
               </Tooltip>
             )}
-            title={(_value: any) => null}
           />
 
           {collapsed ? (
@@ -900,7 +915,7 @@ function ConnectivityGrid() {
               display: 'flex',
               alignItems: 'center',
             }}>
-              {[1,2,3,4,5,6].reverse().map((el: any) => <Box sx={{
+              {[1,2,3,4,5,6].reverse().map((el: number) => <Box sx={{
                 width: '1.5rem',
                 height: '1rem',
                 background: `rgba(131, 0, 191, ${1 - (el/6.5)})`,

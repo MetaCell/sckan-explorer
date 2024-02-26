@@ -36,7 +36,13 @@ type Option = {
 const transition = {
   transition: 'all ease-in-out .3s'
 }
-
+interface Options {
+  id?: string;
+  placeholder?: string;
+  searchPlaceholder?: string;
+  onSearch: (searchValue: string) => Option[];
+  value?: string;
+}
 const styles = {
   root: {
     gap: '0.5rem',
@@ -57,8 +63,6 @@ const styles = {
     '&:hover': {
       background: gray50,
     }
-    
-    
   },
 
   rootHover: {
@@ -163,11 +167,16 @@ const styles = {
   }
 }
 
+interface EntitiesProps {
+  placeholder: string;
+  options: Options;
+}
+
 export default function CustomEntitiesDropdown({
   placeholder,
-  options: { searchPlaceholder, onSearch, value, header = {}, CustomInputChip = null },
-}: any) {
-  const [searchValue, setSearchValue] = useState("");
+  options: { searchPlaceholder, onSearch, id },
+}: EntitiesProps) {
+  const [searchValue] = useState("");
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -175,7 +184,7 @@ export default function CustomEntitiesDropdown({
   };
 
   const open = Boolean(anchorEl);
-  const id = open ? 'simple-popper' : undefined;
+  const popperId = open ? 'simple-popper' : undefined;
 
   const [selectedOptions, setSelectedOptions] = useState<Option[]>([]);
   const [updatedSelectedOptions, setUpdatedSelectedOptions] = useState<Option[]>([]);
@@ -196,15 +205,6 @@ export default function CustomEntitiesDropdown({
       setAutocompleteOptions(onSearch(searchValue));
   }, [searchValue, onSearch, autocompleteOptions]);
 
-  const groupedOptions = autocompleteOptions.reduce((grouped: any, option: Option) => {
-    const group = option.group;
-    if (!grouped[group]) {
-      grouped[group] = [];
-    }
-    grouped[group].push(option);
-    return grouped;
-  }, {});
-
   const resetSelection = () => {
     const newSelectedOptions = selectedOptions.filter(
       (item) =>
@@ -223,7 +223,7 @@ export default function CustomEntitiesDropdown({
     }
   };
 
-  const handleInputChange = (event: any) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   };
 
@@ -232,7 +232,7 @@ export default function CustomEntitiesDropdown({
   };
 
   return (
-    <>
+    <React.Fragment key={id}>
       <Badge sx={styles.badge} badgeContent={selectedOptions?.length}>
         <Box
           aria-describedby={id}
@@ -246,7 +246,6 @@ export default function CustomEntitiesDropdown({
               {updatedSelectedOptions?.map((item: Option) => {
                 return (
                   <Tooltip title={item?.label} placement='top' arrow>
-                    {CustomInputChip ? <CustomInputChip sx={styles.chip} entity={item} /> : (
                       <Chip
                         key={item?.id}
                         sx={styles.chip}
@@ -257,8 +256,7 @@ export default function CustomEntitiesDropdown({
 
                         }}
                         label={`${item?.label}`}
-                      />
-                    )}
+                      />  
                   </Tooltip>
                 )
               })}
@@ -270,7 +268,8 @@ export default function CustomEntitiesDropdown({
       </Badge>
 
       <Popper
-        id={id}
+        key={`popper_${id}`}
+        id={popperId}
         open={open}
         placement='bottom-start'
         anchorEl={anchorEl}
@@ -286,45 +285,6 @@ export default function CustomEntitiesDropdown({
             zIndex: 999
         }}
       >
-        {header?.values?.length > 0 && (
-          <Box
-            display="flex"
-            alignItems="center"
-            flexWrap='wrap'
-            gap={1}
-            sx={{
-              height: autocompleteOptions.length > 0 ? '2.75rem' : 'auto',
-              padding: autocompleteOptions.length > 0 ? '0 0.625rem' : '0.625rem'
-            }}
-          >
-            <Typography variant="body2">
-              {header?.label}
-            </Typography>
-            {header?.values?.map((item: any, index: number) => (
-              <Tooltip title={item} placement='top' arrow>
-                <Chip
-                  key={item?.id}
-                  sx={{
-                    ...styles.chip,
-                    display: 'flex',
-                  }}
-                  variant='outlined'
-                  label={
-                    <>
-                      <Typography
-                        sx={{ verticalAlign: 'text-bottom', display: 'inline-block', mr: '0.25rem', borderRadius: '0.1875rem', px: '0.25rem', fontSize: '0.75rem', fontWeight: 600, height: '1.125rem' }}
-                        component='span'
-                      >
-                        {index + 1}
-                      </Typography>
-                      {item}
-                    </>
-                  }
-                />
-              </Tooltip>
-            ))}
-          </Box>
-        )}
         <Box display='flex' flex={1} height={autocompleteOptions.length > 0 ? 'calc(100% - 2.75rem)' : 'auto'}>
           <Box sx={{
             ...styles.list,
@@ -385,112 +345,110 @@ export default function CustomEntitiesDropdown({
             {autocompleteOptions.length > 0 ? (
               <>
                 <Box overflow='auto' border={`0.0625rem solid ${gray100}`} borderTop={0} borderRadius="0 0 0.5rem 0.5rem">
-                  {Object.keys(groupedOptions).map((group) => (
-                    <Box sx={{
-                      '& .MuiListSubheader-root': {
-                        padding: '0 0.625rem',
-                        height: '2.2rem',
-                        border: `0.0625rem solid ${gray100}`,
-                        borderLeft: 0,
+                  <Box sx={{
+                    '& .MuiListSubheader-root': {
+                      padding: '0 0.625rem',
+                      height: '2.2rem',
+                      border: `0.0625rem solid ${gray100}`,
+                      borderLeft: 0,
 
-                        '& .MuiTypography-root': {
-                          fontSize: '0.75rem',
-                          lineHeight: '1.125rem',
-                          fontWeight: 600,
-                          color: gray700,
-                        },
-                      },
-                      '& .MuiCheckbox-root': {
-                        padding: 0
-                      },
-                      '& .MuiButton-root': {
-                        padding: 0,
-                        height: '1.625rem',
+                      '& .MuiTypography-root': {
                         fontSize: '0.75rem',
-                        textTransform: 'none',
                         lineHeight: '1.125rem',
                         fontWeight: 600,
-                        color: gray400
+                        color: gray700,
                       },
+                    },
+                    '& .MuiCheckbox-root': {
+                      padding: 0
+                    },
+                    '& .MuiButton-root': {
+                      padding: 0,
+                      height: '1.625rem',
+                      fontSize: '0.75rem',
+                      textTransform: 'none',
+                      lineHeight: '1.125rem',
+                      fontWeight: 600,
+                      color: gray400
+                    },
 
-                      '& ul': {
-                        margin: 0,
-                        listStyle: 'none',
-                        padding: '0.5rem 0.375rem 0',
-                        borderTop: 0,
+                    '& ul': {
+                      margin: 0,
+                      listStyle: 'none',
+                      padding: '0.5rem 0.375rem 0',
+                      borderTop: 0,
 
-                        '& li': {
-                          padding: '0.5625rem 0.625rem',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          cursor: 'pointer',
+                      '& li': {
+                        padding: '0.5625rem 0.625rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        cursor: 'pointer',
 
-                          '&:hover': {
-                            background: gray50,
-                            borderRadius: '0.375rem',
-                          },
+                        '&:hover': {
+                          background: gray50,
+                          borderRadius: '0.375rem',
+                        },
 
-                          '&.selected': {
-                            borderRadius: '0.375rem',
-                          },
+                        '&.selected': {
+                          borderRadius: '0.375rem',
+                        },
 
-                          '& .MuiTypography-body1': {
-                            fontSize: '0.875rem',
-                            fontWeight: 500,
-                            lineHeight: '142.857%',
-                            padding: 0,
-                          },
+                        '& .MuiTypography-body1': {
+                          fontSize: '0.875rem',
+                          fontWeight: 500,
+                          lineHeight: '142.857%',
+                          padding: 0,
+                        },
 
-                          '& .MuiTypography-body2': {
-                            color: gray500,
-                            fontSize: '0.75rem',
-                            fontWeight: 400,
-                            lineHeight: '150%',
-                            padding: 0,
-                            whiteSpace: 'nowrap'
-                          }
+                        '& .MuiTypography-body2': {
+                          color: gray500,
+                          fontSize: '0.75rem',
+                          fontWeight: 400,
+                          lineHeight: '150%',
+                          padding: 0,
+                          whiteSpace: 'nowrap'
                         }
                       }
-                    }} key={group}>
-                      <ListSubheader
-                        component="div"
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "flex-end",
-                        }}
-                      >
-                        <Button onClick={resetSelection}>Reset Selection</Button>
-                      </ListSubheader>
-                      <ul>
-                        {groupedOptions[group]
+                    }
+                  }}>
+                    <ListSubheader
+                      component="div"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "flex-end",
+                      }}
+                    >
+                      <Button onClick={resetSelection}>Reset Selection</Button>
+                    </ListSubheader>
+                    <ul>
+                      {autocompleteOptions
                           .filter((option: Option) =>
                             option.label.toLowerCase().includes(inputValue.toLowerCase())
                           )
-                          .map((option: Option) => (
-                            <li
-                              key={option.id}
-                              onClick={() => handleOptionSelection(option)}
-                              className={isOptionSelected(option) ? 'selected' : ''}
+                        .map((option: Option) => (
+                          <li
+                            key={option.id}
+                            onClick={() => handleOptionSelection(option)}
+                            className={isOptionSelected(option) ? 'selected' : ''}
+                          >
+                            <Checkbox
+                              disableRipple
+                              icon={<UncheckedItemIcon fontSize="small" />}
+                              checkedIcon={<CheckedItemIcon fontSize="small" />}
+                              checked={isOptionSelected(option)}
+                            />
+                            <Typography
+                              sx={{ width: 1, height: 1, padding: "0.625rem" }}
                             >
-                              <Checkbox
-                                disableRipple
-                                icon={<UncheckedItemIcon fontSize="small" />}
-                                checkedIcon={<CheckedItemIcon fontSize="small" />}
-                                checked={isOptionSelected(option)}
-                              />
-                              <Typography
-                                sx={{ width: 1, height: 1, padding: "0.625rem" }}
-                              >
-                                {option?.label?.length > 100 ? option?.label.slice(0, 100) + "..." : option?.label}
-                              </Typography>
-                              <Typography whiteSpace='nowrap' variant="body2">{option?.id}</Typography>
-                            </li>
-                          ))}
-                      </ul>
-                    </Box>
-                  ))}
+                              {option?.label?.length > 100 ? option?.label.slice(0, 100) + "..." : option?.label}
+                            </Typography>
+                            <Typography whiteSpace='nowrap' variant="body2">{option?.id}</Typography>
+                          </li>
+                        ))}
+                    </ul>
+                  </Box>
                 </Box>
 
               </>
@@ -500,6 +458,6 @@ export default function CustomEntitiesDropdown({
           </Box>
         </Box>
       </Popper>
-    </>
+    </React.Fragment>
   )
 }
