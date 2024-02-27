@@ -29,8 +29,8 @@ function CustomTabPanel(props: TabPanelProps) {
     <Box
       role="tabpanel"
       hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
+      id={`tabpanel-${index}`}
+      aria-labelledby={`tab-${index}`}
       {...other}
     >
       {value === index && (
@@ -56,7 +56,7 @@ const PopulationDisplay = () => {
         <Typography variant='h5' fontWeight={500} color={gray700}>
           Population Display
         </Typography>
-        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" className='custom-tabs'>
           <Tab label="Graph view" {...a11yProps(0)} />
           <Tab label="List view" {...a11yProps(1)} />
         </Tabs>

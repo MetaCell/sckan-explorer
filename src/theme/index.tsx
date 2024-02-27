@@ -87,6 +87,9 @@ const theme = createTheme({
           padding: 1rem;
           border-radius: 16px 16px 0 0;
         }
+        .MuiContainer:has(> .database-summary) {
+          padding: 0
+        }
         .flexlayout__layout {
           overflow: inherit;
         }
@@ -401,17 +404,12 @@ const theme = createTheme({
     MuiTab: {
       styleOverrides: {
        root: {
-         color: gray500,
-         padding: '0.5rem 0.75rem',
          fontSize: '0.875rem',
          fontWeight: 600,
-         
-          '&.Mui-selected': {
-            background: gray50,
-            color: gray700,
-            borderRadius: '0.25rem',
-            boxShadow: buttonShadow,
-          },
+         color: gray500,
+         '&.Mui-selected': {
+           color: primaryPurple600
+         }
        },
       }
     },
@@ -419,9 +417,27 @@ const theme = createTheme({
       styleOverrides: {
        root: {
          '& .MuiTabs-indicator': {
-            display: 'none'
+           backgroundColor: primaryPurple500,
+           height: '1px'
+         },
+         '&.custom-tabs': {
+           '& .MuiTabs-indicator': {
+             display: 'none'
+           },
+           '& .MuiTab-root': {
+             padding: '0.5rem 0.75rem',
+             '&.Mui-selected': {
+               background: gray50,
+               color: gray700,
+               borderRadius: '0.25rem',
+               boxShadow: buttonShadow,
+             },
+           }
          }
        },
+        flexContainer: {
+         justifyContent: 'center'
+        }
       }
     }
   }
