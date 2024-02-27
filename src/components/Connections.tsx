@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import {
-  Box,
   Button,
 } from "@mui/material";
 import Details from "./common/connections/Details.tsx";
@@ -13,7 +12,7 @@ const Connections = () => {
   };
   
   return (
-    <Box p={1}>
+    <>
       <Header showDetails={showDetails} setShowDetails={setShowDetails} />
       {showDetails ?
         <Details />
@@ -22,7 +21,7 @@ const Connections = () => {
           Go to Summary
         </Button>
       }
-    </Box>
+    </>
   );
 };
 

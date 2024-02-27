@@ -393,7 +393,8 @@ const theme = createTheme({
          '& .MuiTableCell-root': {
            borderBottom: `1px solid ${gray100}`,
            color: gray600,
-           fontWeight: 400
+           fontWeight: 400,
+           padding: '.75rem'
          }
        }
       }
@@ -421,6 +422,13 @@ const theme = createTheme({
          '& .MuiTabs-indicator': {
             display: 'none'
          }
+       },
+      }
+    },
+    MuiDivider: {
+      styleOverrides: {
+       root: {
+         borderColor: gray100
        },
       }
     }

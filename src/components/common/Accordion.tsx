@@ -17,7 +17,7 @@ const CommonAccordion: React.FC<CommonAccordionProps> = ({ summary, details }) =
       >
         <Typography>{summary}</Typography>
       </AccordionSummary>
-      <AccordionDetails>
+      <AccordionDetails sx={{ padding: 0 }}>
         <Stack spacing={1}>
           {details}
         </Stack>
