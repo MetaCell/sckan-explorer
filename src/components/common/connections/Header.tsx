@@ -1,5 +1,4 @@
 import Breadcrumbs from '@mui/material/Breadcrumbs';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import {
   Link,
   Typography,
@@ -9,7 +8,7 @@ import {
 import IconButton from "@mui/material/IconButton";
 import { vars } from "../../../theme/variables.ts";
 import {ArrowDown, ArrowUp, HelpCircle} from "../../../icons";
-
+import KeyboardArrowRightRoundedIcon from '@mui/icons-material/KeyboardArrowRightRounded';
 const { gray500} = vars
 
 const Header = ({showDetails, setShowDetails}: {showDetails: boolean, setShowDetails: (showDetails: boolean) => void}) => {
@@ -47,7 +46,7 @@ const Header = ({showDetails, setShowDetails}: {showDetails: boolean, setShowDet
           </IconButton>
         </ButtonGroup>
         <Breadcrumbs
-          separator={<NavigateNextIcon fontSize="small" />}
+          separator={<KeyboardArrowRightRoundedIcon fontSize="small" />}
           aria-label="breadcrumb"
         >
           <Link underline="hover" onClick={() => setShowDetails(false)}>

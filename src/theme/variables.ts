@@ -19,6 +19,7 @@ export const vars = {
   gray400: '#8A92A3',
   gray100: '#EDEFF2',
   gray200: '#E3E5E8',
+  gray300: '#C7CBD1',
   gray25: '#FCFCFD',
   gray50: '#F7F7F8',
   buttonShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)'

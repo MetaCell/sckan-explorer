@@ -25,7 +25,8 @@ const {
   primaryPurple25,
   primaryPurple100,
   gray50,
-  gray200
+  gray200,
+  gray300
 } = vars
 
 const theme = createTheme({
@@ -308,6 +309,9 @@ const theme = createTheme({
           '&:last-child': {
             color: primaryPurple600
           }
+        },
+        separator: {
+          color: gray300
         }
       }
     },
