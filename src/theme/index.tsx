@@ -88,7 +88,8 @@ const theme = createTheme({
           border-radius: 16px 16px 0 0;
         }
         .MuiContainer:has(> .database-summary) {
-          padding: 0
+          padding: 0;
+          overflow: auto
         }
         .flexlayout__layout {
           overflow: inherit;
