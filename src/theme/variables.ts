@@ -20,6 +20,7 @@ export const vars = {
   gray200: '#D2D7DF',
   gray50: '#f6f7f9',
   gray25: '#FCFCFD',
+  gray200A: '#D5D8DD',
   whiteColor: '#fff',
   borderRadius: 8,
   paperShadow:'0px 0px 1px rgba(0, 0, 0, 0.3), 0px 20px 24px -4px rgba(16, 24, 40, 0.08), 0px 8px 8px -4px rgba(16, 24, 40, 0.03)',

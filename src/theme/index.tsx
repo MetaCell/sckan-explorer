@@ -18,6 +18,7 @@ const {
   gray100,
   gray700A,
   gray25,
+  gray200A,
 } = vars
 
 let theme = createTheme();
@@ -63,6 +64,24 @@ theme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: `
+        ::-webkit-scrollbar {
+          width: 0.5rem;
+          height: 0.5rem;
+        }
+        ::-webkit-scrollbar-track {
+          background-clip: content-box;
+          border: 0.125rem solid transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+          background-color: ${gray200A};
+          border-radius: 0.5rem
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background-color: ${gray200A};
+        }
+        ::-webkit-scrollbar-corner, ::-webkit-scrollbar-track {
+          background-color: ${gray200A};
+        }
       * {
           box-sizing: border-box !important;
           margin: 0;
@@ -95,9 +114,6 @@ theme = createTheme({
         }
         .flexlayout__tabset {
           background: transparent;
-
-
-
           .flexlayout__tabset_tabbar_outer_top {
             border-bottom: none;
           }
