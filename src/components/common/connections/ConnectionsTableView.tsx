@@ -5,7 +5,9 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import {vars} from "../../../theme/variables.ts";
 
+const { gray50, gray25} = vars
 function createData(
   Origin: string,
   Destination: string,
@@ -28,7 +30,12 @@ export default function ConnectionsTableView() {
       <Table aria-label="customized table">
         <TableHead>
           <TableRow  sx={{
-            backgroundColor: '#F7F7F8',
+            backgroundColor: gray50,
+            
+            '& .MuiTableCell-root': {
+              fontSize: '0.75rem',
+              fontWeight: 500
+            }
           }}>
             <TableCell>Origin</TableCell>
             <TableCell>Destination</TableCell>
@@ -39,7 +46,7 @@ export default function ConnectionsTableView() {
           {rows.map((row) => (
             <TableRow key={row.Origin} sx={{
               '&:nth-of-type(even)': {
-                backgroundColor: '#FCFCFD',
+                backgroundColor: gray25,
               },
               '&:last-child td, &:last-child th': {
                 border: 0,

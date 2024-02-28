@@ -51,7 +51,7 @@ const PopulationDisplay = () => {
   };
   
   return (
-    <Stack spacing='1.3rem'>
+    <Stack spacing='.75rem'>
       <Stack direction='row' alignItems='center' justifyContent='space-between' mt='.75rem'>
         <Typography variant='h5' fontWeight={500} color={gray700}>
           Population Display

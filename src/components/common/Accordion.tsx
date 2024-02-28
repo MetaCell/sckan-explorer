@@ -9,15 +9,15 @@ interface CommonAccordionProps {
 
 const CommonAccordion: React.FC<CommonAccordionProps> = ({ summary, details }) => {
   return (
-    <Accordion>
-      <AccordionSummary
+    <Accordion disableGutters elevation={0} square>
+    <AccordionSummary
         expandIcon={<KeyboardArrowRightRoundedIcon />}
         aria-controls="panel1-content"
         id="panel1-header"
       >
         <Typography>{summary}</Typography>
       </AccordionSummary>
-      <AccordionDetails>
+      <AccordionDetails sx={{ padding: 0 }}>
         <Stack spacing={1}>
           {details}
         </Stack>

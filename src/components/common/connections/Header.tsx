@@ -1,43 +1,52 @@
 import Breadcrumbs from '@mui/material/Breadcrumbs';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import {
   Link,
   Typography,
   ButtonGroup,
   Stack,
 } from "@mui/material";
-import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
-import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
 import IconButton from "@mui/material/IconButton";
-import HelpOutlineRoundedIcon from '@mui/icons-material/HelpOutlineRounded';
 import { vars } from "../../../theme/variables.ts";
-
-const { gray500, gray400} = vars
+import {ArrowDown, ArrowUp, HelpCircle} from "../../../icons";
+import KeyboardArrowRightRoundedIcon from '@mui/icons-material/KeyboardArrowRightRounded';
+const { gray500} = vars
 
 const Header = ({showDetails, setShowDetails}: {showDetails: boolean, setShowDetails: (showDetails: boolean) => void}) => {
   return (
     <Stack
       direction='row'
-      alignItems='center'
-      justifyContent='space-between'
-      padding='.75rem'
-      borderBottom='1px solid #E3E5E8'
+      sx={{
+        alignItems:'center',
+        justifyContent:'space-between',
+        padding:'.75rem',
+        borderBottom:'1px solid #E3E5E8',
+        
+        '& .MuiSvgIcon-root': {
+          height: '1rem',
+          width: '1rem'
+        }
+      }}
     >
       <Stack
         direction='row'
         alignItems='center'
         spacing='1rem'
       >
-        <ButtonGroup variant="outlined">
+        <ButtonGroup variant="outlined" sx={{
+          '& .MuiButtonBase-root': {
+            width: '2rem',
+            height: '2rem'
+          }
+        }}>
           <IconButton>
-            <KeyboardArrowUpRoundedIcon />
+            <ArrowUp />
           </IconButton>
-          <IconButton sx={{ marginLeft: '8px' }}>
-            <KeyboardArrowDownRoundedIcon />
+          <IconButton sx={{ marginLeft: '.25rem' }}>
+            <ArrowDown />
           </IconButton>
         </ButtonGroup>
         <Breadcrumbs
-          separator={<NavigateNextIcon fontSize="small" />}
+          separator={<KeyboardArrowRightRoundedIcon fontSize="small" />}
           aria-label="breadcrumb"
         >
           <Link underline="hover" onClick={() => setShowDetails(false)}>
@@ -56,7 +65,7 @@ const Header = ({showDetails, setShowDetails}: {showDetails: boolean, setShowDet
         <Typography variant='subtitle1' color={gray500}>
           Displaying connection 1 of 5
         </Typography>
-        <HelpOutlineRoundedIcon fontSize='small' sx={{ color: gray400}} />
+        <HelpCircle />
       </Stack>
     </Stack>
   );
