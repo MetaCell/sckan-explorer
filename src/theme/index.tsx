@@ -18,7 +18,8 @@ const {
   gray100,
   gray700A,
   gray25,
-  gray200A,
+  primarypurple900,
+  gray200A
 } = vars
 
 let theme = createTheme();
@@ -64,6 +65,12 @@ theme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: `
+      * {
+          box-sizing: border-box !important;
+          margin: 0;
+          font-family: ${primaryFont};
+          padding: 0;
+        }
         ::-webkit-scrollbar {
           width: 0.5rem;
           height: 0.5rem;
@@ -82,24 +89,21 @@ theme = createTheme({
         ::-webkit-scrollbar-corner, ::-webkit-scrollbar-track {
           background-color: ${gray200A};
         }
-      * {
-          box-sizing: border-box !important;
-          margin: 0;
-          font-family: ${primaryFont};
-          padding: 0;
-        }
+      
       body {
           background: ${baseBg};
+          scrollbar-width: thin;
+          scrollbar-color: ${gray200A} transparent;
         }
       .MuiContainer {
           display: flex;
           width: 100%;
           background: ${baseContainerBg};
-          height: calc(100vh - 52px);
-          margin-top: 52px;
+          height: calc(100vh - 3.25rem);
+          margin-top: 3.25rem;
           overflow: hidden;
           padding: 1rem;
-          border-radius: 16px 16px 0 0;
+          border-radius: 1rem 1rem 0 0;
         }
         .flexlayout__layout {
           overflow: inherit;
@@ -135,11 +139,11 @@ theme = createTheme({
             }
             .flexlayout__tab_button {
               margin: 0;
-              border-radius: 8px 8px 0px 0px;
+              border-radius: 0.5rem 0.5rem 0rem 0rem;
               padding: 0.25rem 0.5rem;
               margin-right: 0.25rem;
               color: ${gray800};
-              min-width: 150px;
+              min-width: 9.375rem;
               font-size: 0.875rem;
               font-weight: 600;
               &.flexlayout__tab_button--selected {
@@ -157,11 +161,28 @@ theme = createTheme({
 
     MuiChip: {
       styleOverrides: {
+        label: {
+          padding: 0,
+        },
         root: {
+          fontSize: '0.75rem',
+          fontWeight: 500,
+          lineHeight: '1.125rem',
+          height: '1.375rem',
+          borderRadius: '1rem',
+          padding: '0 0.5rem',
+          fontFamily: primaryFont,
+
           '&:active': {
             boxShadow: 'none'
           }
-        }
+        },
+
+        outlinedPrimary: {
+          background: '#FAF1FD',
+          borderColor: '#E8C3F8',
+          color: primarypurple500
+        },
       }
     },
 
@@ -194,22 +215,22 @@ theme = createTheme({
         },
         tooltip: {
           background: '#161718',
-          borderRadius: '8px',
+          borderRadius: '0.5rem',
           fontFamily: primaryFont,
-          padding: '6px 12px'
+          padding: '0.375rem 0.75rem'
         }
       }
     },
     MuiToolbar: {
       styleOverrides: {
         root: {
-          minHeight: '52px !important',
+          minHeight: '3.25rem !important',
           '& .MuiButton-root': {
             color: 'white',
             margin: 0,
             fontWeight: 500,
             marginRight: 6,
-            border: '1px solid transparent',
+            border: '0.0625rem solid transparent',
             textTransform: 'none',
             padding: '0.2rem 0.875rem',
             '&.active': {
@@ -218,7 +239,7 @@ theme = createTheme({
             },
             '&:focus': {
               borderColor: 'transparent',
-              outline: '4px solid #9B18D83D',
+              outline: '0.25rem solid #9B18D83D',
             },
             '&:hover': {
               background: gray700,
@@ -236,6 +257,32 @@ theme = createTheme({
           '&:focus': {
             outline: 0,
           }
+        }
+      }
+    },
+
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          fontSize: '0.875rem',
+          fontWeight: 600,
+          lineHeight: '1.25rem',
+          padding: '0.5rem 0.75rem',
+          borderRadius: '0.25rem',
+          gap: '0.25rem',
+        },
+
+        contained: {
+          boxShadow: 'none',
+
+          '&:hover': {
+            boxShadow: 'none',
+          }
+        },
+
+        containedPrimary: {
+          background: primarypurple900,
+          color: baseWhite
         }
       }
     },
@@ -284,7 +331,7 @@ theme = createTheme({
             '&.MuiBoxMetacell-footer' : {
               display: 'flex',
               margin: 0,
-              borderTop: `1px solid ${gray100}`,
+              borderTop: `0.0625rem solid ${gray100}`,
               padding:'1.5rem 0 0.5rem',
               '& p': {
                 fontSize: '0.75rem',
@@ -300,9 +347,14 @@ theme = createTheme({
     },
     MuiOutlinedInput: {
       styleOverrides: {
+        input: {
+          height: '2.25rem',
+          paddingTop: 0,
+          paddingBottom: 0
+        },
         root: {
-          border: `1px ${gray100} solid`,
-          boxShadow: "0 0 4px rgba(0, 0, 0, 0.1)",
+          border: `0.0625rem ${gray100} solid`,
+          // boxShadow: "0 0 0.25rem rgba(0, 0, 0, 0.1)",
           '& .MuiOutlinedInput-notchedOutline': {
             borderColor: 'transparent',
           },
