@@ -332,17 +332,17 @@ const theme = createTheme({
          '& .MuiAccordionSummary-root':{
            paddingLeft: 0,
            gap: '.5rem',
+           flexDirection: 'row-reverse',
            '& .MuiTypography-root': {
              fontSize: '0.875rem',
              color: gray700,
              fontWeight: 500
            },
            '& .MuiAccordionSummary-expandIconWrapper':{
-             order: '-1',
              color: gray700,
              fontSize: '1rem',
              '&.Mui-expanded': {
-               transform: 'rotate(270deg)'
+               transform: 'rotate(90deg)',
              }
            },
          },
