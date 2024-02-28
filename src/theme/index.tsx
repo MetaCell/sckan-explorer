@@ -26,7 +26,7 @@ const {
   primaryPurple100,
   gray50,
   gray200,
-  gray300
+  gray300,
 } = vars
 
 const theme = createTheme({
@@ -251,17 +251,24 @@ const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          padding: '0.5rem 0.75rem',
+          boxShadow: buttonShadow,
           fontSize: '0.875rem',
           fontWeight: 600,
+          lineHeight: '1.25rem',
+          padding: '0.5rem 0.75rem',
           borderRadius: '0.25rem',
-          boxShadow: buttonShadow,
+          gap: '0.25rem',
         },
         contained: {
+          boxShadow: 'none',
           background: primaryPurple500,
           color: baseWhite,
-          border: `1px solid ${primaryPurple500}`
-          
+          border: `1px solid ${primaryPurple500}`,
+          '&:hover': {
+            boxShadow: 'none',
+            border: '1px solid #8300BF',
+            background: primaryPurple600
+          }
         },
         outlined: {
             border: `1px solid ${gray100}`,
@@ -269,8 +276,12 @@ const theme = createTheme({
             color: gray600,
             '& .MuiSvgIcon-root': {
               fontSize: '1.25rem'
-            }
-          },
+            },
+          '&:hover': {
+          border: `1px solid ${gray100}`,
+          background: gray50,
+          }
+        },
         text: {
           boxShadow: 'none',
           color: gray500
@@ -353,13 +364,25 @@ const theme = createTheme({
       styleOverrides: {
        root: {
          width: 'fit-content',
-         padding: '0.125rem 0.5rem',
+         fontSize: '0.75rem',
+         fontWeight: 500,
+         lineHeight: '1.125rem',
+         height: '1.375rem',
          borderRadius: '1rem',
-        fontSize: '0.75rem',
-        fontWeight: 500,
+         padding: '0 0.5rem',
+         fontFamily: primaryFont,
+         
+         '&:active': {
+           boxShadow: 'none'
+         }
        },
         label: {
          padding: 0
+        },
+        outlinedPrimary: {
+          background: '#FAF1FD',
+          borderColor: '#E8C3F8',
+          color: primaryPurple500
         },
         outlined: {
           color: primaryPurple700,
@@ -410,6 +433,7 @@ const theme = createTheme({
          padding: '0.5rem 0.75rem',
          fontSize: '0.875rem',
          fontWeight: 600,
+         height: '2.25rem',
          
           '&.Mui-selected': {
             background: gray50,
