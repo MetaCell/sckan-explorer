@@ -54,7 +54,7 @@ interface ListItem {
     options: (ListItem | string)[];
     expanded: boolean;
 }
-const xLabels: string[] = ["Brain", "Lungs", "Cervical", "Spinal", "Thoraic", "Kidney", "Urinary Tract", "Muscle organ", "Small Intestine", "Pancreas", "Skin", "Spleen", "Stomach", "Urinary bladder"];
+const xLabels: string[] = ["Brain", "Lungs", "Cervical", "Spinal", "Thoraic", "Kidney", "Urinary Tract"];
 const initialList: ListItem[] = [
   {
     label: "Brain",
@@ -316,7 +316,7 @@ function Connections() {
                         }}
                     />
                 </Box>
-                <HeatmapGrid list={list} data={data} xLabels={xLabels} setList={setList} setData={setData} xAxis={''} yAxis={''} />
+                <HeatmapGrid secondary list={list} data={data} xLabels={xLabels} setList={setList} setData={setData} xAxis={'Project to'} yAxis={'Somas in'} />
             </Box>
 
             <Box sx={{

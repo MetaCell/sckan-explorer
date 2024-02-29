@@ -34,9 +34,10 @@ interface HeatmapGridProps {
   setList: Dispatch<SetStateAction<ListItem[]>>;
   setData: Dispatch<SetStateAction<number[][]>>; 
   selectedCell?: {x: number, y: number} | null;
+  secondary?: boolean;
 }
 
-const HeatmapGrid: FC<HeatmapGridProps> = ({ list, xLabels, data, xAxis, yAxis, setList, setData, cellClick, selectedCell }) => {
+const HeatmapGrid: FC<HeatmapGridProps> = ({ secondary, list, xLabels, data, xAxis, yAxis, setList, setData, cellClick, selectedCell }) => {
   const [collapsed] = React.useState<boolean>(true);
 
   const handleItemClick = (item: ListItem | string) => {
@@ -105,17 +106,20 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({ list, xLabels, data, xAxis, yAxis, 
         }}>{xAxis}</Typography>
       </Box>
       <Box display='flex' alignItems='center'>
-      <Typography sx={{
-          textAlign: 'center',
-          fontSize: '0.875rem',
-          marginTop: '4.875rem',
-          paddingRight: '0.75rem',
-          fontWeight: 400,
-          writingMode: 'vertical-lr',
-          lineHeight: 1,
-          color: gray500
+        {yAxis && (
+          <Typography sx={{
+              textAlign: 'center',
+              fontSize: '0.875rem',
+              marginTop: '4.875rem',
+              paddingRight: '0.75rem',
+              fontWeight: 400,
+              writingMode: 'vertical-lr',
+              lineHeight: 1,
+              color: gray500
+    
+          }}>{yAxis}</Typography>
 
-      }}>{yAxis}</Typography>
+        )}
 
       <Box position='relative' sx={{
         '& > div:first-of-type': {
@@ -203,17 +207,53 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({ list, xLabels, data, xAxis, yAxis, 
         onClick={(x: number, y: number) => cellClick && cellClick(x, y)}
         cellStyle={(_background: string, value: number, min: number, max: number, _data: string, _x: number, _y: number) => {
           const isSelectedCell = selectedCell?.x === _x && selectedCell?.y === _y
-          return {
+          const commonStyles = {
             fontSize: "0.7188rem",
             widht: '2.6875rem',
             height: '2rem',
             borderRadius: '0.25rem',
-            borderWidth: isSelectedCell ? '0.125rem' : '0.0625rem',
+            margin: '0.125rem',
             borderStyle: 'solid',
-            borderColor: isSelectedCell ? '#8300BF' : 1 - (max - value) / (max - min) <= 0.1  ? gray100A : 'rgba(255, 255, 255, 0.2)',
-            background: 1 - (max - value) / (max - min) <= 0.1  ? gray25 : `rgba(131, 0, 191, ${1 - (max - value) / (max - min)})`,
-            margin: '0.125rem'
+            borderWidth: '0.0625rem',
+            borderColor: 1 - (max - value) / (max - min) <= 0.1  ? gray100A : 'rgba(255, 255, 255, 0.2)',
           }
+          if (secondary) { // to show another heatmap, can be changed when data is added
+            if(value % 4) {
+              return {
+                ...commonStyles,
+                background: '#2C2CCE',
+              }
+            } else if(value % 6) {
+              return {
+                ...commonStyles,
+                background: '#DC6803',
+              }
+            } else if(value % 8)  {
+              return {
+                ...commonStyles,
+                background: '#EAAA08',
+              }
+            } else if (value > 10) {
+              return {
+                ...commonStyles,
+                background: 'linear-gradient(to right, #2C2CCE 50%, #9B18D8 50%)',
+              }
+            } else {
+              return {
+                ...commonStyles,
+                background: '#EDEFF2',
+              }
+            }
+          } else {
+            return {
+              ...commonStyles,
+              borderWidth: isSelectedCell ? '0.125rem' : '0.0625rem',
+              borderColor: isSelectedCell ? '#8300BF' : 1 - (max - value) / (max - min) <= 0.1  ? gray100A : 'rgba(255, 255, 255, 0.2)',
+              background: 1 - (max - value) / (max - min) <= 0.1  ? gray25 : `rgba(131, 0, 191, ${1 - (max - value) / (max - min)})`,
+            }
+          }
+          
+          
         }}
         cellRender={(value: string, x: number, y: number) => (
           <Tooltip
