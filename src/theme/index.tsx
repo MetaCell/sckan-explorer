@@ -64,24 +64,25 @@ theme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: `
-        ::-webkit-scrollbar {
-          width: 0.5rem;
-          height: 0.5rem;
-        }
-        ::-webkit-scrollbar-track {
-          background-clip: content-box;
-          border: 0.125rem solid transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-          background-color: ${gray200A};
-          border-radius: 0.5rem
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background-color: ${gray200A};
-        }
-        ::-webkit-scrollbar-corner, ::-webkit-scrollbar-track {
-          background-color: ${gray200A};
-        }
+      ::-webkit-scrollbar {
+        width: 0.8125rem;
+        height: 0.5rem;
+      }
+      ::-webkit-scrollbar-thumb {
+        height: 0.5rem;
+        border: 0.25rem solid rgba(0, 0, 0, 0);
+        background-clip: padding-box;
+        border-radius: 0.5rem;
+        background-color: ${gray200A};
+      }
+      ::-webkit-scrollbar-button {
+        width: 0;
+        height: 0;
+        display: none;
+      }
+      ::-webkit-scrollbar-corner {
+        background-color: transparent;
+      }
       * {
           box-sizing: border-box !important;
           margin: 0;
@@ -95,11 +96,11 @@ theme = createTheme({
           display: flex;
           width: 100%;
           background: ${baseContainerBg};
-          height: calc(100vh - 52px);
-          margin-top: 52px;
+          height: calc(100vh - 3.25rem);
+          margin-top: 3.25rem;
           overflow: hidden;
           padding: 1rem;
-          border-radius: 16px 16px 0 0;
+          border-radius: 1rem 1rem 0 0;
         }
         .flexlayout__layout {
           overflow: inherit;
@@ -135,11 +136,11 @@ theme = createTheme({
             }
             .flexlayout__tab_button {
               margin: 0;
-              border-radius: 8px 8px 0px 0px;
+              border-radius: 0.5rem 0.5rem 0rem 0rem;
               padding: 0.25rem 0.5rem;
               margin-right: 0.25rem;
               color: ${gray800};
-              min-width: 150px;
+              min-width: 9.375rem;
               font-size: 0.875rem;
               font-weight: 600;
               &.flexlayout__tab_button--selected {
@@ -194,22 +195,22 @@ theme = createTheme({
         },
         tooltip: {
           background: '#161718',
-          borderRadius: '8px',
+          borderRadius: '0.5rem',
           fontFamily: primaryFont,
-          padding: '6px 12px'
+          padding: '0.375rem 0.75rem'
         }
       }
     },
     MuiToolbar: {
       styleOverrides: {
         root: {
-          minHeight: '52px !important',
+          minHeight: '3.25rem !important',
           '& .MuiButton-root': {
             color: 'white',
             margin: 0,
             fontWeight: 500,
             marginRight: 6,
-            border: '1px solid transparent',
+            border: '0.0625rem solid transparent',
             textTransform: 'none',
             padding: '0.2rem 0.875rem',
             '&.active': {
@@ -218,7 +219,7 @@ theme = createTheme({
             },
             '&:focus': {
               borderColor: 'transparent',
-              outline: '4px solid #9B18D83D',
+              outline: '0.25rem solid #9B18D83D',
             },
             '&:hover': {
               background: gray700,
@@ -284,7 +285,7 @@ theme = createTheme({
             '&.MuiBoxMetacell-footer' : {
               display: 'flex',
               margin: 0,
-              borderTop: `1px solid ${gray100}`,
+              borderTop: `0.0625rem solid ${gray100}`,
               padding:'1.5rem 0 0.5rem',
               '& p': {
                 fontSize: '0.75rem',
@@ -301,8 +302,8 @@ theme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          border: `1px ${gray100} solid`,
-          boxShadow: "0 0 4px rgba(0, 0, 0, 0.1)",
+          border: `0.0625rem ${gray100} solid`,
+          boxShadow: "0 0 0.25rem rgba(0, 0, 0, 0.1)",
           '& .MuiOutlinedInput-notchedOutline': {
             borderColor: 'transparent',
           },
