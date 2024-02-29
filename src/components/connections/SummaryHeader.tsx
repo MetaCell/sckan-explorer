@@ -1,7 +1,7 @@
 import { Box, Button, Divider, Typography } from "@mui/material";
 import { vars } from "../../theme/variables";
 
-const { gray100, primary600 } = vars;
+const { gray100, primary600, gray600A } = vars;
 
 function SummaryHeader() {
     return (
@@ -28,6 +28,7 @@ function SummaryHeader() {
                   fontSize: '0.875rem',
                   fontWeight: 500,
                   lineHeight: '1.25rem',
+                  color: gray600A
 
               }}>23 connections</Typography>
 

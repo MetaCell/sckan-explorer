@@ -288,13 +288,13 @@ function Connections() {
             <Box flex={1} p={3} sx={{
                 borderTop: `0.0625rem solid ${gray100}`,
             }}>
-                <Box>
-                    <Typography sx={styles.heading}>Summary map</Typography>
+                <Box mb={3}>
+                    <Typography sx={{...styles.heading, fontSize: '1rem', lineHeight: '1.5rem'}}>Summary map</Typography>
                     <Typography sx={styles.text}>
                         Summary map shows the connections of the selected connection origin and end organ with phenotypes. Select individual squares to view the details of each connections.
                     </Typography>
                 </Box>
-                <Box>
+                <Box display="flex" gap={1} flexWrap='wrap'>
                     <CustomFilterDropdown
                         key={"Phenotype"}
                         placeholder="Phenotype"
@@ -322,45 +322,45 @@ function Connections() {
             <Box sx={{
                 position: 'sticky',
                 bottom: 0,
-                padding: '0 24px',
+                padding: '0 1.5rem',
                 background: '#fff'
             }}>
                 <Box sx={{
                     borderTop: `0.0625rem solid ${gray100}`,
-                    padding: '18px 0',
+                    padding: '0.9375rem 0',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between'
                 }}>
                     <Typography sx={{
-                        fontSize: '12px',
+                        fontSize: '0.75rem',
                         fontWeight: 500,
-                        lineHeight: '18px',
+                        lineHeight: '1.125rem',
                         color: '#818898'
                     }}>Phenotype</Typography>
                     
                     <Box sx={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '24px'
+                        gap: '1.5rem'
                     }}>
                         {phenotype.map((type: PhenotypeDetail) => (
                             <Box sx={{
-                                p: '3px 4px',
+                                p: '0.1875rem 0.25rem',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '6px'
+                                gap: '0.375rem'
                             }}>
                                 <Box sx={{
-                                    width: '23.67px',
-                                    height: '16px',
-                                    borderRadius: '2px',
+                                    width: '1.4794rem',
+                                    height: '1rem',
+                                    borderRadius: '0.125rem',
                                     background: type.color
                                 }} />
                                 <Typography sx={{
-                                    fontSize: '12px',
+                                    fontSize: '0.75rem',
                                     fontWeight: 400,
-                                    lineHeight: '18px',
+                                    lineHeight: '1.125rem',
                                     color: '#4A4C4F'
                                 }}>{type.label}</Typography>
                             </Box>
