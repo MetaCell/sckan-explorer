@@ -431,10 +431,11 @@ const theme = createTheme({
       styleOverrides: {
        root: {
          color: gray500,
-         padding: '0.5rem 0.75rem',
          fontSize: '0.875rem',
          fontWeight: 600,
-         height: '2.25rem',
+         lineHeight: '1.25rem',
+         padding: '0.5rem 0.75rem',
+         minHeight: 'unset',
          
           '&.Mui-selected': {
             background: gray50,
