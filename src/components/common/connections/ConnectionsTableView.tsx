@@ -37,9 +37,9 @@ export default function ConnectionsTableView() {
               fontWeight: 500
             }
           }}>
-            <TableCell>Origin</TableCell>
-            <TableCell>Destination</TableCell>
-            <TableCell>Via</TableCell>
+            <TableCell style={{ width: '33%' }}>Origin</TableCell>
+            <TableCell style={{ width: '33%' }}>Destination</TableCell>
+            <TableCell style={{ width: '33%' }}>Via</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
