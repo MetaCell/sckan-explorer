@@ -7,8 +7,7 @@ import {
 } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import { vars } from "../../../theme/variables.ts";
-import {ArrowDown, ArrowUp, HelpCircle} from "../../../icons";
-import KeyboardArrowRightRoundedIcon from '@mui/icons-material/KeyboardArrowRightRounded';
+import {ArrowDown, ArrowRight, ArrowUp, HelpCircle} from "../../../icons";
 const { gray500} = vars
 
 const Header = ({showDetails, setShowDetails}: {showDetails: boolean, setShowDetails: (showDetails: boolean) => void}) => {
@@ -32,26 +31,33 @@ const Header = ({showDetails, setShowDetails}: {showDetails: boolean, setShowDet
         alignItems='center'
         spacing='1rem'
       >
-        <ButtonGroup variant="outlined" sx={{
-          '& .MuiButtonBase-root': {
-            width: '2rem',
-            height: '2rem'
-          }
-        }}>
-          <IconButton>
-            <ArrowUp />
-          </IconButton>
-          <IconButton sx={{ marginLeft: '.25rem' }}>
-            <ArrowDown />
-          </IconButton>
-        </ButtonGroup>
+        {
+          showDetails &&  <ButtonGroup variant="outlined" sx={{
+            '& .MuiButtonBase-root': {
+              width: '2rem',
+              height: '2rem'
+            }
+          }}>
+                <IconButton>
+                    <ArrowUp />
+                </IconButton>
+                <IconButton sx={{ marginLeft: '.25rem' }}>
+                    <ArrowDown />
+                </IconButton>
+            </ButtonGroup>
+        }
+       
         <Breadcrumbs
-          separator={<KeyboardArrowRightRoundedIcon fontSize="small" />}
+          separator={<ArrowRight />}
           aria-label="breadcrumb"
         >
-          <Link underline="hover" onClick={() => setShowDetails(false)}>
-            Summary
-          </Link>
+          {showDetails ?
+            <Link underline="hover" onClick={() => setShowDetails(false)}>
+              Summary
+            </Link> : <Typography>
+                Summary
+              </Typography>
+          }
           {
             showDetails &&
               <Typography>

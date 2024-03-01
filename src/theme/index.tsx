@@ -313,9 +313,10 @@ const theme = createTheme({
           fontWeight: 500,
         },
         li: {
+          fontSize: '0.875rem',
           '& a': {
             color: gray500,
-            cursor: 'pointer'
+            cursor: 'pointer',
           },
           '&:last-child': {
             color: primaryPurple600
