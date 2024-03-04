@@ -1,11 +1,11 @@
-
-function ConnectivityGrid() {
+import { Box } from "@mui/material"
+function Connections() {
 
     return (
-        <div>
+        <Box p={1}>
             Connections
-        </div>
+        </Box>
     )
 }
 
-export default ConnectivityGrid
+export default Connections
