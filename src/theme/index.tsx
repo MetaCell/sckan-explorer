@@ -65,31 +65,31 @@ theme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: `
+      ::-webkit-scrollbar {
+        width: 0.8125rem;
+        height: 0.5rem;
+      }
+      ::-webkit-scrollbar-thumb {
+        height: 0.5rem;
+        border: 0.25rem solid rgba(0, 0, 0, 0);
+        background-clip: padding-box;
+        border-radius: 0.5rem;
+        background-color: ${gray200A};
+      }
+      ::-webkit-scrollbar-button {
+        width: 0;
+        height: 0;
+        display: none;
+      }
+      ::-webkit-scrollbar-corner {
+        background-color: transparent;
+      }
       * {
           box-sizing: border-box !important;
           margin: 0;
           font-family: ${primaryFont};
           padding: 0;
         }
-        ::-webkit-scrollbar {
-          width: 0.5rem;
-          height: 0.5rem;
-        }
-        ::-webkit-scrollbar-track {
-          background-clip: content-box;
-          border: 0.125rem solid transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-          background-color: ${gray200A};
-          border-radius: 0.5rem
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background-color: ${gray200A};
-        }
-        ::-webkit-scrollbar-corner, ::-webkit-scrollbar-track {
-          background-color: ${gray200A};
-        }
-      
       body {
           background: ${baseBg};
           scrollbar-width: thin;
