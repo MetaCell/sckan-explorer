@@ -449,6 +449,7 @@ const theme = createTheme({
     MuiTabs: {
       styleOverrides: {
        root: {
+         minHeight: 'unset',
          '& .MuiTabs-indicator': {
             display: 'none'
          }
