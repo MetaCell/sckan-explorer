@@ -5,7 +5,7 @@ import {
   Stack,
   Tabs, Tab
 } from "@mui/material";
-import { vars } from "../../../theme/variables.ts";
+import { vars } from "../../theme/variables.ts";
 import ConnectionsTableView from "./ConnectionsTableView.tsx";
 
 const { gray700} = vars

@@ -6,11 +6,11 @@ import {
   Divider, Box
 } from "@mui/material";
 import ArrowOutwardRoundedIcon from '@mui/icons-material/ArrowOutwardRounded';
-import { vars } from "../../../theme/variables.ts";
+import { vars } from "../../theme/variables.ts";
 import PopulationDisplay from "./PopulationDisplay.tsx";
-import CommonAccordion from "../Accordion.tsx";
-import CommonChip from "../CommonChip.tsx";
-import { ArrowOutward, HelpCircle } from "../../../icons";
+import CommonAccordion from "../common/Accordion.tsx";
+import CommonChip from "../common/CommonChip.tsx";
+import { ArrowOutward, HelpCircle } from "../../icons";
 
 const { gray500, gray700, gray800} = vars;
 

@@ -18,7 +18,8 @@ const {
   gray100,
   gray700S,
   gray25,
-  gray200A,
+  primarypurple900,
+  gray200S,
   primarypurple500S,
   buttonShadow,
   gray500,
@@ -92,7 +93,7 @@ const theme = createTheme({
         border: 0.25rem solid rgba(0, 0, 0, 0);
         background-clip: padding-box;
         border-radius: 0.5rem;
-        background-color: ${gray200A};
+        background-color: ${gray200S};
       }
       ::-webkit-scrollbar-button {
         width: 0;
@@ -110,6 +111,8 @@ const theme = createTheme({
         }
       body {
           background: ${baseBg};
+          scrollbar-width: thin;
+          scrollbar-color: ${gray200S} transparent;
         }
       .MuiContainer {
           display: flex;
@@ -173,6 +176,33 @@ const theme = createTheme({
         }
 
       `
+    },
+
+    MuiChip: {
+      styleOverrides: {
+        label: {
+          padding: 0,
+        },
+        root: {
+          fontSize: '0.75rem',
+          fontWeight: 500,
+          lineHeight: '1.125rem',
+          height: '1.375rem',
+          borderRadius: '1rem',
+          padding: '0 0.5rem',
+          fontFamily: primaryFont,
+
+          '&:active': {
+            boxShadow: 'none'
+          }
+        },
+
+        outlinedPrimary: {
+          background: '#FAF1FD',
+          borderColor: '#E8C3F8',
+          color: primarypurple500
+        },
+      }
     },
 
     MuiCircularProgress: {
@@ -344,6 +374,10 @@ const theme = createTheme({
         text: {
           boxShadow: 'none',
           color: gray500
+        },
+        containedPrimary: {
+          background: primarypurple900,
+          color: baseWhite
         }
       },
     },
@@ -528,9 +562,14 @@ const theme = createTheme({
     },
     MuiOutlinedInput: {
       styleOverrides: {
+        input: {
+          height: '2.25rem',
+          paddingTop: 0,
+          paddingBottom: 0
+        },
         root: {
           border: `0.0625rem ${gray100} solid`,
-          boxShadow: "0 0 0.25rem rgba(0, 0, 0, 0.1)",
+          // boxShadow: "0 0 0.25rem rgba(0, 0, 0, 0.1)",
           '& .MuiOutlinedInput-notchedOutline': {
             borderColor: 'transparent',
           },

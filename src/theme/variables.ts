@@ -11,6 +11,7 @@ export const vars = {
   gray800: '#2F3032',
   gray700: '#4A4C4F',//wrong
   gray600: '#6C707A',
+  gray600A: '#818A98',
   gray500: '#818898', //wrong
   gray400: '#9DA4AF', //wrong
   gray300: '#B4BCCA', //wrong
@@ -18,7 +19,6 @@ export const vars = {
   gray200: '#D2D7DF', //wrong
   gray50: '#f6f7f9', //wrong
   gray25: '#FCFCFD',
-  gray200A: '#D5D8DD',
   whiteColor: '#fff',
   borderRadius: 8,
   paperShadow:'0px 0px 1px rgba(0, 0, 0, 0.3), 0px 20px 24px -4px rgba(16, 24, 40, 0.08), 0px 8px 8px -4px rgba(16, 24, 40, 0.03)',

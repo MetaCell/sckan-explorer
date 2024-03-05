@@ -48,3 +48,9 @@ export const CheckedItemIcon = (props: SvgIconProps) => (
     />
   </SvgIcon>
 );
+
+export const ArrowRightIcon = () => (
+  <svg width="44" height="36" viewBox="0 0 44 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M15.3335 18H28.6668M28.6668 18L23.6668 13M28.6668 18L23.6668 23" stroke="#4A4C4F" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+);
