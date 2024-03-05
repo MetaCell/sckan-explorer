@@ -9,21 +9,25 @@ const {
   baseBg,
   baseWhite,
   baseContainerBg,
+  primarypurple700,
+  primarypurple500,
   gray800,
   gray600,
   gray700,
   gray400,
   gray100,
+  gray700S,
   gray25,
-  primaryPurple500,
+  gray200A,
+  primarypurple500S,
   buttonShadow,
   gray500,
-  primaryPurple50,
-  primaryPurple700,
-  primaryPurple200,
-  primaryPurple600,
-  primaryPurple25,
-  primaryPurple100,
+  primarypurple50,
+  primarypurple700S,
+  primarypurple200,
+  primarypurple600,
+  primarypurple25,
+  primarypurple100,
   gray50,
   gray200,
   gray300,
@@ -44,6 +48,10 @@ const theme = createTheme({
       fontSize: '0.875rem',
       fontWeight: 400,
       lineHeight: '1.25rem',
+      color: gray700,
+    },
+    body2: {
+      color: gray700,
     },
     h5: {
       fontSize: '1rem',
@@ -52,6 +60,12 @@ const theme = createTheme({
     h6: {
       fontSize: '0.875rem',
       fontWeight:600,
+      color: gray800,
+    },
+    caption: {
+      fontSize: '0.875rem',
+      fontWeight: 400,
+      color: gray700S,
     },
     subtitle1: {
       fontSize: '0.875rem',
@@ -69,6 +83,25 @@ const theme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: `
+      ::-webkit-scrollbar {
+        width: 0.8125rem;
+        height: 0.5rem;
+      }
+      ::-webkit-scrollbar-thumb {
+        height: 0.5rem;
+        border: 0.25rem solid rgba(0, 0, 0, 0);
+        background-clip: padding-box;
+        border-radius: 0.5rem;
+        background-color: ${gray200A};
+      }
+      ::-webkit-scrollbar-button {
+        width: 0;
+        height: 0;
+        display: none;
+      }
+      ::-webkit-scrollbar-corner {
+        background-color: transparent;
+      }
       * {
           box-sizing: border-box !important;
           margin: 0;
@@ -82,11 +115,11 @@ const theme = createTheme({
           display: flex;
           width: 100%;
           background: ${baseContainerBg};
-          height: calc(100vh - 52px);
-          margin-top: 52px;
+          height: calc(100vh - 3.25rem);
+          margin-top: 3.25rem;
           overflow: hidden;
           padding: 1rem;
-          border-radius: 16px 16px 0 0;
+          border-radius: 1rem 1rem 0 0;
         }
         .flexlayout__layout {
           overflow: inherit;
@@ -101,9 +134,6 @@ const theme = createTheme({
         }
         .flexlayout__tabset {
           background: transparent;
-
-
-
           .flexlayout__tabset_tabbar_outer_top {
             border-bottom: none;
           }
@@ -125,11 +155,11 @@ const theme = createTheme({
             }
             .flexlayout__tab_button {
               margin: 0;
-              border-radius: 8px 8px 0px 0px;
+              border-radius: 0.5rem 0.5rem 0rem 0rem;
               padding: 0.25rem 0.5rem;
               margin-right: 0.25rem;
               color: ${gray800};
-              min-width: 150px;
+              min-width: 9.375rem;
               font-size: 0.875rem;
               font-weight: 600;
               &.flexlayout__tab_button--selected {
@@ -160,18 +190,47 @@ const theme = createTheme({
         }
       }
     },
+    MuiTooltip: {
+      styleOverrides: {
+        arrow: {
+          color: '#161718',
+        },
+        popper: {
+          '&[data-popper-placement*="right"]': {
+            '& .MuiTooltip-tooltip': {
+              marginLeft: '0 !important'
+            }
+          }
+        },
+        tooltip: {
+          background: '#161718',
+          borderRadius: '0.5rem',
+          fontFamily: primaryFont,
+          padding: '0.375rem 0.75rem'
+        }
+      }
+    },
     MuiToolbar: {
       styleOverrides: {
         root: {
-          minHeight: '52px !important',
+          minHeight: '3.25rem !important',
           '& .MuiButton-root': {
             color: 'white',
             margin: 0,
             fontWeight: 500,
-            marginRight: 2,
+            marginRight: 6,
+            border: '0.0625rem solid transparent',
             textTransform: 'none',
-            padding: '0.375rem 0.875rem',
-            '&.active, &:hover': {
+            padding: '0.2rem 0.875rem',
+            '&.active': {
+              background: gray700,
+              borderColor: primarypurple500,
+            },
+            '&:focus': {
+              borderColor: 'transparent',
+              outline: '0.25rem solid #9B18D83D',
+            },
+            '&:hover': {
               background: gray700,
             },
           }
@@ -234,7 +293,7 @@ const theme = createTheme({
             '&.MuiBoxMetacell-footer' : {
               display: 'flex',
               margin: 0,
-              borderTop: `1px solid ${gray100}`,
+              borderTop: `0.0625rem solid ${gray100}`,
               padding:'1.5rem 0 0.5rem',
               '& p': {
                 fontSize: '0.75rem',
@@ -261,13 +320,13 @@ const theme = createTheme({
         },
         contained: {
           boxShadow: 'none',
-          background: primaryPurple500,
+          background: primarypurple500S,
           color: baseWhite,
-          border: `1px solid ${primaryPurple500}`,
+          border: `1px solid ${primarypurple500S}`,
           '&:hover': {
             boxShadow: 'none',
             border: '1px solid #8300BF',
-            background: primaryPurple600
+            background: primarypurple600
           }
         },
         outlined: {
@@ -319,7 +378,9 @@ const theme = createTheme({
             cursor: 'pointer',
           },
           '&:last-child': {
-            color: primaryPurple600
+            '& p': {
+              color: primarypurple600
+            }
           }
         },
         separator: {
@@ -383,16 +444,16 @@ const theme = createTheme({
         outlinedPrimary: {
           background: '#FAF1FD',
           borderColor: '#E8C3F8',
-          color: primaryPurple500
+          color: primarypurple500S
         },
         outlined: {
-          color: primaryPurple700,
-          backgroundColor: primaryPurple50,
-          borderColor: primaryPurple200,
+          color: primarypurple700S,
+          backgroundColor: primarypurple50,
+          borderColor: primarypurple200,
           
           '&.link': {
-            backgroundColor: primaryPurple25,
-            borderColor: primaryPurple100,
+            backgroundColor: primarypurple25,
+            borderColor: primarypurple100,
             padding: '0.125rem 0.625rem'
           }
         }
@@ -462,7 +523,50 @@ const theme = createTheme({
          borderColor: gray100
        },
       }
-    }
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          border: `0.0625rem ${gray100} solid`,
+          boxShadow: "0 0 0.25rem rgba(0, 0, 0, 0.1)",
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'transparent',
+          },
+          '&:hover': {
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'transparent'
+            }
+          },
+          '&.Mui-focused': {
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: primarypurple700,
+            }
+          }
+        }
+      }
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: gray600,
+          fontWeight: 600,
+          '&.Mui-focused': {
+            color: primary600,
+          }
+        }
+      }
+    },
+    MuiFormControl: {
+      styleOverrides: {
+        root: {
+          '& .MuiSvgIcon-root': {
+            marginRight: '0.5rem',
+            marginLeft: '0.875rem',
+            color: gray600,
+          }
+        }
+      }
+    },
   }
 });
 

@@ -110,6 +110,7 @@ function Header() {
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                 {pages.map((page, i) => (
                   <Button
+                    key={page}
                     className={ i === 0 ? 'active' : ''}
                     onClick={handleCloseNavMenu}
                     sx={{ my: 2, color: 'white', display: 'block' }}

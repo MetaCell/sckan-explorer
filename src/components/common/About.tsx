@@ -80,7 +80,7 @@ const About: FC<ModalProps> = ({
         <CloseIcon/>
       </IconButton>
       <DialogContent dividers>
-        { AboutContent.map((content) => <DetailsUI heading={content?.heading} description={content?.description} buttonText={content?.buttonText} /> )}
+        { AboutContent.map((content) => <DetailsUI key={content?.heading} heading={content?.heading} description={content?.description} buttonText={content?.buttonText} /> )}
         <Box className="MuiBoxMetacell-footer">
           <Typography>Powered by</Typography>
           <img src={MetaCellLogo}/>
