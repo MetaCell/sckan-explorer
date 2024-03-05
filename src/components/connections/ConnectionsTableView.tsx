@@ -5,7 +5,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import {vars} from "../../../theme/variables.ts";
+import {vars} from "../../theme/variables.ts";
 
 const { gray50, gray25} = vars
 function createData(
@@ -37,9 +37,9 @@ export default function ConnectionsTableView() {
               fontWeight: 500
             }
           }}>
-            <TableCell>Origin</TableCell>
-            <TableCell>Destination</TableCell>
-            <TableCell>Via</TableCell>
+            <TableCell style={{ width: '33%' }}>Origin</TableCell>
+            <TableCell style={{ width: '33%' }}>Destination</TableCell>
+            <TableCell style={{ width: '33%' }}>Via</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>

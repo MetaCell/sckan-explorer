@@ -9,7 +9,7 @@ interface CommonAccordionProps {
 
 const CommonAccordion: React.FC<CommonAccordionProps> = ({ summary, details }) => {
   return (
-    <Accordion disableGutters elevation={0} square>
+    <Accordion disableGutters elevation={0} square sx={{mt: '1rem !important'}}>
     <AccordionSummary
         expandIcon={<KeyboardArrowRightRoundedIcon />}
         aria-controls="panel1-content"

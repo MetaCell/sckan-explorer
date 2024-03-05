@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Divider, Stack, Tab, Tabs, Typography } from "@mui/material";
 import { vars } from "../../theme/variables.ts";
 
-const { primaryPurple600, gray500, gray700, gray600 } = vars;
+const { primarypurple600, gray500, gray700, gray600 } = vars;
 
 interface SectionProps {
   title: string;
@@ -72,7 +72,7 @@ const TabPanel = (props: TabPanelProps) => {
 const SummaryPage = () => {
   const [value, setValue] = React.useState(0);
   
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_: any, newValue: number) => {
     setValue(newValue);
   };
   
@@ -81,7 +81,7 @@ const SummaryPage = () => {
       <Stack justifyContent='center' alignItems='center' pt='6.5rem' pb='6.5rem' width={1} spacing={'.5rem'}>
         <Typography
           sx={{
-            color: primaryPurple600,
+            color: primarypurple600,
             fontSize: '1.875rem',
             fontWeight: 600,
           }}

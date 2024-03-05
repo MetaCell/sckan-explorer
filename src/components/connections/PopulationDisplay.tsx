@@ -5,7 +5,7 @@ import {
   Stack,
   Tabs, Tab
 } from "@mui/material";
-import { vars } from "../../../theme/variables.ts";
+import { vars } from "../../theme/variables.ts";
 import ConnectionsTableView from "./ConnectionsTableView.tsx";
 
 const { gray700} = vars
@@ -51,7 +51,7 @@ const PopulationDisplay = () => {
   };
   
   return (
-    <Stack spacing='.75rem'>
+    <Stack spacing='.75rem' pl='1.5rem' pr='1.5rem' pt={0}>
       <Stack direction='row' alignItems='center' justifyContent='space-between' mt='.75rem'>
         <Typography variant='h5' fontWeight={500} color={gray700}>
           Population Display
