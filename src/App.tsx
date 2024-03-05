@@ -10,7 +10,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Header from './components/common/Header.tsx';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import SummaryPage from "./components/common/SummaryPage.tsx";
+import SummaryPage from "./components/SummaryPage.tsx";
 
 const App = () => {
     const store = useStore();

@@ -518,10 +518,9 @@ const theme = createTheme({
          minHeight: 'unset',
          
           '&.Mui-selected': {
-            background: gray50,
-            color: gray700,
             borderRadius: '0.25rem',
             boxShadow: buttonShadow,
+            color: primarypurple600
           },
        },
       }
