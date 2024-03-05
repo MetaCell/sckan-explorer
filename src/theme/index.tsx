@@ -71,7 +71,7 @@ const theme = createTheme({
     subtitle1: {
       fontSize: '0.875rem',
       fontWeight:500,
-      color: gray700
+      color: gray700S
     },
     button: {
       fontSize: '0.875rem',
@@ -177,13 +177,10 @@ const theme = createTheme({
 
       `
     },
-
     MuiChip: {
       styleOverrides: {
-        label: {
-          padding: 0,
-        },
         root: {
+          width: 'fit-content',
           fontSize: '0.75rem',
           fontWeight: 500,
           lineHeight: '1.125rem',
@@ -191,20 +188,32 @@ const theme = createTheme({
           borderRadius: '1rem',
           padding: '0 0.5rem',
           fontFamily: primaryFont,
-
+          
           '&:active': {
             boxShadow: 'none'
           }
         },
-
+        label: {
+          padding: 0
+        },
         outlinedPrimary: {
           background: '#FAF1FD',
           borderColor: '#E8C3F8',
-          color: primarypurple500
+          color: primarypurple500S
         },
+        outlined: {
+          color: primarypurple700S,
+          backgroundColor: primarypurple50,
+          borderColor: primarypurple200,
+          
+          '&.link': {
+            backgroundColor: primarypurple25,
+            borderColor: primarypurple100,
+            padding: '0.125rem 0.625rem'
+          }
+        }
       }
     },
-
     MuiCircularProgress: {
       styleOverrides: {
         root: {
@@ -444,11 +453,11 @@ const theme = createTheme({
            flexDirection: 'row-reverse',
            '& .MuiTypography-root': {
              fontSize: '0.875rem',
-             color: gray700,
+             color: gray700S,
              fontWeight: 500
            },
            '& .MuiAccordionSummary-expandIconWrapper':{
-             color: gray700,
+             color: gray700S,
              fontSize: '1rem',
              '&.Mui-expanded': {
                transform: 'rotate(90deg)',
@@ -456,43 +465,6 @@ const theme = createTheme({
            },
          },
        },
-      }
-    },
-    MuiChip: {
-      styleOverrides: {
-       root: {
-         width: 'fit-content',
-         fontSize: '0.75rem',
-         fontWeight: 500,
-         lineHeight: '1.125rem',
-         height: '1.375rem',
-         borderRadius: '1rem',
-         padding: '0 0.5rem',
-         fontFamily: primaryFont,
-         
-         '&:active': {
-           boxShadow: 'none'
-         }
-       },
-        label: {
-         padding: 0
-        },
-        outlinedPrimary: {
-          background: '#FAF1FD',
-          borderColor: '#E8C3F8',
-          color: primarypurple500S
-        },
-        outlined: {
-          color: primarypurple700S,
-          backgroundColor: primarypurple50,
-          borderColor: primarypurple200,
-          
-          '&.link': {
-            backgroundColor: primarypurple25,
-            borderColor: primarypurple100,
-            padding: '0.125rem 0.625rem'
-          }
-        }
       }
     },
     MuiPaper: {

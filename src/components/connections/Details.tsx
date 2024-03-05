@@ -36,6 +36,28 @@ const RowStack = ({ label, value, Icon }: {label: string, value: string, Icon?: 
 );
 
 const Details = () => {
+  const detailsObject = {
+    knowledge_statement: 'Fifth thoracic dorsal root ganglion to Heart right ventricle via White matter of spinal cord',
+    connectionDetails: [
+      {
+        label: 'Status',
+        value: 'Inferred',
+        icon: HelpCircle
+      },
+      {
+        label: 'Species',
+        value: 'Mammal',
+      },
+      {
+        label: 'Label',
+        value: 'Neuron type aacar 13',
+      },
+      {
+        label: 'Provenances',
+        value: ['www.microsoft.com', 'google.com'],
+      },
+    ]
+  }
   return (
     <Stack spacing='1.5rem'>
       <Box pl='1.5rem' pr='1.5rem'>
@@ -57,7 +79,7 @@ const Details = () => {
             Knowledge statement
           </Typography>
           <Typography variant='body1' color={gray500}>
-            Fifth thoracic dorsal root ganglion to Heart right ventricle via White matter of spinal cord
+            {detailsObject.knowledge_statement}
           </Typography>
           <CommonChip label="Sympathetic" variant="outlined" />
           <CommonAccordion
@@ -65,24 +87,30 @@ const Details = () => {
             details={
               <>
                 <Stack spacing={1}>
-                  <RowStack label="Status" value="Inferred" Icon={HelpCircle} />
-                  <RowStack label="Species" value="Mammal" />
-                  <RowStack label="Label" value="Neuron type aacar 13" />
-                  <Stack
-                    direction="row"
-                    alignItems="center"
-                    spacing='.75rem'
-                  >
-                    <Typography variant='subtitle1' width='6rem'>Provenances</Typography>
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      spacing={'.5rem'}
-                    >
-                      <CommonChip label="www.microsoft.com" variant="outlined" className='link' icon={<ArrowOutwardRoundedIcon fontSize='small' />} />
-                      <CommonChip label="google.com" variant="outlined" className='link' icon={<ArrowOutwardRoundedIcon fontSize='small' />} />
-                    </Stack>
-                  </Stack>
+                  {
+                    detailsObject.connectionDetails.map((row) =>
+                      !Array.isArray(row.value) ?
+                        <RowStack label={row.label} value={row.value} Icon={row.icon} /> :
+                        <Stack
+                          direction="row"
+                          alignItems="center"
+                          spacing='.75rem'
+                        >
+                          <Typography variant='subtitle1' width='6rem'>{row.label}</Typography>
+                          <Stack
+                            direction="row"
+                            alignItems="center"
+                            spacing={'.5rem'}
+                          >
+                            {
+                              row.value.map((row) =>
+                                <CommonChip label={row} variant="outlined" className='link' icon={<ArrowOutwardRoundedIcon fontSize='small' />} />
+                              )
+                            }
+                          </Stack>
+                        </Stack>
+                    )
+                  }
                 </Stack>
               </>
             }
