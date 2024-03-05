@@ -372,14 +372,16 @@ const theme = createTheme({
           fontWeight: 500,
         },
         li: {
-          fontSize: '0.875rem',
           '& a': {
             color: gray500,
             cursor: 'pointer',
+            fontSize: '0.875rem',
           },
           '&:last-child': {
             '& p': {
-              color: primarypurple600
+              color: primarypurple600,
+              fontWeight: 500,
+              fontSize: '0.875rem',
             }
           }
         },
