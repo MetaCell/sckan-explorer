@@ -38,6 +38,7 @@ const RowStack = ({ label, value, Icon }: {label: string, value: string, Icon?: 
 const Details = () => {
   const detailsObject = {
     knowledge_statement: 'Fifth thoracic dorsal root ganglion to Heart right ventricle via White matter of spinal cord',
+    type: 'Sympathetic',
     connectionDetails: [
       {
         label: 'Status',
@@ -81,7 +82,7 @@ const Details = () => {
           <Typography variant='body1' color={gray500}>
             {detailsObject.knowledge_statement}
           </Typography>
-          <CommonChip label="Sympathetic" variant="outlined" />
+          <CommonChip label={detailsObject.type} variant="outlined" />
           <CommonAccordion
             summary="Connection Details"
             details={

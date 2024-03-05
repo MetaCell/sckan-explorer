@@ -248,7 +248,7 @@ const mainRow: number[] = new Array(xLabels.length)
     .map(() => Math.floor(Math.random() * 100));
 const optionRows: number[][] = item.options.map(() =>
     /* remove the logic , it is just to show empty values as well */
-    new Array(xLabels.length).fill(0).map((v:number, i:number) => i%3 === 0 ? Math.floor(Math.random() * 100) : 0)
+    new Array(xLabels.length).fill(0).map((_, i:number) => i%3 === 0 ? Math.floor(Math.random() * 100) : 0)
 );
 return [...acc, mainRow, ...optionRows];
 }, []);
@@ -262,7 +262,12 @@ function Connections() {
     
     return (
         <Box display='flex' flexDirection='column' minHeight={1}>
-          <SummaryHeader showDetails={showConnectionDetails} setShowDetails={setShowConnectionDetails} />
+          <SummaryHeader
+            showDetails={showConnectionDetails}
+            setShowDetails={setShowConnectionDetails}
+            numOfConnections={5}
+            connection='ilxtr:neuron-type-aacar-11'
+          />
           
           {showConnectionDetails ?
             <>
