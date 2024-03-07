@@ -285,7 +285,7 @@ function Connections() {
                 </Box>
             </Box>
 
-            <Box flex={1} p={3} sx={{
+            <Box display='flex' flexDirection='column' flex={1} p={3} sx={{
                 borderTop: `0.0625rem solid ${gray100}`,
             }}>
                 <Box mb={3}>
