@@ -502,7 +502,7 @@ const theme = createTheme({
            borderBottom: `1px solid ${gray100}`,
            color: gray600,
            fontWeight: 400,
-           padding: '.75rem'
+           padding: '0.625rem .75rem 0.625rem .75rem'
          }
        }
       }

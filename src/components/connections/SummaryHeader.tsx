@@ -43,8 +43,8 @@ const SummaryHeader = ({
         height: '3.938rem',
         
         '& .MuiSvgIcon-root': {
-          height: '1rem',
-          width: '1rem'
+          height: '1.25rem',
+          width: '1.25rem'
         }
       }}
     >
