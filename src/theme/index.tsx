@@ -5,21 +5,23 @@ import minimizeIcon from "../../src/components/assets/svg/minimize_icon.svg";
 const {
   primaryFont,
   primary500,
-  primary600,
-  baseBg,
-  baseWhite,
-  baseContainerBg,
-  primarypurple700,
-  primarypurple500,
+  primaryPurple600,
   gray800,
+  white,
+  baseContainerBg,
+  primaryPurple300,
+  primaryPurple700,
   gray600,
   gray700,
   gray400,
   gray100,
   gray700A,
   gray25,
-  primarypurple900,
-  gray200A
+  gray400A,
+  primaryPurple500,
+  gray200A,
+  gray200,
+  primaryPurple50
 } = vars
 
 let theme = createTheme();
@@ -56,7 +58,7 @@ theme = createTheme({
     },
     button: {
       fontSize: '0.875rem',
-      color: primary600,
+      color: primaryPurple600,
       fontWeight: 600,
       textTransform: 'none'
     }
@@ -65,33 +67,33 @@ theme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: `
-      ::-webkit-scrollbar {
-        width: 0.8125rem;
-        height: 0.5rem;
-      }
-      ::-webkit-scrollbar-thumb {
-        height: 0.5rem;
-        border: 0.25rem solid rgba(0, 0, 0, 0);
-        background-clip: padding-box;
-        border-radius: 0.5rem;
-        background-color: ${gray200A};
-      }
-      ::-webkit-scrollbar-button {
-        width: 0;
-        height: 0;
-        display: none;
-      }
-      ::-webkit-scrollbar-corner {
-        background-color: transparent;
-      }
       * {
           box-sizing: border-box !important;
           margin: 0;
           font-family: ${primaryFont};
           padding: 0;
         }
+        ::-webkit-scrollbar {
+          width: 0.5rem;
+          height: 0.5rem;
+        }
+        ::-webkit-scrollbar-track {
+          background-clip: content-box;
+          border: 0.125rem solid transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+          background-color: ${gray200A};
+          border-radius: 0.5rem
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background-color: ${gray200A};
+        }
+        ::-webkit-scrollbar-corner, ::-webkit-scrollbar-track {
+          background-color: ${gray200A};
+        }
+      
       body {
-          background: ${baseBg};
+          background: ${gray800};
           scrollbar-width: thin;
           scrollbar-color: ${gray200A} transparent;
         }
@@ -147,9 +149,9 @@ theme = createTheme({
               font-size: 0.875rem;
               font-weight: 600;
               &.flexlayout__tab_button--selected {
-                background-color: ${baseWhite};
+                background-color: ${white};
                 &:hover {
-                  background-color: ${baseWhite};
+                  background-color: ${white};
                 }
               }
             }
@@ -179,9 +181,9 @@ theme = createTheme({
         },
 
         outlinedPrimary: {
-          background: '#FAF1FD',
+          background: primaryPurple50,
           borderColor: '#E8C3F8',
-          color: primarypurple500
+          color: primaryPurple700
         },
       }
     },
@@ -196,7 +198,7 @@ theme = createTheme({
     MuiAppBar: {
       styleOverrides : {
         root: {
-          background: baseBg,
+          background: gray800,
           boxShadow: 'none',
         }
       }
@@ -235,7 +237,7 @@ theme = createTheme({
             padding: '0.2rem 0.875rem',
             '&.active': {
               background: gray700,
-              borderColor: primarypurple500,
+              borderColor: primaryPurple700,
             },
             '&:focus': {
               borderColor: 'transparent',
@@ -280,9 +282,83 @@ theme = createTheme({
           }
         },
 
+        outlinedPrimary: {
+          background: white,
+          border: `0.0625rem solid ${gray100}`,
+          color: gray600,
+
+          '&.Mui-disabled': {
+            background: white,
+            borderColor: gray100,
+            color: gray400A,
+            boxShadow: '0rem 0.0625rem 0.125rem 0rem #1018280D'
+          },
+
+          '&:hover': {
+            background: '#F6F7F9',
+            borderColor: gray100,
+            color: gray700,
+            boxShadow: '0rem 0.0625rem 0.125rem 0rem #1018280D'
+          },
+
+          '&:focus': {
+            boxShadow: '0rem 0rem 0rem 0.25rem #98A2B324, 0rem 0.0625rem 0.125rem 0rem #1018280D',
+            background: white,
+            borderColor: gray100,
+            color: gray600
+          }
+        },
+
+        outlinedSecondary: {
+          background: white,
+          border: `0.0625rem solid ${primaryPurple300}`,
+          color: primaryPurple600,
+
+          '&.Mui-disabled': {
+            background: white,
+            borderColor: gray200,
+            color: gray400A,
+            boxShadow: '0rem 0.0625rem 0.125rem 0rem #1018280D'
+          },
+
+          '&:hover': {
+            background: primaryPurple50,
+            borderColor: primaryPurple300,
+            color: primaryPurple700,
+            boxShadow: '0rem 0.0625rem 0.125rem 0rem #1018280D'
+          },
+
+          '&:focus': {
+            boxShadow: '0rem 0rem 0rem 0.25rem #9B18D83D, 0rem 0.0625rem 0.125rem 0rem #1018280D',
+            background: white,
+            borderColor: primaryPurple300,
+            color: primaryPurple600
+          }
+        },
+
         containedPrimary: {
-          background: primarypurple900,
-          color: baseWhite
+          background: primaryPurple500,
+          border: `0.0625rem solid ${primaryPurple500}`,
+          color: white,
+
+          '&.Mui-disabled': {
+            background: gray100,
+            borderColor: gray200,
+            color: gray400A,
+            boxShadow: '0rem 0.0625rem 0.125rem 0rem #1018280D'
+          },
+
+          '&:hover': {
+            background: primaryPurple600,
+            borderColor: primaryPurple600,
+            boxShadow: '0rem 0.0625rem 0.125rem 0rem #1018280D'
+          },
+
+          '&:focus': {
+            boxShadow: '0rem 0rem 0rem 0.25rem #9B18D83D, 0rem 0.0625rem 0.125rem 0rem #1018280D',
+            background: primaryPurple500,
+            borderColor: primaryPurple500
+          }
         }
       }
     },
@@ -365,7 +441,7 @@ theme = createTheme({
           },
           '&.Mui-focused': {
             '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: primarypurple700,
+              borderColor: primaryPurple300,
             }
           }
         }
@@ -377,7 +453,7 @@ theme = createTheme({
           color: gray600,
           fontWeight: 600,
           '&.Mui-focused': {
-            color: primary600,
+            color: primaryPurple600,
           }
         }
       }
