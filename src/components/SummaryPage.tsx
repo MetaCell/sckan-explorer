@@ -1,7 +1,7 @@
-import React from "react";
+import {useState} from "react";
 import { Box, Divider, Stack, Tab, Tabs, Typography } from "@mui/material";
 import { vars } from "../theme/variables.ts";
-import data from "../data/database_summary.ts";
+import jsonData from "../data/database_summary.json";
 import {sckanInfoText} from "../data/database_summary_info.ts";
 import {Detail} from "./summaryPage/Detail.tsx";
 import {Section} from "./summaryPage/Section.tsx";
@@ -9,8 +9,9 @@ import {Notes} from "./summaryPage/Notes.tsx";
 import {TabPanel} from "./summaryPage/TabPanel.tsx";
 
 const { primarypurple600, gray500, gray600 } = vars;
+const { labels, data } = jsonData;
 const SummaryPage = () => {
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = useState(0);
   
   const handleChange = (_: any, newValue: number) => {
     setValue(newValue);
@@ -47,12 +48,18 @@ const SummaryPage = () => {
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
-          {Object.entries(data).map(([sectionName, sectionData]) => (
-            <Section key={sectionName} title={sectionData.title}>
-              {Object.entries<any>(sectionData).map(([key, { label, value, note }]) => (
-                <Detail key={key} label={label} value={value} note={note} />
-              ))}
-              {sectionData.notes && <Notes text={sectionData.notes} />}
+          {Object.keys(data).map((sectionName) => (
+            <Section key={sectionName} title={labels[sectionName]}>
+              {Object.entries(data[sectionName]).map(([key, value]) => {
+                if (key.endsWith("changes") || key === 'notes') {
+                  return null;
+                }
+                
+                return (
+                  <Detail keyName={key} sectionData={data[sectionName]} value={value} />
+                );
+              })}
+              {data[sectionName].notes && <Notes text={data[sectionName].notes} />}
               <Divider />
             </Section>
           ))}
