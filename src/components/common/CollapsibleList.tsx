@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { Box, Button } from "@mui/material";
 import { MinusIcon, PlusIcon } from "../icons";
 import { vars } from "../../theme/variables";
-const { gray700, gray100, gray50, primarypurple900, gray25, gray200, primarypurple500 } = vars;
+const { gray700, gray100, gray50, primaryPurple500, gray25, gray200, primaryPurple700 } = vars;
 
 interface ListItem {
   label: string;
@@ -37,19 +37,19 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
                 content: '""',
                 height: '100%',
                 width: '0.0938rem',
-                background: primarypurple900,
+                background: primaryPurple500,
                 position: 'absolute',
                 left: '-0.3125rem',
                 top: 0
             },
             '&:focus': {
-                color: primarypurple500,
+                color: primaryPurple700,
                 fontWeight: 600,
                 '&:before': {
                     content: '""',
                     height: '100%',
                     width: '0.0938rem',
-                    background: primarypurple900,
+                    background: primaryPurple500,
                     position: 'absolute',
                     left: '-0.3125rem',
                     top: 0
@@ -158,7 +158,7 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
                 },
                 '&:focus': {
                     background: gray100,
-                    color: primarypurple500,
+                    color: primaryPurple700,
                     borderColor: gray200
                 },
             }}

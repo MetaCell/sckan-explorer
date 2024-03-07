@@ -17,11 +17,11 @@ const {
   gray100,
   gray700,
   gray400,
-  primary600,
-  whiteColor,
+  primaryPurple600,
+  white,
   gray600,
   gray500,
-  primarypurple700,
+  primaryPurple300,
   gray50
 } = vars;
 
@@ -50,7 +50,7 @@ const styles = {
     borderRadius: '0.25rem',
     border: `0.0625rem solid ${gray100}`,
     cursor: 'pointer',
-    background: whiteColor,
+    background: white,
     display: 'flex',
     alignItems: 'center',
     padding: '0.33rem 0.75rem',
@@ -66,7 +66,7 @@ const styles = {
   },
 
   rootHover: {
-    borderColor: primarypurple700,
+    borderColor: primaryPurple300,
     '&:hover': {
       borderColor: 'none',
     }
@@ -81,7 +81,7 @@ const styles = {
     fontWeight: 500,
 
     '&.MuiChip-outlined': {
-      background: whiteColor,
+      background: white,
       border: 0,
       padding: 0,
       '&:hover': {
@@ -94,15 +94,15 @@ const styles = {
       padding: 0,
       fontWeight: 600,
       fontSize: '0.875rem',
-      color: primary600,
+      color: primaryPurple600,
     },
 
     '& .MuiChip-deleteIcon': {
       margin: 0,
-      color: primary600,
+      color: primaryPurple600,
       fontSize: '1rem',
       '&:hover': {
-        color: primary600,
+        color: primaryPurple600,
       }
     }
   },
@@ -260,10 +260,10 @@ export default function CustomEntitiesDropdown({
                   </Tooltip>
                 )
               })}
-              {selectedOptions?.length > 1 && <Typography sx={{...styles.chip, display: 'flex', alignItems: 'center', padding: 0, fontWeight: 600, fontSize: '0.875rem', color: primary600,}}>{`, +${selectedOptions?.length - 1}`}</Typography>}
+              {selectedOptions?.length > 1 && <Typography sx={{...styles.chip, display: 'flex', alignItems: 'center', padding: 0, fontWeight: 600, fontSize: '0.875rem', color: primaryPurple600,}}>{`, +${selectedOptions?.length - 1}`}</Typography>}
             </Box>
           )}
-          {selectedOptions?.length ? <ClearOutlinedIcon onClick={(e) => {e.stopPropagation(); setSelectedOptions([])}} sx={{...styles.toggleIcon, color: primary600}} /> : open ? <ExpandLessIcon className='expand' sx={styles.toggleIcon} /> : <ExpandMoreIcon className='expand' sx={styles.toggleIcon} />}
+          {selectedOptions?.length ? <ClearOutlinedIcon onClick={(e) => {e.stopPropagation(); setSelectedOptions([])}} sx={{...styles.toggleIcon, color: primaryPurple600}} /> : open ? <ExpandLessIcon className='expand' sx={styles.toggleIcon} /> : <ExpandMoreIcon className='expand' sx={styles.toggleIcon} />}
         </Box>
       </Badge>
 
@@ -276,7 +276,7 @@ export default function CustomEntitiesDropdown({
         sx={{
             height: "28.125rem",
             borderRadius: '0.5rem',
-            background: whiteColor,
+            background: white,
             boxShadow: '0 0.5rem 0.5rem -0.25rem rgba(7, 8, 8, 0.03), 0 1.25rem 1.5rem -0.25rem rgba(7, 8, 8, 0.08)',
             m: '0.25rem 0  !important',
             width: 'auto',
@@ -288,8 +288,7 @@ export default function CustomEntitiesDropdown({
         <Box display='flex' flex={1} height={autocompleteOptions.length > 0 ? 'calc(100% - 2.75rem)' : 'auto'}>
           <Box sx={{
             ...styles.list,
-            width: '100%',
-            height: '100%',
+            width: autocompleteOptions.length > 0 ? '100%' : '100%'
           }}>
             <Box sx={{
               height: '2.8rem',
@@ -345,8 +344,8 @@ export default function CustomEntitiesDropdown({
             </Box>
             {autocompleteOptions.length > 0 ? (
               <>
-                <Box height='calc(100% - 2.8rem)' border={`0.0625rem solid ${gray100}`} borderTop={0} borderRadius="0 0 0.5rem 0.5rem">
-                  <Box height={1} sx={{
+                <Box overflow='auto' border={`0.0625rem solid ${gray100}`} borderTop={0} borderRadius="0 0 0.5rem 0.5rem">
+                  <Box sx={{
                     '& .MuiListSubheader-root': {
                       padding: '0 0.625rem',
                       height: '2.2rem',
@@ -376,10 +375,8 @@ export default function CustomEntitiesDropdown({
                     '& ul': {
                       margin: 0,
                       listStyle: 'none',
-                      padding: '0.5rem 0.0625rem 0 0.375rem',
+                      padding: '0.5rem 0.375rem 0',
                       borderTop: 0,
-                      overflow: 'auto',
-                      height: 'calc(100% - 2.2rem)',
 
                       '& li': {
                         padding: '0.5625rem 0.625rem',
@@ -423,11 +420,7 @@ export default function CustomEntitiesDropdown({
                         justifyContent: "flex-end",
                       }}
                     >
-                      <Button onClick={resetSelection} sx={{
-                        '&:hover': {
-                          background: 'transparent'
-                        }
-                      }}>Reset Selection</Button>
+                      <Button onClick={resetSelection}>Reset Selection</Button>
                     </ListSubheader>
                     <ul>
                       {autocompleteOptions
