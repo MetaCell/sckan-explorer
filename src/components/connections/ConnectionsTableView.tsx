@@ -34,7 +34,8 @@ export default function ConnectionsTableView() {
             
             '& .MuiTableCell-root': {
               fontSize: '0.75rem',
-              fontWeight: 500
+              fontWeight: 500,
+              padding: '0.188rem 0.75rem 0.188rem 0.75rem'
             }
           }}>
             <TableCell style={{ width: '33%' }}>Origin</TableCell>
