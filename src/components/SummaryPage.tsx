@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react";
+import React, {useState, useEffect} from "react";
 import {Box, CircularProgress, Divider, Stack, Tab, Tabs, Typography} from "@mui/material";
 import { vars } from "../theme/variables.ts";
 import {Detail} from "./summaryPage/Detail.tsx";
@@ -16,10 +16,11 @@ const SummaryPage = () => {
   const [data, setData] = useState(null);
   const [labels, setLabels] = useState(null);
   const [value, setValue] = useState(0);
-  const handleChange = (_: any, newValue: number) => {
+
+  // @ts-expect-error Explanation: Handling Event properly
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
-  
   useEffect(() => {
     fetch(databaseSummaryURL)
       .then((response) => response.json())
