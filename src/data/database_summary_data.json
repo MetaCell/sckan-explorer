@@ -7,20 +7,20 @@
     "sparc_neuron_populations_cut": 122,
     "sparc_neuron_populations_markram": 77,
     "sparc_neuron_populations_huang": 18,
-    "sparc_neuron_populations_notes": "SPARC connectivity only includes populations from ApINATOMY and NLP curated neuron populations. Neuron types from CUT and other evidence based models (EBM) are not considered for the SPARC project."
+    "notes": "SPARC connectivity only includes populations from ApINATOMY and NLP curated neuron populations. Neuron types from CUT and other evidence based models (EBM) are not considered for the SPARC project."
   },
   "locational_phenotypes": {
     "total_count_of_locational_phenotypes": 700,
     "locational_phenotypes_apinatomy_models": 288,
     "locational_phenotypes_sparc_nlp_curated": 114,
     "locational_phenotypes_sparc_nlp_curated_changes": "2023-12-31",
-    "locational_phenotypes_notes": "SPARC connectivity only includes populations from ApINATOMY and NLP curated neuron populations. Neuron types from CUT and other evidence based models (EBM) are not considered for the SPARC project."
+    "notes": "SPARC connectivity only includes populations from ApINATOMY and NLP curated neuron populations. Neuron types from CUT and other evidence based models (EBM) are not considered for the SPARC project."
   },
   "sparc_connections": {
     "total_number_of_a_to_b_via_nerve_c_sparc_connections": 700,
     "sparc_connections_apinatomy_models": 288,
     "sparc_connections_sparc_nlp_curated": 114,
     "sparc_connections_sparc_nlp_curated_changes": "2023-12-31",
-    "sparc_connections_notes": "SPARC connectivity only includes populations from ApINATOMY and NLP curated neuron populations"
+    "notes": "SPARC connectivity only includes populations from ApINATOMY and NLP curated neuron populations"
   }
 }
