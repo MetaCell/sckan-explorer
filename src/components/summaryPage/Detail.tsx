@@ -12,9 +12,11 @@ export const Detail = ({ keyName, sectionData, value, labels }: any) => (
     id={keyName}
   >
     <Typography variant='h5' fontWeight={500} color={gray700}>{labels[keyName]}</Typography>
-    <Box>
+    <Stack spacing='.25rem'>
       <Typography variant='h5' fontWeight={400} width='23rem' textAlign='right' color={gray600}>{value}</Typography>
-      {sectionData[`${keyName}_changes`] && <Typography variant='body1' width='23rem' textAlign='right' color={gray500}>{sectionData[`${keyName}_changes`]}</Typography>}
-    </Box>
+      {sectionData[`${keyName}_changes`] && <Typography variant='body1' width='23rem' textAlign='right' color={gray500}>
+        +{sectionData[`${keyName}_changes`]} change (since last stats)
+      </Typography>}
+    </Stack>
   </Stack>
 );

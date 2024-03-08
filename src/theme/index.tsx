@@ -519,7 +519,6 @@ const theme = createTheme({
          
           '&.Mui-selected': {
             borderRadius: '0.25rem',
-            boxShadow: buttonShadow,
             color: primarypurple600
           },
        },

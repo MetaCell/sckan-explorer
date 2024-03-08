@@ -1,13 +1,13 @@
 import {useState, useEffect} from "react";
-import { Box, Divider, Stack, Tab, Tabs, Typography } from "@mui/material";
+import {Box, CircularProgress, Divider, Stack, Tab, Tabs, Typography} from "@mui/material";
 import { vars } from "../theme/variables.ts";
-import {sckanInfoText} from "../data/database_summary_info.ts";
 import {Detail} from "./summaryPage/Detail.tsx";
 import {Section} from "./summaryPage/Section.tsx";
 import {Notes} from "./summaryPage/Notes.tsx";
 import {TabPanel} from "./summaryPage/TabPanel.tsx";
+import InfoTab from "./summaryPage/InfoTab.tsx";
 
-const { primarypurple600, gray500, gray600 } = vars;
+const { primarypurple600, gray500, baseWhite } = vars;
 
 const databaseSummaryURL = "https://raw.githubusercontent.com/MetaCell/sckan-explorer/feature/ESCKAN-28/src/data/database_summary_data.json";
 const databaseSummaryLabelsURL = "https://raw.githubusercontent.com/MetaCell/sckan-explorer/feature/ESCKAN-28/src/data/database_summary_labels.json";
@@ -36,28 +36,32 @@ const SummaryPage = () => {
       .catch((error) => console.error("Error fetching labels:", error));
   }, []);
 
-  if ((data === null && labels === null) || !data && !labels) return <div>loading...</div>
+  if (!data || !labels) return <Box display='flex' justifyContent='center' alignItems='center' width={1}>
+    <CircularProgress />
+  </Box>
+  
   return (
     <Box width={1} className='database-summary'>
-      <Stack justifyContent='center' alignItems='center' pt='6.5rem' pb='6.5rem' width={1} spacing={'.5rem'}>
+      <Stack justifyContent='center' alignItems='center' pt='6.5rem' pb='6.5rem' width={1}>
         <Typography
           sx={{
             color: primarypurple600,
             fontSize: '1.875rem',
             fontWeight: 600,
+            lineHeight: '2.375rem'
           }}
         >Database summary</Typography>
         <Typography variant='body1' color={gray500}>Last updated on September 15, 2023</Typography>
       </Stack>
       <Box sx={{
-        backgroundColor: '#fff',
+        backgroundColor: baseWhite,
         '& .tabpanel': {
           display: 'flex',
           justifyContent: 'center'
         }
       }}>
         <Box sx={{
-          backgroundColor: '#fff',
+          backgroundColor: baseWhite,
           position: 'sticky',
           top: '0',
           zIndex: 1,
@@ -85,42 +89,7 @@ const SummaryPage = () => {
           ))}
         </TabPanel>
         <TabPanel value={value} index={1}>
-          <Stack p="2rem" spacing="3rem">
-            <Stack>
-              <Typography variant="h2">
-                {sckanInfoText.summary.title}
-              </Typography>
-              <Typography variant="h5" fontWeight={400} color={gray600}>
-                {sckanInfoText.summary.content}
-              </Typography>
-            </Stack>
-            <Stack spacing=".75rem">
-              <Typography variant="h2">
-                {sckanInfoText.connectivityStats.title}
-              </Typography>
-              <Typography variant="h5" fontWeight={400} color={gray600}>
-                {sckanInfoText.connectivityStats.content}
-              </Typography>
-              <ul
-                style={{
-                  paddingLeft: "1.5rem",
-                  fontSize: "1rem",
-                  fontWeight: 400,
-                  lineHeight: "1.5rem",
-                  color: "#6C707A",
-                }}
-              >
-                {sckanInfoText.connectivityStats.bulletPoints.map(
-                  (bulletPoint, index) => (
-                    <li key={index}>{bulletPoint}</li>
-                  )
-                )}
-              </ul>
-              <Typography variant="h5" fontWeight={400} color={gray600}>
-                {sckanInfoText.connectivityStats.note}
-              </Typography>
-            </Stack>
-          </Stack>
+          <InfoTab />
         </TabPanel>
       </Box>
     </Box>

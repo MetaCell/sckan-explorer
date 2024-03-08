@@ -85,7 +85,6 @@ const About: FC<ModalProps> = ({
           <img src={MetaCellLogo} alt='logo'/>
         </Box>
       </DialogContent>
-
     </Dialog>
   );
 }

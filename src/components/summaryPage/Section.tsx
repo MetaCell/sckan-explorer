@@ -7,7 +7,7 @@ interface SectionProps {
 
 export const Section = ({ title, children }: SectionProps) => (
   <Stack spacing='1.5rem' p='2rem' pb={0}>
-    <Typography variant='h2'>{title}</Typography>
+    <Typography variant='h2' sx={{mb: '.5rem !important'}}>{title}</Typography>
     {children}
   </Stack>
 );
