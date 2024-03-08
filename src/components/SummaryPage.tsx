@@ -1,7 +1,6 @@
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import { Box, Divider, Stack, Tab, Tabs, Typography } from "@mui/material";
 import { vars } from "../theme/variables.ts";
-import jsonData from "../data/database_summary.json";
 import {sckanInfoText} from "../data/database_summary_info.ts";
 import {Detail} from "./summaryPage/Detail.tsx";
 import {Section} from "./summaryPage/Section.tsx";
@@ -9,14 +8,35 @@ import {Notes} from "./summaryPage/Notes.tsx";
 import {TabPanel} from "./summaryPage/TabPanel.tsx";
 
 const { primarypurple600, gray500, gray600 } = vars;
-const { labels, data } = jsonData;
+
+const databaseSummaryURL = "https://raw.githubusercontent.com/MetaCell/sckan-explorer/feature/ESCKAN-28/src/data/database_summary_data.json";
+const databaseSummaryLabelsURL = "https://raw.githubusercontent.com/MetaCell/sckan-explorer/feature/ESCKAN-28/src/data/database_summary_labels.json";
+
 const SummaryPage = () => {
+  const [data, setData] = useState(null);
+  const [labels, setLabels] = useState(null);
   const [value, setValue] = useState(0);
-  
   const handleChange = (_: any, newValue: number) => {
     setValue(newValue);
   };
   
+  useEffect(() => {
+    fetch(databaseSummaryURL)
+      .then((response) => response.json())
+      .then((jsonData) => {
+        setData(jsonData);
+      })
+      .catch((error) => console.error("Error fetching data:", error));
+    
+    fetch(databaseSummaryLabelsURL)
+      .then((response) => response.json())
+      .then((jsonData) => {
+        setLabels(jsonData);
+      })
+      .catch((error) => console.error("Error fetching labels:", error));
+  }, []);
+
+  if ((data === null && labels === null) || !data && !labels) return <div>loading...</div>
   return (
     <Box width={1} className='database-summary'>
       <Stack justifyContent='center' alignItems='center' pt='6.5rem' pb='6.5rem' width={1} spacing={'.5rem'}>
@@ -56,7 +76,7 @@ const SummaryPage = () => {
                 }
                 
                 return (
-                  <Detail keyName={key} sectionData={data[sectionName]} value={value} />
+                  <Detail keyName={key} sectionData={data[sectionName]} value={value} labels={labels} />
                 );
               })}
               {data[sectionName].notes && <Notes text={data[sectionName].notes} />}
