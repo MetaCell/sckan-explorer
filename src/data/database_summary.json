@@ -10,7 +10,8 @@
     "markram": "Markram 2015 Models",
     "huang": "Huang 2017 Models",
     "total_count_of_locational_phenotypes": "Total count of locational phenotypes in SPARC Populations",
-    "total_number_of_a_to_b_via_nerve_c_sparc_connections": "Total number of ‘A to B via Nerve C’ SPARC Connections"
+    "total_number_of_a_to_b_via_nerve_c_sparc_connections": "Total number of ‘A to B via Nerve C’ SPARC Connections",
+    "dario": "dario"
   },
   "data": {
     "sparc_neuron_populations": {
@@ -35,7 +36,8 @@
       "apinatomy_models": 288,
       "sparc_nlp_curated": 114,
       "sparc_nlp_curated_changes": "2023-12-31",
-      "notes": "SPARC connectivity only includes populations from ApINATOMY and NLP curated neuron populations"
+      "notes": "SPARC connectivity only includes populations from ApINATOMY and NLP curated neuron populations",
+      "dario": "test dario"
     }
   }
 }
