@@ -9,10 +9,11 @@ interface SectionDataType {
 type LabelsType = {
   [key: string]: string;
 };
-export const Detail = ({
-   keyName, sectionData, value, labels } :
-   {keyName: string, sectionData: SectionDataType, value: string | number, labels: LabelsType
-   }) => (
+
+interface DetailProps {
+  keyName: string, sectionData: SectionDataType, value: string | number, labels: LabelsType
+}
+export const Detail = ({ keyName, sectionData, value, labels } : DetailProps) => (
   <Stack
     key={keyName}
     direction="row"
