@@ -7,14 +7,24 @@ import {Notes} from "./summaryPage/Notes.tsx";
 import {TabPanel} from "./summaryPage/TabPanel.tsx";
 import InfoTab from "./summaryPage/InfoTab.tsx";
 
+interface DataType {
+  [key: string]: {
+    [key: string]: string | number;
+    notes: string;
+  };
+}
+type LabelsType = {
+  [key: string]: string;
+};
+
 const { primarypurple600, gray500, baseWhite } = vars;
 
 const databaseSummaryURL = "https://raw.githubusercontent.com/MetaCell/sckan-explorer/feature/ESCKAN-28/src/data/database_summary_data.json";
 const databaseSummaryLabelsURL = "https://raw.githubusercontent.com/MetaCell/sckan-explorer/feature/ESCKAN-28/src/data/database_summary_labels.json";
 
 const SummaryPage = () => {
-  const [data, setData] = useState(null);
-  const [labels, setLabels] = useState(null);
+  const [data, setData] = useState<DataType | null>(null);
+  const [labels, setLabels] = useState<LabelsType | null>(null);
   const [value, setValue] = useState(0);
 
   // @ts-expect-error Explanation: Handling Event properly
@@ -40,7 +50,6 @@ const SummaryPage = () => {
   if (!data || !labels) return <Box display='flex' justifyContent='center' alignItems='center' width={1}>
     <CircularProgress />
   </Box>
-  
   return (
     <Box width={1} className='database-summary'>
       <Stack justifyContent='center' alignItems='center' pt='6.5rem' pb='6.5rem' width={1}>
