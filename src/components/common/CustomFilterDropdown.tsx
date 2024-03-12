@@ -288,7 +288,8 @@ export default function CustomEntitiesDropdown({
         <Box display='flex' flex={1} height={autocompleteOptions.length > 0 ? 'calc(100% - 2.75rem)' : 'auto'}>
           <Box sx={{
             ...styles.list,
-            width: autocompleteOptions.length > 0 ? '100%' : '100%'
+            width: '100%',
+            height: '100%',
           }}>
             <Box sx={{
               height: '2.8rem',
@@ -344,8 +345,8 @@ export default function CustomEntitiesDropdown({
             </Box>
             {autocompleteOptions.length > 0 ? (
               <>
-                <Box overflow='auto' border={`0.0625rem solid ${gray100}`} borderTop={0} borderRadius="0 0 0.5rem 0.5rem">
-                  <Box sx={{
+                <Box height='calc(100% - 2.8rem)' border={`0.0625rem solid ${gray100}`} borderTop={0} borderRadius="0 0 0.5rem 0.5rem">
+                  <Box height={1} sx={{
                     '& .MuiListSubheader-root': {
                       padding: '0 0.625rem',
                       height: '2.2rem',
@@ -375,8 +376,10 @@ export default function CustomEntitiesDropdown({
                     '& ul': {
                       margin: 0,
                       listStyle: 'none',
-                      padding: '0.5rem 0.375rem 0',
+                      padding: '0.5rem 0.0625rem 0 0.375rem',
                       borderTop: 0,
+                      overflow: 'auto',
+                      height: 'calc(100% - 2.2rem)',
 
                       '& li': {
                         padding: '0.5625rem 0.625rem',
@@ -420,7 +423,11 @@ export default function CustomEntitiesDropdown({
                         justifyContent: "flex-end",
                       }}
                     >
-                      <Button onClick={resetSelection}>Reset Selection</Button>
+                      <Button onClick={resetSelection} sx={{
+                        '&:hover': {
+                          background: 'transparent'
+                        }
+                      }}>Reset Selection</Button>
                     </ListSubheader>
                     <ul>
                       {autocompleteOptions
