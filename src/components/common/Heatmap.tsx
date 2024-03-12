@@ -1,9 +1,10 @@
 import React, { FC, Dispatch, SetStateAction } from "react";
-import { Box, Typography, Tooltip } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { vars } from "../../theme/variables";
 import CollapsibleList from "./CollapsibleList";
 import HeatMap from "react-heatmap-grid";
-const { gray50, primaryPurple500, gray25, gray300, gray100A, gray500 } = vars;
+import HeatmapTooltip from "./HeatmapTooltip";
+const { gray50, primaryPurple500, gray25, gray100A, gray500 } = vars;
 
 interface ListItem {
   label: string;
@@ -36,6 +37,20 @@ interface HeatmapGridProps {
   selectedCell?: { x: number, y: number } | null;
   secondary?: boolean;
 }
+
+const getCellBgColor = (value: number) => {
+  if (value % 4) {
+    return '#2C2CCE'; // Blue for multiples of 4
+  } else if (value % 6) {
+    return '#DC6803'; // Orange for multiples of 6
+  } else if (value % 8) {
+    return '#EAAA08'; // Yellow for multiples of 8
+  } else if (value > 10) {
+    return 'linear-gradient(to right, #2C2CCE 50%, #9B18D8 50%)'; // Gradient for values greater than 10
+  } else {
+    return '#EDEFF2'; // Default color
+  }
+};
 
 const HeatmapGrid: FC<HeatmapGridProps> = ({ secondary, list, xLabels, data, xAxis, yAxis, setList, setData, cellClick, selectedCell }) => {
   const [collapsed] = React.useState<boolean>(true);
@@ -210,7 +225,6 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({ secondary, list, xLabels, data, xAx
               const isSelectedCell = selectedCell?.x === _x && selectedCell?.y === _y
               const commonStyles = {
                 fontSize: "0.7188rem",
-                // widht: '2.6875rem',
                 minWidth: '2rem',
                 height: '2rem',
                 borderRadius: '0.25rem',
@@ -219,33 +233,11 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({ secondary, list, xLabels, data, xAx
                 borderWidth: '0.0625rem',
                 borderColor: 1 - (max - value) / (max - min) <= 0.1 ? gray100A : 'rgba(255, 255, 255, 0.2)',
               }
-              if (secondary) { // to show another heatmap, can be changed when data is added
-                if (value % 4) {
+              if (secondary) { // to show another heatmap, can be changed when data is added 
                   return {
                     ...commonStyles,
-                    background: '#2C2CCE',
+                    background: getCellBgColor(value),
                   }
-                } else if (value % 6) {
-                  return {
-                    ...commonStyles,
-                    background: '#DC6803',
-                  }
-                } else if (value % 8) {
-                  return {
-                    ...commonStyles,
-                    background: '#EAAA08',
-                  }
-                } else if (value > 10) {
-                  return {
-                    ...commonStyles,
-                    background: 'linear-gradient(to right, #2C2CCE 50%, #9B18D8 50%)',
-                  }
-                } else {
-                  return {
-                    ...commonStyles,
-                    background: '#EDEFF2',
-                  }
-                }
               } else {
                 return {
                   ...commonStyles,
@@ -257,33 +249,8 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({ secondary, list, xLabels, data, xAx
 
 
             }}
-            cellRender={(value: string, x: number, y: number) => (
-              <Tooltip
-                arrow
-                placement="right"
-                title={
-                  <Box>
-                    <Typography sx={{
-                      fontSize: '0.75rem',
-                      fontWeight: 500,
-                      lineHeight: '1.125rem',
-                      color: gray300
-
-                    }}>{`${x} -> ${y}`}</Typography>
-                    <Typography sx={{
-                      fontSize: '0.75rem',
-                      fontWeight: 600,
-                      lineHeight: '1.125rem',
-                      color: gray25,
-                      marginTop: '0.125rem'
-
-                    }}>{`${value}`} connections</Typography>
-                  </Box>
-                }
-              >
-                <Box sx={{ opacity: 0 }}>{value}</Box>
-              </Tooltip>
-            )}
+            cellRender={(value: number, x: number, y: number) => <HeatmapTooltip value={value} x={x} y={y} secondary={secondary} getCellBgColor={getCellBgColor} />
+            }
           />
 
           {collapsed ? (
