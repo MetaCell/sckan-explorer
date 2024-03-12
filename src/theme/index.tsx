@@ -40,6 +40,12 @@ const theme = createTheme({
       fontFamily: primaryFont,
       letterSpacing: 'normal',
     },
+    h2: {
+      fontSize: '1.125rem',
+      fontWeight:600,
+      color: gray800,
+      lineHeight: '1.75rem'
+    },
     h3: {
       fontSize: '1.5rem',
       fontWeight: 500,
@@ -57,6 +63,7 @@ const theme = createTheme({
     h5: {
       fontSize: '1rem',
       fontWeight:600,
+      lineHeight: '1.5rem'
     },
     h6: {
       fontSize: '0.875rem',
@@ -78,7 +85,7 @@ const theme = createTheme({
       color: primary600,
       fontWeight: 600,
       textTransform: 'none'
-    }
+    },
   },
 
   components: {
@@ -123,6 +130,10 @@ const theme = createTheme({
           overflow: hidden;
           padding: 1rem;
           border-radius: 1rem 1rem 0 0;
+        }
+        .MuiContainer:has(> .database-summary) {
+          padding: 0;
+          overflow: auto
         }
         .flexlayout__layout {
           overflow: inherit;
@@ -507,10 +518,8 @@ const theme = createTheme({
          minHeight: 'unset',
          
           '&.Mui-selected': {
-            background: gray50,
-            color: gray700,
             borderRadius: '0.25rem',
-            boxShadow: buttonShadow,
+            color: primarypurple600
           },
        },
       }
@@ -520,9 +529,27 @@ const theme = createTheme({
        root: {
          minHeight: 'unset',
          '& .MuiTabs-indicator': {
-            display: 'none'
+           backgroundColor: primarypurple500,
+           height: '1px'
+         },
+         '&.custom-tabs': {
+           '& .MuiTabs-indicator': {
+             display: 'none'
+           },
+           '& .MuiTab-root': {
+             padding: '0.5rem 0.75rem',
+             '&.Mui-selected': {
+               background: gray50,
+               color: gray700,
+               borderRadius: '0.25rem',
+               boxShadow: buttonShadow,
+             },
+           }
          }
        },
+        flexContainer: {
+         justifyContent: 'center'
+        }
       }
     },
     MuiDivider: {

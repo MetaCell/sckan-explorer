@@ -12,18 +12,28 @@ import Logo from '../assets/svg/Logo.svg';
 import AboutScannerLogo from '../assets/svg/actions.svg';
 import MenuIcon  from '@mui/icons-material/Menu';
 import About from './About';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-const pages = ['Connectivity', 'Database Summary'];
+const pages = [{
+  title: 'Connectivity',
+  link: '/',
+},{
+  title: 'Database Summary',
+  link: '/summary',
+}];
 
 function Header() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
-
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { pathname} = location;
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
   };
 
-  const handleCloseNavMenu = () => {
+  const handleCloseNavMenu = (link: string) => {
     setAnchorElNav(null);
+    navigate(link)
   };
 
   const [open, setOpen] = React.useState(false);
@@ -81,8 +91,8 @@ function Header() {
                 }}
               >
                 {pages.map((page) => (
-                  <MenuItem key={page} onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center">{page}</Typography>
+                  <MenuItem key={page.title} onClick={() => handleCloseNavMenu(page.link)}>
+                    <Typography textAlign="center">{page.title}</Typography>
                   </MenuItem>
                 ))}
               </Menu>
@@ -110,12 +120,12 @@ function Header() {
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                 {pages.map((page, i) => (
                   <Button
-                    key={page}
-                    className={ i === 0 ? 'active' : ''}
-                    onClick={handleCloseNavMenu}
+                    key={i}
+                    className={ pathname === page.link ? 'active' : ''}
+                    onClick={() => handleCloseNavMenu(page.link)}
                     sx={{ my: 2, color: 'white', display: 'block' }}
                   >
-                    {page}
+                    {page.title}
                   </Button>
                 ))}         
             </Box>
