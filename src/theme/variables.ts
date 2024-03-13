@@ -38,4 +38,7 @@ export const vars = {
   primarypurple500S: '#9B18D8',
   gray700S: '#4B5668',
   gray100S: '#F1F2F4',
+  mediumBlue: "#548CE5",
+  lightBlue: "#E2ECFB",
+  darkBlue: "#184EA2",
 };

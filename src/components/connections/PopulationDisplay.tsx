@@ -7,6 +7,8 @@ import {
 } from "@mui/material";
 import { vars } from "../../theme/variables.ts";
 import ConnectionsTableView from "./ConnectionsTableView.tsx";
+import GraphDiagram from "../graphDiagram/GraphDiagram.tsx";
+import {MOCKED_composerStatement} from "../../resources/mockedData/MOCKED_composerStatement.ts";
 
 const { gray700} = vars
 
@@ -62,7 +64,10 @@ const PopulationDisplay = () => {
         </Tabs>
       </Stack>
       <CustomTabPanel value={value} index={0}>
-        Graph view
+        <Box sx={{height: '800px', width: '100%'}}>
+          <GraphDiagram origins={MOCKED_composerStatement.origins} vias={MOCKED_composerStatement.vias}
+                        destinations={MOCKED_composerStatement.destinations}/>
+        </Box>
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
         <ConnectionsTableView />
