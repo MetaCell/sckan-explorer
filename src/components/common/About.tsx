@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
@@ -83,10 +82,9 @@ const About: FC<ModalProps> = ({
         { AboutContent.map((content) => <DetailsUI key={content?.heading} heading={content?.heading} description={content?.description} buttonText={content?.buttonText} /> )}
         <Box className="MuiBoxMetacell-footer">
           <Typography>Powered by</Typography>
-          <img src={MetaCellLogo}/>
+          <img src={MetaCellLogo} alt='logo'/>
         </Box>
       </DialogContent>
-
     </Dialog>
   );
 }

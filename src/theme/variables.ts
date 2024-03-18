@@ -53,4 +53,9 @@ export const vars = {
   borderRadius: 8,
   paperShadow:'0px 0px 1px rgba(0, 0, 0, 0.3), 0px 20px 24px -4px rgba(16, 24, 40, 0.08), 0px 8px 8px -4px rgba(16, 24, 40, 0.03)',
 
+
+  // ADDITIONAL VARIABLES
+  buttonShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)',
+  gray200S: '#E3E5E8',
+
 };

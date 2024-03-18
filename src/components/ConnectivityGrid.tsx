@@ -198,7 +198,7 @@ const initialData: number[][] = initialList.reduce((acc: number[][], item: ListI
     .map(() => Math.floor(Math.random() * 100));
   const optionRows: number[][] = item.options.map(() =>
    /* remove the logic , it is just to show empty values as well */
-    new Array(xLabels.length).fill(0).map((v:number, i:number) => i%3 === 0 ? Math.floor(Math.random() * 100) : 0)
+    new Array(xLabels.length).fill(0).map((_, i:number) => i%3 === 0 ? Math.floor(Math.random() * 100) : 0)
   );
   return [...acc, mainRow, ...optionRows];
 }, []);

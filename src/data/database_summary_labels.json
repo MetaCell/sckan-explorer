@@ -1,0 +1,17 @@
+{
+  "sparc_neuron_populations": "SPARC Neuron Populations",
+  "locational_phenotypes": "Locational phenotypes",
+  "sparc_connections": "SPARC Connections",
+  "total_sparc_neuron_populations": "Total SPARC Neuron Populations",
+  "sparc_neuron_populations_apinatomy_models": "ApINATOMY Models",
+  "sparc_neuron_populations_sparc_nlp_curated": "SPARC NLP Curated",
+  "sparc_neuron_populations_cut": "Common Usage Types (CUT)",
+  "sparc_neuron_populations_markram": "Markram 2015 Models",
+  "sparc_neuron_populations_huang": "Huang 2017 Models",
+  "total_count_of_locational_phenotypes": "Total count of locational phenotypes in SPARC Populations",
+  "total_number_of_a_to_b_via_nerve_c_sparc_connections": "Total number of ‘A to B via Nerve C’ SPARC Connections",
+  "locational_phenotypes_apinatomy_models": "ApINATOMY Models",
+  "locational_phenotypes_sparc_nlp_curated": "SPARC NLP Curated",
+  "sparc_connections_apinatomy_models": "ApINATOMY Models",
+  "sparc_connections_sparc_nlp_curated": "SPARC NLP Curated"
+}
