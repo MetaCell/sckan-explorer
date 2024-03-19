@@ -5,7 +5,7 @@ import IconButton from "@mui/material/IconButton";
 import { ArrowDown, ArrowRight, ArrowUp, HelpCircle } from "../../icons";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 
-const { gray100, gray500, gray600A } = vars;
+const { gray100, primaryPurple600, gray600A, gray500 } = vars;
 
 const SummaryHeader = ({
    showDetails,
@@ -103,6 +103,18 @@ const SummaryHeader = ({
               <HelpCircle />
             </> :
             <>
+          <Typography sx={{
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              lineHeight: '1.25rem',
+              color: primaryPurple600
+          }}>Summary</Typography>
+
+          <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem'
+          }}>
               <Typography sx={{
                 fontSize: '0.875rem',
                 fontWeight: 500,
@@ -118,6 +130,7 @@ const SummaryHeader = ({
               }} />
               
               <Button variant="contained">Download results (.csv)</Button>
+              </Box>
             </>
         }
       </Box>

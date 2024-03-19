@@ -297,8 +297,9 @@ function Connections() {
                   <Typography sx={styles.heading}>Connections are through these nerves</Typography>
                   <Typography sx={styles.text}>Pudendal, vagus and splanchnic</Typography>
                 </Box>
-              </Box>
-              <Box flex={1} p={3} sx={{
+            </Box>
+
+            <Box display='flex' flexDirection='column' flex={1} p={3} sx={{
                 borderTop: `0.0625rem solid ${gray100}`,
               }}>
                 <Box mb={3}>

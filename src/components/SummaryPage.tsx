@@ -17,7 +17,7 @@ type LabelsType = {
   [key: string]: string;
 };
 
-const { primarypurple600, gray500, baseWhite } = vars;
+const { primaryPurple600, gray500, white } = vars;
 
 const databaseSummaryURL = "https://raw.githubusercontent.com/MetaCell/sckan-explorer/feature/ESCKAN-28/src/data/database_summary_data.json";
 const databaseSummaryLabelsURL = "https://raw.githubusercontent.com/MetaCell/sckan-explorer/feature/ESCKAN-28/src/data/database_summary_labels.json";
@@ -55,7 +55,7 @@ const SummaryPage = () => {
       <Stack justifyContent='center' alignItems='center' pt='6.5rem' pb='6.5rem' width={1}>
         <Typography
           sx={{
-            color: primarypurple600,
+            color: primaryPurple600,
             fontSize: '1.875rem',
             fontWeight: 600,
             lineHeight: '2.375rem'
@@ -64,19 +64,19 @@ const SummaryPage = () => {
         <Typography variant='body1' color={gray500}>Last updated on September 15, 2023</Typography>
       </Stack>
       <Box sx={{
-        backgroundColor: baseWhite,
+        backgroundColor: white,
         '& .tabpanel': {
           display: 'flex',
           justifyContent: 'center'
         }
       }}>
         <Box sx={{
-          backgroundColor: baseWhite,
+          backgroundColor: white,
           position: 'sticky',
           top: '0',
           zIndex: 1,
         }}>
-          <Tabs value={value} onChange={handleChange} sx={{ borderBottom: 1, borderColor: 'divider', width: 1 }}>
+          <Tabs value={value} onChange={handleChange} sx={{ borderBottom: 1, borderColor: '#EDEFF2', width: 1 }}>
             <Tab label="Summary" />
             <Tab label="Info" />
           </Tabs>

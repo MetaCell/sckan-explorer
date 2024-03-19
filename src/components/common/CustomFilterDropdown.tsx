@@ -17,11 +17,11 @@ const {
   gray100,
   gray700,
   gray400,
-  primary600,
-  whiteColor,
+  primaryPurple600,
+  white,
   gray600,
   gray500,
-  primarypurple700,
+  primaryPurple300,
   gray50
 } = vars;
 
@@ -50,7 +50,7 @@ const styles = {
     borderRadius: '0.25rem',
     border: `0.0625rem solid ${gray100}`,
     cursor: 'pointer',
-    background: whiteColor,
+    background: white,
     display: 'flex',
     alignItems: 'center',
     padding: '0.33rem 0.75rem',
@@ -66,7 +66,7 @@ const styles = {
   },
 
   rootHover: {
-    borderColor: primarypurple700,
+    borderColor: primaryPurple300,
     '&:hover': {
       borderColor: 'none',
     }
@@ -81,7 +81,7 @@ const styles = {
     fontWeight: 500,
 
     '&.MuiChip-outlined': {
-      background: whiteColor,
+      background: white,
       border: 0,
       padding: 0,
       '&:hover': {
@@ -94,15 +94,15 @@ const styles = {
       padding: 0,
       fontWeight: 600,
       fontSize: '0.875rem',
-      color: primary600,
+      color: primaryPurple600,
     },
 
     '& .MuiChip-deleteIcon': {
       margin: 0,
-      color: primary600,
+      color: primaryPurple600,
       fontSize: '1rem',
       '&:hover': {
-        color: primary600,
+        color: primaryPurple600,
       }
     }
   },
@@ -260,10 +260,10 @@ export default function CustomEntitiesDropdown({
                   </Tooltip>
                 )
               })}
-              {selectedOptions?.length > 1 && <Typography sx={{...styles.chip, display: 'flex', alignItems: 'center', padding: 0, fontWeight: 600, fontSize: '0.875rem', color: primary600,}}>{`, +${selectedOptions?.length - 1}`}</Typography>}
+              {selectedOptions?.length > 1 && <Typography sx={{...styles.chip, display: 'flex', alignItems: 'center', padding: 0, fontWeight: 600, fontSize: '0.875rem', color: primaryPurple600,}}>{`, +${selectedOptions?.length - 1}`}</Typography>}
             </Box>
           )}
-          {selectedOptions?.length ? <ClearOutlinedIcon onClick={(e) => {e.stopPropagation(); setSelectedOptions([])}} sx={{...styles.toggleIcon, color: primary600}} /> : open ? <ExpandLessIcon className='expand' sx={styles.toggleIcon} /> : <ExpandMoreIcon className='expand' sx={styles.toggleIcon} />}
+          {selectedOptions?.length ? <ClearOutlinedIcon onClick={(e) => {e.stopPropagation(); setSelectedOptions([])}} sx={{...styles.toggleIcon, color: primaryPurple600}} /> : open ? <ExpandLessIcon className='expand' sx={styles.toggleIcon} /> : <ExpandMoreIcon className='expand' sx={styles.toggleIcon} />}
         </Box>
       </Badge>
 
@@ -276,7 +276,7 @@ export default function CustomEntitiesDropdown({
         sx={{
             height: "28.125rem",
             borderRadius: '0.5rem',
-            background: whiteColor,
+            background: white,
             boxShadow: '0 0.5rem 0.5rem -0.25rem rgba(7, 8, 8, 0.03), 0 1.25rem 1.5rem -0.25rem rgba(7, 8, 8, 0.08)',
             m: '0.25rem 0  !important',
             width: 'auto',

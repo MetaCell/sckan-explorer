@@ -5,33 +5,30 @@ import minimizeIcon from "../../src/components/assets/svg/minimize_icon.svg";
 const {
   primaryFont,
   primary500,
-  primary600,
-  baseBg,
-  baseWhite,
-  baseContainerBg,
-  primarypurple700,
-  primarypurple500,
+  primaryPurple600,
   gray800,
+  white,
+  baseContainerBg,
+  primaryPurple300,
+  primaryPurple700,
   gray600,
   gray700,
   gray400,
   gray100,
-  gray700S,
   gray25,
-  primarypurple900,
-  gray200S,
-  primarypurple500S,
-  buttonShadow,
-  gray500,
-  primarypurple50,
-  primarypurple700S,
-  primarypurple200,
-  primarypurple600,
-  primarypurple25,
-  primarypurple100,
-  gray50,
   gray200,
+  primaryPurple50,
+  gray700A,
+  gray200S,
+  buttonShadow,
+  gray50,
+  gray500,
   gray300,
+  primaryPurple500,
+  primaryPurple200,
+  primaryPurple25,
+  primaryPurple100,
+  gray950
 } = vars
 
 const theme = createTheme({
@@ -73,16 +70,16 @@ const theme = createTheme({
     caption: {
       fontSize: '0.875rem',
       fontWeight: 400,
-      color: gray700S,
+      color: gray700A,
     },
     subtitle1: {
       fontSize: '0.875rem',
       fontWeight:500,
-      color: gray700S
+      color: gray700A
     },
     button: {
       fontSize: '0.875rem',
-      color: primary600,
+      color: primaryPurple600,
       fontWeight: 600,
       textTransform: 'none'
     },
@@ -117,7 +114,7 @@ const theme = createTheme({
           padding: 0;
         }
       body {
-          background: ${baseBg};
+          background: ${gray800};
           scrollbar-width: thin;
           scrollbar-color: ${gray200S} transparent;
         }
@@ -177,9 +174,9 @@ const theme = createTheme({
               font-size: 0.875rem;
               font-weight: 600;
               &.flexlayout__tab_button--selected {
-                background-color: ${baseWhite};
+                background-color: ${white};
                 &:hover {
-                  background-color: ${baseWhite};
+                  background-color: ${white};
                 }
               }
             }
@@ -208,18 +205,18 @@ const theme = createTheme({
           padding: 0
         },
         outlinedPrimary: {
-          background: '#FAF1FD',
-          borderColor: '#E8C3F8',
-          color: primarypurple500S
+          background: primaryPurple50,
+          borderColor: primaryPurple200,
+          color: primaryPurple700
         },
         outlined: {
-          color: primarypurple700S,
-          backgroundColor: primarypurple50,
-          borderColor: primarypurple200,
+          color: primaryPurple700,
+          backgroundColor: primaryPurple50,
+          borderColor: primaryPurple200,
           
           '&.link': {
-            backgroundColor: primarypurple25,
-            borderColor: primarypurple100,
+            backgroundColor: primaryPurple25,
+            borderColor: primaryPurple100,
             padding: '0.125rem 0.625rem'
           }
         }
@@ -235,7 +232,7 @@ const theme = createTheme({
     MuiAppBar: {
       styleOverrides : {
         root: {
-          background: baseBg,
+          background: gray800,
           boxShadow: 'none',
         }
       }
@@ -243,7 +240,7 @@ const theme = createTheme({
     MuiTooltip: {
       styleOverrides: {
         arrow: {
-          color: '#161718',
+          color: gray950,
         },
         popper: {
           '&[data-popper-placement*="right"]': {
@@ -253,7 +250,7 @@ const theme = createTheme({
           }
         },
         tooltip: {
-          background: '#161718',
+          background: gray950,
           borderRadius: '0.5rem',
           fontFamily: primaryFont,
           padding: '0.375rem 0.75rem'
@@ -274,7 +271,7 @@ const theme = createTheme({
             padding: '0.2rem 0.875rem',
             '&.active': {
               background: gray700,
-              borderColor: primarypurple500,
+              borderColor: primaryPurple700,
             },
             '&:focus': {
               borderColor: 'transparent',
@@ -370,18 +367,18 @@ const theme = createTheme({
         },
         contained: {
           boxShadow: 'none',
-          background: primarypurple500S,
-          color: baseWhite,
-          border: `1px solid ${primarypurple500S}`,
+          background: primaryPurple500,
+          color: white,
+          border: `1px solid ${primaryPurple500}`,
           '&:hover': {
             boxShadow: 'none',
-            border: '1px solid #8300BF',
-            background: primarypurple600
+            border: `1px solid ${primaryPurple600}`,
+            background: primaryPurple600
           }
         },
         outlined: {
             border: `1px solid ${gray100}`,
-            background: baseWhite,
+            background: white,
             color: gray600,
             '& .MuiSvgIcon-root': {
               fontSize: '1.25rem'
@@ -396,8 +393,8 @@ const theme = createTheme({
           color: gray500
         },
         containedPrimary: {
-          background: primarypurple900,
-          color: baseWhite
+          background: primaryPurple500,
+          color: white
         }
       },
     },
@@ -408,7 +405,7 @@ const theme = createTheme({
           '& .MuiButtonBase-root': {
             borderRadius: '0.25rem',
             border: `1px solid ${gray100}`,
-            background: baseWhite,
+            background: white,
             color: gray600,
             padding: '0.375rem',
             
@@ -433,7 +430,7 @@ const theme = createTheme({
           },
           '&:last-child': {
             '& p': {
-              color: primarypurple600,
+              color: primaryPurple600,
               fontWeight: 500,
               fontSize: '0.875rem',
             }
@@ -464,11 +461,11 @@ const theme = createTheme({
            flexDirection: 'row-reverse',
            '& .MuiTypography-root': {
              fontSize: '0.875rem',
-             color: gray700S,
+             color: gray700A,
              fontWeight: 500
            },
            '& .MuiAccordionSummary-expandIconWrapper':{
-             color: gray700S,
+             color: gray700A,
              fontSize: '1rem',
              '&.Mui-expanded': {
                transform: 'rotate(90deg)',
@@ -519,7 +516,7 @@ const theme = createTheme({
          
           '&.Mui-selected': {
             borderRadius: '0.25rem',
-            color: primarypurple600
+            color: primaryPurple600
           },
        },
       }
@@ -529,7 +526,7 @@ const theme = createTheme({
        root: {
          minHeight: 'unset',
          '& .MuiTabs-indicator': {
-           backgroundColor: primarypurple500,
+           backgroundColor: primaryPurple500,
            height: '1px'
          },
          '&.custom-tabs': {
@@ -579,7 +576,7 @@ const theme = createTheme({
           },
           '&.Mui-focused': {
             '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: primarypurple700,
+              borderColor: primaryPurple300,
             }
           }
         }
@@ -591,7 +588,7 @@ const theme = createTheme({
           color: gray600,
           fontWeight: 600,
           '&.Mui-focused': {
-            color: primary600,
+            color: primaryPurple600,
           }
         }
       }

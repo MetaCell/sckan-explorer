@@ -12,7 +12,7 @@ interface ListItem {
   expanded: boolean;
 }
 
-const { gray500, baseWhite, gray25, gray100, primary600, gray400 } = vars;
+const { gray500, white: white, gray25, gray100, primaryPurple600, gray400 } = vars;
 
 const xLabels: string[] = ["Brain", "Lungs", "Cervical", "Spinal", "Thoraic", "Kidney", "Urinary Tract", "Muscle organ", "Small Intestine", "Pancreas", "Skin", "Spleen", "Stomach", "Urinary bladder"];
 const initialList: ListItem[] = [
@@ -222,7 +222,7 @@ function ConnectivityGrid() {
     setSelectedCell({ x, y });
   };
   return (
-    <Box minHeight='100%' p={3} pb={0} fontSize={14} display='flex' flexDirection='column' alignItems='flex-start'>
+    <Box minHeight='100%' p={3} pb={0} fontSize={14} display='flex' flexDirection='column'>
       <Box pb={2.5}>
         <Typography variant="h6" sx={{fontWeight: 400}}>Connection Origin to End Organ</Typography>
       </Box>
@@ -301,13 +301,13 @@ function ConnectivityGrid() {
         justifyContent='space-between'
         position='sticky'
         bottom={0}
-        sx={{ background: baseWhite }}
+        sx={{ background: white }}
       >
         <Button variant="text" sx={{
           fontSize: '0.875rem',
           fontWeight: 600,
           lineHeight: '1.25rem',
-          color: primary600,
+          color: primaryPurple600,
           padding: 0,
 
           '&:hover': {

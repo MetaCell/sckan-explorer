@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { Box, Button } from "@mui/material";
 import { MinusIcon, PlusIcon } from "../icons";
 import { vars } from "../../theme/variables";
-const { gray700, gray100, gray50, primarypurple900, gray25, gray200, primarypurple500 } = vars;
+const { gray700, gray100, gray50, primaryPurple500, gray25, gray200, primaryPurple700 } = vars;
 
 interface ListItem {
   label: string;
@@ -37,19 +37,19 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
                 content: '""',
                 height: '100%',
                 width: '0.0938rem',
-                background: primarypurple900,
+                background: primaryPurple500,
                 position: 'absolute',
                 left: '-0.3125rem',
                 top: 0
             },
             '&:focus': {
-                color: primarypurple500,
+                color: primaryPurple700,
                 fontWeight: 600,
                 '&:before': {
                     content: '""',
                     height: '100%',
                     width: '0.0938rem',
-                    background: primarypurple900,
+                    background: primaryPurple500,
                     position: 'absolute',
                     left: '-0.3125rem',
                     top: 0
@@ -66,26 +66,31 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
                 disableElevation
                 onClick={() => onItemClick(option)}
                 sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                width: '100%',
-                borderRadius: '0.25rem',
-                marginTop: '0.25rem',
-                fontSize: '0.875rem',
-                fontWeight: '400',
-                alignItems: 'center',
-                padding: '0 0.5rem',
-                height: '2rem',
-                background: 'transparent',
-                color: gray700,
-                '&:hover': {
-                    background: gray25,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    borderRadius: '0.25rem',
+                    marginTop: '0.25rem',
+                    fontSize: '0.875rem',
+                    fontWeight: '400',
+                    alignItems: 'center',
+                    padding: '0 0.5rem',
+                    height: '2rem',
+                    background: 'transparent',
                     color: gray700,
-                },
-                '&:focus': {
-                    background: gray25,
-                    color: gray700,
-                },
+                    borderColor: 'transparent',
+                    '&:hover': {
+                        background: gray25,
+                        color: gray700,
+                        boxShadow: 'none',
+                        borderColor: 'transparent',
+                    },
+                    '&:focus': {
+                        background: gray25,
+                        boxShadow: 'none',
+                        color: gray700,
+                        borderColor: 'transparent',
+                    },
                 }}
             >
                 {option}
@@ -107,15 +112,20 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
                     alignItems: 'center',
                     padding: '0 0.5rem',
                     height: '2rem',
+                    borderColor: 'transparent',
                     background: index === 0 ? gray25 : gray50,
                     color: gray700,
                     '&:hover': {
+                        borderColor: 'transparent',
                         background: index === 0 ? gray50 : gray200,
                         color: gray700,
+                        boxShadow: 'none'
                     },
                     '&:focus': {
+                        borderColor: 'transparent',
                         background: index === 0 ? gray50 : gray200,
                         color: gray700,
+                        boxShadow: 'none'
                     },
                 }}
                 >
@@ -154,12 +164,14 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
                 '&:hover': {
                 background: gray100,
                 color: gray700,
-                borderColor: gray200
+                borderColor: gray200,
+                boxShadow: 'none'
                 },
                 '&:focus': {
                     background: gray100,
-                    color: primarypurple500,
-                    borderColor: gray200
+                    color: primaryPurple700,
+                    borderColor: gray200,
+                    boxShadow: 'none'
                 },
             }}
             >
