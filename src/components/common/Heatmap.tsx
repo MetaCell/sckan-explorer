@@ -48,7 +48,7 @@ const getCellBgColor = (value: number) => {
   } else if (value > 10) {
     return 'linear-gradient(to right, #2C2CCE 50%, #9B18D8 50%)'; // Gradient for values greater than 10
   } else {
-    return '#EDEFF2'; // Default color
+    return gray25// Default color
   }
 };
 
@@ -176,7 +176,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({ secondary, list, xLabels, data, xAx
                 alignItems: 'center',
                 fontSize: '0.875rem',
                 fontWeight: '500',
-                marginLeft: '0.1563rem',
+                marginLeft: '0.125rem',
                 padding: '0.875rem 0',
                 position: 'relative',
                 borderRadius: '0.25rem',
@@ -224,7 +224,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({ secondary, list, xLabels, data, xAx
             cellStyle={(_background: string, value: number, min: number, max: number, _data: string, _x: number, _y: number) => {
               const isSelectedCell = selectedCell?.x === _x && selectedCell?.y === _y
               const commonStyles = {
-                fontSize: "0.7188rem",
+                fontSize: "0.6875rem",
                 minWidth: '2rem',
                 height: '2rem',
                 borderRadius: '0.25rem',
@@ -249,7 +249,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({ secondary, list, xLabels, data, xAx
 
 
             }}
-            cellRender={(value: number, x: number, y: number) => <HeatmapTooltip value={value} x={x} y={y} secondary={secondary} getCellBgColor={getCellBgColor} />
+            cellRender={(value: number, x: number, y: number) => <HeatmapTooltip value={value} x={x} y={y} secondary={secondary}  getCellBgColor={getCellBgColor} />
             }
           />
 

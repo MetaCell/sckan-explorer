@@ -526,7 +526,7 @@ const theme = createTheme({
        root: {
          minHeight: 'unset',
          '& .MuiTabs-indicator': {
-           backgroundColor: primaryPurple700,
+           backgroundColor: primaryPurple500,
            height: '1px'
          },
          '&.custom-tabs': {
