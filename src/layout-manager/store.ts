@@ -1,13 +1,13 @@
 import { createStore } from '@metacell/geppetto-meta-client/common';
 import componentMap from "./componentMap.ts";
-import layout from "./layout.ts";
+import baseLayout from "./layout.ts";
 
 
 const store = createStore(
     {},
     {},
     [],
-    { layout, componentMap }
+    { undefined, baseLayout, componentMap }
 )
 
 export default store;
