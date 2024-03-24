@@ -32,24 +32,24 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
             style={{
                 position: "relative",
                 display: "flex",
-                width: "10rem",
-                height: "10rem",
-                padding: "0.5rem",
+                width: "9.25rem",
+                height: "9.25rem",
+                padding: "0.5rem 0.75rem",
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
                 gap: "0.25rem",
-                borderRadius: "50rem",
-                border: "2px solid #039855",
-                background: "#ECFDF3",
-                boxShadow:
-                    "0px 4px 10px -4px rgba(3, 152, 85, 0.20), 0px 0px 26px 0px #A6F4C5 inset",
+                borderRadius: "62.4375rem",
+                border: "1.253px solid #6C707A",
+                background: "rgba(246, 247, 249, 0.20)",
+              boxShadow:
+                "0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)",
             }}
             onClick={toggleColor}
         >
             <Typography
                 sx={{
-                    color: "#0E9384",
+                    color: "#4A4C4F",
                     textAlign: "center",
                     fontSize: "0.875rem",
                     fontWeight: 500,
@@ -72,9 +72,9 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                         alignItems: "center",
                         gap: "0.25rem",
                         borderRadius: "0.75rem",
-                        border: "2px solid #039855",
-                        background: "#ECFDF3",
-                        boxShadow: "0px 4px 10px -4px rgba(3, 152, 85, 0.20)",
+                        border: "1.25px solid #6C707A",
+                        background: "#F6F7F9",
+                        boxShadow: "0px 4px 8px -2px rgba(16, 24, 40, 0.10), 0px 2px 4px -2px rgba(16, 24, 40, 0.06)",
                         position: "absolute",
                         top: 0,
                         width: "18rem",
@@ -88,10 +88,10 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                         textAlign="center"
                         spacing={2}
                     >
-                        <OriginIcon fill="#039855"/>
+                        <OriginIcon fill="#6C707A"/>
                         <Typography
                             sx={{
-                                color: " #039855",
+                                color: " #4A4C4F",
                                 fontSize: "0.875rem",
                                 fontWeight: 500,
                                 lineHeight: "1.25rem",
@@ -101,7 +101,7 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                         </Typography>
                         <Typography
                             sx={{
-                                color: " #039855",
+                                color: " #6C707A",
                                 fontSize: "0.75rem",
                                 fontWeight: 400,
                                 lineHeight: "1.125rem",
@@ -113,17 +113,17 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                         <Box
                             style={{
                                 width: "1rem",
-                                height: "0.125rem",
-                                backgroundColor: " #12B76A",
+                                height: "0.0625rem",
+                                backgroundColor: " #6C707A",
                                 transform: "rotate(90deg)",
                             }}
                         />
                         <Typography
                             sx={{
-                                color: " #039855",
-                                fontSize: "0.875rem",
-                                fontWeight: 500,
-                                lineHeight: "1.25rem",
+                                color: " #6C707A",
+                                fontSize: "0.75rem",
+                                fontWeight: 400,
+                                lineHeight: "1.125rem",
                             }}
                         >
                             To
@@ -132,29 +132,48 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                     <Box
                         sx={{
                             borderRadius: "0.625rem",
-                            border: "1px solid #EAECF0",
+                            border: "1px solid #9BA2B0",
                             background: "#FFF",
                             width: "100%",
                         }}
                     >
                         {model.getOptions().to?.map((item: { type: string; name: string }, index: number) => (
+                          <>
                             <React.Fragment key={index}>
-                                {index > 0 && <Divider/>}
-                                <Stack padding=".5rem" spacing={1} direction="row" alignItems="center">
-                                    {item.type === NodeTypes.Via &&
-                                      <ViaIcon fill="#039855" width={"1rem"} height={"1rem"}/>}
-                                    {item.type === NodeTypes.Destination &&
-                                      <DestinationIcon fill="#0E9384" width={"1rem"} height={"1rem"}/>}
-                                    <Typography sx={{
-                                        color: "#667085",
-                                        fontSize: "0.875rem",
-                                        fontWeight: 500,
-                                        lineHeight: "1.25rem"
-                                    }}>
-                                        {item.name}
-                                    </Typography>
-                                </Stack>
+                              {index > 0 && <Divider/>}
+                              <Stack padding=".5rem" spacing={1} direction="row" alignItems="center" borderBottom='1px solid #9BA2B0'>
+                                {item.type === NodeTypes.Via &&
+                                    <ViaIcon fill="#6C707A" width={"1rem"} height={"1rem"}/>}
+                                {item.type === NodeTypes.Destination &&
+                                    <DestinationIcon fill="#6C707A" width={"1rem"} height={"1rem"}/>}
+                                <Typography sx={{
+                                  color: "#6C707A",
+                                  fontSize: "0.875rem",
+                                  fontWeight: 400,
+                                  lineHeight: "1.25rem"
+                                }}>
+                                  {item.name}
+                                </Typography>
+                              </Stack>
                             </React.Fragment>
+                            <React.Fragment key={index}>
+                              {index > 0 && <Divider/>}
+                              <Stack padding=".5rem" spacing={1} direction="row" alignItems="center">
+                                {item.type === NodeTypes.Via &&
+                                    <ViaIcon fill="#6C707A" width={"1rem"} height={"1rem"}/>}
+                                {item.type === NodeTypes.Destination &&
+                                    <DestinationIcon fill="#6C707A" width={"1rem"} height={"1rem"}/>}
+                                <Typography sx={{
+                                  color: "#6C707A",
+                                  fontSize: "0.875rem",
+                                  fontWeight: 500,
+                                  lineHeight: "1.25rem"
+                                }}>
+                                  {item.name}
+                                </Typography>
+                              </Stack>
+                            </React.Fragment>
+                          </>
                         ))}
                     </Box>
                 </Box>
