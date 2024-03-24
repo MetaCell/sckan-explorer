@@ -4,11 +4,11 @@ import {vars} from "../../theme/variables.ts";
 const {  gray600 } = vars;
 
 const InfoTab = () => <Stack p="2rem" spacing="3rem">
-  <Stack>
+  <Stack spacing='.75rem'>
     <Typography variant="h2">
       {sckanInfoText.summary.title}
     </Typography>
-    <Typography variant="h5" fontWeight={400} color={gray600}>
+    <Typography variant="h5" fontWeight={400} color={gray600} fontSize='0.875rem' lineHeight='1.25rem'>
       {sckanInfoText.summary.content}
     </Typography>
   </Stack>
@@ -16,15 +16,15 @@ const InfoTab = () => <Stack p="2rem" spacing="3rem">
     <Typography variant="h2">
       {sckanInfoText.connectivityStats.title}
     </Typography>
-    <Typography variant="h5" fontWeight={400} color={gray600}>
+    <Typography variant="h5" fontWeight={400} color={gray600} fontSize='0.875rem' lineHeight='1.25rem'>
       {sckanInfoText.connectivityStats.content}
     </Typography>
     <ul
       style={{
         paddingLeft: "1.5rem",
-        fontSize: "1rem",
+        fontSize: ".875rem",
         fontWeight: 400,
-        lineHeight: "1.5rem",
+        lineHeight: "1.25rem",
         color: gray600,
       }}
     >
@@ -34,7 +34,7 @@ const InfoTab = () => <Stack p="2rem" spacing="3rem">
         )
       )}
     </ul>
-    <Typography variant="h5" fontWeight={400} color={gray600}>
+    <Typography variant="h5" fontWeight={400} color={gray600} fontSize='.875rem' lineHeight='1.25rem'>
       {sckanInfoText.connectivityStats.note}
     </Typography>
   </Stack>
