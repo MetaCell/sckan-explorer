@@ -57,5 +57,4 @@ export const vars = {
   // ADDITIONAL VARIABLES
   buttonShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)',
   gray200S: '#E3E5E8',
-
 };
