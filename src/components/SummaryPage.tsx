@@ -19,7 +19,7 @@ type LabelsType = {
 
 const { primaryPurple600, gray500, white } = vars;
 
-const databaseSummaryURL = "https://raw.githubusercontent.com/MetaCell/sckan-explorer/b20272c8dcacac722ae6e359a57d4dd82677cafa/src/data/database_summary_data.json";
+const databaseSummaryURL = "https://raw.githubusercontent.com/MetaCell/sckan-explorer/feature/ESCKAN-28/src/data/database_summary_data.json";
 const databaseSummaryLabelsURL = "https://raw.githubusercontent.com/MetaCell/sckan-explorer/feature/ESCKAN-28/src/data/database_summary_labels.json";
 
 const SummaryPage = () => {
