@@ -19,7 +19,7 @@ type LabelsType = {
 
 const { primaryPurple600, gray500, white } = vars;
 
-const databaseSummaryURL = "https://raw.githubusercontent.com/MetaCell/sckan-explorer/feature/ESCKAN-28/src/data/database_summary_data.json";
+const databaseSummaryURL = "https://raw.githubusercontent.com/MetaCell/sckan-explorer/b20272c8dcacac722ae6e359a57d4dd82677cafa/src/data/database_summary_data.json";
 const databaseSummaryLabelsURL = "https://raw.githubusercontent.com/MetaCell/sckan-explorer/feature/ESCKAN-28/src/data/database_summary_labels.json";
 
 const SummaryPage = () => {
@@ -84,13 +84,13 @@ const SummaryPage = () => {
         <TabPanel value={value} index={0}>
           {Object.keys(data).map((sectionName) => (
             <Section key={sectionName} title={labels[sectionName]}>
-              {Object.entries(data[sectionName]).map(([key, value]) => {
+              {Object.entries(data[sectionName]).map(([key, value], index) => {
                 if (key.endsWith("changes") || key === 'notes') {
                   return null;
                 }
                 
                 return (
-                  <Detail keyName={key} sectionData={data[sectionName]} value={value} labels={labels} />
+                  <Detail keyName={key} sectionData={data[sectionName]} value={value} labels={labels} index={index} />
                 );
               })}
               {data[sectionName].notes && <Notes text={data[sectionName].notes} />}
