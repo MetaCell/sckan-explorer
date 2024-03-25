@@ -112,11 +112,7 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                                   spacing={1}
                                   direction="row"
                                   alignItems="center"
-                                  borderBottom={
-                                    (index !== (model?.getOptions()?.from && model.getOptions().from?.length && model.getOptions().from.length - 1))
-                                      ? '1px solid #9BA2B0'
-                                      : undefined
-                                  }
+                                  borderTop={index !== 0 ? '1px solid #9BA2B0' : 0}
                                 >
                                   {item.type === NodeTypes.Origin &&
                                       <OriginIcon fill="#6C707A" width={"1rem"} height={"1rem"}/>}
@@ -137,23 +133,22 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                               </React.Fragment>
                         ))}
                     </Box>
-
+                  <Box
+                    style={{
+                      width: "1rem",
+                      height: "0.0625rem",
+                      backgroundColor: " #6C707A",
+                      transform: "rotate(90deg)",
+                      marginTop: ".5rem"
+                    }}
+                  />
                     <Stack
                         padding="0.75rem 0.5rem"
                         alignItems="center"
                         justifyContent="center"
                         textAlign="center"
-                        spacing={'.75rem'}
                     >
-                        <Box
-                            style={{
-                                width: "1rem",
-                                height: "0.0625rem",
-                                backgroundColor: " #6C707A",
-                                transform: "rotate(90deg)",
-                            }}
-                        />
-                        <ViaIcon fill="#6C707A"/>
+                        <ViaIcon fill="#6C707A" style={{marginBottom: '.25rem'}} />
                         <Typography
                             sx={{
                                 color: " #4A4C4F",
@@ -184,29 +179,30 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                                 color: "#24245B",
                                 fontSize: "0.75rem",
                                 fontWeight: 500,
-                                padding: '0.125rem 0.5rem'
+                                padding: '0.125rem 0.5rem',
+                                marginTop: ".75rem",
                             }}
                         />
-                        <Box
-                            style={{
-                                width: "1rem",
-                                height: "0.0625rem",
-                                backgroundColor: " #6C707A",
-                                transform: "rotate(90deg)",
-                              marginTop: ".75rem !important"
-                            }}
-                        />
-                        <Typography
-                            sx={{
-                                color: " #6C707A",
-                                fontSize: "0.75rem",
-                                fontWeight: 400,
-                                lineHeight: "1.125rem"
-                            }}
-                        >
-                            To
-                        </Typography>
                     </Stack>
+                  <Box
+                    style={{
+                      width: "1rem",
+                      height: "0.0625rem",
+                      backgroundColor: " #6C707A",
+                      transform: "rotate(90deg)",
+                      marginBottom: ".5rem"
+                    }}
+                  />
+                  <Typography
+                    sx={{
+                      color: " #6C707A",
+                      fontSize: "0.75rem",
+                      fontWeight: 400,
+                      lineHeight: "1.125rem",
+                    }}
+                  >
+                    To
+                  </Typography>
                     <Box
                         sx={{
                             borderRadius: "0.625rem",
@@ -218,7 +214,7 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                         {model.getOptions().to?.map((item: { type: string; name: string }, index: number) => (
                             <React.Fragment key={index}>
                                 {index > 0 && <Divider/>}
-                                <Stack padding=".5rem" spacing={1} direction="row" alignItems="center">
+                                <Stack padding=".5rem" spacing={1} direction="row" alignItems="center" borderTop={index !== 0 ? '1px solid #9BA2B0' : 0}>
                                     {item.type === NodeTypes.Via &&
                                       <ViaIcon fill="#6C707A" width={"1rem"} height={"1rem"}/>}
                                     {item.type === NodeTypes.Destination &&
