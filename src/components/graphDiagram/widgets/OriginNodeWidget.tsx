@@ -110,25 +110,26 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                         >
                             {model.externalId}
                         </Typography>
-                        <Box
-                            style={{
-                                width: "1rem",
-                                height: "0.0625rem",
-                                backgroundColor: " #6C707A",
-                                transform: "rotate(90deg)",
-                            }}
-                        />
-                        <Typography
-                            sx={{
-                                color: " #6C707A",
-                                fontSize: "0.75rem",
-                                fontWeight: 400,
-                                lineHeight: "1.125rem",
-                            }}
-                        >
-                            To
-                        </Typography>
                     </Stack>
+                      <Box
+                        style={{
+                          width: "1rem",
+                          height: "0.0625rem",
+                          backgroundColor: " #6C707A",
+                          transform: "rotate(90deg)",
+                          marginBottom: '.5rem'
+                        }}
+                      />
+                      <Typography
+                        sx={{
+                          color: " #6C707A",
+                          fontSize: "0.75rem",
+                          fontWeight: 400,
+                          lineHeight: "1.125rem",
+                        }}
+                      >
+                        To
+                      </Typography>
                     <Box
                         sx={{
                             borderRadius: "0.625rem",
@@ -138,42 +139,23 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                         }}
                     >
                         {model.getOptions().to?.map((item: { type: string; name: string }, index: number) => (
-                          <>
-                            <React.Fragment key={index}>
-                              {index > 0 && <Divider/>}
-                              <Stack padding=".5rem" spacing={1} direction="row" alignItems="center" borderBottom='1px solid #9BA2B0'>
-                                {item.type === NodeTypes.Via &&
-                                    <ViaIcon fill="#6C707A" width={"1rem"} height={"1rem"}/>}
-                                {item.type === NodeTypes.Destination &&
-                                    <DestinationIcon fill="#6C707A" width={"1rem"} height={"1rem"}/>}
-                                <Typography sx={{
-                                  color: "#6C707A",
-                                  fontSize: "0.875rem",
-                                  fontWeight: 400,
-                                  lineHeight: "1.25rem"
-                                }}>
-                                  {item.name}
-                                </Typography>
-                              </Stack>
-                            </React.Fragment>
-                            <React.Fragment key={index}>
-                              {index > 0 && <Divider/>}
-                              <Stack padding=".5rem" spacing={1} direction="row" alignItems="center">
-                                {item.type === NodeTypes.Via &&
-                                    <ViaIcon fill="#6C707A" width={"1rem"} height={"1rem"}/>}
-                                {item.type === NodeTypes.Destination &&
-                                    <DestinationIcon fill="#6C707A" width={"1rem"} height={"1rem"}/>}
-                                <Typography sx={{
-                                  color: "#6C707A",
-                                  fontSize: "0.875rem",
-                                  fontWeight: 500,
-                                  lineHeight: "1.25rem"
-                                }}>
-                                  {item.name}
-                                </Typography>
-                              </Stack>
-                            </React.Fragment>
-                          </>
+                          <React.Fragment key={index}>
+                            {index > 0 && <Divider/>}
+                            <Stack padding=".5rem" spacing={1} direction="row" alignItems="center" borderTop={index !== 0 ? '1px solid #9BA2B0' : 0}>
+                              {item.type === NodeTypes.Via &&
+                                  <ViaIcon fill="#6C707A" width={"1rem"} height={"1rem"}/>}
+                              {item.type === NodeTypes.Destination &&
+                                  <DestinationIcon fill="#6C707A" width={"1rem"} height={"1rem"}/>}
+                              <Typography sx={{
+                                color: "#6C707A",
+                                fontSize: "0.875rem",
+                                fontWeight: 400,
+                                lineHeight: "1.25rem"
+                              }}>
+                                {item.name}
+                              </Typography>
+                            </Stack>
+                          </React.Fragment>
                         ))}
                     </Box>
                 </Box>
