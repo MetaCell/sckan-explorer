@@ -28,7 +28,10 @@ const {
   primaryPurple200,
   primaryPurple25,
   primaryPurple100,
-  gray950
+  gray950,
+  primaryBlue700,
+  primaryBlue50,
+  primaryBlue200
 } = vars
 
 const theme = createTheme({
@@ -208,6 +211,11 @@ const theme = createTheme({
           background: primaryPurple50,
           borderColor: primaryPurple200,
           color: primaryPurple700
+        },
+        outlinedSecondary: {
+          color: primaryBlue700,
+          backgroundColor: primaryBlue50,
+          borderColor: primaryBlue200,
         },
         outlined: {
           color: primaryPurple700,

@@ -7,17 +7,18 @@ import Chip from "@mui/material/Chip";
 import {CustomNodeModel} from "../models/CustomNodeModel.tsx";
 import {DiagramEngine} from "@projectstorm/react-diagrams-core";
 import {NodeTypes} from "../../../models/composer.ts";
-import {DestinationIcon, OriginIcon, ViaIcon} from "../../icons";
-import {vars} from "../../../theme/variables.ts";
+import {ArrowDownwardIcon, DestinationIcon, OriginIcon, ViaIcon} from "../../icons";
 
 interface DestinationNodeProps {
     model: CustomNodeModel;
     engine: DiagramEngine;
+    forwardConnection: boolean;
 }
 
 export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                                                                           model,
                                                                           engine,
+                                                                          forwardConnection,
                                                                       }) => {
     // State to toggle the color
     const [isActive, setIsActive] = useState(false);
@@ -36,32 +37,38 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
         <Box
             style={{
                 display: "flex",
-                width: "10rem",
-                height: "10rem",
-                padding: "0.5rem",
+                width: "7rem",
+                height: "7rem",
+                padding: "0",
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
                 gap: "0.25rem",
-                borderRadius: "0.75rem",
-                border: "2px solid #088AB2",
-                background: "#ECFDFF",
+                transform: 'rotate(45deg)',
+                borderRadius: "0.5rem",
+                border: "0.0781rem solid #6C707A",
+                background: "#f3f4f8",
                 boxShadow:
-                    "0px 4px 10px -4px rgba(8, 138, 178, 0.20), 0px 0px 26px 0px #A5F0FC inset",
+                    "0rem 0.0625rem 0.125rem 0rem #1018280F,0rem 0.0625rem 0.1875rem 0rem #1018281A",
             }}
             onClick={toggleColor}
         >
-            <Typography
-                sx={{
-                    color: "#088AB2",
-                    textAlign: "center",
-                    fontSize: "0.875rem",
-                    fontWeight: 500,
-                    lineHeight: "1.25rem",
-                }}
-            >
-                {model.name}
-            </Typography>
+            <Box position='relative' sx={{transform: 'rotate(-45deg)', height: 1, flexShrink: 0, alignItems: "center", display: "flex",}}>
+                <Typography
+                    sx={{
+                        color: "#4A4C4F",
+                        textAlign: "center",
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        lineHeight: "1.25rem",
+                        display: 'flex',
+                        alignItems: 'center'
+                    }}
+                >
+                    {model.name}
+                </Typography>
+                {forwardConnection && <ArrowDownwardIcon style={{ position: 'absolute', bottom: '-0.5rem', left: '50%', transform: 'translateX(-50%)' }} />}
+            </Box>
             {inPort && <PortWidget engine={engine} port={inPort}>
               <div className="circle-port"/>
             </PortWidget>}
@@ -75,37 +82,31 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                         alignItems: "center",
                         gap: "0.25rem",
                         borderRadius: "0.75rem",
-                        border: "2px solid #088AB2",
-                        background: "#ECFDFF",
-                        boxShadow: "0px 4px 10px -4px rgba(8, 138, 178, 0.20)",
+                        border: "0.0781rem solid rgba(108, 112, 122, 1)",
+                        background: "rgba(246, 247, 249, 1)",
+                        boxShadow: "0rem 0.125rem 0.25rem -0.125rem rgba(16, 24, 40, 0.06), 0rem 0.25rem 0.5rem -0.125rem rgba(16, 24, 40, 0.1)",
                         position: "absolute",
                         top: 0,
                         width: "18rem",
                         zIndex: isActive ? zIndex : "auto",
+                        transform: 'rotate(-45deg)'
                     }}
                 >
-                    <Box
+                    <Typography
                         sx={{
-                            padding: "0.75rem 0.5rem",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            textAlign: "center",
+                            color: "rgba(108, 112, 122, 1)",
+                            textAlign: 'center',
+                            lineHeight: '1.125rem',
+                            fontSize: "0.75rem",
+                            fontWeight: 400,
                         }}
                     >
-                        <Typography
-                            sx={{
-                                color: " #088AB2",
-                                fontSize: "0.875rem",
-                                fontWeight: 500,
-                            }}
-                        >
-                            From
-                        </Typography>
-                    </Box>
+                        From
+                    </Typography>
                     <Box
                         sx={{
                             borderRadius: "0.625rem",
-                            border: "1px solid #EAECF0",
+                            border: "0.0625rem solid rgba(155, 162, 176, 1)",
                             background: "#FFF",
                             width: "100%",
                         }}
@@ -116,20 +117,20 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                         }, index: number) => (
                             <React.Fragment key={index}>
                                 <Stack
-                                    padding=".5rem"
+                                    padding="0.5rem"
                                     spacing={1}
                                     direction="row"
                                     alignItems="center"
                                 >
                                     {item.type === NodeTypes.Origin &&
-                                      <OriginIcon fill="#088AB2" width={"1rem"} height={"1rem"}/>}
+                                      <OriginIcon fill="rgba(71, 84, 103, 1)" width={"1rem"} height={"1rem"}/>}
                                     {item.type === NodeTypes.Via &&
-                                      <ViaIcon fill="#088AB2" width={"1rem"} height={"1rem"}/>}
+                                      <ViaIcon fill="rgba(71, 84, 103, 1)" width={"1rem"} height={"1rem"}/>}
                                     <Typography
                                         sx={{
-                                            color: "#667085",
+                                            color: "rgba(108, 112, 122, 1)",
                                             fontSize: "0.875rem",
-                                            fontWeight: 500,
+                                            fontWeight: 400,
                                             lineHeight: "1.25rem",
                                         }}
                                     >
@@ -153,14 +154,14 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                             style={{
                                 width: "1rem",
                                 height: "0.125rem",
-                                backgroundColor: " #06AED4",
+                                backgroundColor: "rgba(108, 112, 122, 1)",
                                 transform: "rotate(90deg)",
                             }}
                         />
-                        <DestinationIcon fill="#088AB2"/>
+                        <DestinationIcon fill="rgba(108, 112, 122, 1)"/>
                         <Typography
                             sx={{
-                                color: " #088AB2",
+                                color: " rgba(74, 76, 79, 1)",
                                 fontSize: "0.875rem",
                                 fontWeight: 500,
                                 lineHeight: "1.25rem",
@@ -170,29 +171,30 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                         </Typography>
                         <Typography
                             sx={{
-                                color: " #088AB2",
+                                color: "rgba(108, 112, 122, 1)",
                                 fontSize: "0.75rem",
                                 fontWeight: 400,
                                 lineHeight: "1.125rem",
-                                marginTop: ".25rem !important",
+                                marginTop: "0.125rem !important",
                             }}
                         >
                             {model.externalId}
                         </Typography>
                         <Chip
                             label={model.getOptions().anatomicalType}
-                            variant="filled"
-                            sx={{
-                                background: "#E2ECFB",
-                                color: "#184EA2",
-                                marginLeft: "10px",
-                                marginRight: "10px",
+                            variant="outlined"
+                            color="secondary"
+                            // sx={{
+                            //     background: "#E2ECFB",
+                            //     color: "#184EA2",
+                            //     marginLeft: "0.625rem",
+                            //     marginRight: "0.625rem",
 
-                                "& .MuiChip-deleteIcon": {
-                                    fontSize: "14px",
-                                    color: vars.mediumBlue,
-                                },
-                            }}
+                            //     "& .MuiChip-deleteIcon": {
+                            //         fontSize: "0.875rem",
+                            //         color: vars.mediumBlue,
+                            //     },
+                            // }}
                         />
                     </Stack>
                 </Box>
