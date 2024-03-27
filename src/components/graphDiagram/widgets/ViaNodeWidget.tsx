@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {PortWidget} from "@projectstorm/react-diagrams";
 import {Typography, Box} from "@mui/material";
 import Stack from "@mui/material/Stack";
-import {DestinationIcon, OriginIcon, ViaIcon} from "../../../icons";
+import {DestinationIcon, OriginIcon, ViaIcon} from "../../icons";
 import Divider from "@mui/material/Divider";
 import Chip from "@mui/material/Chip";
 import {CustomNodeModel} from "../models/CustomNodeModel.tsx";

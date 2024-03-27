@@ -7,7 +7,7 @@ import Chip from "@mui/material/Chip";
 import {CustomNodeModel} from "../models/CustomNodeModel.tsx";
 import {DiagramEngine} from "@projectstorm/react-diagrams-core";
 import {NodeTypes} from "../../../models/composer.ts";
-import {DestinationIcon, OriginIcon, ViaIcon} from "../../../icons";
+import {DestinationIcon, OriginIcon, ViaIcon} from "../../icons";
 import {vars} from "../../../theme/variables.ts";
 
 interface DestinationNodeProps {
