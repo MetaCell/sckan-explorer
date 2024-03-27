@@ -15,10 +15,7 @@ interface DestinationNodeProps {
     engine: DiagramEngine;
 }
 
-export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
-                                                                          model,
-                                                                          engine,
-                                                                      }) => {
+export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({model, engine}) => {
     // State to toggle the color
     const [isActive, setIsActive] = useState(false);
     const [zIndex, setZIndex] = useState(0);
@@ -190,7 +187,7 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
 
                                 "& .MuiChip-deleteIcon": {
                                     fontSize: "14px",
-                                    color: vars.mediumBlue,
+                                    color: vars.primaryBlue500,
                                 },
                             }}
                         />
