@@ -14,6 +14,14 @@ interface ViaNodeProps {
     engine: DiagramEngine;
 }
 
+const VerticalDivider = () => <Box
+  style={{
+    width: "0.0625rem",
+    height: "1rem",
+    backgroundColor: " #6C707A",
+  }}
+/>
+
 export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
     // State to toggle the color
     const [isActive, setIsActive] = useState(false);
@@ -34,13 +42,13 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                 display: "flex",
                 width: "6.25rem",
                 height: "6.25rem",
-                padding: "0.5rem 0.75rem",
+                padding: "1.25rem 0.75rem",
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
                 gap: "0.15669rem",
                 borderRadius: "0.5rem",
-                border: "1.253px solid #6C707A",
+                border: "1.25px solid #6C707A",
                 background: "rgba(246, 247, 249, 0.20)",
                 boxShadow:
                     "0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)",
@@ -133,15 +141,7 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                               </React.Fragment>
                         ))}
                     </Box>
-                  <Box
-                    style={{
-                      width: "1rem",
-                      height: "0.0625rem",
-                      backgroundColor: " #6C707A",
-                      transform: "rotate(90deg)",
-                      marginTop: ".5rem"
-                    }}
-                  />
+                    <VerticalDivider />
                     <Stack
                         padding="0.75rem 0.5rem"
                         alignItems="center"
@@ -165,7 +165,7 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                                 fontSize: "0.75rem",
                                 fontWeight: 400,
                                 lineHeight: "1.125rem",
-                                marginTop: "0 !important",
+                                marginTop: ".12rem !important",
                             }}
                         >
                             {model.externalId}
@@ -184,15 +184,7 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                             }}
                         />
                     </Stack>
-                  <Box
-                    style={{
-                      width: "1rem",
-                      height: "0.0625rem",
-                      backgroundColor: " #6C707A",
-                      transform: "rotate(90deg)",
-                      marginBottom: ".5rem"
-                    }}
-                  />
+                    <VerticalDivider />
                   <Typography
                     sx={{
                       color: " #6C707A",
