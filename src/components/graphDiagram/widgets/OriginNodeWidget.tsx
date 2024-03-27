@@ -39,7 +39,7 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                 justifyContent: "center",
                 alignItems: "center",
                 gap: "0.25rem",
-                borderRadius: "62.4375rem",
+                borderRadius: "50%",
                 border: "1.253px solid #6C707A",
                 background: "rgba(246, 247, 249, 0.20)",
               boxShadow:
