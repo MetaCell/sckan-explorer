@@ -1,0 +1,35 @@
+version: "1.0"
+stages:
+  - "clone"
+  - "build"
+  - "deploy"
+steps:
+  clone:
+    stage: "clone"
+    title: "Cloning SCKANNER"
+    type: "git-clone"
+    repo: "metacell/sckan-explorer"
+    revision: "${{CF_BRANCH}}"
+  build:
+    stage: "build"
+    title: "Building SCKANNER"
+    type: "build"
+    image_name: "sckanner"
+    tag: "${{CF_BUILD_ID}}"
+    dockerfile: Dockerfile
+    working_directory: ./sckan-explorer
+    buildkit: true    
+    registry: "${{CODEFRESH_REGISTRY}}"
+  deploy:
+    stage: "deploy"
+    title: "Deploying SCKANNER"
+    image: codefresh/kubectl
+    working_directory: ./sckan-explorer/deploy/k8s
+    commands:
+      - export CLUSTER_NAME="${{CLUSTER_NAME}}"
+      - export NAMESPACE="${{NAMESPACE}}"
+      - export CF_BUILD_ID
+      - export REGISTRY="${{REGISTRY}}/"
+      - export DOMAIN="${{DOMAIN}}"
+      - chmod +x ./deploy.sh
+      - ./deploy.sh
