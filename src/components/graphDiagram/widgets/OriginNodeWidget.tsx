@@ -41,7 +41,7 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                 gap: "0.25rem",
                 borderRadius: "50%",
                 border: "1.253px solid #6C707A",
-                background: "rgba(246, 247, 249, 0.20)",
+                background: "rgba(246, 247, 249)",
               boxShadow:
                 "0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)",
             }}
