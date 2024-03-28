@@ -183,14 +183,14 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                             label={model.getOptions().anatomicalType}
                             variant="filled"
                             sx={{
-                                background: vars.lightBlue,
-                                color: vars.darkBlue,
+                                background: vars.primaryBlue300,
+                                color: vars.primaryBlue800,
                                 marginLeft: "10px",
                                 marginRight: "10px",
 
                                 "& .MuiChip-deleteIcon": {
                                     fontSize: "14px",
-                                    color: vars.mediumBlue,
+                                    color: vars.primaryBlue500,
                                 },
                             }}
                         />
