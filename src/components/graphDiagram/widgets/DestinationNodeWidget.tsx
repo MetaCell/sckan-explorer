@@ -2,12 +2,11 @@ import React, {useState} from "react";
 import {PortWidget} from "@projectstorm/react-diagrams";
 import {Typography, Box} from "@mui/material";
 import Stack from "@mui/material/Stack";
-import Divider from "@mui/material/Divider";
 import Chip from "@mui/material/Chip";
 import {CustomNodeModel} from "../models/CustomNodeModel.tsx";
 import {DiagramEngine} from "@projectstorm/react-diagrams-core";
 import {NodeTypes} from "../../../models/composer.ts";
-import {ArrowDownwardIcon, DestinationIcon, OriginIcon, ViaIcon} from "../../icons";
+import {ArrowDownwardIcon, ArrowOutward, DestinationIcon, OriginIcon, ViaIcon} from "../../icons";
 
 interface DestinationNodeProps {
     model: CustomNodeModel;
@@ -121,6 +120,7 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                                     spacing={1}
                                     direction="row"
                                     alignItems="center"
+                                    borderTop={index === 0 ? 'none' : "0.0625rem solid rgba(155, 162, 176, 1)"}
                                 >
                                     {item.type === NodeTypes.Origin &&
                                       <OriginIcon fill="rgba(71, 84, 103, 1)" width={"1rem"} height={"1rem"}/>}
@@ -137,25 +137,24 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                                         {item.name}
                                     </Typography>
                                 </Stack>
-                                {index < (model.getOptions().from?.length ?? 0) - 1 && <Divider/>}
                             </React.Fragment>
                         ))}
                     </Box>
 
 
                     <Stack
-                        padding="0.75rem 0.5rem"
+                        padding="0 0.5rem"
                         alignItems="center"
                         justifyContent="center"
                         textAlign="center"
-                        spacing={2}
+                        spacing={0}
                     >
                         <Box
                             style={{
-                                width: "1rem",
-                                height: "0.125rem",
-                                backgroundColor: "rgba(108, 112, 122, 1)",
-                                transform: "rotate(90deg)",
+                                width: "0.0625rem",
+                                height: "1rem",
+                                marginBottom: '1rem',
+                                backgroundColor: "#6C707A",
                             }}
                         />
                         <DestinationIcon fill="rgba(108, 112, 122, 1)"/>
@@ -165,6 +164,7 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                                 fontSize: "0.875rem",
                                 fontWeight: 500,
                                 lineHeight: "1.25rem",
+                                marginTop: '0.25rem'
                             }}
                         >
                             {model.name}
@@ -175,7 +175,7 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                                 fontSize: "0.75rem",
                                 fontWeight: 400,
                                 lineHeight: "1.125rem",
-                                marginTop: "0.125rem !important",
+                                marginTop: "0.125rem",
                             }}
                         >
                             {model.externalId}
@@ -184,19 +184,52 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                             label={model.getOptions().anatomicalType}
                             variant="outlined"
                             color="secondary"
-                            // sx={{
-                            //     background: "#E2ECFB",
-                            //     color: "#184EA2",
-                            //     marginLeft: "0.625rem",
-                            //     marginRight: "0.625rem",
-
-                            //     "& .MuiChip-deleteIcon": {
-                            //         fontSize: "0.875rem",
-                            //         color: vars.mediumBlue,
-                            //     },
-                            // }}
+                            sx={{
+                                marginTop: "0.75rem",
+                            }}
                         />
                     </Stack>
+
+                    <Box width={1} mt={2}>
+                        {!forwardConnection && <ArrowDownwardIcon style={{ display: 'block', margin: '0 auto 0.25rem' }} />}
+                        <Box
+                            sx={{
+                                borderRadius: "0.625rem",
+                                border: "0.0625rem solid rgba(155, 162, 176, 1)",
+                                background: "#FFF",
+                                width: "100%",
+                            }}
+                        >
+                            {model.getOptions().from?.map((item: {
+                                type: string;
+                                name: string
+                            }, index: number) => (
+                                <React.Fragment key={index}>
+                                    <Stack
+                                        padding="0.5rem"
+                                        spacing={1}
+                                        direction="row"
+                                        alignItems="center"
+                                        borderTop={index === 0 ? 'none' : "0.0625rem solid rgba(155, 162, 176, 1)"}
+                                    >
+                                        <Typography
+                                            sx={{
+                                                color: "rgba(108, 112, 122, 1)",
+                                                fontSize: "0.875rem",
+                                                fontWeight: 400,
+                                                lineHeight: "1.25rem",
+                                                flex: 1
+                                            }}
+                                        >
+                                            {item.name}
+                                        </Typography>
+                                        <ArrowOutward />
+                                    </Stack>
+                                </React.Fragment>
+                            ))}
+                        </Box>
+                    </Box>
+
                 </Box>
             )}
         </Box>
