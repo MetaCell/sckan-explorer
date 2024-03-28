@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Button, ButtonGroup, Divider, Typography, Stack, Link } from "@mui/material";
 import { vars } from "../../theme/variables";
 import IconButton from "@mui/material/IconButton";
-import { ArrowDown, ArrowRight, ArrowUp, HelpCircle } from "../../icons";
+import { ArrowDown, ArrowRight, ArrowUp, HelpCircle } from "../icons";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 
 const { gray100, primaryPurple600, gray600A, gray500 } = vars;

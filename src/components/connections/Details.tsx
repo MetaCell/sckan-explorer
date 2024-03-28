@@ -10,7 +10,7 @@ import { vars } from "../../theme/variables.ts";
 import PopulationDisplay from "./PopulationDisplay.tsx";
 import CommonAccordion from "../common/Accordion.tsx";
 import CommonChip from "../common/CommonChip.tsx";
-import { ArrowOutward, HelpCircle } from "../../icons";
+import { ArrowOutward, HelpCircle } from "../icons";
 
 const { gray500, gray700, gray800} = vars;
 
