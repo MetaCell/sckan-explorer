@@ -64,7 +64,7 @@ const PopulationDisplay = () => {
         </Tabs>
       </Stack>
       <CustomTabPanel value={value} index={0}>
-        <Box sx={{height: '800px', width: '100%'}}>
+        <Box sx={{height: '50rem', width: '100%', background: '#EDEFF2'}}>
           <GraphDiagram origins={MOCKED_composerStatement.origins} vias={MOCKED_composerStatement.vias}
                         destinations={MOCKED_composerStatement.destinations}/>
         </Box>
