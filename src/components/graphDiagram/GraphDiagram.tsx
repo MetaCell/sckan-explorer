@@ -230,7 +230,7 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({origins, vias, destinations}
         modelUpdated ? (
                 <div ref={containerRef} className={"graphContainer"}>
                     <NavigationMenu engine={engine}/>
-                    <InfoMenu engine={engine}/>
+                    <InfoMenu engine={engine} forwardConnection={true} />
                     <CanvasWidget className={"graphContainer"} engine={engine}/>
                 </div>)
             : null
