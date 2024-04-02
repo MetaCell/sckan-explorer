@@ -1,6 +1,6 @@
 import {Stack, Tooltip, Typography} from "@mui/material";
 import {vars} from "../../theme/variables.ts";
-import {HelpCircle} from "../../icons";
+import {HelpCircle} from "../icons";
 import IconButton from "@mui/material/IconButton";
 const { gray500, gray700, gray600 } = vars;
 
