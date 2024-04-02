@@ -19,8 +19,8 @@
   "sparc_connections": {
     "total_number_of_a_to_b_via_nerve_c_sparc_connections": 700,
     "sparc_connections_apinatomy_models": 288,
+    "sparc_connections_apinatomy_models_changes": "21",
     "sparc_connections_sparc_nlp_curated": 114,
-    "sparc_connections_sparc_nlp_curated_changes": "21",
-    "notes": "SPARC connectivity only includes populations from ApINATOMY and NLP curated neuron populations"
+    "sparc_connections_sparc_nlp_curated_changes": "21"
   }
 }

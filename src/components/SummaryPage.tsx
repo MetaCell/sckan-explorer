@@ -52,7 +52,7 @@ const SummaryPage = () => {
   </Box>
   return (
     <Box width={1} className='database-summary'>
-      <Stack justifyContent='center' alignItems='center' pt='6.5rem' pb='6.5rem' width={1}>
+      <Stack justifyContent='center' alignItems='center' pt='6.5rem' pb='6.5rem' width={1} spacing='.5rem'>
         <Typography
           sx={{
             color: primaryPurple600,
@@ -84,13 +84,13 @@ const SummaryPage = () => {
         <TabPanel value={value} index={0}>
           {Object.keys(data).map((sectionName) => (
             <Section key={sectionName} title={labels[sectionName]}>
-              {Object.entries(data[sectionName]).map(([key, value]) => {
+              {Object.entries(data[sectionName]).map(([key, value], index) => {
                 if (key.endsWith("changes") || key === 'notes') {
                   return null;
                 }
                 
                 return (
-                  <Detail keyName={key} sectionData={data[sectionName]} value={value} labels={labels} />
+                  <Detail keyName={key} sectionData={data[sectionName]} value={value} labels={labels} index={index} />
                 );
               })}
               {data[sectionName].notes && <Notes text={data[sectionName].notes} />}

@@ -8,12 +8,19 @@ import Chip from "@mui/material/Chip";
 import {CustomNodeModel} from "../models/CustomNodeModel.tsx";
 import {DiagramEngine} from "@projectstorm/react-diagrams-core";
 import {NodeTypes} from "../../../models/composer.ts";
-import {vars} from "../../../theme/variables.ts";
 
 interface ViaNodeProps {
     model: CustomNodeModel;
     engine: DiagramEngine;
 }
+
+const VerticalDivider = () => <Box
+  style={{
+    width: "0.0625rem",
+    height: "1rem",
+    backgroundColor: " #6C707A",
+  }}
+/>
 
 export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
     // State to toggle the color
@@ -33,24 +40,24 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
         <Box
             style={{
                 display: "flex",
-                width: "10rem",
-                height: "10rem",
-                padding: "0.5rem",
+                width: "6.25rem",
+                height: "6.25rem",
+                padding: "1.25rem 0.75rem",
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
-                gap: "0.25rem",
-                borderRadius: "3.25rem",
-                border: "2px solid #0E9384",
-                background: "#F0FDF9",
+                gap: "0.15669rem",
+                borderRadius: "0.5rem",
+                border: "1.25px solid #6C707A",
+                background: "rgba(246, 247, 249)",
                 boxShadow:
-                    "0px 4px 10px -4px rgba(14, 147, 132, 0.20), 0px 0px 26px 0px #99F6E0 inset",
+                    "0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)",
             }}
             onClick={toggleColor}
         >
             <Typography
                 sx={{
-                    color: "#0E9384",
+                    color: "#4A4C4F",
                     textAlign: "center",
                     fontSize: "0.875rem",
                     fontWeight: 500,
@@ -75,9 +82,9 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                         alignItems: "center",
                         gap: "0.25rem",
                         borderRadius: "0.75rem",
-                        border: "2px solid #039855",
-                        background: "#ECFDF3",
-                        boxShadow: "0px 4px 10px -4px rgba(3, 152, 85, 0.20)",
+                        border: "1.25px solid #6C707A",
+                        background: "#F6F7F9",
+                        boxShadow: "0px 4px 8px -2px rgba(16, 24, 40, 0.10), 0px 2px 4px -2px rgba(16, 24, 40, 0.06)",
                         position: "absolute",
                         top: 0,
                         width: "18rem",
@@ -85,28 +92,20 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                         maxHeight: "36rem",
                     }}
                 >
-                    <Box
-                        sx={{
-                            padding: "0.75rem 0.5rem",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            textAlign: "center",
-                        }}
-                    >
-                        <Typography
-                            sx={{
-                                color: " #039855",
-                                fontSize: "0.875rem",
-                                fontWeight: 500,
-                            }}
-                        >
-                            From
-                        </Typography>
-                    </Box>
+                  <Typography
+                    sx={{
+                      color: " #6C707A",
+                      fontSize: "0.75rem",
+                      fontWeight: 400,
+                      lineHeight: "1.125rem"
+                    }}
+                  >
+                    From
+                  </Typography>
                     <Box
                         sx={{
                             borderRadius: "0.625rem",
-                            border: "1px solid #EAECF0",
+                            border: "1px solid #9BA2B0",
                             background: "#FFF",
                             width: "100%",
                         }}
@@ -115,52 +114,44 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                             type: string;
                             name: string
                         }, index: number) => (
-                            <React.Fragment key={index}>
+                              <React.Fragment key={index}>
                                 <Stack
-                                    padding=".5rem"
-                                    spacing={1}
-                                    direction="row"
-                                    alignItems="center"
+                                  padding=".5rem"
+                                  spacing={1}
+                                  direction="row"
+                                  alignItems="center"
+                                  borderTop={index !== 0 ? '1px solid #9BA2B0' : 0}
                                 >
-                                    {item.type === NodeTypes.Origin &&
-                                      <OriginIcon fill="#088AB2" width={"1rem"} height={"1rem"}/>}
-                                    {item.type === NodeTypes.Via &&
-                                      <ViaIcon fill="#088AB2" width={"1rem"} height={"1rem"}/>}
-                                    <Typography
-                                        sx={{
-                                            color: "#667085",
-                                            fontSize: "0.875rem",
-                                            fontWeight: 500,
-                                            lineHeight: "1.25rem",
-                                        }}
-                                    >
-                                        {item.name}
-                                    </Typography>
+                                  {item.type === NodeTypes.Origin &&
+                                      <OriginIcon fill="#6C707A" width={"1rem"} height={"1rem"}/>}
+                                  {item.type === NodeTypes.Via &&
+                                      <ViaIcon fill="#6C707A" width={"1rem"} height={"1rem"}/>}
+                                  <Typography
+                                    sx={{
+                                      color: "#6C707A",
+                                      fontSize: "0.875rem",
+                                      fontWeight: 400,
+                                      lineHeight: "1.25rem",
+                                    }}
+                                  >
+                                    {item.name}
+                                  </Typography>
                                 </Stack>
                                 {index < (model.getOptions().from?.length ?? 0) - 1 && <Divider/>}
-                            </React.Fragment>
+                              </React.Fragment>
                         ))}
                     </Box>
-
+                    <VerticalDivider />
                     <Stack
                         padding="0.75rem 0.5rem"
                         alignItems="center"
                         justifyContent="center"
                         textAlign="center"
-                        spacing={2}
                     >
-                        <Box
-                            style={{
-                                width: "1rem",
-                                height: "0.125rem",
-                                backgroundColor: " #0E9384",
-                                transform: "rotate(90deg)",
-                            }}
-                        />
-                        <ViaIcon fill="#0E9384"/>
+                        <ViaIcon fill="#6C707A" style={{marginBottom: '.25rem'}} />
                         <Typography
                             sx={{
-                                color: " #0E9384",
+                                color: " #4A4C4F",
                                 fontSize: "0.875rem",
                                 fontWeight: 500,
                                 lineHeight: "1.25rem",
@@ -170,11 +161,11 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                         </Typography>
                         <Typography
                             sx={{
-                                color: " #0E9384",
+                                color: " #6C707A",
                                 fontSize: "0.75rem",
                                 fontWeight: 400,
                                 lineHeight: "1.125rem",
-                                marginTop: ".25rem !important",
+                                marginTop: ".12rem !important",
                             }}
                         >
                             {model.externalId}
@@ -183,39 +174,31 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                             label={model.getOptions().anatomicalType}
                             variant="filled"
                             sx={{
-                                background: vars.primaryBlue300,
-                                color: vars.primaryBlue800,
-                                marginLeft: "10px",
-                                marginRight: "10px",
-
-                                "& .MuiChip-deleteIcon": {
-                                    fontSize: "14px",
-                                    color: vars.primaryBlue500,
-                                },
-                            }}
-                        />
-                        <Box
-                            style={{
-                                width: "1rem",
-                                height: "0.125rem",
-                                backgroundColor: " #0E9384",
-                                transform: "rotate(90deg)",
-                            }}
-                        />
-                        <Typography
-                            sx={{
-                                color: " #039855",
-                                fontSize: "0.875rem",
+                                background: "#F2F2FC",
+                                border: "1px solid #C0C0F2",
+                                color: "#24245B",
+                                fontSize: "0.75rem",
                                 fontWeight: 500,
+                                padding: '0.125rem 0.5rem',
+                                marginTop: ".75rem",
                             }}
-                        >
-                            To
-                        </Typography>
+                        />
                     </Stack>
+                    <VerticalDivider />
+                  <Typography
+                    sx={{
+                      color: " #6C707A",
+                      fontSize: "0.75rem",
+                      fontWeight: 400,
+                      lineHeight: "1.125rem",
+                    }}
+                  >
+                    To
+                  </Typography>
                     <Box
                         sx={{
                             borderRadius: "0.625rem",
-                            border: "1px solid #EAECF0",
+                            border: "1px solid #9BA2B0",
                             background: "#FFF",
                             width: "100%",
                         }}
@@ -223,15 +206,15 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                         {model.getOptions().to?.map((item: { type: string; name: string }, index: number) => (
                             <React.Fragment key={index}>
                                 {index > 0 && <Divider/>}
-                                <Stack padding=".5rem" spacing={1} direction="row" alignItems="center">
+                                <Stack padding=".5rem" spacing={1} direction="row" alignItems="center" borderTop={index !== 0 ? '1px solid #9BA2B0' : 0}>
                                     {item.type === NodeTypes.Via &&
-                                      <ViaIcon fill="#039855" width={"1rem"} height={"1rem"}/>}
+                                      <ViaIcon fill="#6C707A" width={"1rem"} height={"1rem"}/>}
                                     {item.type === NodeTypes.Destination &&
-                                      <DestinationIcon fill="#0E9384" width={"1rem"} height={"1rem"}/>}
+                                      <DestinationIcon fill="#6C707A" width={"1rem"} height={"1rem"}/>}
                                     <Typography sx={{
-                                        color: "#667085",
+                                        color: "#6C707A",
                                         fontSize: "0.875rem",
-                                        fontWeight: 500,
+                                        fontWeight: 400,
                                         lineHeight: "1.25rem"
                                     }}>
                                         {item.name}
