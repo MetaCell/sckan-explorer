@@ -9,7 +9,7 @@ import theme from './theme/index.tsx';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Header from './components/common/Header.tsx';
-import { BrowserRouter as Router, Routes, Route, json } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SummaryPage from "./components/SummaryPage.tsx";
 import { DataContextProvider } from './context/DataContextProvider.tsx';
 
