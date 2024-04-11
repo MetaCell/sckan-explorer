@@ -1,22 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useStore } from 'react-redux';
-import { Box, CircularProgress } from "@mui/material";
-import { getLayoutManagerInstance } from "@metacell/geppetto-meta-client/common/layout/LayoutManager";
-import { addWidget } from '@metacell/geppetto-meta-client/common/layout/actions';
-import { connectionsWidget, connectivityGridWidget } from "./layout-manager/widgets.ts";
+import React, {useEffect, useState} from 'react';
+import {useDispatch, useStore} from 'react-redux';
+import {Box, CircularProgress} from "@mui/material";
+import {getLayoutManagerInstance} from "@metacell/geppetto-meta-client/common/layout/LayoutManager";
+import {addWidget} from '@metacell/geppetto-meta-client/common/layout/actions';
+import {connectionsWidget, connectivityGridWidget} from "./layout-manager/widgets.ts";
 import '@metacell/geppetto-meta-ui/flex-layout/style/light.scss';
 import theme from './theme/index.tsx';
-import { ThemeProvider } from '@mui/material/styles';
+import {ThemeProvider} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Header from './components/common/Header.tsx';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import SummaryPage from "./components/SummaryPage.tsx";
-import { DataContextProvider } from './context/DataContextProvider.tsx';
+import {DataContextProvider} from './context/DataContextProvider.tsx';
+import {fetchJSON} from "./services/fetchService.ts";
 
 const App = () => {
     const store = useStore();
     const dispatch = useDispatch();
     const [LayoutComponent, setLayoutComponent] = useState<React.ComponentType | undefined>(undefined);
+    const [jsonData, setJsonData] = useState();
 
     useEffect(() => {
         if (LayoutComponent === undefined) {
@@ -26,7 +28,7 @@ const App = () => {
             }
         }
     }, [store, dispatch, LayoutComponent])
-    
+
     useEffect(() => {
         dispatch(addWidget(connectivityGridWidget()));
         dispatch(addWidget(connectionsWidget()));
@@ -35,29 +37,36 @@ const App = () => {
     // TODO retrieve from rest api
     const composerData = undefined;
 
-    // TODO retrieve json files
-    const jsonData = undefined;
+    useEffect(() => {
+        // Fetch JSON data and handle potential errors
+        fetchJSON().then(data => {
+            setJsonData(data);
+        }).catch(error => {
+            // TODO: We should give feedback to the user
+            console.error("Failed to fetch JSON data:", error);
+            setJsonData(undefined);
+        });
+    }, []);
+
+    const isLoading = LayoutComponent === undefined || jsonData === undefined
 
     return (
         <>
             <ThemeProvider theme={theme}>
-                <CssBaseline />
+                <CssBaseline/>
                 <Router>
                     <Box>
-                        <Header />
+                        <Header/>
                         <Box className="MuiContainer">
                             <Routes>
-                                <Route path="/summary" element={<SummaryPage />} />
-                                <Route path="/" element={LayoutComponent === undefined
-                                    ?
-                                        <CircularProgress />
-                                    :
-                                        <DataContextProvider
-                                            composerData={composerData}
-                                            jsonData={jsonData}>
-                                        <LayoutComponent />
-                                        </DataContextProvider>
-                                    }
+                                <Route path="/summary" element={<SummaryPage/>}/>
+                                <Route path="/" element={isLoading ? <CircularProgress/> :
+                                    <DataContextProvider
+                                        composerData={composerData}
+                                        jsonData={jsonData}>
+                                        <LayoutComponent/>
+                                    </DataContextProvider>
+                                }
                                 />
                             </Routes>
                         </Box>
