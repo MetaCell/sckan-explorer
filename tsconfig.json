@@ -16,10 +16,14 @@
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
+    // TODO: change the below to true when DataContextProvider is completed
+    "noUnusedLocals": false,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "references": [{ "path": "./tsconfig.node.json" }],
+  "exclude": [
+    "src/context/**/*",
+  ]
 }

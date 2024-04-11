@@ -11,7 +11,7 @@ cp ingress_tpl.yaml ingress.yaml
 # sckanner service and deployment
 sed -ie 's/{{TAG}}/'$CF_BUILD_ID'/i' sckanner.yaml
 sed -ie 's|{{REGISTRY}}|'$REGISTRY'|i' sckanner.yaml
-kubectl apply -f sds_viewer.yaml
+kubectl apply -f sckanner.yaml
 
 # ingress
 sed -ie 's|{{DOMAIN}}|'$DOMAIN'|i' ingress.yaml

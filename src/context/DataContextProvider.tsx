@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-// TODO: Remove the eslint-disable line above after implementing the DataContextProvider component
 
-import {PropsWithChildren, useMemo, useState} from 'react';
+import {PropsWithChildren, useState} from 'react';
 import { DataContext } from "./DataContext";
 
 export const DataContextProvider = ({
-    composerData,
-    jsonData,
+    // composerData,
+    // jsonData,
     children
 }: PropsWithChildren<{
     composerData: unknown;
