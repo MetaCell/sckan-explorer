@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO: Remove the eslint-disable line above after implementing the DataContextProvider component
 
+
 import {PropsWithChildren, useEffect, useState} from 'react';
 import {DataContext, Filters} from "./DataContext";
 import {getHierarchicalNodes, getOrgans} from "../services/hierarchyService.ts";
@@ -8,7 +9,6 @@ import {JsonData} from "../models/json.ts";
 import {HierarchicalNode, Organ} from "../models/explorer.ts";
 
 export const DataContextProvider = ({
-                                        composerData,
                                         jsonData,
                                         children
                                     }: PropsWithChildren<{ composerData: unknown; jsonData: JsonData; }>) => {
