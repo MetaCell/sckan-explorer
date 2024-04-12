@@ -1,4 +1,4 @@
-import {HierarchicalNode} from "../models/explorer.ts";
+import {HierarchicalNode, KnowledgeStatement} from "../models/explorer.ts";
 import {JsonData} from "../models/json.ts";
 
 
@@ -98,8 +98,16 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
             leafNode.connectionDetails = leafNode.connectionDetails || {};
 
             const neuronId = entry.Neuron_ID?.value;
-            if (neuronId) {
-                leafNode.connectionDetails[neuronId] = {
+            const targetOrganIRI = entry.Target_Organ_IRI?.value;
+
+            if (neuronId && targetOrganIRI) {
+                // Ensure connectionDetails for this targetOrganIRI is initialized
+                if (!leafNode.connectionDetails[targetOrganIRI]) {
+                    leafNode.connectionDetails[targetOrganIRI] = [];  // Initialize as an empty array
+                }
+
+                // Create or update the KnowledgeStatement
+                const knowledgeStatement: KnowledgeStatement = {
                     id: neuronId,
                     phenotype: '',
                     apinatomy: '',
@@ -108,6 +116,16 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
                     origins: [],
                     destinations: []
                 };
+
+                // Add the KnowledgeStatement to the array for this target organ
+                leafNode.connectionDetails[targetOrganIRI].push(knowledgeStatement);
+            } else {
+                if(!targetOrganIRI){
+                    console.error(`Error: Target_Organ_IRI not found for entry with Neuron_ID: ${neuronId}`);
+                }
+                if(!neuronId){
+                    console.error(`Error: Neuron_ID not found for entry`);
+                }
             }
 
             // Add this leaf node's path to the parent's children set
