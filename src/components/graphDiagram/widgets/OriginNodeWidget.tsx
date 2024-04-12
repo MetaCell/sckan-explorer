@@ -43,7 +43,7 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                 borderRadius: "50%",
                 border: "1.253px solid #6C707A",
                 background: "rgba(246, 247, 249)",
-              boxShadow:
+                boxShadow:
                 "0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)",
             }}
             onClick={toggleColor}
@@ -59,8 +59,8 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
             >
                 {model.name}
             </Typography>
-            {outPort && <PortWidget engine={engine} port={outPort}>
-              <div className="circle-port"/>
+            {outPort && <PortWidget className="outPort" engine={engine} port={outPort}>
+              <div className="outPort"/>
             </PortWidget>
             }
 
@@ -77,7 +77,7 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                         background: "#F6F7F9",
                         boxShadow: "0px 4px 8px -2px rgba(16, 24, 40, 0.10), 0px 2px 4px -2px rgba(16, 24, 40, 0.06)",
                         position: "absolute",
-                        top: 0,
+                        top: -5,
                         width: "18rem",
                         zIndex: isActive ? zIndex : "auto",
                     }}

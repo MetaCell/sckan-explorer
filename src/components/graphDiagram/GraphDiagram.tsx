@@ -69,6 +69,7 @@ const createLink = (sourceNode: CustomNodeModel, targetNode: CustomNodeModel, so
         const link = new DefaultLinkModel();
         link.setSourcePort(sourcePort);
         link.setTargetPort(targetPort);
+        link.getOptions().curvyness = 0
         return link;
     }
     return null;
@@ -84,9 +85,9 @@ const processData = (
 
     const nodeMap = new Map<string, CustomNodeModel>();
 
-    const yStart = 100
-    const yIncrement = 200; // Vertical spacing
-    const xIncrement = 200; // Horizontal spacing
+    const yStart = 50
+    const yIncrement = 250; // Vertical spacing
+    const xIncrement = 250; // Horizontal spacing
     let xOrigin = 100
 
     origins?.forEach(origin => {
@@ -108,7 +109,7 @@ const processData = (
 
     vias?.forEach((via) => {
         const layerIndex = via.order + 1
-        let xVia = 100
+        let xVia = 120
         let yVia = layerIndex * yIncrement + yStart;
         via.anatomical_entities.forEach(entity => {
             const id = getId(NodeTypes.Via + layerIndex, entity)
@@ -146,7 +147,7 @@ const processData = (
 
 
     const yDestination = yIncrement * ((vias?.length || 1) + 1) + yStart
-    let xDestination = 100
+    let xDestination = 115
 
 
     // Process Destinations
@@ -187,6 +188,7 @@ const processData = (
 const GraphDiagram: React.FC<GraphDiagramProps> = ({origins, vias, destinations}) => {
     const [engine] = useState(() => createEngine());
     const [modelUpdated, setModelUpdated] = useState(false)
+    const [modelFitted, setModelFitted] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null);
 
     // This effect runs once to set up the engine
@@ -225,6 +227,13 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({origins, vias, destinations}
             };
         }
     }, [modelUpdated]);
+
+    useEffect(() => {
+        if (modelUpdated && !modelFitted) {
+            engine.zoomToFit();
+            setModelFitted(true);
+        }
+    }, [modelUpdated, modelFitted, engine]);
 
     return (
         modelUpdated ? (

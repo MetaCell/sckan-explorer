@@ -68,8 +68,8 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                 </Typography>
                 {forwardConnection && <ArrowDownwardIcon style={{ position: 'absolute', bottom: '-0.5rem', left: '50%', transform: 'translateX(-50%)' }} />}
             </Box>
-            {inPort && <PortWidget engine={engine} port={inPort}>
-              <div className="circle-port"/>
+            {inPort && <PortWidget className="inPortDestination" engine={engine} port={inPort}>
+              <div className="inPortDestination"/>
             </PortWidget>}
 
             {isActive && (
@@ -85,10 +85,11 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                         background: "rgba(246, 247, 249, 1)",
                         boxShadow: "0rem 0.125rem 0.25rem -0.125rem rgba(16, 24, 40, 0.06), 0rem 0.25rem 0.5rem -0.125rem rgba(16, 24, 40, 0.1)",
                         position: "absolute",
-                        top: 0,
+                        top: '-3vw',
+                        left: '-2vw',
                         width: "18rem",
                         zIndex: isActive ? zIndex : "auto",
-                        transform: 'rotate(-45deg)'
+                        transform: 'rotate(-45deg)',
                     }}
                 >
                     <Typography
@@ -229,7 +230,6 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                             ))}
                         </Box>
                     </Box>
-
                 </Box>
             )}
         </Box>

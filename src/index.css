@@ -78,3 +78,21 @@ button:focus-visible {
   width: 100%;
   position: relative;
 }
+
+.outPort {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+}
+
+.inPort {
+  position: absolute;
+  top: 0%;
+  left: 50%;
+}
+
+.inPortDestination {
+  position: absolute;
+  top: 0%;
+  left: 0%;
+}

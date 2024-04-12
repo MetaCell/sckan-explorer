@@ -66,11 +66,11 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
             >
                 {model.name}
             </Typography>
-            {inPort && <PortWidget engine={engine} port={inPort}>
-              <div className="circle-port"/>
+            {inPort && <PortWidget className="inPort" engine={engine} port={inPort}>
+              <div className="inPort"/>
             </PortWidget>}
-            {outPort && <PortWidget engine={engine} port={outPort}>
-              <div className="circle-port"/>
+            {outPort && <PortWidget className="outPort" engine={engine} port={outPort}>
+              <div className="outPort"/>
             </PortWidget>}
 
             {isActive && (
