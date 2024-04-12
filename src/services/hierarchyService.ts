@@ -24,7 +24,7 @@ const PNS = {
 } as RootNode
 
 const UNK = {
-    name: 'Uncategorized',
+    name: 'Others',
     id: "-1",
     isAncestor: (a_l1_name: string) => a_l1_name == ""
 } as RootNode

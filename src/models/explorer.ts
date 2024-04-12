@@ -106,7 +106,7 @@ export interface HierarchicalNode {
     children: Set<string>;
     /**
      * The connection details of the node targetOrgan -> KnowledgeStatements
-     * @type {Record<string, KnowledgeStatement>}
+     * @type {Record<string, KnowledgeStatement[]>}
      * @memberof HierarchicalNode
      */
     connectionDetails?: Record<string, KnowledgeStatement[]>;
