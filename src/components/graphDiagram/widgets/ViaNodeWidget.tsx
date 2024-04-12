@@ -14,7 +14,7 @@ interface ViaNodeProps {
     engine: DiagramEngine;
 }
 
-const VerticalDivider = () => <Box
+export const VerticalDivider = () => <Box
   style={{
     width: "0.0625rem",
     height: "1rem",
@@ -66,11 +66,11 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
             >
                 {model.name}
             </Typography>
-            {inPort && <PortWidget engine={engine} port={inPort}>
-              <div className="circle-port"/>
+            {inPort && <PortWidget className="inPort" engine={engine} port={inPort}>
+              <div className="inPort"/>
             </PortWidget>}
-            {outPort && <PortWidget engine={engine} port={outPort}>
-              <div className="circle-port"/>
+            {outPort && <PortWidget className="outPort" engine={engine} port={outPort}>
+              <div className="outPort"/>
             </PortWidget>}
 
             {isActive && (
@@ -147,8 +147,9 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                         alignItems="center"
                         justifyContent="center"
                         textAlign="center"
+                        spacing="0.25rem"
                     >
-                        <ViaIcon fill="#6C707A" style={{marginBottom: '.25rem'}} />
+                        <ViaIcon fill="#6C707A" />
                         <Typography
                             sx={{
                                 color: " #4A4C4F",
@@ -180,7 +181,7 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                                 fontSize: "0.75rem",
                                 fontWeight: 500,
                                 padding: '0.125rem 0.5rem',
-                                marginTop: ".75rem",
+                                marginTop: ".75rem !important",
                             }}
                         />
                     </Stack>

@@ -7,6 +7,7 @@ import Divider from "@mui/material/Divider";
 import {CustomNodeModel} from "../models/CustomNodeModel.tsx";
 import {DiagramEngine} from "@projectstorm/react-diagrams-core";
 import {NodeTypes} from "../../../models/composer.ts";
+import {VerticalDivider} from "./ViaNodeWidget.tsx";
 
 interface OriginNodeProps {
     model: CustomNodeModel;
@@ -42,7 +43,7 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                 borderRadius: "50%",
                 border: "1.253px solid #6C707A",
                 background: "rgba(246, 247, 249)",
-              boxShadow:
+                boxShadow:
                 "0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)",
             }}
             onClick={toggleColor}
@@ -58,8 +59,8 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
             >
                 {model.name}
             </Typography>
-            {outPort && <PortWidget engine={engine} port={outPort}>
-              <div className="circle-port"/>
+            {outPort && <PortWidget className="outPort" engine={engine} port={outPort}>
+              <div className="outPort"/>
             </PortWidget>
             }
 
@@ -76,7 +77,7 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                         background: "#F6F7F9",
                         boxShadow: "0px 4px 8px -2px rgba(16, 24, 40, 0.10), 0px 2px 4px -2px rgba(16, 24, 40, 0.06)",
                         position: "absolute",
-                        top: 0,
+                        top: -5,
                         width: "18rem",
                         zIndex: isActive ? zIndex : "auto",
                     }}
@@ -86,7 +87,7 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                         alignItems="center"
                         justifyContent="center"
                         textAlign="center"
-                        spacing={2}
+                        spacing={'.25rem'}
                     >
                         <OriginIcon fill="#6C707A"/>
                         <Typography
@@ -105,21 +106,13 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                                 fontSize: "0.75rem",
                                 fontWeight: 400,
                                 lineHeight: "1.125rem",
-                                marginTop: ".25rem !important",
+                                marginTop: ".12rem !important",
                             }}
                         >
                             {model.externalId}
                         </Typography>
                     </Stack>
-                      <Box
-                        style={{
-                          width: "1rem",
-                          height: "0.0625rem",
-                          backgroundColor: " #6C707A",
-                          transform: "rotate(90deg)",
-                          marginBottom: '.5rem'
-                        }}
-                      />
+                      <VerticalDivider />
                       <Typography
                         sx={{
                           color: " #6C707A",
