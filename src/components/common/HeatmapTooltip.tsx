@@ -33,7 +33,7 @@ const HeatmapTooltip: FC<HeatmapTooltipProps> = ({value, x, y, secondary, getCel
           ...commonHeadingStyles,
           marginBottom: '0.125rem'
 
-        }}>{`${x} -> ${y}`}</Typography>
+        }}>{`${y} -> ${x}`}</Typography>
         <Box display='flex' flexDirection='column' gap={'0.25rem'}>
           <Box display='flex' alignItems='center' justifyContent='space-between'>
             <Box gap='0.375rem' display='flex' alignItems='center'>
