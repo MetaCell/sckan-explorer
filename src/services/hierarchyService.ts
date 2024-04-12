@@ -18,7 +18,7 @@ const CNS = {
 
 const PNS = {
     name: 'Peripheral nervous system',
-    id: "http://purl.obolibrary.org/obo/UBERON_0001017",
+    id: "http://purl.obolibrary.org/obo/UBERON_0000010 ",
     isAncestor: (a_l1_name: string) => a_l1_name !== "brain"
 } as RootNode
 
@@ -28,7 +28,7 @@ const UNK = {
     isAncestor: (a_l1_name: string) => a_l1_name == ""
 } as RootNode
 
-const ROOTS = [CNS, PNS, UNK]
+export const ROOTS = [CNS, PNS, UNK]
 
 
 export const getHierarchicalNodes = (jsonData: JsonData) => {
