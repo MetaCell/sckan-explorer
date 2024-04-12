@@ -5,7 +5,7 @@ interface Variable {
     value: string;
 }
 
-interface Binding {
+export interface Binding {
     Neuron_ID?: Variable;
     A_L1_ID?: Variable;
     A_L1?: Variable;
@@ -22,6 +22,7 @@ interface Binding {
     B?: Variable;
     Target_Organ_IRI?: Variable;
     Target_Organ?: Variable;
+
     [key: string]: Variable | undefined; // This allows for any additional variable that follows the same pattern
 }
 

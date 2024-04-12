@@ -3,7 +3,7 @@
 
 import {PropsWithChildren, useEffect, useState} from 'react';
 import {DataContext, Filters} from "./DataContext";
-import {getHierarchicalNodes} from "../services/hierarchyService.ts";
+import {getHierarchicalNodes, getOrgans} from "../services/hierarchyService.ts";
 import {JsonData} from "../models/json.ts";
 import {HierarchicalNode, Organ} from "../models/explorer.ts";
 
@@ -30,6 +30,8 @@ export const DataContextProvider = ({
         if (jsonData) {
             const nodes = getHierarchicalNodes(jsonData);
             setHierarchicalNodes(nodes);
+            const organs = getOrgans(jsonData)
+            setOrgans(organs)
         }
     }, [jsonData]);
 

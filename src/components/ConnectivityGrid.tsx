@@ -6,7 +6,7 @@ import {Option} from "./common/Types";
 import {mockEntities} from "./common/MockEntities";
 import HeatmapGrid from "./common/Heatmap";
 import {useDataContext} from "../context/DataContext.ts";
-import {getYAxis} from "../services/heatmapService.ts";
+import {getXAxis, getYAxis} from "../services/heatmapService.ts";
 
 export interface ListItem {
     label: string;
@@ -15,9 +15,6 @@ export interface ListItem {
 }
 
 const {gray500, white: white, gray25, gray100, primaryPurple600, gray400} = vars;
-
-const xLabels: string[] = ["Brain", "Lungs", "Cervical", "Spinal", "Thoraic", "Kidney", "Urinary Tract", "Muscle organ", "Small Intestine", "Pancreas", "Skin", "Spleen", "Stomach", "Urinary bladder"];
-
 
 const getEntities = (searchValue: string /* unused */): Option[] => {
 
@@ -28,7 +25,8 @@ const getEntities = (searchValue: string /* unused */): Option[] => {
 };
 
 function ConnectivityGrid() {
-    const {hierarchicalNodes} = useDataContext();
+    const {hierarchicalNodes, organs} = useDataContext();
+    const xLabels = getXAxis(organs);
 
     const [list, setList] = useState<ListItem[]>([]);
     const [data, setData] = useState<number[][]>([]);

@@ -1,5 +1,5 @@
-import {HierarchicalNode, KnowledgeStatement} from "../models/explorer.ts";
-import {JsonData} from "../models/json.ts";
+import {HierarchicalNode, KnowledgeStatement, Organ} from "../models/explorer.ts";
+import {Binding, JsonData} from "../models/json.ts";
 
 
 const PATH_DELIMITER = "#"
@@ -9,6 +9,7 @@ interface RootNode {
     id: string;
     isAncestor: (a_l1_name: string) => boolean;
 }
+
 
 const CNS = {
     name: 'Central nervous system',
@@ -120,10 +121,10 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
                 // Add the KnowledgeStatement to the array for this target organ
                 leafNode.connectionDetails[targetOrganIRI].push(knowledgeStatement);
             } else {
-                if(!targetOrganIRI){
+                if (!targetOrganIRI) {
                     console.error(`Error: Target_Organ_IRI not found for entry with Neuron_ID: ${neuronId}`);
                 }
-                if(!neuronId){
+                if (!neuronId) {
                     console.error(`Error: Neuron_ID not found for entry`);
                 }
             }
@@ -138,4 +139,23 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
 
 function getRootNode(a_l1_name: string): string {
     return ROOTS.find(root => root.isAncestor(a_l1_name))?.id || UNK.id;
+}
+
+
+export const getOrgans = (jsonData: JsonData): Organ[] => {
+    const {bindings} = jsonData.results;
+    const organSet = new Set<string>();
+    const uniqueOrgans: Organ[] = [];
+
+    bindings.forEach((binding: Binding) => {
+        const organId = binding.Target_Organ_IRI?.value;
+        const organName = binding.Target_Organ?.value;
+
+        if (organId && organName && !organSet.has(organId)) {
+            organSet.add(organId);
+            uniqueOrgans.push({id: organId, name: organName});
+        }
+    });
+
+    return uniqueOrgans;
 }
