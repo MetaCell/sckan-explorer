@@ -1,19 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO: Remove the eslint-disable line above after implementing the DataContextProvider component
 
-import {PropsWithChildren, useMemo, useState} from 'react';
-import { DataContext } from "./DataContext";
+import {PropsWithChildren, useEffect, useState} from 'react';
+import {DataContext, Filters} from "./DataContext";
+import {getHierarchicalNodes} from "../services/hierarchyService.ts";
+import {JsonData} from "../models/json.ts";
+import {HierarchicalNode, Organ} from "../models/explorer.ts";
 
 export const DataContextProvider = ({
-    composerData,
-    jsonData,
-    children
-}: PropsWithChildren<{
-    composerData: unknown;
-    jsonData: unknown;
-}>) => {
-    const [vias, setVias] = useState([]);
-    const [filters, setFilters] = useState({
+                                        composerData,
+                                        jsonData,
+                                        children
+                                    }: PropsWithChildren<{ composerData: unknown; jsonData: JsonData; }>) => {
+    const [filters, setFilters] = useState<Filters>({
         Origin: [],
         EndOrgan: [],
         Species: [],
@@ -21,31 +20,34 @@ export const DataContextProvider = ({
         apiNATOMY: [],
         Via: []
     });
-    const [knowledgeStatements, setKnowledgeStatements] = useState([]);
-    const [organs, setOrgans] = useState([]);
-    const [hierarchicalNodes, setHierarchicalNodes] = useState([]);
-    const [heatMapData, setHeatMapData] = useState([]);
-    const [summaryMapData, setSummaryMapData] = useState([]);
-    const [summaryData, setSummaryData] = useState([]);
+    const [organs, setOrgans] = useState<Organ[]>([]);
+    const [hierarchicalNodes, setHierarchicalNodes] = useState<Record<string, HierarchicalNode>>({});
+    const [heatMapData, setHeatMapData] = useState<unknown>(undefined);
+    const [summaryMapData, setSummaryMapData] = useState<unknown>(undefined);
+    const [summaryData, setSummaryData] = useState<unknown>(undefined);
 
-    const datacontextValue = {
-        vias,
+    useEffect(() => {
+        if (jsonData) {
+            const nodes = getHierarchicalNodes(jsonData);
+            setHierarchicalNodes(nodes);
+        }
+    }, [jsonData]);
+
+    const dataContextValue = {
         filters,
-        knowledgeStatements,
         organs,
         hierarchicalNodes,
         heatMapData,
         summaryMapData,
         summaryData,
-        setFilters: () => {},
-        setHeatMap: () => {},
-        setHeatMapData: () => {},
-        setSummaryMap: () => {},
-        setSummaryData: () => {}
+        setFilters,
+        setHeatMapData,
+        setSummaryMapData,
+        setSummaryData
     };
 
     return (
-        <DataContext.Provider value={datacontextValue}>
+        <DataContext.Provider value={dataContextValue}>
             {children}
         </DataContext.Provider>
     );

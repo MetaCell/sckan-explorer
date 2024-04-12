@@ -91,7 +91,7 @@ export interface HierarchicalNode {
      * @type {string}
      * @memberof HierarchicalNode
      */
-    id: number;
+    id: string;
     /**
      *
      * @type {string}
@@ -99,21 +99,15 @@ export interface HierarchicalNode {
      */
     name: string;
     /**
-     *
-     * @type {Array<string>}
-     * @memberof HierarchicalNode
-     */
-    parentId: string | null | undefined;
-    /**
      *  The children of the node
      * @type {Array<string>}
      * @memberof HierarchicalNode
      */
-    children?: string[];
+    children: Set<string>;
     /**
      * The connection details of the node
-     * @type {Record<string, KnowledgeStatement[]>}
+     * @type {Record<string, KnowledgeStatement>}
      * @memberof HierarchicalNode
      */
-    connectionDetails?: Record<string, KnowledgeStatement[]>;
+    connectionDetails?: Record<string, KnowledgeStatement>;
 }
