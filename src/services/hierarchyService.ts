@@ -19,7 +19,7 @@ const CNS = {
 const PNS = {
     name: 'Peripheral nervous system',
     id: "http://purl.obolibrary.org/obo/UBERON_0000010 ",
-    isAncestor: (a_l1_name: string) => a_l1_name !== "brain"
+    isAncestor: (a_l1_name: string) => a_l1_name !== "brain" && a_l1_name !== ""
 } as RootNode
 
 const UNK = {
