@@ -2,21 +2,17 @@ import React, { FC } from "react";
 import { Box, Button } from "@mui/material";
 import { MinusIcon, PlusIcon } from "../icons";
 import { vars } from "../../theme/variables";
+import {HierarchicalItem} from "../ConnectivityGrid.tsx";
 const { gray700, gray100, gray50, primaryPurple500, gray25, gray200, primaryPurple700 } = vars;
 
-interface ListItem {
-  label: string;
-  options: (ListItem | string)[];
-  expanded: boolean;
-}
 
 interface CollapsibleListProps {
-  list: ListItem[];
-  onItemClick: (item: ListItem | string) => void;
+  list: HierarchicalItem[];
+  onItemClick: (item: HierarchicalItem) => void;
 }
 
 const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
-  const renderOptions = (options: (ListItem | string)[], expanded: boolean, index?: number) => (
+  const renderOptions = (options: HierarchicalItem[], expanded: boolean, index?: number) => (
     <Box sx={{
         paddingLeft: '0.75rem',
         position: 'relative',
@@ -60,7 +56,7 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
     {expanded &&
         options.map((option, optionIndex) => (
         <React.Fragment key={optionIndex}>
-            {typeof option === 'string' ? (
+            {option.children.length == 0 ? (
             <Button
                 variant="contained"
                 disableElevation
@@ -93,7 +89,7 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
                     },
                 }}
             >
-                {option}
+                {option.label}
             </Button>
             ) : (
             <>
@@ -131,7 +127,7 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
                 >
                 {option.label} {option.expanded ? <MinusIcon /> : <PlusIcon />}
                 </Button>
-                {renderOptions(option.options, option.expanded, optionIndex)}
+                {renderOptions(option.children, option.expanded, optionIndex)}
             </>
             )}
         </React.Fragment>
@@ -177,7 +173,7 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
             >
             {item.label} {item.expanded ? <MinusIcon /> : <PlusIcon />}
             </Button>
-            {renderOptions(item.options, item.expanded)}
+            {renderOptions(item.children, item.expanded)}
         </Box>
         ))}
     </Box>

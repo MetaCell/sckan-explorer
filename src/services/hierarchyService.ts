@@ -14,7 +14,7 @@ interface RootNode {
 const CNS = {
     name: 'Central nervous system',
     id: "http://purl.obolibrary.org/obo/UBERON_0001017",
-    isAncestor: (a_l1_name: string) => a_l1_name == "brain"
+    isAncestor: (a_l1_name: string) => a_l1_name == "brain" || a_l1_name == "spinal cord"
 } as RootNode
 
 const PNS = {

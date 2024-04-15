@@ -6,11 +6,11 @@ import {Option} from "./common/Types";
 import {mockEntities} from "./common/MockEntities";
 import HeatmapGrid from "./common/Heatmap";
 import {useDataContext} from "../context/DataContext.ts";
-import {getXAxis, getYAxis} from "../services/heatmapService.ts";
+import {calculateConnections, getXAxis, getYAxis} from "../services/heatmapService.ts";
 
-export interface ListItem {
+export interface HierarchicalItem {
     label: string;
-    options: (ListItem | string)[];
+    children: HierarchicalItem[];
     expanded: boolean;
 }
 
@@ -26,25 +26,25 @@ const getEntities = (searchValue: string /* unused */): Option[] => {
 
 function ConnectivityGrid() {
     const {hierarchicalNodes, organs} = useDataContext();
-    const xLabels = getXAxis(organs);
 
-    const [list, setList] = useState<ListItem[]>([]);
-    const [data, setData] = useState<number[][]>([]);
+    const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
+    const [xAxis, setXAxis] = useState<string[]>([]);
+    const [connectionsMap, setConnectionsMap] = useState<Map<string, number[]>>(new Map());
 
     // Convert hierarchicalNodes to ListItems
     useEffect(() => {
-        const listItems = getYAxis(hierarchicalNodes);
-        setList(listItems);
-        const initialData = listItems.reduce((acc: number[][], item: ListItem) => {
-            const mainRow: number[] = new Array(xLabels.length)
-                .fill(0)
-                .map(() => Math.floor(Math.random() * 100));
-            const optionRows: number[][] = item.options.map(() =>
-                new Array(xLabels.length).fill(0).map((_, i: number) => i % 3 === 0 ? Math.floor(Math.random() * 100) : 0)
-            );
-            return [...acc, mainRow, ...optionRows];
-        }, []);
-        setData(initialData);
+        const connections = calculateConnections(hierarchicalNodes, organs);
+        setConnectionsMap(connections)
+    }, [hierarchicalNodes, organs]);
+
+    useEffect(() => {
+        const xAxis = getXAxis(organs);
+        setXAxis(xAxis);
+    }, [organs]);
+
+    useEffect(() => {
+        const yAxis = getYAxis(hierarchicalNodes);
+        setYAxis(yAxis);
     }, [hierarchicalNodes]);
 
     const [selectedCell, setSelectedCell] = useState<{ x: number, y: number } | null>(null);
@@ -52,6 +52,9 @@ function ConnectivityGrid() {
     const handleClick = (x: number, y: number): void => {
         setSelectedCell({x, y});
     };
+
+    const canGenerateHeatmap = yAxis.length > 0
+
     return (
         <Box minHeight='100%' p={3} pb={0} fontSize={14} display='flex' flexDirection='column'>
             <Box pb={2.5}>
@@ -121,9 +124,11 @@ function ConnectivityGrid() {
                 />
             </Box>
 
-            <HeatmapGrid list={list} data={data} xLabels={xLabels} setList={setList} setData={setData}
-                         xAxis={'End organ'} yAxis={'Connection Origin'} cellClick={handleClick}
-                         selectedCell={selectedCell}/>
+            {canGenerateHeatmap &&
+              <HeatmapGrid initialYAxis={yAxis} xAxis={xAxis} connectionsMap={connectionsMap}
+                           xAxisLabel={'End organ'} yAxisLabels={'Connection Origin'}
+                           cellClick={handleClick}
+                           selectedCell={selectedCell}/>}
 
             <Box
                 py={1.5}

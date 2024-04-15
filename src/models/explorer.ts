@@ -11,12 +11,6 @@ export interface Organ {
      * @memberof Organ
      */
     name: string;
-    /**
-     *
-     * @type {Array<string>}
-     * @memberof Organ
-     */
-    children?: string[];
 }
 
 export interface Via {
