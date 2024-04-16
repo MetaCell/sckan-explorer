@@ -34,11 +34,7 @@ const App = () => {
         dispatch(addWidget(connectionsWidget()));
     }, [LayoutComponent, dispatch])
 
-    // TODO retrieve from rest api
-    const composerData = undefined;
-
     useEffect(() => {
-        // Fetch JSON data and handle potential errors
         fetchJSON().then(data => {
             setJsonData(data);
         }).catch(error => {
@@ -62,7 +58,6 @@ const App = () => {
                                 <Route path="/summary" element={<SummaryPage/>}/>
                                 <Route path="/" element={isLoading ? <CircularProgress/> :
                                     <DataContextProvider
-                                        composerData={composerData}
                                         jsonData={jsonData}>
                                         <LayoutComponent/>
                                     </DataContextProvider>

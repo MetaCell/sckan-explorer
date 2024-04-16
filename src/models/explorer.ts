@@ -13,19 +13,28 @@ export interface Organ {
     name: string;
 }
 
-export interface Via {
+export interface AnatomicalEntity {
     /**
      *
      * @type {string}
-     * @memberof Via
+     * @memberof AnatomicalEntity
      */
     id: string;
     /**
      *
      * @type {string}
-     * @memberof Via
+     * @memberof AnatomicalEntity
      */
     name: string;
+    /**
+     *
+     * @type {string}
+     * @memberof AnatomicalEntity
+     */
+    synonyms: string;
+}
+
+export interface Via extends AnatomicalEntity{
     /**
      *
      * @type {boolean}
@@ -70,13 +79,13 @@ export interface KnowledgeStatement {
      * @type {Array<string>}
      * @memberof KnowledgeStatement
      */
-    origins: string[];
+    origins: AnatomicalEntity[];
     /**
      *
      * @type {Array<string>}
      * @memberof KnowledgeStatement
      */
-    destinations: string[];
+    destinations: AnatomicalEntity[];
 }
 
 export interface HierarchicalNode {
@@ -99,9 +108,9 @@ export interface HierarchicalNode {
      */
     children: Set<string>;
     /**
-     * The connection details of the node targetOrgan -> KnowledgeStatements
+     * The connection details of the node targetOrgan -> KnowledgeStatementsId
      * @type {Record<string, KnowledgeStatement[]>}
      * @memberof HierarchicalNode
      */
-    connectionDetails?: Record<string, KnowledgeStatement[]>;
+    connectionDetails?: Record<string, string[]>;
 }

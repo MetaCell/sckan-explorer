@@ -25,7 +25,6 @@ export function getYAxis(hierarchicalNodes: Record<string, HierarchicalNode>): H
 }
 
 export function getXAxis(organs: Organ[]): string[] {
-    // TODO: We need to see how to sort it
     return organs.map(organ => organ.name);
 }
 
