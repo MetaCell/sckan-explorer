@@ -22,9 +22,6 @@ export const DataContextProvider = ({
     });
     const [organs, setOrgans] = useState<Organ[]>([]);
     const [hierarchicalNodes, setHierarchicalNodes] = useState<Record<string, HierarchicalNode>>({});
-    const [heatMapData, setHeatMapData] = useState<unknown>(undefined);
-    const [summaryMapData, setSummaryMapData] = useState<unknown>(undefined);
-    const [summaryData, setSummaryData] = useState<unknown>(undefined);
 
     useEffect(() => {
         if (jsonData) {
@@ -39,13 +36,7 @@ export const DataContextProvider = ({
         filters,
         organs,
         hierarchicalNodes,
-        heatMapData,
-        summaryMapData,
-        summaryData,
         setFilters,
-        setHeatMapData,
-        setSummaryMapData,
-        setSummaryData
     };
 
     return (

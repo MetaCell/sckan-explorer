@@ -19,13 +19,7 @@ export interface DataContext {
     filters: Filters;
     organs: Organ[];
     hierarchicalNodes: Record<string, HierarchicalNode>;
-    heatMapData: unknown;
-    summaryMapData: unknown;
-    summaryData: unknown;
     setFilters: React.Dispatch<React.SetStateAction<Filters>>;
-    setHeatMapData: React.Dispatch<React.SetStateAction<unknown>>;
-    setSummaryMapData: React.Dispatch<React.SetStateAction<unknown>>;
-    setSummaryData: React.Dispatch<React.SetStateAction<unknown>>;
 }
 
 export const DataContext = createContext<DataContext>({
@@ -39,17 +33,7 @@ export const DataContext = createContext<DataContext>({
     },
     organs: [],
     hierarchicalNodes: {},
-    heatMapData: undefined,
-    summaryMapData: undefined,
-    summaryData: undefined,
-    setFilters: () => {
-    },
-    setHeatMapData: () => {
-    },
-    setSummaryMapData: () => {
-    },
-    setSummaryData: () => {
-    }
+    setFilters: () => {},
 });
 
 export const useDataContext = () => useContext(DataContext);
