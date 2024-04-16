@@ -191,6 +191,8 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                         onClick={(x: number, y: number) => cellClick && cellClick(x, y)}
                         cellStyle={(_background: string, value: number, min: number, max: number, _data: string, _x: number, _y: number) => {
                             const isSelectedCell = selectedCell?.x === _x && selectedCell?.y === _y
+                            const normalizedValue = (value - min) / (max - min);
+
                             const commonStyles = {
                                 fontSize: "0.6875rem",
                                 minWidth: '2rem',
@@ -211,7 +213,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                                     ...commonStyles,
                                     borderWidth: isSelectedCell ? '0.125rem' : '0.0625rem',
                                     borderColor: isSelectedCell ? '#8300BF' : 1 - (max - value) / (max - min) <= 0.1 ? gray100A : 'rgba(255, 255, 255, 0.2)',
-                                    background: 1 - (max - value) / (max - min) <= 0.1 ? gray25 : `rgba(131, 0, 191, ${1 - (max - value) / (max - min)})`,
+                                    background: `rgba(131, 0, 191, ${normalizedValue})`,
                                 }
                             }
 

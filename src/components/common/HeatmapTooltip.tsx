@@ -79,7 +79,7 @@ const HeatmapTooltip: FC<HeatmapTooltipProps> = ({value, x, y, secondary, getCel
         <Typography sx={{...commonTextStyles,
           fontWeight: 500,
           color: gray300
-        }}>{`${x} -> ${y}`}</Typography>
+        }}>{`${y} -> ${x}`}</Typography>
         <Typography sx={
           {...commonTextStyles,
           marginTop: '0.125rem'

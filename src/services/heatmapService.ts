@@ -108,3 +108,21 @@ export function getHeatmapData(yAxis: HierarchicalItem[], connections: Map<strin
 
     return newData;
 }
+
+export function getMinMaxConnections(connectionsMap: Map<string, number[]>): { min: number, max: number } {
+    let min = Infinity;
+    let max = -Infinity;
+
+    ROOTS.forEach(root => {
+        const connectionCounts = connectionsMap.get(root.name);
+        if (connectionCounts) {
+            // Flatten all connection counts and find min/max across all
+            connectionCounts.forEach(count => {
+                if (count < min) min = count;
+                if (count > max) max = count;
+            });
+        }
+    });
+
+    return {min, max};
+}

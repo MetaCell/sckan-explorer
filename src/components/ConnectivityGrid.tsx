@@ -1,12 +1,12 @@
 import {Box, Button, Typography} from "@mui/material";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import CustomFilterDropdown from "./common/CustomFilterDropdown";
 import {vars} from "../theme/variables";
 import {Option} from "./common/Types";
 import {mockEntities} from "./common/MockEntities";
 import HeatmapGrid from "./common/Heatmap";
 import {useDataContext} from "../context/DataContext.ts";
-import {calculateConnections, getXAxis, getYAxis} from "../services/heatmapService.ts";
+import {calculateConnections, getMinMaxConnections, getXAxis, getYAxis} from "../services/heatmapService.ts";
 
 export interface HierarchicalItem {
     label: string;
@@ -31,11 +31,15 @@ function ConnectivityGrid() {
     const [xAxis, setXAxis] = useState<string[]>([]);
     const [connectionsMap, setConnectionsMap] = useState<Map<string, number[]>>(new Map());
 
-    // Convert hierarchicalNodes to ListItems
+    // Convert hierarchicalNodes to hierarchicalItems
     useEffect(() => {
         const connections = calculateConnections(hierarchicalNodes, organs);
         setConnectionsMap(connections)
     }, [hierarchicalNodes, organs]);
+
+    const {min, max} = useMemo(() => {
+        return getMinMaxConnections(connectionsMap);
+    }, [connectionsMap]);
 
     useEffect(() => {
         const xAxis = getXAxis(organs);
@@ -181,7 +185,7 @@ function ConnectivityGrid() {
                             fontWeight: 400,
                             lineHeight: '1.125rem',
                             color: gray400
-                        }}>1</Typography>
+                        }}>{min}</Typography>
 
                         <Box sx={{
                             display: 'flex',
@@ -199,7 +203,7 @@ function ConnectivityGrid() {
                             fontWeight: 400,
                             lineHeight: '1.125rem',
                             color: gray400
-                        }}>100+</Typography>
+                        }}>{max}</Typography>
                     </Box>
                 </Box>
             </Box>
