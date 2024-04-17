@@ -11,8 +11,9 @@ import {fetchKnowledgeStatements} from "../services/fetchService.ts";
 
 export const DataContextProvider = ({
                                         jsonData,
+                                        majorNerves,
                                         children
-                                    }: PropsWithChildren<{ jsonData: JsonData; }>) => {
+                                    }: PropsWithChildren<{ jsonData: JsonData; majorNerves: Set<string> }>) => {
     const [filters, setFilters] = useState<Filters>({
         Origin: [],
         EndOrgan: [],
@@ -32,7 +33,6 @@ export const DataContextProvider = ({
             const organs = getOrgans(jsonData)
             setOrgans(organs)
             fetchAndSetKnowledgeStatements(nodes);
-
         }
     }, [jsonData]);
 
@@ -56,6 +56,7 @@ export const DataContextProvider = ({
     const dataContextValue = {
         filters,
         organs,
+        majorNerves,
         hierarchicalNodes,
         knowledgeStatements,
         setFilters,

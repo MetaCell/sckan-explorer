@@ -1,6 +1,6 @@
-import {SCKAN_JSON_URL} from "../settings.ts";
+import {SCKAN_JSON_URL, SCKAN_MAJOR_NERVES_JSON_URL} from "../settings.ts";
 import {KnowledgeStatement} from "../models/explorer.ts";
-import {ComposerResponse, mapApiResponseToKnowledgeStatements} from "./composerToExplorerMapper.ts";
+import {ComposerResponse, mapApiResponseToKnowledgeStatements} from "./mappers.ts";
 
 export const fetchJSON = async () => {
     try {
@@ -11,6 +11,18 @@ export const fetchJSON = async () => {
         return await response.json();
     } catch (error) {
         throw new Error(`Error fetching json data: ${error}`);
+    }
+};
+
+export const fetchMajorNerves = async () => {
+    try {
+        const response = await fetch(SCKAN_MAJOR_NERVES_JSON_URL);
+        if (!response.ok) {
+            throw new Error(`${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        throw new Error(`Error fetching major nerves data: ${error}`);
     }
 };
 

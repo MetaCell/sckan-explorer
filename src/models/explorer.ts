@@ -25,15 +25,6 @@ export interface AnatomicalEntity extends BaseEntity {
     synonyms: string;
 }
 
-export interface Via extends AnatomicalEntity {
-    /**
-     *
-     * @type {boolean}
-     * @memberof Via
-     */
-    isNerve: boolean;
-}
-
 export interface KnowledgeStatement {
     /**
      *
@@ -64,7 +55,7 @@ export interface KnowledgeStatement {
      * @type {Array<Via>}
      * @memberof KnowledgeStatement
      */
-    via: Via[];
+    via: AnatomicalEntity[];
     /**
      *
      * @type {Array<string>}

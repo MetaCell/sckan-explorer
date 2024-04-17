@@ -38,3 +38,25 @@ export interface JsonData {
     head: Head;
     results: Result;
 }
+
+
+interface NerveData {
+    type: string;
+    value: string;
+}
+
+interface NerveBinding {
+    Nerve_IRI: NerveData;
+    Nerve_Label: NerveData;
+}
+
+interface NerveResult {
+    bindings: NerveBinding[];
+}
+
+export interface NerveResponse {
+    head: {
+        vars: string[];
+    };
+    results: NerveResult;
+}

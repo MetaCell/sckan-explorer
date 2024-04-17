@@ -1,5 +1,6 @@
 import {AnatomicalEntity, BaseEntity, KnowledgeStatement, Organ} from "../models/explorer";
 import {Option} from "../components/common/Types.ts";
+import {NerveResponse} from "../models/json.ts";
 
 
 const mapEntityToOption = (entities: BaseEntity[]): Option[] =>
@@ -84,3 +85,16 @@ export const getUniquePhenotypes = (knowledgeStatements: Record<string, Knowledg
     });
     return mapNameToOption(phenotypes);
 };
+
+
+export const getUniqueMajorNerves = (jsonData: NerveResponse) => {
+    const nerves = new Set<string>();
+
+    jsonData.results.bindings.forEach(binding => {
+        nerves.add(binding.Nerve_IRI.value);
+    });
+
+    return nerves
+
+
+}

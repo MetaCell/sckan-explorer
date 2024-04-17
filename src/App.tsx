@@ -12,13 +12,15 @@ import Header from './components/common/Header.tsx';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import SummaryPage from "./components/SummaryPage.tsx";
 import {DataContextProvider} from './context/DataContextProvider.tsx';
-import {fetchJSON} from "./services/fetchService.ts";
+import {fetchJSON, fetchMajorNerves} from "./services/fetchService.ts";
+import {getUniqueMajorNerves} from "./services/filterValuesService.ts";
 
 const App = () => {
     const store = useStore();
     const dispatch = useDispatch();
     const [LayoutComponent, setLayoutComponent] = useState<React.ComponentType | undefined>(undefined);
     const [jsonData, setJsonData] = useState();
+    const [majorNerves, setMajorNerves] = useState<Set<string>>();
 
     useEffect(() => {
         if (LayoutComponent === undefined) {
@@ -42,9 +44,17 @@ const App = () => {
             console.error("Failed to fetch JSON data:", error);
             setJsonData(undefined);
         });
+
+        fetchMajorNerves().then(data => {
+            setMajorNerves(getUniqueMajorNerves(data));
+        }).catch(error => {
+            // TODO: We should give feedback to the user
+            console.error("Failed to fetch major nerves data:", error);
+            setMajorNerves(undefined);
+        });
     }, []);
 
-    const isLoading = LayoutComponent === undefined || jsonData === undefined
+    const isLoading = LayoutComponent === undefined || jsonData === undefined || majorNerves === undefined
 
     return (
         <>
@@ -58,6 +68,7 @@ const App = () => {
                                 <Route path="/summary" element={<SummaryPage/>}/>
                                 <Route path="/" element={isLoading ? <CircularProgress/> :
                                     <DataContextProvider
+                                        majorNerves={majorNerves}
                                         jsonData={jsonData}>
                                         <LayoutComponent/>
                                     </DataContextProvider>

@@ -32,14 +32,14 @@ interface KnowledgeStatementAPI {
 
 export function mapApiResponseToKnowledgeStatements(composerResponse: ComposerResponse) {
     return composerResponse.results.map(ks => ({
-        id: ks.id.toString(), // TODO: THis should be the ontology_uri
+        id: ks.id.toString(), // TODO: This should be the ontology_uri
         phenotype: ks.phenotype?.name || "",
         apinatomy: ks.apinatomy_model || "",
         species: ks.species.map(species => getBaseEntity(species.name, species.ontology_uri)),
         origins: ks.origins.map(origin => getAnatomicalEntity(origin)),
         destinations: ks.destinations.flatMap(dest => dest.anatomical_entities.map(destA => getAnatomicalEntity(destA))),
         via: ks.vias.flatMap(via => via.anatomical_entities.map(viaA => {
-            return {...getAnatomicalEntity(viaA), isNerve: false}
+            return {...getAnatomicalEntity(viaA)}
         }))
     }));
 }
