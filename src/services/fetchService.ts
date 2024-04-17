@@ -1,4 +1,4 @@
-import {SCKAN_JSON_URL, SCKAN_MAJOR_NERVES_JSON_URL} from "../settings.ts";
+import {COMPOSER_API_URL, SCKAN_JSON_URL, SCKAN_MAJOR_NERVES_JSON_URL} from "../settings.ts";
 import {KnowledgeStatement} from "../models/explorer.ts";
 import {ComposerResponse, mapApiResponseToKnowledgeStatements} from "./mappers.ts";
 
@@ -27,8 +27,7 @@ export const fetchMajorNerves = async () => {
 };
 
 export const fetchKnowledgeStatements = async (neuronIds: string[]) => {
-    // TODO: Expects a /api proxy to -> https://composer.sckan.dev.metacell.us
-    const baseUrl = `/api/composer/knowledge-statement/?population_uris=${neuronIds.join(',')}`;
+    const baseUrl = `${COMPOSER_API_URL}/composer/knowledge-statement/?population_uris=${neuronIds.join(',')}`;
     let results = [] as KnowledgeStatement[];
     let nextUrl: string | null = baseUrl;
 
@@ -40,7 +39,7 @@ export const fetchKnowledgeStatements = async (neuronIds: string[]) => {
             }
             const data: ComposerResponse = await response.json();
             results = results.concat(mapApiResponseToKnowledgeStatements(data));
-            nextUrl = data.next ? new URL(data.next).pathname + new URL(data.next).search : null;
+            nextUrl = data.next;
         }
         return results;
     } catch (error) {
