@@ -1,5 +1,5 @@
-import {Box, Button, Typography} from "@mui/material";
-import {useEffect, useMemo, useState} from "react";
+import {Box, Button, CircularProgress, Typography} from "@mui/material";
+import React, {useEffect, useMemo, useState} from "react";
 import CustomFilterDropdown from "./common/CustomFilterDropdown";
 import {vars} from "../theme/variables";
 import {Option} from "./common/Types";
@@ -53,9 +53,9 @@ function ConnectivityGrid() {
         return searchPlaceholder(queryString, filterType, knowledgeStatements, organs)
     }
 
-    const canGenerateHeatmap = yAxis.length > 0
+    const isLoading = yAxis.length == 0 || Object.keys(knowledgeStatements).length == 0
 
-    return (
+    return (isLoading ? <CircularProgress/> : (
         <Box minHeight='100%' p={3} pb={0} fontSize={14} display='flex' flexDirection='column'>
             <Box pb={2.5}>
                 <Typography variant="h6" sx={{fontWeight: 400}}>Connection Origin to End Organ</Typography>
@@ -124,11 +124,10 @@ function ConnectivityGrid() {
                 />
             </Box>
 
-            {canGenerateHeatmap &&
-              <HeatmapGrid initialYAxis={yAxis} xAxis={xAxis} connectionsMap={connectionsMap}
+            <HeatmapGrid initialYAxis={yAxis} xAxis={xAxis} connectionsMap={connectionsMap}
                            xAxisLabel={'End organ'} yAxisLabels={'Connection Origin'}
                            cellClick={handleClick}
-                           selectedCell={selectedCell}/>}
+                           selectedCell={selectedCell}/>
 
             <Box
                 py={1.5}
@@ -187,10 +186,12 @@ function ConnectivityGrid() {
                             display: 'flex',
                             alignItems: 'center',
                         }}>
-                            {[1, 2, 3, 4, 5, 6].reverse().map((el: number) => <Box sx={{
-                                width: '1.5rem',
-                                height: '1rem',
-                                background: `rgba(131, 0, 191, ${1 - (el / 6.5)})`,
+                            {[1, 2, 3, 4, 5, 6].reverse().map((el: number) => <Box
+                                key={el}
+                                sx={{
+                                    width: '1.5rem',
+                                    height: '1rem',
+                                    background: `rgba(131, 0, 191, ${1 - (el / 6.5)})`,
                             }}/>)}
                         </Box>
 
@@ -204,7 +205,7 @@ function ConnectivityGrid() {
                 </Box>
             </Box>
         </Box>
-    )
+    ))
 }
 
 export default ConnectivityGrid

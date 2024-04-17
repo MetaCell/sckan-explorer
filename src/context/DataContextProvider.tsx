@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// TODO: Remove the eslint-disable line above after implementing the DataContextProvider component
-
-
 import {PropsWithChildren, useEffect, useState} from 'react';
 import {DataContext, Filters} from "./DataContext";
 import {getHierarchicalNodes, getOrgans} from "../services/hierarchyService.ts";
@@ -37,7 +33,7 @@ export const DataContextProvider = ({
     }, [jsonData]);
 
     const fetchAndSetKnowledgeStatements = async (nodes: Record<string, HierarchicalNode>) => {
-        // Collect all unique neuron IDs as before
+        // Collect all unique neuron IDs
         const neuronIDs = [...new Set(Object.values(nodes).flatMap(node =>
             Object.values(node.connectionDetails || {}).flat()))];
 
