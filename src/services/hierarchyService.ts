@@ -1,4 +1,4 @@
-import {HierarchicalNode, KnowledgeStatement, Organ} from "../models/explorer.ts";
+import {HierarchicalNode, Organ} from "../models/explorer.ts";
 import {Binding, JsonData} from "../models/json.ts";
 
 
