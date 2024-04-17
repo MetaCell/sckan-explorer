@@ -3,10 +3,10 @@ import {useEffect, useMemo, useState} from "react";
 import CustomFilterDropdown from "./common/CustomFilterDropdown";
 import {vars} from "../theme/variables";
 import {Option} from "./common/Types";
-import {mockEntities} from "./common/MockEntities";
 import HeatmapGrid from "./common/Heatmap";
 import {useDataContext} from "../context/DataContext.ts";
 import {calculateConnections, getMinMaxConnections, getXAxis, getYAxis} from "../services/heatmapService.ts";
+import {searchPlaceholder} from "../services/searchService.ts";
 
 export interface HierarchicalItem {
     label: string;
@@ -16,16 +16,8 @@ export interface HierarchicalItem {
 
 const {gray500, white: white, gray25, gray100, primaryPurple600, gray400} = vars;
 
-const getEntities = (searchValue: string /* unused */): Option[] => {
-
-    console.log(`Received search value: ${searchValue}`);
-
-    // Return mockEntities or perform other logic
-    return mockEntities;
-};
-
 function ConnectivityGrid() {
-    const {hierarchicalNodes, organs} = useDataContext();
+    const {hierarchicalNodes, organs, knowledgeStatements} = useDataContext();
 
     const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
     const [xAxis, setXAxis] = useState<string[]>([]);
@@ -57,6 +49,10 @@ function ConnectivityGrid() {
         setSelectedCell({x, y});
     };
 
+    const onSearchPlaceholder = (queryString: string, filterType: string): Option[] => {
+        return searchPlaceholder(queryString, filterType, knowledgeStatements, organs)
+    }
+
     const canGenerateHeatmap = yAxis.length > 0
 
     return (
@@ -73,17 +69,17 @@ function ConnectivityGrid() {
                         value: "",
                         id: "origin",
                         searchPlaceholder: "Search origin",
-                        onSearch: (searchValue: string): Option[] => getEntities(searchValue),
+                        onSearch: (searchValue: string): Option[] => onSearchPlaceholder(searchValue, "Origin"),
                     }}
                 />
                 <CustomFilterDropdown
-                    key={"End Origin"}
+                    key={"End Organ"}
                     placeholder="End organ"
                     options={{
                         value: "",
                         id: "endorgan",
                         searchPlaceholder: "Search End organ",
-                        onSearch: (searchValue: string) => getEntities(searchValue),
+                        onSearch: (searchValue: string): Option[] => onSearchPlaceholder(searchValue, "End Organ"),
                     }}
                 />
                 <CustomFilterDropdown
@@ -93,7 +89,7 @@ function ConnectivityGrid() {
                         value: "",
                         id: "species",
                         searchPlaceholder: "Search Species",
-                        onSearch: (searchValue: string) => getEntities(searchValue),
+                        onSearch: (searchValue: string): Option[] => onSearchPlaceholder(searchValue, "Species"),
                     }}
                 />
                 <CustomFilterDropdown
@@ -103,7 +99,7 @@ function ConnectivityGrid() {
                         value: "",
                         id: "phenotype",
                         searchPlaceholder: "Search Phenotype",
-                        onSearch: (searchValue: string) => getEntities(searchValue),
+                        onSearch: (searchValue: string): Option[] => onSearchPlaceholder(searchValue, "Phenotype"),
                     }}
                 />
                 <CustomFilterDropdown
@@ -113,7 +109,7 @@ function ConnectivityGrid() {
                         value: "",
                         id: "ApiNATOMY",
                         searchPlaceholder: "Search ApiNATOMY",
-                        onSearch: (searchValue: string) => getEntities(searchValue),
+                        onSearch: (searchValue: string): Option[] => onSearchPlaceholder(searchValue, "ApiNATOMY"),
                     }}
                 />
                 <CustomFilterDropdown
@@ -123,7 +119,7 @@ function ConnectivityGrid() {
                         value: "",
                         id: "via",
                         searchPlaceholder: "Search Via",
-                        onSearch: (searchValue: string) => getEntities(searchValue),
+                        onSearch: (searchValue: string): Option[] => onSearchPlaceholder(searchValue, "Via"),
                     }}
                 />
             </Box>

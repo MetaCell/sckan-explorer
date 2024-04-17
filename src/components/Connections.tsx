@@ -330,7 +330,7 @@ function Connections() {
                     }}
                   />
                 </Box>
-                <HeatmapGrid secondary yAxisLabels={list} data={data} xAxisLabel={xLabels} setYAxis={setList} setXAxis={setData} xAxisLabel={'Project to'} yAxisLabel={'Somas in'} />
+                {/*<HeatmapGrid secondary yAxisLabels={list} data={data} xAxisLabel={xLabels} setYAxis={setList} setXAxis={setData} xAxisLabel={'Project to'} yAxisLabel={'Somas in'} />*/}
               </Box>
               
               <Box sx={{

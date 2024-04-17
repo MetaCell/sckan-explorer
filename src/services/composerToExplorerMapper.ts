@@ -10,7 +10,7 @@ export interface ComposerResponse {
 interface KnowledgeStatementAPI {
     id: number;
     sentence_id: number;
-    species: Array<{ name: string }>;
+    species: Array<{ name: string, ontology_uri: string }>;
     origins: Array<AnatomicalEntity>;
     destinations: Array<{
         id: number,
@@ -25,7 +25,7 @@ interface KnowledgeStatementAPI {
     are_connections_explicit: boolean;
     apinatomy_model: string | null;
     phenotype_id: number | null;
-    phenotype: string | null;
+    phenotype: { name: string, ontology_uri: string };
     forward_connection: Array<unknown>;
 }
 
@@ -33,9 +33,9 @@ interface KnowledgeStatementAPI {
 export function mapApiResponseToKnowledgeStatements(composerResponse: ComposerResponse) {
     return composerResponse.results.map(ks => ({
         id: ks.id.toString(), // TODO: THis should be the ontology_uri
-        phenotype: ks.phenotype || "",
+        phenotype: ks.phenotype?.name || "",
         apinatomy: ks.apinatomy_model || "",
-        species: ks.species.map(species => species.name),
+        species: ks.species.map(species => getBaseEntity(species.name, species.ontology_uri)),
         origins: ks.origins.map(origin => getAnatomicalEntity(origin)),
         destinations: ks.destinations.flatMap(dest => dest.anatomical_entities.map(destA => getAnatomicalEntity(destA))),
         via: ks.vias.flatMap(via => via.anatomical_entities.map(viaA => {
@@ -44,6 +44,13 @@ export function mapApiResponseToKnowledgeStatements(composerResponse: ComposerRe
     }));
 }
 
+
+const getBaseEntity = (name: string, uri: string) => {
+    return {
+        id: uri,
+        name
+    }
+}
 
 const getAnatomicalEntity = (anatomicalEntity: AnatomicalEntity) => {
     return {

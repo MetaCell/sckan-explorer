@@ -1,31 +1,22 @@
-export interface Organ {
+export interface BaseEntity {
     /**
      *
      * @type {string}
-     * @memberof Organ
+     * @memberof BaseEntity
      */
     id: string;
     /**
      *
      * @type {string}
-     * @memberof Organ
+     * @memberof BaseEntity
      */
     name: string;
 }
 
-export interface AnatomicalEntity {
-    /**
-     *
-     * @type {string}
-     * @memberof AnatomicalEntity
-     */
-    id: string;
-    /**
-     *
-     * @type {string}
-     * @memberof AnatomicalEntity
-     */
-    name: string;
+export interface Organ extends BaseEntity {
+}
+
+export interface AnatomicalEntity extends BaseEntity {
     /**
      *
      * @type {string}
@@ -34,7 +25,7 @@ export interface AnatomicalEntity {
     synonyms: string;
 }
 
-export interface Via extends AnatomicalEntity{
+export interface Via extends AnatomicalEntity {
     /**
      *
      * @type {boolean}
@@ -67,7 +58,7 @@ export interface KnowledgeStatement {
      * @type {Array<string>}
      * @memberof KnowledgeStatement
      */
-    species: string[];
+    species: BaseEntity[];
     /**
      *
      * @type {Array<Via>}
