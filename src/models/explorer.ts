@@ -46,28 +46,35 @@ export interface KnowledgeStatement {
     apinatomy: string;
     /**
      *
-     * @type {Array<string>}
+     * @type {Array<BaseEntity>}
      * @memberof KnowledgeStatement
      */
     species: BaseEntity[];
     /**
      *
-     * @type {Array<Via>}
+     * @type {Array<AnatomicalEntity>}
      * @memberof KnowledgeStatement
      */
     via: AnatomicalEntity[];
     /**
      *
-     * @type {Array<string>}
+     * @type {Array<AnatomicalEntity>}
      * @memberof KnowledgeStatement
      */
     origins: AnatomicalEntity[];
     /**
      *
-     * @type {Array<string>}
+     * @type {Array<AnatomicalEntity>}
      * @memberof KnowledgeStatement
      */
     destinations: AnatomicalEntity[];
+
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof KnowledgeStatement
+     */
+    forwardConnections: string[];
 }
 
 export interface HierarchicalNode {

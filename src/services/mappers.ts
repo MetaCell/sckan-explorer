@@ -26,13 +26,13 @@ interface KnowledgeStatementAPI {
     apinatomy_model: string | null;
     phenotype_id: number | null;
     phenotype: { name: string, ontology_uri: string };
-    forward_connection: Array<unknown>;
+    forward_connection: Array<{ reference_uri: string }>;
 }
 
 
 export function mapApiResponseToKnowledgeStatements(composerResponse: ComposerResponse) {
     return composerResponse.results.map(ks => ({
-        id: ks.id.toString(), // TODO: This should be the ontology_uri
+        id: ks.id.toString(), // TODO: This should be the reference_uri
         phenotype: ks.phenotype?.name || "",
         apinatomy: ks.apinatomy_model || "",
         species: ks.species.map(species => getBaseEntity(species.name, species.ontology_uri)),
@@ -40,7 +40,8 @@ export function mapApiResponseToKnowledgeStatements(composerResponse: ComposerRe
         destinations: ks.destinations.flatMap(dest => dest.anatomical_entities.map(destA => getAnatomicalEntity(destA))),
         via: ks.vias.flatMap(via => via.anatomical_entities.map(viaA => {
             return {...getAnatomicalEntity(viaA)}
-        }))
+        })),
+        forwardConnections: ks.forward_connection.map(fc => fc.reference_uri || "")
     }));
 }
 
