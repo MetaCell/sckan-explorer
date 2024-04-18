@@ -7,7 +7,7 @@ export const sckanInfoText = {
   connectivityStats: {
     title: "SPARC Connectivity Stats",
     content:
-      "The SPARC Connectivity Knowledgebase of the Automatic Nervous System (SCKAN) includes the neuronal connectivity models based on the Neuron Phenotype Ontology (NPO). NPO represents various neuron types, including Common Usage Types (CUT) and the types from Evidence-Based models (EBM) such as ApINATOMY and SPARC’s NLP Curated models. The term 'connectivity' in this context refers to the connections formed by the neuron types or populations among different anatomical regions. Each connectivity statement in NPO models the connections of a single neuron population based on a set of locational phenotypes, in the following form:",
+      "The SPARC Connectivity Knowledgebase of the Automatic Nervous System (SCKAN) includes the neuronal connectivity models based on the Neuron Phenotype Ontology (NPO). NPO represents various neuron types, including Common Usage Types (CUT) and the types from Evidence-Based Models (EBM) such as ApINATOMY and SPARC’s NLP Curated models. The term 'connectivity' in this context refers to the connections formed by the neuron types or populations among different anatomical regions. Each connectivity statement in NPO models the connections of a single neuron population based on a set of locational phenotypes, in the following form:",
     bulletPoints: [
       "X represents a neuron type or population",
       "A represents the region of the soma location",
