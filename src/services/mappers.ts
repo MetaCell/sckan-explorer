@@ -32,7 +32,7 @@ interface KnowledgeStatementAPI {
 
 export function mapApiResponseToKnowledgeStatements(composerResponse: ComposerResponse) {
     return composerResponse.results.map(ks => ({
-        id: ks.id.toString(), // TODO: This should be the reference_uri
+        id: String(ks.id), // TODO: This should be the reference_uri
         phenotype: ks.phenotype?.name || "",
         apinatomy: ks.apinatomy_model || "",
         species: ks.species.map(species => getBaseEntity(species.name, species.ontology_uri)),
@@ -55,8 +55,8 @@ const getBaseEntity = (name: string, uri: string) => {
 
 const getAnatomicalEntity = (anatomicalEntity: AnatomicalEntity) => {
     return {
-        id: getAnatomicalEntityOntologyUri(anatomicalEntity),
-        name: getAnatomicalEntityName(anatomicalEntity),
+        id: getAnatomicalEntityOntologyUri(anatomicalEntity) || "",
+        name: getAnatomicalEntityName(anatomicalEntity) || "",
         synonyms: anatomicalEntity.synonyms || ""
     }
 }
@@ -64,12 +64,12 @@ const getAnatomicalEntityName = (anatomicalEntity: AnatomicalEntity) => {
     if (anatomicalEntity.region_layer) {
         return `${anatomicalEntity.region_layer.region.name} (${anatomicalEntity.region_layer.layer.name})`
     }
-    return anatomicalEntity.simple_entity.name
+    return anatomicalEntity.simple_entity?.name
 }
 
 const getAnatomicalEntityOntologyUri = (anatomicalEntity: AnatomicalEntity) => {
     if (anatomicalEntity.region_layer) {
         return `${anatomicalEntity.region_layer.region.ontology_uri} (${anatomicalEntity.region_layer.layer.ontology_uri})`
     }
-    return anatomicalEntity.simple_entity.ontology_uri
+    return anatomicalEntity.simple_entity?.ontology_uri
 }

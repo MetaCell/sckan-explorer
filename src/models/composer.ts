@@ -26,19 +26,19 @@ export interface AnatomicalEntity {
      * @type {number}
      * @memberof AnatomicalEntity
      */
-    'id': string;
+    'id': number;
     /**
      *
      * @type {AnatomicalEntityMeta}
      * @memberof AnatomicalEntity
      */
-    'simple_entity': AnatomicalEntityMeta;
+    'simple_entity': AnatomicalEntityMeta | null;
     /**
      *
      * @type {AnatomicalEntityIntersection}
      * @memberof AnatomicalEntity
      */
-    'region_layer': AnatomicalEntityIntersection;
+    'region_layer': AnatomicalEntityIntersection | null;
     /**
      *
      * @type {string}

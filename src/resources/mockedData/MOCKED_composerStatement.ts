@@ -175,7 +175,7 @@ export const MOCKED_composerStatement = {
         {
             "id": 2996,
             "connectivity_statement_id": 421,
-            "type": "AXON-T",
+            "type": TypeC11Enum.AxonT,
             "anatomical_entities": [
                 {
                     "id": 140764,
