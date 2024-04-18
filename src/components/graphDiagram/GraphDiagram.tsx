@@ -12,6 +12,7 @@ import {CustomNodeFactory} from "./factories/CustomNodeFactory";
 import {
     AnatomicalEntity,
     DestinationSerializerDetails,
+    ForwardConnection,
     NodeTypes,
     TypeB60Enum,
     TypeC11Enum,
@@ -20,9 +21,10 @@ import {
 
 
 export interface CustomNodeOptions extends BasePositionModelOptions {
+    forward_connection: ForwardConnection[];
     to?: Array<{ name: string; type: string }>;
     from?: Array<{ name: string; type: string }>;
-    anatomicalType?: string
+    anatomicalType?: string;
 }
 
 const ViaTypeMapping: Record<TypeB60Enum, string> = {
@@ -40,11 +42,7 @@ interface GraphDiagramProps {
     origins: AnatomicalEntity[] | undefined;
     vias: ViaSerializerDetails[] | undefined;
     destinations: DestinationSerializerDetails[] | undefined;
-}
-
-function getExternalID(url: string) {
-    const parts = url.split('/');
-    return parts[parts.length - 1].replace('_', ':');
+    forward_connection?: ForwardConnection[] | undefined;
 }
 
 function getId(layerId: string, entity: AnatomicalEntity) {
@@ -79,6 +77,7 @@ const processData = (
     origins: AnatomicalEntity[] | undefined,
     vias: ViaSerializerDetails[] | undefined,
     destinations: DestinationSerializerDetails[] | undefined,
+    forward_connection: ForwardConnection[],
 ): { nodes: CustomNodeModel[], links: DefaultLinkModel[] } => {
     const nodes: CustomNodeModel[] = [];
     const links: DefaultLinkModel[] = [];
@@ -92,11 +91,15 @@ const processData = (
 
     origins?.forEach(origin => {
         const id = getId(NodeTypes.Origin, origin)
+        const name = origin.simple_entity !== null ? origin.simple_entity.name : origin.region_layer.region.name + '(' + origin.region_layer.layer.name + ')';
+        const ontology_uri = origin.simple_entity !== null ? origin.simple_entity.ontology_uri : origin.region_layer.region.ontology_uri + ', ' + origin.region_layer.layer.ontology_uri;
+        const fws: never[] = []
         const originNode = new CustomNodeModel(
             NodeTypes.Origin,
-            origin.name,
-            getExternalID(origin.ontology_uri),
+            name,
+            ontology_uri,
             {
+                forward_connection: fws,
                 to: [],
             }
         );
@@ -113,11 +116,15 @@ const processData = (
         let yVia = layerIndex * yIncrement + yStart;
         via.anatomical_entities.forEach(entity => {
             const id = getId(NodeTypes.Via + layerIndex, entity)
+            const name = entity.simple_entity !== null ? entity.simple_entity.name : entity.region_layer.region.name + '(' + entity.region_layer.layer.name + ')';
+            const ontology_uri = entity.simple_entity !== null ? entity.simple_entity.ontology_uri : entity.region_layer.region.ontology_uri + ', ' + entity.region_layer.layer.ontology_uri;
+            const fws: never[] = []
             const viaNode = new CustomNodeModel(
                 NodeTypes.Via,
-                entity.name,
-                getExternalID(entity.ontology_uri),
+                name,
+                ontology_uri,
                 {
+                    forward_connection: fws,
                     from: [],
                     to: [],
                     anatomicalType: via?.type ? ViaTypeMapping[via.type] : ''
@@ -153,13 +160,23 @@ const processData = (
     // Process Destinations
     destinations?.forEach(destination => {
         destination.anatomical_entities.forEach(entity => {
+            const name = entity.simple_entity !== null ? entity.simple_entity.name : entity.region_layer.region.name + '(' + entity.region_layer.layer.name + ')';
+            const ontology_uri = entity.simple_entity !== null ? entity.simple_entity.ontology_uri : entity.region_layer.region.ontology_uri + ', ' + entity.region_layer.layer.ontology_uri;
+            const fws = forward_connection.filter(single_fw => {
+                const origins = single_fw.origins.map((origin: { id: string } | string) => typeof origin === 'object' ? origin.id : origin);
+                if (origins.includes(entity.id)) {
+                    return true;
+                }
+                return false;
+            });
             const destinationNode = new CustomNodeModel(
                 NodeTypes.Destination,
-                entity.name,
-                getExternalID(entity.ontology_uri),
+                name,
+                ontology_uri,
                 {
+                    forward_connection: fws,
                     from: [],
-                    anatomicalType: destination?.type ? DestinationTypeMapping[destination.type] : ''
+                    anatomicalType: destination?.type ? DestinationTypeMapping[destination.type] : '',
                 }
             );
             destinationNode.setPosition(xDestination, yDestination);
@@ -185,7 +202,7 @@ const processData = (
     return {nodes, links};
 };
 
-const GraphDiagram: React.FC<GraphDiagramProps> = ({origins, vias, destinations}) => {
+const GraphDiagram: React.FC<GraphDiagramProps> = ({origins, vias, destinations, forward_connection = []}) => {
     const [engine] = useState(() => createEngine());
     const [modelUpdated, setModelUpdated] = useState(false)
     const [modelFitted, setModelFitted] = useState(false)
@@ -199,7 +216,7 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({origins, vias, destinations}
 
     // This effect runs whenever origins, vias, or destinations change
     useEffect(() => {
-        const {nodes, links} = processData(origins, vias, destinations);
+        const {nodes, links} = processData(origins, vias, destinations, forward_connection);
 
         const model = new DiagramModel();
         model.addAll(...nodes, ...links);
@@ -207,7 +224,7 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({origins, vias, destinations}
         engine.setModel(model);
         // engine.getModel().setLocked(true)
         setModelUpdated(true)
-    }, [origins, vias, destinations, engine]);
+    }, [origins, vias, destinations, engine, forward_connection]);
 
     // This effect prevents the default scroll and touchmove behavior
     useEffect(() => {
@@ -230,7 +247,11 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({origins, vias, destinations}
 
     useEffect(() => {
         if (modelUpdated && !modelFitted) {
-            engine.zoomToFit();
+            // TODO: for unknown reason at the moment if I call zoomToFit too early breaks the graph
+            // To fix later in the next contract.
+            setTimeout(() => {
+                engine.zoomToFit();
+            }, 1000);
             setModelFitted(true);
         }
     }, [modelUpdated, modelFitted, engine]);

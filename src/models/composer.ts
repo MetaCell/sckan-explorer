@@ -26,7 +26,7 @@ export interface AnatomicalEntity {
      * @type {number}
      * @memberof AnatomicalEntity
      */
-    'id': number;
+    'id': string;
     /**
      *
      * @type {AnatomicalEntityMeta}
@@ -222,4 +222,12 @@ export interface Layer {
      * @memberof Layer
      */
     'ontology_uri': string;
+}
+
+
+export interface ForwardConnection {
+    id: string;
+    knowledge_statement: string;
+    type: string;
+    origins: AnatomicalEntity[]
 }

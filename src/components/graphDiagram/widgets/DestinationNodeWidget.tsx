@@ -3,21 +3,19 @@ import {PortWidget} from "@projectstorm/react-diagrams";
 import {Typography, Box} from "@mui/material";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
-import {CustomNodeModel} from "../models/CustomNodeModel.tsx";
+import {CustomNodeModel} from "../models/CustomNodeModel";
 import {DiagramEngine} from "@projectstorm/react-diagrams-core";
-import {NodeTypes} from "../../../models/composer.ts";
 import {ArrowDownwardIcon, ArrowOutward, DestinationIcon, OriginIcon, ViaIcon} from "../../icons";
+import {NodeTypes} from "../../../models/composer.ts";
 
 interface DestinationNodeProps {
     model: CustomNodeModel;
     engine: DiagramEngine;
-    forwardConnection: boolean;
 }
 
 export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                                                                           model,
                                                                           engine,
-                                                                          forwardConnection,
                                                                       }) => {
     // State to toggle the color
     const [isActive, setIsActive] = useState(false);
@@ -31,6 +29,7 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
 
 
     const inPort = model.getPort("in");
+    const hasForwardConnections = model.getOptions()?.forward_connection?.length > 0;
 
     return (
         <Box
@@ -66,7 +65,7 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                 >
                     {model.name}
                 </Typography>
-                {forwardConnection && <ArrowDownwardIcon style={{ position: 'absolute', bottom: '-0.5rem', left: '50%', transform: 'translateX(-50%)' }} />}
+                {hasForwardConnections && <ArrowDownwardIcon style={{ position: 'absolute', bottom: '-0.5rem', left: '50%', transform: 'translateX(-50%)' }} />}
             </Box>
             {inPort && <PortWidget className="inPortDestination" engine={engine} port={inPort}>
               <div className="inPortDestination"/>
@@ -192,7 +191,7 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                     </Stack>
 
                     <Box width={1} mt={2}>
-                        {!forwardConnection && <ArrowDownwardIcon style={{ display: 'block', margin: '0 auto 0.25rem' }} />}
+                        {hasForwardConnections && <ArrowDownwardIcon style={{ display: 'block', margin: '0 auto 0.25rem' }} />}
                         <Box
                             sx={{
                                 borderRadius: "0.625rem",
@@ -201,9 +200,10 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                                 width: "100%",
                             }}
                         >
-                            {model.getOptions().from?.map((item: {
+                            {model.getOptions().forward_connection?.map((item: {
+                                id: string;
+                                knowledge_statement: string;
                                 type: string;
-                                name: string
                             }, index: number) => (
                                 <React.Fragment key={index}>
                                     <Stack
@@ -222,9 +222,13 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                                                 flex: 1
                                             }}
                                         >
-                                            {item.name}
+                                            {item?.knowledge_statement.length > 25 ? `${item.knowledge_statement.slice(0, 25)}...` : item.knowledge_statement}
                                         </Typography>
-                                        <ArrowOutward />
+                                        <span
+                                            style={{cursor: "pointer"}}
+                                            onClick={() => window.open(`${window.location.origin}/statement/${item.id}`)}>
+                                            <ArrowOutward/>
+                                        </span>
                                     </Stack>
                                 </React.Fragment>
                             ))}
