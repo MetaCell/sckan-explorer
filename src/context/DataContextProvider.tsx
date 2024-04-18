@@ -6,10 +6,17 @@ import {HierarchicalNode, KnowledgeStatement, Organ} from "../models/explorer.ts
 import {fetchKnowledgeStatements} from "../services/fetchService.ts";
 
 export const DataContextProvider = ({
-                                        jsonData,
+                                        hierarchicalNodes,
+                                        organs,
                                         majorNerves,
+                                        knowledgeStatements,
                                         children
-                                    }: PropsWithChildren<{ jsonData: JsonData; majorNerves: Set<string> }>) => {
+                                    }: PropsWithChildren<{
+    hierarchicalNodes: Record<string, HierarchicalNode>;
+    organs: Organ[];
+    majorNerves: Set<string>;
+    knowledgeStatements: Record<string, KnowledgeStatement>;
+}>) => {
     const [filters, setFilters] = useState<Filters>({
         Origin: [],
         EndOrgan: [],
@@ -18,36 +25,7 @@ export const DataContextProvider = ({
         apiNATOMY: [],
         Via: []
     });
-    const [organs, setOrgans] = useState<Organ[]>([]);
-    const [hierarchicalNodes, setHierarchicalNodes] = useState<Record<string, HierarchicalNode>>({});
-    const [knowledgeStatements, setKnowledgeStatements] = useState<Record<string, KnowledgeStatement>>({});
 
-    useEffect(() => {
-        if (jsonData) {
-            const nodes = getHierarchicalNodes(jsonData);
-            setHierarchicalNodes(nodes);
-            const organs = getOrgans(jsonData)
-            setOrgans(organs)
-            fetchAndSetKnowledgeStatements(nodes);
-        }
-    }, [jsonData]);
-
-    const fetchAndSetKnowledgeStatements = async (nodes: Record<string, HierarchicalNode>) => {
-        // Collect all unique neuron IDs
-        const neuronIDs = [...new Set(Object.values(nodes).flatMap(node =>
-            Object.values(node.connectionDetails || {}).flat()))];
-
-        // Fetch knowledge statements by these neuron IDs
-        const fetchedKnowledgeStatements = await fetchKnowledgeStatements(neuronIDs);
-
-        // Convert array to a map by ID for easy access
-        const ksMap = fetchedKnowledgeStatements.reduce<Record<string, KnowledgeStatement>>((acc, ks) => {
-            acc[ks.id] = ks;
-            return acc;
-        }, {});
-
-        setKnowledgeStatements(ksMap);
-    };
 
     const dataContextValue = {
         filters,

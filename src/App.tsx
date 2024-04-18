@@ -12,15 +12,19 @@ import Header from './components/common/Header.tsx';
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import SummaryPage from "./components/SummaryPage.tsx";
 import {DataContextProvider} from './context/DataContextProvider.tsx';
-import {fetchJSON, fetchMajorNerves} from "./services/fetchService.ts";
+import {fetchJSON, fetchKnowledgeStatements, fetchMajorNerves} from "./services/fetchService.ts";
 import {getUniqueMajorNerves} from "./services/filterValuesService.ts";
+import {HierarchicalNode, KnowledgeStatement, Organ} from "./models/explorer.ts";
+import {getHierarchicalNodes, getOrgans} from "./services/hierarchyService.ts";
 
 const App = () => {
     const store = useStore();
     const dispatch = useDispatch();
     const [LayoutComponent, setLayoutComponent] = useState<React.ComponentType | undefined>(undefined);
-    const [jsonData, setJsonData] = useState();
+    const [hierarchicalNodes, setHierarchicalNodes] = useState<Record<string, HierarchicalNode>>({});
+    const [organs, setOrgans] = useState<Organ[]>([]);
     const [majorNerves, setMajorNerves] = useState<Set<string>>();
+    const [knowledgeStatements, setKnowledgeStatements] = useState<Record<string, KnowledgeStatement>>({});
 
     useEffect(() => {
         if (LayoutComponent === undefined) {
@@ -38,11 +42,11 @@ const App = () => {
 
     useEffect(() => {
         fetchJSON().then(data => {
-            setJsonData(data);
+            setHierarchicalNodes(getHierarchicalNodes(data));
+            setOrgans(getOrgans(data))
         }).catch(error => {
             // TODO: We should give feedback to the user
             console.error("Failed to fetch JSON data:", error);
-            setJsonData(undefined);
         });
 
         fetchMajorNerves().then(data => {
@@ -54,7 +58,28 @@ const App = () => {
         });
     }, []);
 
-    const isLoading = LayoutComponent === undefined || jsonData === undefined || majorNerves === undefined
+    useEffect(() => {
+        if (hierarchicalNodes) {
+            const neuronIDs = [...new Set(Object.values(hierarchicalNodes).flatMap(node =>
+                Object.values(node.connectionDetails || {}).flat()))];
+
+            fetchKnowledgeStatements(neuronIDs)
+                .then(statements => {
+                    // Convert array to a map by ID for easy access
+                    const ksMap = statements.reduce<Record<string, KnowledgeStatement>>((acc, ks) => {
+                        acc[ks.id] = ks;
+                        return acc;
+                    }, {});
+                    setKnowledgeStatements(ksMap)
+                }).catch(error => {
+                // TODO: We should give feedback to the user
+                console.error("Failed to fetch knowledge statements data:", error);
+            })
+        }
+    }, [hierarchicalNodes]);
+
+    const isLoading = LayoutComponent === undefined || Object.keys(hierarchicalNodes).length === 0
+        || majorNerves === undefined || organs.length == 0 || Object.keys(knowledgeStatements).length == 0
 
     return (
         <>
@@ -69,7 +94,10 @@ const App = () => {
                                 <Route path="/" element={isLoading ? <CircularProgress/> :
                                     <DataContextProvider
                                         majorNerves={majorNerves}
-                                        jsonData={jsonData}>
+                                        hierarchicalNodes={hierarchicalNodes}
+                                        organs={organs}
+                                        knowledgeStatements={knowledgeStatements}
+                                    >
                                         <LayoutComponent/>
                                     </DataContextProvider>
                                 }

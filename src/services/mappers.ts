@@ -27,12 +27,13 @@ interface KnowledgeStatementAPI {
     phenotype_id: number | null;
     phenotype: { name: string, ontology_uri: string };
     forward_connection: Array<{ reference_uri: string }>;
+    reference_uri: string;
 }
 
 
 export function mapApiResponseToKnowledgeStatements(composerResponse: ComposerResponse) {
     return composerResponse.results.map(ks => ({
-        id: String(ks.id), // TODO: This should be the reference_uri
+        id: String(ks.reference_uri),
         phenotype: ks.phenotype?.name || "",
         apinatomy: ks.apinatomy_model || "",
         species: ks.species.map(species => getBaseEntity(species.name, species.ontology_uri)),

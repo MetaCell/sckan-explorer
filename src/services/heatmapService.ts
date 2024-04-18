@@ -1,4 +1,4 @@
-import {HierarchicalNode, Organ} from "../models/explorer.ts";
+import {HierarchicalNode, KnowledgeStatement, Organ} from "../models/explorer.ts";
 import {HierarchicalItem} from "../components/ConnectivityGrid.tsx";
 import {ROOTS} from "./hierarchyService.ts";
 
@@ -29,7 +29,8 @@ export function getXAxis(organs: Organ[]): string[] {
 }
 
 
-export function calculateConnections(hierarchicalNodes: Record<string, HierarchicalNode>, organs: Organ[]): Map<string, number[]> {
+export function calculateConnections(hierarchicalNodes: Record<string, HierarchicalNode>, organs: Organ[],
+                                     knowledgeStatements: Record<string, KnowledgeStatement>): Map<string, number[]> {
     // Create a map of organ IRIs to their index positions for quick lookup
     const organIndexMap = organs.reduce<Record<string, number>>((map, organ, index) => {
         map[organ.id] = index;
@@ -60,7 +61,10 @@ export function calculateConnections(hierarchicalNodes: Record<string, Hierarchi
                 const index = organIndexMap[targetOrganIRI];
                 node.connectionDetails = node.connectionDetails || {}; // Keeps linter happy
                 if (index !== undefined) {
-                    result[index] += node.connectionDetails[targetOrganIRI].length;
+                    const validKnowledgeStatementCount = node.connectionDetails[targetOrganIRI]
+                        .filter(ksId => ksId in knowledgeStatements)
+                        .length;
+                    result[index] += validKnowledgeStatementCount;
                 }
             });
         }

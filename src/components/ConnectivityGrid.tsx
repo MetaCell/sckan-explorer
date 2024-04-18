@@ -25,9 +25,9 @@ function ConnectivityGrid() {
 
     // Convert hierarchicalNodes to hierarchicalItems
     useEffect(() => {
-        const connections = calculateConnections(hierarchicalNodes, organs);
+        const connections = calculateConnections(hierarchicalNodes, organs, knowledgeStatements);
         setConnectionsMap(connections)
-    }, [hierarchicalNodes, organs]);
+    }, [hierarchicalNodes, organs, knowledgeStatements]);
 
     const {min, max} = useMemo(() => {
         return getMinMaxConnections(connectionsMap);
@@ -53,7 +53,7 @@ function ConnectivityGrid() {
         return searchPlaceholder(queryString, filterType, knowledgeStatements, organs)
     }
 
-    const isLoading = yAxis.length == 0 || Object.keys(knowledgeStatements).length == 0
+    const isLoading = yAxis.length == 0
 
     return (isLoading ? <CircularProgress/> : (
         <Box minHeight='100%' p={3} pb={0} fontSize={14} display='flex' flexDirection='column'>
