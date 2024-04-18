@@ -59,7 +59,7 @@ const App = () => {
     }, []);
 
     useEffect(() => {
-        if (hierarchicalNodes) {
+        if (Object.keys(hierarchicalNodes).length > 0) {
             const neuronIDs = [...new Set(Object.values(hierarchicalNodes).flatMap(node =>
                 Object.values(node.connectionDetails || {}).flat()))];
 
