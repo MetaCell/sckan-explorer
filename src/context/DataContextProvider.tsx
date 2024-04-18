@@ -1,9 +1,6 @@
-import {PropsWithChildren, useEffect, useState} from 'react';
+import {PropsWithChildren, useState} from 'react';
 import {DataContext, Filters} from "./DataContext";
-import {getHierarchicalNodes, getOrgans} from "../services/hierarchyService.ts";
-import {JsonData} from "../models/json.ts";
 import {HierarchicalNode, KnowledgeStatement, Organ} from "../models/explorer.ts";
-import {fetchKnowledgeStatements} from "../services/fetchService.ts";
 
 export const DataContextProvider = ({
                                         hierarchicalNodes,
