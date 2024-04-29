@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
-import {Box, CircularProgress} from "@mui/material";
+import { Box } from "@mui/material";
 import {getLayoutManagerInstance} from "@metacell/geppetto-meta-client/common/layout/LayoutManager";
 import {addWidget} from '@metacell/geppetto-meta-client/common/layout/actions';
 import {connectionsWidget, connectivityGridWidget} from "./layout-manager/widgets.ts";
@@ -16,6 +16,7 @@ import {fetchJSON, fetchKnowledgeStatements, fetchMajorNerves} from "./services/
 import {getUniqueMajorNerves} from "./services/filterValuesService.ts";
 import {HierarchicalNode, KnowledgeStatement, Organ} from "./models/explorer.ts";
 import {getHierarchicalNodes, getOrgans} from "./services/hierarchyService.ts";
+import Loader from './components/common/Loader.tsx';
 
 const App = () => {
     const store = useStore();
@@ -91,7 +92,7 @@ const App = () => {
                         <Box className="MuiContainer">
                             <Routes>
                                 <Route path="/summary" element={<SummaryPage/>}/>
-                                <Route path="/" element={isLoading ? <CircularProgress/> :
+                                <Route path="/" element={isLoading ? <Loader /> :
                                     <DataContextProvider
                                         majorNerves={majorNerves}
                                         hierarchicalNodes={hierarchicalNodes}
