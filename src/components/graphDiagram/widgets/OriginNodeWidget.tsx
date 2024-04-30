@@ -4,10 +4,9 @@ import {Typography, Box} from "@mui/material";
 import {DestinationIcon, OriginIcon, ViaIcon} from "../../icons";
 import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
-import {CustomNodeModel} from "../models/CustomNodeModel.tsx";
+import {CustomNodeModel} from "../models/CustomNodeModel";
 import {DiagramEngine} from "@projectstorm/react-diagrams-core";
 import {NodeTypes} from "../../../models/composer.ts";
-import {VerticalDivider} from "./ViaNodeWidget.tsx";
 
 interface OriginNodeProps {
     model: CustomNodeModel;
@@ -87,7 +86,7 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                         alignItems="center"
                         justifyContent="center"
                         textAlign="center"
-                        spacing={'.25rem'}
+                        spacing={2}
                     >
                         <OriginIcon fill="#6C707A"/>
                         <Typography
@@ -98,7 +97,7 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                                 lineHeight: "1.25rem",
                             }}
                         >
-                            Intermediolateral nucleus of eleventh thoracic segment
+                            {model.name}
                         </Typography>
                         <Typography
                             sx={{
@@ -106,13 +105,21 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
                                 fontSize: "0.75rem",
                                 fontWeight: 400,
                                 lineHeight: "1.125rem",
-                                marginTop: ".12rem !important",
+                                marginTop: ".25rem !important",
                             }}
                         >
                             {model.externalId}
                         </Typography>
                     </Stack>
-                      <VerticalDivider />
+                      <Box
+                        style={{
+                          width: "1rem",
+                          height: "0.0625rem",
+                          backgroundColor: " #6C707A",
+                          transform: "rotate(90deg)",
+                          marginBottom: '.5rem'
+                        }}
+                      />
                       <Typography
                         sx={{
                           color: " #6C707A",

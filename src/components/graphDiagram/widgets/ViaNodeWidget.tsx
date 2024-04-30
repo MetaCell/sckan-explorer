@@ -5,7 +5,7 @@ import Stack from "@mui/material/Stack";
 import {DestinationIcon, OriginIcon, ViaIcon} from "../../icons";
 import Divider from "@mui/material/Divider";
 import Chip from "@mui/material/Chip";
-import {CustomNodeModel} from "../models/CustomNodeModel.tsx";
+import {CustomNodeModel} from "../models/CustomNodeModel";
 import {DiagramEngine} from "@projectstorm/react-diagrams-core";
 import {NodeTypes} from "../../../models/composer.ts";
 
@@ -14,7 +14,7 @@ interface ViaNodeProps {
     engine: DiagramEngine;
 }
 
-export const VerticalDivider = () => <Box
+const VerticalDivider = () => <Box
   style={{
     width: "0.0625rem",
     height: "1rem",
@@ -64,7 +64,7 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                     lineHeight: "1.25rem",
                 }}
             >
-                {model.name}
+                {model?.name?.length > 35 ? model.name.slice(0, 35) + '...' : model.name}
             </Typography>
             {inPort && <PortWidget className="inPort" engine={engine} port={inPort}>
               <div className="inPort"/>
@@ -147,9 +147,8 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                         alignItems="center"
                         justifyContent="center"
                         textAlign="center"
-                        spacing="0.25rem"
                     >
-                        <ViaIcon fill="#6C707A" />
+                        <ViaIcon fill="#6C707A" style={{marginBottom: '.25rem'}} />
                         <Typography
                             sx={{
                                 color: " #4A4C4F",
@@ -181,7 +180,7 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({model, engine}) => {
                                 fontSize: "0.75rem",
                                 fontWeight: 500,
                                 padding: '0.125rem 0.5rem',
-                                marginTop: ".75rem !important",
+                                marginTop: ".75rem",
                             }}
                         />
                     </Stack>

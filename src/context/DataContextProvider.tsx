@@ -1,18 +1,20 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import {PropsWithChildren, useState} from 'react';
-import { DataContext } from "./DataContext";
+import {DataContext, Filters} from "./DataContext";
+import {HierarchicalNode, KnowledgeStatement, Organ} from "../models/explorer.ts";
 
 export const DataContextProvider = ({
-    // composerData,
-    // jsonData,
-    children
-}: PropsWithChildren<{
-    composerData: unknown;
-    jsonData: unknown;
+                                        hierarchicalNodes,
+                                        organs,
+                                        majorNerves,
+                                        knowledgeStatements,
+                                        children
+                                    }: PropsWithChildren<{
+    hierarchicalNodes: Record<string, HierarchicalNode>;
+    organs: Record<string, Organ>;
+    majorNerves: Set<string>;
+    knowledgeStatements: Record<string, KnowledgeStatement>;
 }>) => {
-    const [vias, setVias] = useState([]);
-    const [filters, setFilters] = useState({
+    const [filters, setFilters] = useState<Filters>({
         Origin: [],
         EndOrgan: [],
         Species: [],
@@ -20,31 +22,19 @@ export const DataContextProvider = ({
         apiNATOMY: [],
         Via: []
     });
-    const [knowledgeStatements, setKnowledgeStatements] = useState([]);
-    const [organs, setOrgans] = useState([]);
-    const [hierarchicalNodes, setHierarchicalNodes] = useState([]);
-    const [heatMapData, setHeatMapData] = useState([]);
-    const [summaryMapData, setSummaryMapData] = useState([]);
-    const [summaryData, setSummaryData] = useState([]);
 
-    const datacontextValue = {
-        vias,
+
+    const dataContextValue = {
         filters,
-        knowledgeStatements,
         organs,
+        majorNerves,
         hierarchicalNodes,
-        heatMapData,
-        summaryMapData,
-        summaryData,
-        setFilters: () => {},
-        setHeatMap: () => {},
-        setHeatMapData: () => {},
-        setSummaryMap: () => {},
-        setSummaryData: () => {}
+        knowledgeStatements,
+        setFilters,
     };
 
     return (
-        <DataContext.Provider value={datacontextValue}>
+        <DataContext.Provider value={dataContextValue}>
             {children}
         </DataContext.Provider>
     );

@@ -1,5 +1,5 @@
-import {createContext, useContext} from "react";
-import { Organ, Via, KnowledgeStatement, HierarchicalNode } from "../models/explorer";
+import React, {createContext, useContext} from "react";
+import {Organ, HierarchicalNode, KnowledgeStatement} from "../models/explorer";
 
 export interface Filter {
     name: string;
@@ -16,21 +16,15 @@ export interface Filters {
 }
 
 export interface DataContext {
-    vias: Via[];
     filters: Filters;
-    knowledgeStatements: KnowledgeStatement[];
-    organs: Organ[];
-    hierarchicalNodes: HierarchicalNode[];
-    heatMapData: unknown;
-    summaryMapData: unknown;
-    summaryData: unknown;
+    majorNerves: Set<string>;
+    organs: Record<string, Organ>;
+    hierarchicalNodes: Record<string, HierarchicalNode>;
+    knowledgeStatements: Record<string, KnowledgeStatement>;
     setFilters: React.Dispatch<React.SetStateAction<Filters>>;
-    setHeatMap: React.Dispatch<React.SetStateAction<unknown>>;
-    setSummaryMap: React.Dispatch<React.SetStateAction<unknown>>;
 }
 
 export const DataContext = createContext<DataContext>({
-    vias: [],
     filters: {
         Origin: [],
         EndOrgan: [],
@@ -39,15 +33,12 @@ export const DataContext = createContext<DataContext>({
         apiNATOMY: [],
         Via: []
     },
-    knowledgeStatements: [],
-    organs: [],
-    hierarchicalNodes: [],
-    heatMapData: [],
-    summaryMapData: [],
-    summaryData: [],
-    setFilters: () => {},
-    setHeatMap: () => {},
-    setSummaryMap: () => {},
+    majorNerves: new Set<string>(),
+    organs: {},
+    hierarchicalNodes: {},
+    knowledgeStatements: {},
+    setFilters: () => {
+    },
 });
 
 export const useDataContext = () => useContext(DataContext);

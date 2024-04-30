@@ -1,43 +1,29 @@
-export interface Organ {
+export interface BaseEntity {
     /**
      *
      * @type {string}
-     * @memberof Organ
+     * @memberof BaseEntity
      */
     id: string;
     /**
      *
      * @type {string}
-     * @memberof Organ
+     * @memberof BaseEntity
      */
     name: string;
-    /**
-     *
-     * @type {Array<string>}
-     * @memberof Organ
-     */
-    children?: string[];
 }
 
-export interface Via {
+export interface Organ extends BaseEntity {
+    children: Set<BaseEntity>;
+}
+
+export interface AnatomicalEntity extends BaseEntity {
     /**
      *
      * @type {string}
-     * @memberof Via
+     * @memberof AnatomicalEntity
      */
-    id: string;
-    /**
-     *
-     * @type {string}
-     * @memberof Via
-     */
-    name: string;
-    /**
-     *
-     * @type {boolean}
-     * @memberof Via
-     */
-    isNerve: boolean;
+    synonyms: string;
 }
 
 export interface KnowledgeStatement {
@@ -61,28 +47,35 @@ export interface KnowledgeStatement {
     apinatomy: string;
     /**
      *
+     * @type {Array<BaseEntity>}
+     * @memberof KnowledgeStatement
+     */
+    species: BaseEntity[];
+    /**
+     *
+     * @type {Array<AnatomicalEntity>}
+     * @memberof KnowledgeStatement
+     */
+    via: AnatomicalEntity[];
+    /**
+     *
+     * @type {Array<AnatomicalEntity>}
+     * @memberof KnowledgeStatement
+     */
+    origins: AnatomicalEntity[];
+    /**
+     *
+     * @type {Array<AnatomicalEntity>}
+     * @memberof KnowledgeStatement
+     */
+    destinations: AnatomicalEntity[];
+
+    /**
+     *
      * @type {Array<string>}
      * @memberof KnowledgeStatement
      */
-    species: string[];
-    /**
-     *
-     * @type {Array<Via>}
-     * @memberof KnowledgeStatement
-     */
-    via: Via[];
-    /**
-     *
-     * @type {Array<string>}
-     * @memberof KnowledgeStatement
-     */
-    origins: string[];
-    /**
-     *
-     * @type {Array<string>}
-     * @memberof KnowledgeStatement
-     */
-    destinations: string[];
+    forwardConnections: string[];
 }
 
 export interface HierarchicalNode {
@@ -91,7 +84,7 @@ export interface HierarchicalNode {
      * @type {string}
      * @memberof HierarchicalNode
      */
-    id: number;
+    id: string;
     /**
      *
      * @type {string}
@@ -99,21 +92,15 @@ export interface HierarchicalNode {
      */
     name: string;
     /**
-     *
-     * @type {Array<string>}
-     * @memberof HierarchicalNode
-     */
-    parentId: string | null | undefined;
-    /**
      *  The children of the node
      * @type {Array<string>}
      * @memberof HierarchicalNode
      */
-    children?: string[];
+    children: Set<string>;
     /**
-     * The connection details of the node
-     * @type {Record<string, KnowledgeStatement[]>}
+     * The connection details of the node targetOrgan -> KnowledgeStatementsId
+     * @type {Record<string, string[]>}
      * @memberof HierarchicalNode
      */
-    connectionDetails?: Record<string, KnowledgeStatement[]>;
+    connectionDetails?: Record<string, string[]>;
 }

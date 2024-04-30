@@ -203,7 +203,7 @@ export default function CustomEntitiesDropdown({
   React.useEffect(() => {
     searchValue !== undefined &&
       setAutocompleteOptions(onSearch(searchValue));
-  }, [searchValue, onSearch, autocompleteOptions]);
+  }, [searchValue, onSearch]);
 
   const resetSelection = () => {
     const newSelectedOptions = selectedOptions.filter(
