@@ -10,7 +10,7 @@ import {
 
 export const searchPlaceholder = (searchValue: string, filterType: string,
                                   knowledgeStatements: Record<string, KnowledgeStatement>,
-                                  organs: Organ[]): Option[] => {
+                                  organs: Record<string, Organ>): Option[] => {
 
     let options: Option[] = [];
 

@@ -43,10 +43,9 @@ function ConnectivityGrid() {
         setYAxis(yAxis);
     }, [hierarchicalNodes]);
 
-    const [selectedCell, setSelectedCell] = useState<{ x: number, y: number } | null>(null);
-
-    const handleClick = (x: number, y: number): void => {
-        setSelectedCell({x, y});
+    const handleClick = (x: string, y: string): void => {
+        console.log(x)
+        console.log(y)
     };
 
     const onSearchPlaceholder = (queryString: string, filterType: string): Option[] => {
@@ -125,9 +124,9 @@ function ConnectivityGrid() {
             </Box>
 
             <HeatmapGrid initialYAxis={yAxis} xAxis={xAxis} connectionsMap={connectionsMap}
-                           xAxisLabel={'End organ'} yAxisLabels={'Connection Origin'}
-                           cellClick={handleClick}
-                           selectedCell={selectedCell}/>
+                         xAxisLabel={'End organ'} yAxisLabels={'Connection Origin'}
+                         onCellClick={handleClick}
+            />
 
             <Box
                 py={1.5}
@@ -192,7 +191,7 @@ function ConnectivityGrid() {
                                     width: '1.5rem',
                                     height: '1rem',
                                     background: `rgba(131, 0, 191, ${1 - (el / 6.5)})`,
-                            }}/>)}
+                                }}/>)}
                         </Box>
 
                         <Typography sx={{

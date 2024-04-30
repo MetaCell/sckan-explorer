@@ -26,10 +26,9 @@ interface HeatmapGridProps {
     connectionsMap: Map<string, number[]>;
     xAxis: string[];
     initialYAxis: HierarchicalItem[];
-    cellClick?: (x: number, y: number) => void;
+    onCellClick?: (x: string, y: string) => void;
     xAxisLabel?: string;
     yAxisLabels?: string;
-    selectedCell?: { x: number, y: number } | null;
     secondary?: boolean;
 }
 
@@ -50,7 +49,7 @@ const getCellBgColor = (value: number) => {
 const HeatmapGrid: FC<HeatmapGridProps> = ({
                                                secondary, xAxis, initialYAxis,
                                                xAxisLabel, yAxisLabels,
-                                               cellClick, selectedCell,
+                                               onCellClick,
                                                connectionsMap
                                            }) => {
 
@@ -58,6 +57,8 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     const data = useMemo(() => {
         return getHeatmapData(yAxis, connectionsMap);
     }, [yAxis, connectionsMap]);
+    const [selectedCell, setSelectedCell] = useState<{ x: number, y: number } | null>(null);
+
 
     const handleItemClick = (item: HierarchicalItem) => {
         const updateList = (list: HierarchicalItem[], selectedItem: HierarchicalItem): HierarchicalItem[] => {
@@ -73,6 +74,13 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
 
         const updatedList = updateList(yAxis, item);
         setYAxis(updatedList);
+    };
+
+    const handleClick = (x: number, y: number): void => {
+        setSelectedCell({x, y});
+        if(onCellClick){
+            console.log("To be implemented")
+        }
     };
 
     return (
@@ -188,7 +196,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                         data={data}
                         // squares
                         height={43}
-                        onClick={(x: number, y: number) => cellClick && cellClick(x, y)}
+                        onClick={(x: number, y: number) => handleClick(x, y)}
                         cellStyle={(_background: string, value: number, min: number, max: number, _data: string, _x: number, _y: number) => {
                             const isSelectedCell = selectedCell?.x === _x && selectedCell?.y === _y
                             const normalizedValue = (value - min) / (max - min);

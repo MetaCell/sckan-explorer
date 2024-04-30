@@ -10,7 +10,7 @@ export const DataContextProvider = ({
                                         children
                                     }: PropsWithChildren<{
     hierarchicalNodes: Record<string, HierarchicalNode>;
-    organs: Organ[];
+    organs: Record<string, Organ>;
     majorNerves: Set<string>;
     knowledgeStatements: Record<string, KnowledgeStatement>;
 }>) => {

@@ -1,4 +1,4 @@
-import {HierarchicalNode, Organ} from "../models/explorer.ts";
+import {BaseEntity, HierarchicalNode, Organ} from "../models/explorer.ts";
 import {Binding, JsonData} from "../models/json.ts";
 
 
@@ -111,10 +111,10 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
                 leafNode.connectionDetails[targetOrganIRI].push(neuronId);
             } else {
                 if (!targetOrganIRI) {
-                    console.error(`Error: Target_Organ_IRI not found for entry with Neuron_ID: ${neuronId}`);
+                    console.warn(`Target_Organ_IRI not found for entry with Neuron_ID: ${neuronId}`);
                 }
                 if (!neuronId) {
-                    console.error(`Error: Neuron_ID not found for entry`);
+                    console.warn(`Error: Neuron_ID not found for entry`);
                 }
             }
 
@@ -131,20 +131,26 @@ function getRootNode(a_l1_name: string): string {
 }
 
 
-export const getOrgans = (jsonData: JsonData): Organ[] => {
-    const {bindings} = jsonData.results;
-    const organSet = new Set<string>();
-    const uniqueOrgans: Organ[] = [];
+export const getOrgans = (jsonData: JsonData): Record<string, Organ> => {
+    const { bindings } = jsonData.results;
+    const organsRecord: Record<string, Organ> = {};
 
     bindings.forEach((binding: Binding) => {
         const organId = binding.Target_Organ_IRI?.value;
         const organName = binding.Target_Organ?.value;
+        const childId = binding.B_ID?.value;
+        const childName = binding.B?.value;
 
-        if (organId && organName && !organSet.has(organId)) {
-            organSet.add(organId);
-            uniqueOrgans.push({id: organId, name: organName});
+        if (organId && organName) {
+            if (!organsRecord[organId]) {
+                organsRecord[organId] = { id: organId, name: organName, children: new Set<BaseEntity>() };
+            }
+
+            if (childId && childName) {
+                organsRecord[organId].children.add({ id: childId, name: childName });
+            }
         }
     });
 
-    return uniqueOrgans;
+    return organsRecord;
 }

@@ -17,8 +17,8 @@ export interface Filters {
 
 export interface DataContext {
     filters: Filters;
-    organs: Organ[];
     majorNerves: Set<string>;
+    organs: Record<string, Organ>;
     hierarchicalNodes: Record<string, HierarchicalNode>;
     knowledgeStatements: Record<string, KnowledgeStatement>;
     setFilters: React.Dispatch<React.SetStateAction<Filters>>;
@@ -33,8 +33,8 @@ export const DataContext = createContext<DataContext>({
         apiNATOMY: [],
         Via: []
     },
-    organs: [],
     majorNerves: new Set<string>(),
+    organs: {},
     hierarchicalNodes: {},
     knowledgeStatements: {},
     setFilters: () => {

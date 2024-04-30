@@ -45,9 +45,9 @@ export const getUniqueSpecies = (knowledgeStatements: Record<string, KnowledgeSt
 };
 
 
-export const getUniqueOrgans = (organs: Organ[]): Option[] => {
+export const getUniqueOrgans = (organs: Record<string, Organ>): Option[] => {
 
-    return organs.map(organ => ({
+    return Object.values(organs).map(organ => ({
         id: organ.id,
         label: organ.name,
         group: "",

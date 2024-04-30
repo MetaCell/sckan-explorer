@@ -22,7 +22,7 @@ const App = () => {
     const dispatch = useDispatch();
     const [LayoutComponent, setLayoutComponent] = useState<React.ComponentType | undefined>(undefined);
     const [hierarchicalNodes, setHierarchicalNodes] = useState<Record<string, HierarchicalNode>>({});
-    const [organs, setOrgans] = useState<Organ[]>([]);
+    const [organs, setOrgans] = useState<Record<string, Organ>>({});
     const [majorNerves, setMajorNerves] = useState<Set<string>>();
     const [knowledgeStatements, setKnowledgeStatements] = useState<Record<string, KnowledgeStatement>>({});
 
@@ -79,7 +79,7 @@ const App = () => {
     }, [hierarchicalNodes]);
 
     const isLoading = LayoutComponent === undefined || Object.keys(hierarchicalNodes).length === 0
-        || majorNerves === undefined || organs.length == 0 || Object.keys(knowledgeStatements).length == 0
+        || majorNerves === undefined || Object.keys(organs).length == 0 || Object.keys(knowledgeStatements).length == 0
 
     return (
         <>

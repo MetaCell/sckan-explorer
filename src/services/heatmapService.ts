@@ -24,15 +24,16 @@ export function getYAxis(hierarchicalNodes: Record<string, HierarchicalNode>): H
     }).filter(item => item !== null) as HierarchicalItem[];
 }
 
-export function getXAxis(organs: Organ[]): string[] {
-    return organs.map(organ => organ.name);
+export function getXAxis(organs: Record<string, Organ>): string[] {
+    return Object.values(organs).map(organ => organ.name);
 }
 
 
-export function calculateConnections(hierarchicalNodes: Record<string, HierarchicalNode>, organs: Organ[],
+
+export function calculateConnections(hierarchicalNodes: Record<string, HierarchicalNode>, organs: Record<string, Organ>,
                                      knowledgeStatements: Record<string, KnowledgeStatement>): Map<string, number[]> {
     // Create a map of organ IRIs to their index positions for quick lookup
-    const organIndexMap = organs.reduce<Record<string, number>>((map, organ, index) => {
+    const organIndexMap = Object.values(organs).reduce<Record<string, number>>((map, organ, index) => {
         map[organ.id] = index;
         return map;
     }, {});
@@ -47,7 +48,7 @@ export function calculateConnections(hierarchicalNodes: Record<string, Hierarchi
         }
 
         const node = hierarchicalNodes[nodeId];
-        const result = new Array(organs.length).fill(0);
+        const result = new Array(Object.keys(organs).length).fill(0);
 
         if (node.children && node.children.size > 0) {
             node.children.forEach(childId => {
