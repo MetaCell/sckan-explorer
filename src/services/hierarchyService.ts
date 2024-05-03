@@ -105,7 +105,6 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
             if (neuronId) {
                 if (!targetOrganIRI) {
                     console.warn(`Target_Organ_IRI not found for entry with Neuron_ID: ${neuronId}`);
-                    // TODO: Need to update the OTHER_X_AXIS_ID organ children
                     targetOrganIRI = OTHER_X_AXIS_ID
                 }
                 // Ensure connectionDetails for this targetOrganIRI is initialized
@@ -138,6 +137,14 @@ function getRootNode(a_l1_name: string): string {
 export const getOrgans = (jsonData: JsonData): Record<string, Organ> => {
     const {bindings} = jsonData.results;
     const organsRecord: Record<string, Organ> = {};
+    let creationOrder = 0;
+
+    organsRecord[OTHER_X_AXIS_ID] = {
+        id: OTHER_X_AXIS_ID,
+        name: OTHER_X_AXIS_LABEL,
+        children: new Set<BaseEntity>(),
+        order: 0
+    };
 
     bindings.forEach((binding: Binding) => {
         const organId = binding.Target_Organ_IRI?.value;
@@ -147,16 +154,26 @@ export const getOrgans = (jsonData: JsonData): Record<string, Organ> => {
 
         if (organId && organName) {
             if (!organsRecord[organId]) {
-                organsRecord[organId] = {id: organId, name: organName, children: new Set<BaseEntity>()};
+                organsRecord[organId] = {
+                    id: organId,
+                    name: organName,
+                    children: new Set<BaseEntity>(),
+                    order: ++creationOrder
+                };
             }
 
             if (childId && childName) {
                 organsRecord[organId].children.add({id: childId, name: childName});
             }
+        } else {
+            if (childId && childName) {
+                organsRecord[OTHER_X_AXIS_ID].children.add({id: childId, name: childName});
+            }
         }
     });
 
-    organsRecord[OTHER_X_AXIS_ID] = {id: OTHER_X_AXIS_ID, name: OTHER_X_AXIS_LABEL, children: new Set<BaseEntity>()}
+    // Assign the highest order number to OTHER_X_AXIS_ID
+    organsRecord[OTHER_X_AXIS_ID].order = creationOrder + 1;
 
     return organsRecord;
 }

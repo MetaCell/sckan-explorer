@@ -15,6 +15,8 @@ export interface BaseEntity {
 
 export interface Organ extends BaseEntity {
     children: Set<BaseEntity>;
+
+    order: number;
 }
 
 export interface AnatomicalEntity extends BaseEntity {
