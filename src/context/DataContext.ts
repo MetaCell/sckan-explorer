@@ -1,18 +1,14 @@
 import React, {createContext, useContext} from "react";
 import {Organ, HierarchicalNode, KnowledgeStatement} from "../models/explorer";
-
-export interface Filter {
-    name: string;
-    value: string;
-}
+import {Option} from "../components/common/Types.ts";
 
 export interface Filters {
-    Origin: Filter[];
-    EndOrgan: Filter[];
-    Species: Filter[];
-    Phenotype: Filter[];
-    apiNATOMY: Filter[];
-    Via: Filter[];
+    Origin: Option[];
+    EndOrgan: Option[];
+    Species: Option[];
+    Phenotype: Option[];
+    apiNATOMY: Option[];
+    Via: Option[];
 }
 
 export interface DataContext {

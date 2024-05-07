@@ -24,13 +24,13 @@ export const searchPlaceholder = (searchValue: string, filterType: string,
         case 'Phenotype':
             options = getUniquePhenotypes(knowledgeStatements);
             break;
-        case 'ApiNATOMY':
+        case 'apiNATOMY':
             options = getUniqueApinatomies(knowledgeStatements);
             break;
         case 'Via':
             options = getUniqueVias(knowledgeStatements);
             break;
-        case "End Organ":
+        case "EndOrgan":
             options = getUniqueOrgans(organs)
             break;
         default:
