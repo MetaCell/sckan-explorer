@@ -1,6 +1,8 @@
 import {HierarchicalNode, KnowledgeStatement, Organ} from "../models/explorer.ts";
 import {HierarchicalItem} from "../components/ConnectivityGrid.tsx";
 import {ROOTS} from "./hierarchyService.ts";
+import {Option} from "../components/common/Types.ts";
+import {Filters} from "../context/DataContext.ts";
 
 export function getYAxis(hierarchicalNodes: Record<string, HierarchicalNode>): HierarchicalItem[] {
     function buildListItem(nodeId: string): HierarchicalItem {
@@ -31,10 +33,16 @@ export function getXAxis(organs: Record<string, Organ>): string[] {
 }
 
 
-export function calculateConnections(hierarchicalNodes: Record<string, HierarchicalNode>, organs: Record<string, Organ>,
-                                     knowledgeStatements: Record<string, KnowledgeStatement>): Map<string, number[]> {
+export function calculateConnections(hierarchicalNodes: Record<string, HierarchicalNode>, allOrgans: Record<string, Organ>,
+                                     allKnowledgeStatements: Record<string, KnowledgeStatement>, filters: Filters): Map<string, number[]> {
+
+    // Apply filters to organs and knowledge statements
+
+    const knowledgeStatements = filterKnowledgeStatementsByFilters(allKnowledgeStatements, filters);
+    const organs = filterOrgansByEndOrganFilter(allOrgans, filters.EndOrgan);
+
     // Create a map of organ IRIs to their index positions for quick lookup
-    const sortedOrgans = Object.values(organs).sort((a, b) => a.order - b.order);
+    const sortedOrgans = Object.values(allOrgans).sort((a, b) => a.order - b.order);
     const organIndexMap = sortedOrgans.reduce<Record<string, number>>((map, organ, index) => {
         map[organ.id] = index;
         return map;
@@ -50,7 +58,7 @@ export function calculateConnections(hierarchicalNodes: Record<string, Hierarchi
         }
 
         const node = hierarchicalNodes[nodeId];
-        const result = new Array(Object.keys(organs).length).fill(0);
+        const result = new Array(Object.keys(allOrgans).length).fill(0);
 
         if (node.children && node.children.size > 0) {
             node.children.forEach(childId => {
@@ -63,7 +71,7 @@ export function calculateConnections(hierarchicalNodes: Record<string, Hierarchi
             Object.keys(node.connectionDetails).forEach(targetOrganIRI => {
                 const index = organIndexMap[targetOrganIRI];
                 node.connectionDetails = node.connectionDetails || {}; // Keeps linter happy
-                if (index !== undefined) {
+                if (index !== undefined && targetOrganIRI in organs) {
                     const validKnowledgeStatementCount = node.connectionDetails[targetOrganIRI]
                         .filter(ksId => ksId in knowledgeStatements)
                         .length;
@@ -131,4 +139,39 @@ export function getMinMaxConnections(connectionsMap: Map<string, number[]>): { m
     });
 
     return {min, max};
+}
+
+export function filterOrgansByEndOrganFilter(organs: Record<string, Organ>, endOrganFilter: Option[]): Record<string, Organ> {
+    if (endOrganFilter.length === 0) {
+        // If no filter is selected, return all organs
+        return organs;
+    }
+    const filterIds = endOrganFilter.map(option => option.id);
+    return Object.entries(organs).reduce((filtered, [id, organ]) => {
+        if (filterIds.includes(id)) {
+            filtered[id] = organ;
+        }
+        return filtered;
+    }, {} as Record<string, Organ>);
+}
+
+export function filterKnowledgeStatementsByFilters(knowledgeStatements: Record<string, KnowledgeStatement>, filters: Filters): Record<string, KnowledgeStatement> {
+    const phenotypeIds = filters.Phenotype.map(option => option.id);
+    const apiNATOMYIds = filters.apiNATOMY.map(option => option.id);
+    const speciesIds = filters.Species.flatMap(option => option.id);
+    const viaIds = filters.Via.flatMap(option => option.id);
+    const originIds = filters.Origin.flatMap(option => option.id);
+
+    return Object.entries(knowledgeStatements).reduce((filtered, [id, ks]) => {
+        const phenotypeMatch = !phenotypeIds.length || phenotypeIds.includes(ks.phenotype);
+        const apiNATOMYMatch = !apiNATOMYIds.length || apiNATOMYIds.includes(ks.apinatomy);
+        const speciesMatch = !speciesIds.length || ks.species.some(species => speciesIds.includes(species.id));
+        const viaMatch = !viaIds.length || ks.via.some(via => viaIds.includes(via.id));
+        const originMatch = !originIds.length || ks.origins.some(origin => originIds.includes(origin.id));
+
+        if (phenotypeMatch && apiNATOMYMatch && speciesMatch && viaMatch && originMatch) {
+            filtered[id] = ks;
+        }
+        return filtered;
+    }, {} as Record<string, KnowledgeStatement>);
 }

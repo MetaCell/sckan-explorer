@@ -17,7 +17,7 @@ const {gray500, white: white, gray25, gray100, primaryPurple600, gray400} = vars
 
 
 function ConnectivityGrid() {
-    const {hierarchicalNodes, organs, knowledgeStatements} = useDataContext();
+    const {hierarchicalNodes, organs, knowledgeStatements, filters} = useDataContext();
 
     const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
     const [xAxis, setXAxis] = useState<string[]>([]);
@@ -25,9 +25,9 @@ function ConnectivityGrid() {
 
     // Convert hierarchicalNodes to hierarchicalItems
     useEffect(() => {
-        const connections = calculateConnections(hierarchicalNodes, organs, knowledgeStatements);
+        const connections = calculateConnections(hierarchicalNodes, organs, knowledgeStatements, filters);
         setConnectionsMap(connections)
-    }, [hierarchicalNodes, organs, knowledgeStatements]);
+    }, [hierarchicalNodes, organs, knowledgeStatements, filters]);
 
     const {min, max} = useMemo(() => {
         return getMinMaxConnections(connectionsMap);
