@@ -7,3 +7,5 @@ export const COMPOSER_API_URL = "https://composer.sckan.dev.metacell.us/api"
 export const OTHER_X_AXIS_ID = 'OTHER_X'
 export const OTHER_X_AXIS_LABEL = 'Other'
 
+export const SYNONYMS_TITLE = "synonyms"
+

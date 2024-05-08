@@ -1,15 +1,31 @@
 import {AnatomicalEntity, BaseEntity, KnowledgeStatement, Organ} from "../models/explorer";
 import {Option} from "../components/common/Types.ts";
 import {NerveResponse} from "../models/json.ts";
+import {SYNONYMS_TITLE} from "../settings.ts";
 
 
-const mapEntityToOption = (entities: BaseEntity[]): Option[] =>
-    entities.map(entity => ({
-        id: entity.id,
-        label: entity.name,
-        group: '',
-        content: []
-    }));
+export const mapEntityToOption = (entities: BaseEntity[]): Option[] =>
+    entities.map(entity => {
+        const option: Option = {
+            id: entity.id,
+            label: entity.name,
+            group: '',
+            content: []
+        };
+
+        if (isAnatomicalEntity(entity) && entity.synonyms) {
+            option.content.push({
+                title: SYNONYMS_TITLE,
+                value: entity.synonyms
+            });
+        }
+
+        return option;
+    });
+
+function isAnatomicalEntity(entity: BaseEntity): entity is AnatomicalEntity {
+    return (entity as AnatomicalEntity).synonyms !== undefined;
+}
 
 const getUniqueEntities = (entities: BaseEntity[]): Option[] => {
     const uniqueMap = new Map<string, BaseEntity>();

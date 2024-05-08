@@ -1,31 +1,45 @@
 // Search origins
 import {Option} from "../components/common/Types.ts";
+import {SYNONYMS_TITLE} from "../settings.ts";
 
 export const searchOrigins = (searchValue: string, options: Option[]): Option[] => {
-    return options.filter(origin => origin.label.toLowerCase().includes(searchValue.toLowerCase()));
+    return searchAnatomicalEntities(searchValue, options);
 };
 
-// Search end organs
 export const searchEndOrgans = (searchValue: string, options: Option[]): Option[] => {
-    return options.filter(organ => organ.label.toLowerCase().includes(searchValue.toLowerCase()));
+    return searchByLabel(searchValue, options);
 };
 
-// Search species
 export const searchSpecies = (searchValue: string, options: Option[]): Option[] => {
-    return options.filter(species => species.label.toLowerCase().includes(searchValue.toLowerCase()));
+    return searchByLabel(searchValue, options);
 };
 
-// Search phenotypes
 export const searchPhenotypes = (searchValue: string, options: Option[]): Option[] => {
-    return options.filter(phenotype => phenotype.label.toLowerCase().includes(searchValue.toLowerCase()));
+    return searchByLabel(searchValue, options);
 };
 
-// Search ApiNATOMY links
 export const searchApiNATOMY = (searchValue: string, options: Option[]): Option[] => {
-    return options.filter(api => api.label.toLowerCase().includes(searchValue.toLowerCase()));
+    return searchByLabel(searchValue, options);
 };
 
-// Search vias
 export const searchVias = (searchValue: string, options: Option[]): Option[] => {
-    return options.filter(via => via.label.toLowerCase().includes(searchValue.toLowerCase()));
+    return searchAnatomicalEntities(searchValue, options);
 };
+
+
+const searchByLabel = (searchValue: string, options: Option[]): Option[] => {
+    const lowerSearchValue = searchValue.toLowerCase();
+    return options.filter(option => option.label.toLowerCase().includes(lowerSearchValue));
+};
+
+const searchAnatomicalEntities = (searchValue: string, options: Option[]): Option[] => {
+    const lowerSearchValue = searchValue.toLowerCase();
+    return options.filter(option => {
+        const labelMatch = option.label.toLowerCase().includes(lowerSearchValue);
+        const synonymMatch = option.content.some(detail =>
+            detail.title === SYNONYMS_TITLE && detail.value.toLowerCase().includes(lowerSearchValue)
+        );
+        return labelMatch || synonymMatch;
+    });
+};
+
