@@ -4,7 +4,7 @@ import {vars} from "../theme/variables";
 import HeatmapGrid from "./common/Heatmap";
 import {useDataContext} from "../context/DataContext.ts";
 import {calculateConnections, getMinMaxConnections, getXAxis, getYAxis} from "../services/heatmapService.ts";
-import Filters from "./Filters.tsx";
+import FiltersDropdowns from "./FiltersDropdowns.tsx";
 
 export interface HierarchicalItem {
     label: string;
@@ -56,7 +56,7 @@ function ConnectivityGrid() {
                 <Typography variant="h6" sx={{fontWeight: 400}}>Connection Origin to End Organ</Typography>
             </Box>
 
-            <Filters/>
+            <FiltersDropdowns/>
 
             <HeatmapGrid initialYAxis={yAxis} xAxis={xAxis} connectionsMap={connectionsMap}
                          xAxisLabel={'End organ'} yAxisLabels={'Connection Origin'}

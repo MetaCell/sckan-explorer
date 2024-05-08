@@ -1,43 +1,31 @@
+// Search origins
 import {Option} from "../components/common/Types.ts";
-import {KnowledgeStatement, Organ} from "../models/explorer.ts";
-import {
-    getUniqueApinatomies, getUniqueOrgans,
-    getUniqueOrigins,
-    getUniquePhenotypes,
-    getUniqueSpecies,
-    getUniqueVias
-} from "./filterValuesService.ts";
 
-export const searchPlaceholder = (searchValue: string, filterType: string,
-                                  knowledgeStatements: Record<string, KnowledgeStatement>,
-                                  organs: Record<string, Organ>): Option[] => {
+export const searchOrigins = (searchValue: string, options: Option[]): Option[] => {
+    return options.filter(origin => origin.label.toLowerCase().includes(searchValue.toLowerCase()));
+};
 
-    let options: Option[] = [];
+// Search end organs
+export const searchEndOrgans = (searchValue: string, options: Option[]): Option[] => {
+    return options.filter(organ => organ.label.toLowerCase().includes(searchValue.toLowerCase()));
+};
 
-    switch (filterType) {
-        case 'Origin':
-            options = getUniqueOrigins(knowledgeStatements);
-            break;
-        case 'Species':
-            options = getUniqueSpecies(knowledgeStatements);
-            break;
-        case 'Phenotype':
-            options = getUniquePhenotypes(knowledgeStatements);
-            break;
-        case 'apiNATOMY':
-            options = getUniqueApinatomies(knowledgeStatements);
-            break;
-        case 'Via':
-            options = getUniqueVias(knowledgeStatements);
-            break;
-        case "EndOrgan":
-            options = getUniqueOrgans(organs)
-            break;
-        default:
-            return []
-    }
+// Search species
+export const searchSpecies = (searchValue: string, options: Option[]): Option[] => {
+    return options.filter(species => species.label.toLowerCase().includes(searchValue.toLowerCase()));
+};
 
-    return options.filter(option =>
-        option.label.toLowerCase().includes(searchValue.toLowerCase())
-    );
+// Search phenotypes
+export const searchPhenotypes = (searchValue: string, options: Option[]): Option[] => {
+    return options.filter(phenotype => phenotype.label.toLowerCase().includes(searchValue.toLowerCase()));
+};
+
+// Search ApiNATOMY links
+export const searchApiNATOMY = (searchValue: string, options: Option[]): Option[] => {
+    return options.filter(api => api.label.toLowerCase().includes(searchValue.toLowerCase()));
+};
+
+// Search vias
+export const searchVias = (searchValue: string, options: Option[]): Option[] => {
+    return options.filter(via => via.label.toLowerCase().includes(searchValue.toLowerCase()));
 };

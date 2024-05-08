@@ -179,7 +179,6 @@ export default function CustomEntitiesDropdown({
                                                    selectedOptions,
                                                    onSelect
                                                }: EntitiesProps) {
-    const [searchValue] = useState("");
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -191,7 +190,7 @@ export default function CustomEntitiesDropdown({
 
     const [updatedSelectedOptions, setUpdatedSelectedOptions] = useState<Option[]>([]);
     const [autocompleteOptions, setAutocompleteOptions] = useState<Option[]>([]);
-    const [inputValue, setInputValue] = useState('');
+    const [searchValue, setSearchValue] = useState('');
 
     React.useEffect(() => {
         if (selectedOptions?.length > 1) {
@@ -224,7 +223,7 @@ export default function CustomEntitiesDropdown({
     };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setInputValue(event.target.value);
+        setSearchValue(event.target.value);
     };
 
     const isOptionSelected = (option: Option) => {
@@ -348,7 +347,7 @@ export default function CustomEntitiesDropdown({
                             <TextField
                                 fullWidth
                                 type="text"
-                                value={inputValue}
+                                value={searchValue}
                                 onChange={handleInputChange}
                                 placeholder={searchPlaceholder}
                                 InputProps={{
@@ -446,9 +445,6 @@ export default function CustomEntitiesDropdown({
                                         </ListSubheader>
                                         <ul>
                                             {autocompleteOptions
-                                                .filter((option: Option) =>
-                                                    option.label.toLowerCase().includes(inputValue.toLowerCase())
-                                                )
                                                 .map((option: Option) => (
                                                     <li
                                                         key={option.id}
