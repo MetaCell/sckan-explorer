@@ -38,8 +38,8 @@ export function calculateConnections(hierarchicalNodes: Record<string, Hierarchi
 
     // Apply filters to organs and knowledge statements
 
-    const knowledgeStatements = filterKnowledgeStatementsByFilters(allKnowledgeStatements, filters);
-    const organs = filterOrgansByEndOrganFilter(allOrgans, filters.EndOrgan);
+    const knowledgeStatements = filterKnowledgeStatements(allKnowledgeStatements, filters);
+    const organs = filterOrgans(allOrgans, filters.EndOrgan);
 
     // Create a map of organ IRIs to their index positions for quick lookup
     const sortedOrgans = Object.values(allOrgans).sort((a, b) => a.order - b.order);
@@ -72,7 +72,7 @@ export function calculateConnections(hierarchicalNodes: Record<string, Hierarchi
                 const index = organIndexMap[targetOrganIRI];
                 node.connectionDetails = node.connectionDetails || {}; // Keeps linter happy
                 if (index !== undefined && targetOrganIRI in organs) {
-                    const validKnowledgeStatementCount = node.connectionDetails[targetOrganIRI]
+                    const validKnowledgeStatementCount = Array.from(node.connectionDetails[targetOrganIRI])
                         .filter(ksId => ksId in knowledgeStatements)
                         .length;
                     result[index] += validKnowledgeStatementCount;
@@ -141,7 +141,7 @@ export function getMinMaxConnections(connectionsMap: Map<string, number[]>): { m
     return {min, max};
 }
 
-export function filterOrgansByEndOrganFilter(organs: Record<string, Organ>, endOrganFilter: Option[]): Record<string, Organ> {
+export function filterOrgans(organs: Record<string, Organ>, endOrganFilter: Option[]): Record<string, Organ> {
     if (endOrganFilter.length === 0) {
         // If no filter is selected, return all organs
         return organs;
@@ -155,7 +155,7 @@ export function filterOrgansByEndOrganFilter(organs: Record<string, Organ>, endO
     }, {} as Record<string, Organ>);
 }
 
-export function filterKnowledgeStatementsByFilters(knowledgeStatements: Record<string, KnowledgeStatement>, filters: Filters): Record<string, KnowledgeStatement> {
+export function filterKnowledgeStatements(knowledgeStatements: Record<string, KnowledgeStatement>, filters: Filters): Record<string, KnowledgeStatement> {
     const phenotypeIds = filters.Phenotype.map(option => option.id);
     const apiNATOMYIds = filters.apiNATOMY.map(option => option.id);
     const speciesIds = filters.Species.flatMap(option => option.id);
