@@ -199,7 +199,8 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                         onClick={(x: number, y: number) => handleClick(x, y)}
                         cellStyle={(_background: string, value: number, min: number, max: number, _data: string, _x: number, _y: number) => {
                             const isSelectedCell = selectedCell?.x === _x && selectedCell?.y === _y
-                            const normalizedValue = (value - min) / (max - min);
+                            const normalizedValue = max !== min ? (value - min) / (max - min) : 0;
+                            const safeNormalizedValue = Math.min(Math.max(normalizedValue, 0), 1);
 
                             const commonStyles = {
                                 fontSize: "0.6875rem",
@@ -211,7 +212,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                                 borderWidth: '0.0625rem',
                                 borderColor: 1 - (max - value) / (max - min) <= 0.1 ? gray100A : 'rgba(255, 255, 255, 0.2)',
                             }
-                            if (secondary) { // to show another heatmap, can be changed when data is added
+                            if (secondary) {
                                 return {
                                     ...commonStyles,
                                     background: getCellBgColor(value),
@@ -221,11 +222,9 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                                     ...commonStyles,
                                     borderWidth: isSelectedCell ? '0.125rem' : '0.0625rem',
                                     borderColor: isSelectedCell ? '#8300BF' : 1 - (max - value) / (max - min) <= 0.1 ? gray100A : 'rgba(255, 255, 255, 0.2)',
-                                    background: `rgba(131, 0, 191, ${normalizedValue})`,
+                                    background: `rgba(131, 0, 191, ${safeNormalizedValue})`,
                                 }
                             }
-
-
                         }}
                         cellRender={(value: number, x: number, y: number) => <HeatmapTooltip value={value} x={x} y={y}
                                                                                              secondary={secondary}
