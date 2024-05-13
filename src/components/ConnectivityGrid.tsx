@@ -1,26 +1,28 @@
-import {Box, Button, CircularProgress, Typography} from "@mui/material";
-import React, {useEffect, useMemo, useState} from "react";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
+import React, { useEffect, useMemo, useState } from "react";
 import CustomFilterDropdown from "./common/CustomFilterDropdown";
-import {vars} from "../theme/variables";
-import {Option} from "./common/Types";
+import { vars } from "../theme/variables";
+import { KSIDAndOriginType, Option, ksMapType } from "./common/Types";
 import HeatmapGrid from "./common/Heatmap";
-import {useDataContext} from "../context/DataContext.ts";
-import {calculateConnections, getMinMaxConnections, getXAxis, getYAxis} from "../services/heatmapService.ts";
-import {searchPlaceholder} from "../services/searchService.ts";
+import { useDataContext } from "../context/DataContext.ts";
+import { calculateConnections, getHeatmapData, getDetailedHeatmapData, getHierarchyFromId, getMinMaxConnections, getXAxisOrgans, getYAxis } from "../services/heatmapService.ts";
+import { searchPlaceholder } from "../services/searchService.ts";
+import { HierarchicalNode, KnowledgeStatement, Organ } from "../models/explorer.ts";
 
 export interface HierarchicalItem {
     label: string;
     children: HierarchicalItem[];
     expanded: boolean;
+    id?: string;
 }
 
-const {gray500, white: white, gray25, gray100, primaryPurple600, gray400} = vars;
+const { gray500, white: white, gray25, gray100, primaryPurple600, gray400 } = vars;
 
 function ConnectivityGrid() {
-    const {hierarchicalNodes, organs, knowledgeStatements} = useDataContext();
+    const { hierarchicalNodes, organs, knowledgeStatements, setConnectionSummary } = useDataContext();
 
     const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
-    const [xAxis, setXAxis] = useState<string[]>([]);
+    const [xAxisOrgans, setXAxisOrgans] = useState<Organ[]>([]);
     const [connectionsMap, setConnectionsMap] = useState<Map<string, number[]>>(new Map());
 
     // Convert hierarchicalNodes to hierarchicalItems
@@ -29,35 +31,98 @@ function ConnectivityGrid() {
         setConnectionsMap(connections)
     }, [hierarchicalNodes, organs, knowledgeStatements]);
 
-    const {min, max} = useMemo(() => {
+
+    const { min, max } = useMemo(() => {
         return getMinMaxConnections(connectionsMap);
     }, [connectionsMap]);
 
     useEffect(() => {
-        const xAxis = getXAxis(organs);
-        setXAxis(xAxis);
+        const organList = getXAxisOrgans(organs);
+        setXAxisOrgans(organList);
     }, [organs]);
+
+    const xAxis = useMemo(() => {
+        return xAxisOrgans.map(organ => organ.name);
+    }, [xAxisOrgans]);
 
     useEffect(() => {
         const yAxis = getYAxis(hierarchicalNodes);
         setYAxis(yAxis);
     }, [hierarchicalNodes]);
 
-    const handleClick = (x: string, y: string): void => {
-        console.log(x)
-        console.log(y)
+    const [selectedCell, setSelectedCell] = useState<{ x: number, y: number } | null>(null);
+
+    const handleClick = (x: number, y: number): void => {
+        setSelectedCell({ x, y });
+        const endOrgan = xAxisOrgans[x];
+
+        const detailedHeatmap = getDetailedHeatmapData(yAxis, connectionsMap);
+        const origin = detailedHeatmap[y];
+
+        const hierarchy = getHierarchyFromId(origin.id, hierarchicalNodes);  // improve this to get it from the uri
+
+        function getLeafHierarchyList(hierarchy_id: string, hierarchicalNodes: Record<string, HierarchicalNode>): string[] {
+            const hierarchy = hierarchicalNodes[hierarchy_id];
+            if (hierarchy.children.size === 0) {
+                return [hierarchy_id];
+            }
+            return Array.from(hierarchy.children).flatMap(child => getLeafHierarchyList(child, hierarchicalNodes));
+        }
+
+        function getKSIdsAndOriginsFromHierarchy(hierarchy_id: string, hierarchicalNodes: Record<string, HierarchicalNode>) {
+            const hierarchy = hierarchicalNodes[hierarchy_id];
+            const KSIDAndOrigin: KSIDAndOriginType = [];
+            if (hierarchy?.connectionDetails && hierarchy.connectionDetails[endOrgan.id]) {
+                const ids = Object.values(hierarchy.connectionDetails[endOrgan.id]).flat();    // only connectionDetails/KS for the endOrgan selected
+                const origin_name = hierarchy.name;
+                KSIDAndOrigin.push({ origin_name: origin_name, ksIds: ids });
+            }
+            return KSIDAndOrigin;
+        }
+
+        function getKSForOriginAndEndOrgan(ksIdsAndOrigins: KSIDAndOriginType, knowledgeStatements: Record<string, KnowledgeStatement>): ksMapType {
+            let ksMap: ksMapType = {};
+            ksIdsAndOrigins.forEach(({ origin_name, ksIds }) => {
+                ksIds.forEach(id => {
+                    const ks = knowledgeStatements[id];
+                    if (ks && ks.origins.some(o => o.name.includes(origin_name))) {
+                        ksMap[id] = {
+                            'ks': ks,
+                            'count': ksMap[id] ? ksMap[id].count + 1 : 1
+                        }
+                    }
+                });
+            });
+            return ksMap;
+        }
+
+        const leafHierarchyList = getLeafHierarchyList(hierarchy.id, hierarchicalNodes);
+        const ksIdsAndOrigins = leafHierarchyList.flatMap(hierarchy_id => getKSIdsAndOriginsFromHierarchy(hierarchy_id, hierarchicalNodes));
+        const ksMap = getKSForOriginAndEndOrgan(ksIdsAndOrigins, knowledgeStatements);
+        setConnectionSummary({
+            origin: origin.label,
+            endOrgan: endOrgan,
+            connections: ksMap,
+            hierarchy: hierarchy
+        });
     };
 
     const onSearchPlaceholder = (queryString: string, filterType: string): Option[] => {
         return searchPlaceholder(queryString, filterType, knowledgeStatements, organs)
     }
 
+    const heatmapData = useMemo(() => {
+        return getHeatmapData(yAxis, connectionsMap);
+    }, [yAxis, connectionsMap]);
+
     const isLoading = yAxis.length == 0
 
-    return (isLoading ? <CircularProgress/> : (
+
+
+    return (isLoading ? <CircularProgress /> : (
         <Box minHeight='100%' p={3} pb={0} fontSize={14} display='flex' flexDirection='column'>
             <Box pb={2.5}>
-                <Typography variant="h6" sx={{fontWeight: 400}}>Connection Origin to End Organ</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 400 }}>Connection Origin to End Organ</Typography>
             </Box>
 
             <Box display="flex" gap={1} flexWrap='wrap'>
@@ -123,9 +188,14 @@ function ConnectivityGrid() {
                 />
             </Box>
 
-            <HeatmapGrid initialYAxis={yAxis} xAxis={xAxis} connectionsMap={connectionsMap}
-                         xAxisLabel={'End organ'} yAxisLabels={'Connection Origin'}
-                         onCellClick={handleClick}
+            <HeatmapGrid
+                yAxis={yAxis}
+                setYAxis={setYAxis}
+                heatmapData={heatmapData}
+                xAxis={xAxis}
+                xAxisLabel={'End organ'} yAxisLabel={'Connection Origin'}
+                onCellClick={handleClick}
+                selectedCell={selectedCell}
             />
 
             <Box
@@ -137,7 +207,7 @@ function ConnectivityGrid() {
                 justifyContent='space-between'
                 position='sticky'
                 bottom={0}
-                sx={{background: white}}
+                sx={{ background: white }}
             >
                 <Button variant="text" sx={{
                     fontSize: '0.875rem',
@@ -191,7 +261,7 @@ function ConnectivityGrid() {
                                     width: '1.5rem',
                                     height: '1rem',
                                     background: `rgba(131, 0, 191, ${1 - (el / 6.5)})`,
-                                }}/>)}
+                                }} />)}
                         </Box>
 
                         <Typography sx={{

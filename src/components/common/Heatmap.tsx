@@ -1,18 +1,19 @@
-import React, {FC, useMemo, useState} from "react";
-import {Box, Typography} from "@mui/material";
-import {vars} from "../../theme/variables";
+import React, { FC, useMemo, useState } from "react";
+import { Box, Typography } from "@mui/material";
+import { vars } from "../../theme/variables";
 import CollapsibleList from "./CollapsibleList";
 import HeatMap from "react-heatmap-grid";
 import HeatmapTooltip from "./HeatmapTooltip";
-import {getHeatmapData} from "../../services/heatmapService.ts";
-import {HierarchicalItem} from "../ConnectivityGrid.tsx";
+import { getHeatmapData } from "../../services/heatmapService.ts";
+import { HierarchicalItem } from "../ConnectivityGrid.tsx";
+import { PhenotypeDetail } from "./Types.ts";
 
-const {gray50, primaryPurple500, gray25, gray100A, gray500} = vars;
+const { gray50, primaryPurple500, gray25, gray100A, gray500 } = vars;
 
 
 const generateYLabels = (list: HierarchicalItem[], prefix = ''): string[] => {
     let labels: string[] = [];
-    list.forEach(item => {
+    list?.forEach(item => {
         const fullLabel = prefix ? `${prefix} - ${item.label}` : item.label;
         labels.push(fullLabel);
         if (item.expanded && item.children.length > 0) {
@@ -23,13 +24,17 @@ const generateYLabels = (list: HierarchicalItem[], prefix = ''): string[] => {
 };
 
 interface HeatmapGridProps {
-    connectionsMap: Map<string, number[]>;
+    // connectionsMap: Map<string, number[]>;
     xAxis: string[];
-    initialYAxis: HierarchicalItem[];
-    onCellClick?: (x: string, y: string) => void;
+    yAxis: HierarchicalItem[];
+    setYAxis: (yAxis: HierarchicalItem[]) => void;
+    onCellClick?: (x: number, y: number) => void;
     xAxisLabel?: string;
-    yAxisLabels?: string;
+    yAxisLabel?: string;
+    selectedCell?: { x: number, y: number } | null;
+    heatmapData: number[][];
     secondary?: boolean;
+    phenotypeFilters?: PhenotypeDetail[];
 }
 
 const getCellBgColor = (value: number) => {
@@ -47,26 +52,18 @@ const getCellBgColor = (value: number) => {
 };
 
 const HeatmapGrid: FC<HeatmapGridProps> = ({
-                                               secondary, xAxis, initialYAxis,
-                                               xAxisLabel, yAxisLabels,
-                                               onCellClick,
-                                               connectionsMap
-                                           }) => {
+    xAxis, yAxis, setYAxis,
+    xAxisLabel, yAxisLabel,
+    onCellClick, selectedCell, heatmapData, secondary, phenotypeFilters
+}) => {
 
-    const [yAxis, setYAxis] = useState<HierarchicalItem[]>(initialYAxis);
-    const data = useMemo(() => {
-        return getHeatmapData(yAxis, connectionsMap);
-    }, [yAxis, connectionsMap]);
-    const [selectedCell, setSelectedCell] = useState<{ x: number, y: number } | null>(null);
-
-
-    const handleItemClick = (item: HierarchicalItem) => {
+    const handleCollapseClick = (item: HierarchicalItem) => {
         const updateList = (list: HierarchicalItem[], selectedItem: HierarchicalItem): HierarchicalItem[] => {
-            return list.map(listItem => {
+            return list?.map(listItem => {
                 if (listItem.label === selectedItem.label) {
-                    return {...listItem, expanded: !listItem.expanded};
+                    return { ...listItem, expanded: !listItem.expanded };
                 } else if (listItem.children) {
-                    return {...listItem, children: updateList(listItem.children, selectedItem)};
+                    return { ...listItem, children: updateList(listItem.children, selectedItem) };
                 }
                 return listItem;
             });
@@ -76,11 +73,14 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         setYAxis(updatedList);
     };
 
-    const handleClick = (x: number, y: number): void => {
-        setSelectedCell({x, y});
-        if(onCellClick){
-            console.log("To be implemented")
-        }
+    const getCellBgColorFromPhenotype = (
+        background: string,
+        value: number,
+        min: number,
+        max: number,
+        normalizedValue: number
+    ) => {
+        return `rgba(131, 0, 191, ${normalizedValue})`
     };
 
     return (
@@ -97,7 +97,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                 }}>{xAxisLabel}</Typography>
             </Box>
             <Box width='calc(100% - 1.625rem)' minWidth={0} display='flex' alignItems='center'>
-                {yAxisLabels && (
+                {yAxisLabel && (
                     <Typography sx={{
                         textAlign: 'center',
                         fontSize: '0.875rem',
@@ -108,95 +108,96 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                         lineHeight: 1,
                         color: gray500
 
-                    }}>{yAxisLabels}</Typography>
+                    }}>{yAxisLabel}</Typography>
 
                 )}
 
-                <Box width={1} position='relative' sx={{
-                    '& > div:first-of-type': {
-                        '& > div:last-of-type': {
-                            '& > div': {
+                <Box width={1} position='relative'
+                    sx={{
+                        '& > div:first-of-type': {
+                            '& > div:last-of-type': {
                                 '& > div': {
-                                    '&:not(:first-of-type)': {
-                                        '&:hover': {
-                                            boxShadow: '0rem 0.0625rem 0.125rem 0rem #1018280F, 0rem 0.0625rem 0.1875rem 0rem #1018281A'
-                                        },
-                                        '& > div': {
-                                            paddingTop: '0 !important',
-                                            height: '100%',
-
+                                    '& > div': {
+                                        '&:not(:first-of-type)': {
+                                            '&:hover': {
+                                                boxShadow: '0rem 0.0625rem 0.125rem 0rem #1018280F, 0rem 0.0625rem 0.1875rem 0rem #1018281A'
+                                            },
                                             '& > div': {
+                                                paddingTop: '0 !important',
                                                 height: '100%',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
+
+                                                '& > div': {
+                                                    height: '100%',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center'
+                                                }
                                             }
-                                        }
-                                    },
-                                    '&:first-of-type': {
-                                        width: '15.625rem',
-                                        flex: 'none !important',
-                                        '& > div': {
-                                            opacity: 0
+                                        },
+                                        '&:first-of-type': {
+                                            width: '15.625rem',
+                                            flex: 'none !important',
+                                            '& > div': {
+                                                opacity: 0
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        },
-                        '& > div:first-of-type': {
-                            '& > div': {
-                                writingMode: 'vertical-lr',
-                                lineHeight: 1,
-                                display: 'flex',
-                                justifyContent: 'flex-end',
-                                alignItems: 'center',
-                                fontSize: '0.875rem',
-                                fontWeight: '500',
-                                marginLeft: '0.125rem',
-                                padding: '0.875rem 0',
-                                position: 'relative',
-                                borderRadius: '0.25rem',
-                                minWidth: '2rem !important',
+                            },
+                            '& > div:first-of-type': {
+                                '& > div': {
+                                    writingMode: 'vertical-lr',
+                                    lineHeight: 1,
+                                    display: 'flex',
+                                    justifyContent: 'flex-end',
+                                    alignItems: 'center',
+                                    fontSize: '0.875rem',
+                                    fontWeight: '500',
+                                    marginLeft: '0.125rem',
+                                    padding: '0.875rem 0',
+                                    position: 'relative',
+                                    borderRadius: '0.25rem',
+                                    minWidth: '2rem !important',
 
-                                '&:hover': {
-                                    background: gray50,
-                                    '&:before': {
-                                        content: '""',
-                                        width: '100%',
-                                        height: '0.0625rem',
-                                        background: primaryPurple500,
-                                        position: 'absolute',
-                                        top: '-0.25rem',
-                                        left: 0
-                                    },
-                                },
-
-                                '&:first-of-type': {
-                                    marginLeft: 0,
-                                    width: '15.625rem',
-                                    flex: 'none !important',
                                     '&:hover': {
-                                        background: 'none',
+                                        background: gray50,
                                         '&:before': {
-                                            display: 'none'
+                                            content: '""',
+                                            width: '100%',
+                                            height: '0.0625rem',
+                                            background: primaryPurple500,
+                                            position: 'absolute',
+                                            top: '-0.25rem',
+                                            left: 0
+                                        },
+                                    },
+
+                                    '&:first-of-type': {
+                                        marginLeft: 0,
+                                        width: '15.625rem',
+                                        flex: 'none !important',
+                                        '&:hover': {
+                                            background: 'none',
+                                            '&:before': {
+                                                display: 'none'
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
-                }}>
+                    }}>
                     <HeatMap
                         xLabels={xAxis}
                         yLabels={generateYLabels(yAxis)}
                         xLabelsLocation={"top"}
-                        xLabelsVisibility={xAxis.map(() => true)}
+                        xLabelsVisibility={xAxis?.map(() => true)}
                         xLabelWidth={160}
                         yLabelWidth={250}
-                        data={data}
+                        data={heatmapData}
                         // squares
                         height={43}
-                        onClick={(x: number, y: number) => handleClick(x, y)}
+                        onClick={(x: number, y: number) => onCellClick && onCellClick(x, y)}
                         cellStyle={(_background: string, value: number, min: number, max: number, _data: string, _x: number, _y: number) => {
                             const isSelectedCell = selectedCell?.x === _x && selectedCell?.y === _y
                             const normalizedValue = (value - min) / (max - min);
@@ -214,7 +215,14 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                             if (secondary) { // to show another heatmap, can be changed when data is added
                                 return {
                                     ...commonStyles,
-                                    background: getCellBgColor(value),
+                                    // background: getCellBgColor(value),
+                                    background: getCellBgColorFromPhenotype(
+                                        _background,
+                                        value,
+                                        min,
+                                        max,
+                                        normalizedValue
+                                    )
                                 }
                             } else {
                                 return {
@@ -227,13 +235,15 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
 
 
                         }}
-                        cellRender={(value: number, x: number, y: number) => <HeatmapTooltip value={value} x={x} y={y}
-                                                                                             secondary={secondary}
-                                                                                             getCellBgColor={getCellBgColor}/>
-                        }
+                        cellRender={(value: number, x: number, y: number) => (
+                            <HeatmapTooltip
+                                value={value} x={x} y={y}
+                                secondary={secondary} getCellBgColor={getCellBgColor}
+                            />
+                        )}
                     />
 
-                    <CollapsibleList list={yAxis} onItemClick={handleItemClick}/>
+                    <CollapsibleList list={yAxis} onItemClick={handleCollapseClick} />
 
                 </Box>
             </Box>
