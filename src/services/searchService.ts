@@ -1,43 +1,45 @@
+// Search origins
 import {Option} from "../components/common/Types.ts";
-import {KnowledgeStatement, Organ} from "../models/explorer.ts";
-import {
-    getUniqueApinatomies, getUniqueOrgans,
-    getUniqueOrigins,
-    getUniquePhenotypes,
-    getUniqueSpecies,
-    getUniqueVias
-} from "./filterValuesService.ts";
+import {SYNONYMS_TITLE} from "../settings.ts";
 
-export const searchPlaceholder = (searchValue: string, filterType: string,
-                                  knowledgeStatements: Record<string, KnowledgeStatement>,
-                                  organs: Record<string, Organ>): Option[] => {
-
-    let options: Option[] = [];
-
-    switch (filterType) {
-        case 'Origin':
-            options = getUniqueOrigins(knowledgeStatements);
-            break;
-        case 'Species':
-            options = getUniqueSpecies(knowledgeStatements);
-            break;
-        case 'Phenotype':
-            options = getUniquePhenotypes(knowledgeStatements);
-            break;
-        case 'ApiNATOMY':
-            options = getUniqueApinatomies(knowledgeStatements);
-            break;
-        case 'Via':
-            options = getUniqueVias(knowledgeStatements);
-            break;
-        case "End Organ":
-            options = getUniqueOrgans(organs)
-            break;
-        default:
-            return []
-    }
-
-    return options.filter(option =>
-        option.label.toLowerCase().includes(searchValue.toLowerCase())
-    );
+export const searchOrigins = (searchValue: string, options: Option[]): Option[] => {
+    return searchAnatomicalEntities(searchValue, options);
 };
+
+export const searchEndOrgans = (searchValue: string, options: Option[]): Option[] => {
+    return searchByLabel(searchValue, options);
+};
+
+export const searchSpecies = (searchValue: string, options: Option[]): Option[] => {
+    return searchByLabel(searchValue, options);
+};
+
+export const searchPhenotypes = (searchValue: string, options: Option[]): Option[] => {
+    return searchByLabel(searchValue, options);
+};
+
+export const searchApiNATOMY = (searchValue: string, options: Option[]): Option[] => {
+    return searchByLabel(searchValue, options);
+};
+
+export const searchVias = (searchValue: string, options: Option[]): Option[] => {
+    return searchAnatomicalEntities(searchValue, options);
+};
+
+
+const searchByLabel = (searchValue: string, options: Option[]): Option[] => {
+    const lowerSearchValue = searchValue.toLowerCase();
+    return options.filter(option => option.label.toLowerCase().includes(lowerSearchValue));
+};
+
+const searchAnatomicalEntities = (searchValue: string, options: Option[]): Option[] => {
+    const lowerSearchValue = searchValue.toLowerCase();
+    return options.filter(option => {
+        const labelMatch = option.label.toLowerCase().includes(lowerSearchValue);
+        const synonymMatch = option.content.some(detail =>
+            detail.title === SYNONYMS_TITLE && detail.value.toLowerCase().includes(lowerSearchValue)
+        );
+        return labelMatch || synonymMatch;
+    });
+};
+

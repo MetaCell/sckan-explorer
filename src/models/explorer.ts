@@ -104,5 +104,5 @@ export interface HierarchicalNode {
      * @type {Record<string, string[]>}
      * @memberof HierarchicalNode
      */
-    connectionDetails?: Record<string, string[]>;
+    connectionDetails?: Record<string, Set<string>>;
 }

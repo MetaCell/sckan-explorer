@@ -1,12 +1,10 @@
 import {Box, Button, CircularProgress, Typography} from "@mui/material";
 import React, {useEffect, useMemo, useState} from "react";
-import CustomFilterDropdown from "./common/CustomFilterDropdown";
 import {vars} from "../theme/variables";
-import {Option} from "./common/Types";
 import HeatmapGrid from "./common/Heatmap";
 import {useDataContext} from "../context/DataContext.ts";
 import {calculateConnections, getMinMaxConnections, getXAxis, getYAxis} from "../services/heatmapService.ts";
-import {searchPlaceholder} from "../services/searchService.ts";
+import FiltersDropdowns from "./FiltersDropdowns.tsx";
 
 export interface HierarchicalItem {
     label: string;
@@ -16,8 +14,10 @@ export interface HierarchicalItem {
 
 const {gray500, white: white, gray25, gray100, primaryPurple600, gray400} = vars;
 
+
+
 function ConnectivityGrid() {
-    const {hierarchicalNodes, organs, knowledgeStatements} = useDataContext();
+    const {hierarchicalNodes, organs, knowledgeStatements, filters} = useDataContext();
 
     const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
     const [xAxis, setXAxis] = useState<string[]>([]);
@@ -25,9 +25,9 @@ function ConnectivityGrid() {
 
     // Convert hierarchicalNodes to hierarchicalItems
     useEffect(() => {
-        const connections = calculateConnections(hierarchicalNodes, organs, knowledgeStatements);
+        const connections = calculateConnections(hierarchicalNodes, organs, knowledgeStatements, filters);
         setConnectionsMap(connections)
-    }, [hierarchicalNodes, organs, knowledgeStatements]);
+    }, [hierarchicalNodes, organs, knowledgeStatements, filters]);
 
     const {min, max} = useMemo(() => {
         return getMinMaxConnections(connectionsMap);
@@ -48,10 +48,6 @@ function ConnectivityGrid() {
         console.log(y)
     };
 
-    const onSearchPlaceholder = (queryString: string, filterType: string): Option[] => {
-        return searchPlaceholder(queryString, filterType, knowledgeStatements, organs)
-    }
-
     const isLoading = yAxis.length == 0
 
     return (isLoading ? <CircularProgress/> : (
@@ -60,68 +56,7 @@ function ConnectivityGrid() {
                 <Typography variant="h6" sx={{fontWeight: 400}}>Connection Origin to End Organ</Typography>
             </Box>
 
-            <Box display="flex" gap={1} flexWrap='wrap'>
-                <CustomFilterDropdown
-                    key={"Origin"}
-                    placeholder="Origin"
-                    options={{
-                        value: "",
-                        id: "origin",
-                        searchPlaceholder: "Search origin",
-                        onSearch: (searchValue: string): Option[] => onSearchPlaceholder(searchValue, "Origin"),
-                    }}
-                />
-                <CustomFilterDropdown
-                    key={"End Organ"}
-                    placeholder="End organ"
-                    options={{
-                        value: "",
-                        id: "endorgan",
-                        searchPlaceholder: "Search End organ",
-                        onSearch: (searchValue: string): Option[] => onSearchPlaceholder(searchValue, "End Organ"),
-                    }}
-                />
-                <CustomFilterDropdown
-                    key={"Species"}
-                    placeholder="Species"
-                    options={{
-                        value: "",
-                        id: "species",
-                        searchPlaceholder: "Search Species",
-                        onSearch: (searchValue: string): Option[] => onSearchPlaceholder(searchValue, "Species"),
-                    }}
-                />
-                <CustomFilterDropdown
-                    key={"Phenotype"}
-                    placeholder="Phenotype"
-                    options={{
-                        value: "",
-                        id: "phenotype",
-                        searchPlaceholder: "Search Phenotype",
-                        onSearch: (searchValue: string): Option[] => onSearchPlaceholder(searchValue, "Phenotype"),
-                    }}
-                />
-                <CustomFilterDropdown
-                    key={"ApiNATOMY"}
-                    placeholder="ApiNATOMY"
-                    options={{
-                        value: "",
-                        id: "ApiNATOMY",
-                        searchPlaceholder: "Search ApiNATOMY",
-                        onSearch: (searchValue: string): Option[] => onSearchPlaceholder(searchValue, "ApiNATOMY"),
-                    }}
-                />
-                <CustomFilterDropdown
-                    key={"Via"}
-                    placeholder="Via"
-                    options={{
-                        value: "",
-                        id: "via",
-                        searchPlaceholder: "Search Via",
-                        onSearch: (searchValue: string): Option[] => onSearchPlaceholder(searchValue, "Via"),
-                    }}
-                />
-            </Box>
+            <FiltersDropdowns/>
 
             <HeatmapGrid initialYAxis={yAxis} xAxis={xAxis} connectionsMap={connectionsMap}
                          xAxisLabel={'End organ'} yAxisLabels={'Connection Origin'}

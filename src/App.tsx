@@ -60,10 +60,18 @@ const App = () => {
 
     useEffect(() => {
         if (Object.keys(hierarchicalNodes).length > 0) {
-            const neuronIDs = [...new Set(Object.values(hierarchicalNodes).flatMap(node =>
-                Object.values(node.connectionDetails || {}).flat()))];
+            const neuronIDsSet = new Set<string>();
 
-            fetchKnowledgeStatements(neuronIDs)
+            // Loop through each node's connectionDetails and add all ids to the neuronIDsSet
+            Object.values(hierarchicalNodes).forEach(node => {
+                if (node.connectionDetails) {
+                    Object.values(node.connectionDetails).forEach(ksIds => {
+                        ksIds.forEach(id => neuronIDsSet.add(id));
+                    });
+                }
+            });
+
+            fetchKnowledgeStatements(Array.from(neuronIDsSet))
                 .then(statements => {
                     // Convert array to a map by ID for easy access
                     const ksMap = statements.reduce<Record<string, KnowledgeStatement>>((acc, ks) => {

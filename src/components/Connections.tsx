@@ -1,5 +1,5 @@
 import { Box, Chip, TextField, Typography } from "@mui/material";
-import { useState } from "react";
+import React, { useState } from "react";
 import { ArrowRightIcon } from "./icons";
 import { vars } from "../theme/variables";
 import SummaryHeader from "./connections/SummaryHeader";
@@ -304,26 +304,24 @@ function Connections() {
                   </Typography>
                 </Box>
                 <Box display="flex" gap={1} flexWrap='wrap'>
-                  <CustomFilterDropdown
-                    key={"Phenotype"}
-                    placeholder="Phenotype"
-                    options={{
-                      value: "",
-                      id: "Phenotype",
-                      searchPlaceholder: "Search Phenotype",
-                      onSearch: (searchValue: string) => getEntities(searchValue),
-                    }}
-                  />
-                  <CustomFilterDropdown
-                    key={"Nerve"}
-                    placeholder="Nerve"
-                    options={{
-                      value: "",
-                      id: "nerve",
-                      searchPlaceholder: "Search Nerve",
-                      onSearch: (searchValue: string) => getEntities(searchValue),
-                    }}
-                  />
+                    <CustomFilterDropdown
+                        key={"Phenotype"}
+                        id={"Phenotype"}
+                        placeholder="Phenotype"
+                        searchPlaceholder="Search Phenotype"
+                        selectedOptions={[]}
+                        onSearch={(searchValue: string) => getEntities(searchValue)}
+                        onSelect={() => {}}
+                    />
+                    <CustomFilterDropdown
+                        key={"Nerve"}
+                        id={"Nerve"}
+                        placeholder="Nerve"
+                        searchPlaceholder="Search Nerve"
+                        selectedOptions={[]}
+                        onSearch={(searchValue: string) => getEntities(searchValue)}
+                        onSelect={() => {}}
+                    />
                 </Box>
                 {/*<HeatmapGrid secondary yAxisLabels={list} data={data} xAxisLabel={xLabels} setYAxis={setList} setXAxis={setData} xAxisLabel={'Project to'} yAxisLabel={'Somas in'} />*/}
               </Box>
