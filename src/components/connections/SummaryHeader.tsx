@@ -4,34 +4,42 @@ import { vars } from "../../theme/variables";
 import IconButton from "@mui/material/IconButton";
 import { ArrowDown, ArrowRight, ArrowUp, HelpCircle } from "../icons";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
+import { SummaryType, ksMapType } from '../common/Types';
 
 const { gray100, primaryPurple600, gray600A, gray500 } = vars;
 
 const SummaryHeader = ({
    showDetails,
    setShowDetails,
-   numOfConnections,
-   connection
+  uniqueKS,
+  connectionCount,
+  setConnectionCount
   }: {
-  showDetails: boolean,
-  setShowDetails: (showDetails: boolean) => void,
-  numOfConnections: number,
-  connection: string
+    showDetails: SummaryType,
+    setShowDetails: (showDetails: SummaryType) => void,
+    uniqueKS: ksMapType,
+    connectionCount: number,
+    setConnectionCount: (connectionCount: number) => void
 }) => {
-  const [connectionCount, setConnectionCount] = useState(1);
-  
+  const totalUniqueKS = Object.keys(uniqueKS).length;
+
+  function getConnectionId() {
+    return Object.keys(uniqueKS)[connectionCount - 1] || ''
+  }
+  const connectionId = getConnectionId()
   const handleUpClick = () => {
-    if (connectionCount < numOfConnections) {
-      setConnectionCount(prevCount => prevCount + 1);
+    if (connectionCount < totalUniqueKS) {
+      setConnectionCount(connectionCount + 1);
     }
   };
   
   const handleDownClick = () => {
     if (connectionCount > 1) {
-      setConnectionCount(prevCount => prevCount - 1);
+      setConnectionCount(connectionCount - 1);
     }
   };
-  
+
+
   return (
     <Stack
       direction='row'
@@ -53,7 +61,7 @@ const SummaryHeader = ({
         alignItems='center'
         spacing='1rem'
       >
-        {showDetails && <ButtonGroup variant="outlined" sx={{
+        {showDetails === 'detailedSummary' && <ButtonGroup variant="outlined" sx={{
           '& .MuiButtonBase-root': {
             width: '2rem',
             height: '2rem'
@@ -72,18 +80,20 @@ const SummaryHeader = ({
           separator={<ArrowRight />}
           aria-label="breadcrumb"
         >
-          {showDetails ?
-            <Link underline="hover" onClick={() => setShowDetails(false)}>
+          {showDetails === 'detailedSummary' ?
+            <Link underline="hover" onClick={() => setShowDetails('summary')}>
               Summary
             </Link> :
+            showDetails === 'summary' ?
             <Typography>
               Summary
             </Typography>
+              : <></>
           }
           {
-            showDetails &&
+            showDetails === 'detailedSummary' &&
               <Typography>
-                {connection}
+                {connectionId}
               </Typography>
           }
         </Breadcrumbs>
@@ -95,21 +105,15 @@ const SummaryHeader = ({
         gap: '0.75rem'
       }}>
         {
-          showDetails ?
+          showDetails === 'detailedSummary' ?
             <>
               <Typography variant='subtitle1' color={gray500}>
-                Displaying connection {connectionCount} of {numOfConnections}
+                Displaying connection {connectionCount} of {totalUniqueKS}
               </Typography>
               <HelpCircle />
-            </> :
-            <>
-          <Typography sx={{
-              fontSize: '0.875rem',
-              fontWeight: 500,
-              lineHeight: '1.25rem',
-              color: primaryPurple600
-          }}>Summary</Typography>
-
+            </> : 
+            showDetails === 'summary' ?
+              <>
           <Box sx={{
               display: 'flex',
               alignItems: 'center',
@@ -121,7 +125,7 @@ const SummaryHeader = ({
                 lineHeight: '1.25rem',
                 color: gray600A
                 
-              }}>{numOfConnections} connections</Typography>
+                  }}>{totalUniqueKS} connections</Typography>
               
               <Divider sx={{
                 height: '2.25rem',
@@ -132,6 +136,7 @@ const SummaryHeader = ({
               <Button variant="contained">Download results (.csv)</Button>
               </Box>
             </>
+              : <></>
         }
       </Box>
     </Stack>
