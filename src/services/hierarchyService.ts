@@ -1,5 +1,5 @@
-import {BaseEntity, HierarchicalNode, Organ} from "../models/explorer.ts";
-import {Binding, JsonData} from "../models/json.ts";
+import { BaseEntity, HierarchicalNode, Organ } from "../models/explorer.ts";
+import { Binding, JsonData } from "../models/json.ts";
 
 
 const PATH_DELIMITER = "#"
@@ -33,13 +33,13 @@ export const ROOTS = [CNS, PNS, UNK]
 
 
 export const getHierarchicalNodes = (jsonData: JsonData) => {
-    const {results} = jsonData;
-
+    const { results } = jsonData;
     // Initialize root nodes
     const hierarchicalNodes: Record<string, HierarchicalNode> = ROOTS.reduce((acc, rootNode) => {
         acc[rootNode.id] = {
             id: rootNode.id,
             name: rootNode.name,
+            uri: '',
             children: new Set<string>()
         };
         return acc;
@@ -64,7 +64,8 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
                     hierarchicalNodes[currentPath] = {
                         id: currentPath,
                         name: levelName,
-                        children: new Set<string>()
+                        uri: '',
+                        children: new Set<string>(),
                     };
                 }
 
@@ -89,32 +90,41 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
                 leafNode = {
                     id: leafNodeId,
                     name: leafNodeName,
+                    uri: '',
                     children: new Set<string>(),
-                    connectionDetails: {}
+                    connectionDetails: {},
+                    endOrgansUri: {}
                 };
                 hierarchicalNodes[leafNodeId] = leafNode;
             }
 
             // Update or initialize connection details
             leafNode.connectionDetails = leafNode.connectionDetails || {};
+            leafNode.endOrgansUri = leafNode.endOrgansUri || {};
 
             const neuronId = entry.Neuron_ID?.value;
             const targetOrganIRI = entry.Target_Organ_IRI?.value;
+            const endOrganIRI = entry.B_ID?.value;
 
-            if (neuronId && targetOrganIRI) {
+            if (neuronId && targetOrganIRI && endOrganIRI) {
                 // Ensure connectionDetails for this targetOrganIRI is initialized
                 if (!leafNode.connectionDetails[targetOrganIRI]) {
                     leafNode.connectionDetails[targetOrganIRI] = [];  // Initialize as an empty array
                 }
+                if (!leafNode.endOrgansUri[endOrganIRI]) {
+                    leafNode.endOrgansUri[endOrganIRI] = [];  // Initialize as an empty array
+                }
 
                 // Add the KnowledgeStatement to the array for this target organ
                 leafNode.connectionDetails[targetOrganIRI].push(neuronId);
+                leafNode.endOrgansUri[endOrganIRI].push(neuronId);
+
             } else {
                 if (!targetOrganIRI) {
-                    console.warn(`Target_Organ_IRI not found for entry with Neuron_ID: ${neuronId}`);
+                    console.warn(`Warn: Target_Organ_IRI not found for entry with Neuron_ID: ${neuronId}`);
                 }
                 if (!neuronId) {
-                    console.warn(`Error: Neuron_ID not found for entry`);
+                    console.warn(`Warn: Neuron_ID not found for entry`);
                 }
             }
 
