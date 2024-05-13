@@ -26,6 +26,28 @@ export interface AnatomicalEntity extends BaseEntity {
     synonyms: string;
 }
 
+export interface Sex {
+    // three id - number, name - string, ontology_uri - string
+    /**
+     *
+     * @type {number}
+     * @memberof Sex
+     */
+    id: number;
+    /**
+     *
+     * @type {string}
+     * @memberof Sex
+     */
+    name: string;
+    /**
+     *
+     * @type {string}
+     * @memberof Sex
+     */
+    ontology_uri: string;
+}
+
 export interface KnowledgeStatement {
     /**
      *
@@ -76,6 +98,62 @@ export interface KnowledgeStatement {
      * @memberof KnowledgeStatement
      */
     forwardConnections: string[];
+
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof KnowledgeStatement
+     */
+    provenances: string[];
+
+    /**
+     * 
+     * @type {string}
+     * @memberof KnowledgeStatement
+     */
+    knowledge_statement: string;
+
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof KnowledgeStatement
+     */
+    journey: string[];
+
+    /**
+     * 
+     * @type {string}
+     * @memberof KnowledgeStatement
+     */
+    laterality: string;
+
+    /**
+     * 
+     * @type {string}
+     * @memberof KnowledgeStatement
+     */
+    projection: string;
+
+    /**
+     * 
+     * @type {string}
+     * @memberof KnowledgeStatement
+     */
+    circuit_type: string;
+
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof KnowledgeStatement
+     */
+    sex: Sex;
+
+    /**
+     * 
+     * @type {string}
+     * @memberof KnowledgeStatement
+     */
+    statement_preview: string;
 }
 
 export interface HierarchicalNode {
@@ -93,7 +171,7 @@ export interface HierarchicalNode {
     name: string;
     /**
      *  The children of the node
-     * @type {Array<string>}
+     * @type {Array<string>}w
      * @memberof HierarchicalNode
      */
     children: Set<string>;

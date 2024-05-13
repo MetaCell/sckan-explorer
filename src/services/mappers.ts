@@ -1,4 +1,5 @@
 import {AnatomicalEntity} from "../models/composer.ts";
+import { Sex } from "../models/explorer.ts";
 
 export interface ComposerResponse {
     count: number;
@@ -28,6 +29,15 @@ interface KnowledgeStatementAPI {
     phenotype: { name: string, ontology_uri: string };
     forward_connection: Array<{ reference_uri: string }>;
     reference_uri: string;
+    provenances: Array<{ id: number, uri: string, connectivity_statement_id: number }>;
+    knowledge_statement: string;
+    journey: string[];
+    laterality: string;
+    projection: string;
+    circuit_type: string;
+
+    sex: Sex;
+    statement_preview: string;
 }
 
 
@@ -42,7 +52,15 @@ export function mapApiResponseToKnowledgeStatements(composerResponse: ComposerRe
         via: ks.vias.flatMap(via => via.anatomical_entities.map(viaA => {
             return {...getAnatomicalEntity(viaA)}
         })),
-        forwardConnections: ks.forward_connection.map(fc => fc.reference_uri || "")
+        forwardConnections: ks.forward_connection.map(fc => fc.reference_uri || ""),
+        provenances: ks.provenances?.map(p => p.uri || ""),
+        knowledge_statement: ks.knowledge_statement || "",
+        journey: ks.journey || [],
+        laterality: ks.laterality || "",
+        projection: ks.projection || "",
+        circuit_type: ks.circuit_type || "",
+        sex: ks.sex || [],
+        statement_preview: ks.statement_preview || ""
     }));
 }
 
