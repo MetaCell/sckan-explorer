@@ -14,13 +14,21 @@ interface KnowledgeStatementAPI {
     species: Array<{ name: string, ontology_uri: string }>;
     origins: Array<AnatomicalEntity>;
     destinations: Array<{
-        id: number,
-        anatomical_entities: Array<AnatomicalEntity>
+        id: number;
+        anatomical_entities: Array<AnatomicalEntity>;
+        from_entities: Array<AnatomicalEntity>;
+        type: string;
+        connectivity_statement_id: number;
+        are_connections_explicit: boolean;
     }>;
     vias: Array<{
         id: number;
         type: string;
         anatomical_entities: Array<AnatomicalEntity>;
+        from_entities: Array<AnatomicalEntity>;
+        order: number;
+        connectivity_statement_id: number;
+        are_connections_explicit: boolean;
     }>;
     from_entities: Array<AnatomicalEntity>;
     are_connections_explicit: boolean;
@@ -42,16 +50,32 @@ interface KnowledgeStatementAPI {
 
 
 export function mapApiResponseToKnowledgeStatements(composerResponse: ComposerResponse) {
+    console.log("ks", composerResponse.results)
     return composerResponse.results.map(ks => ({
         id: String(ks.reference_uri),
         phenotype: ks.phenotype?.name || "",
         apinatomy: ks.apinatomy_model || "",
         species: ks.species.map(species => getBaseEntity(species.name, species.ontology_uri)),
         origins: ks.origins.map(origin => getAnatomicalEntity(origin)),
-        destinations: ks.destinations.flatMap(dest => dest.anatomical_entities.map(destA => getAnatomicalEntity(destA))),
-        via: ks.vias.flatMap(via => via.anatomical_entities.map(viaA => {
-            return {...getAnatomicalEntity(viaA)}
-        })),
+        destinations: ks.destinations.flatMap(dest => {
+            const anatomicalEntities = dest.anatomical_entities.map(destA => getAnatomicalEntity(destA));
+            const fromEntities = dest.from_entities.map(fromE => getAnatomicalEntity(fromE));
+            return {
+                ...dest,
+                anatomical_entities: anatomicalEntities,
+                from_entities: fromEntities
+            }
+        }),
+        via: ks.vias.flatMap(via => {
+            const anatomicalEntities = via.anatomical_entities.map(viaA => getAnatomicalEntity(viaA));
+            const fromEntities = via.from_entities.map(fromE => getAnatomicalEntity(fromE));
+            return {
+                ...via,
+                anatomical_entities: anatomicalEntities,
+                from_entities: fromEntities
+            }
+        }),
+
         forwardConnections: ks.forward_connection.map(fc => fc.reference_uri || ""),
         provenances: ks.provenances?.map(p => p.uri || ""),
         knowledge_statement: ks.knowledge_statement || "",
@@ -76,6 +100,7 @@ const getAnatomicalEntity = (anatomicalEntity: AnatomicalEntity) => {
     return {
         id: getAnatomicalEntityOntologyUri(anatomicalEntity) || "",
         name: getAnatomicalEntityName(anatomicalEntity) || "",
+        ontology_uri: getAnatomicalEntityOntologyUri(anatomicalEntity) || "",
         synonyms: anatomicalEntity.synonyms || ""
     }
 }

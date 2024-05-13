@@ -41,7 +41,6 @@ export const fetchKnowledgeStatements = async (neuronIds: string[]) => {
             results = results.concat(mapApiResponseToKnowledgeStatements(data));
             nextUrl = data.next;
         }
-        console.log("results", results)
         return results;
     } catch (error) {
         console.error("Failed to fetch knowledge statements:", error);
