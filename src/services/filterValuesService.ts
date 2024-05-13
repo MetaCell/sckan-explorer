@@ -1,6 +1,6 @@
-import {AnatomicalEntity, BaseEntity, KnowledgeStatement, Organ} from "../models/explorer";
-import {Option} from "../components/common/Types.ts";
-import {NerveResponse} from "../models/json.ts";
+import { AnatomicalEntity, BaseEntity, KnowledgeStatement, Organ } from "../models/explorer";
+import { Option } from "../components/common/Types.ts";
+import { NerveResponse } from "../models/json.ts";
 
 
 const mapEntityToOption = (entities: BaseEntity[]): Option[] =>
@@ -31,7 +31,7 @@ export const getUniqueOrigins = (knowledgeStatements: Record<string, KnowledgeSt
 export const getUniqueVias = (knowledgeStatements: Record<string, KnowledgeStatement>): Option[] => {
     let vias: AnatomicalEntity[] = [];
     Object.values(knowledgeStatements).forEach(ks => {
-        vias = vias.concat(ks.via);
+        vias = vias.concat(ks.via.map(via => via.anatomical_entities).flat());
     });
     return getUniqueEntities(vias);
 };
