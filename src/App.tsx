@@ -1,21 +1,21 @@
-import React, {useEffect, useState} from 'react';
-import {useDispatch, useStore} from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useStore } from 'react-redux';
 import { Box } from "@mui/material";
-import {getLayoutManagerInstance} from "@metacell/geppetto-meta-client/common/layout/LayoutManager";
-import {addWidget} from '@metacell/geppetto-meta-client/common/layout/actions';
-import {connectionsWidget, connectivityGridWidget} from "./layout-manager/widgets.ts";
+import { getLayoutManagerInstance } from "@metacell/geppetto-meta-client/common/layout/LayoutManager";
+import { addWidget } from '@metacell/geppetto-meta-client/common/layout/actions';
+import { connectionsWidget, connectivityGridWidget } from "./layout-manager/widgets.ts";
 import '@metacell/geppetto-meta-ui/flex-layout/style/light.scss';
 import theme from './theme/index.tsx';
-import {ThemeProvider} from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Header from './components/common/Header.tsx';
-import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SummaryPage from "./components/SummaryPage.tsx";
-import {DataContextProvider} from './context/DataContextProvider.tsx';
-import {fetchJSON, fetchKnowledgeStatements, fetchMajorNerves} from "./services/fetchService.ts";
-import {getUniqueMajorNerves} from "./services/filterValuesService.ts";
-import {HierarchicalNode, KnowledgeStatement, Organ} from "./models/explorer.ts";
-import {getHierarchicalNodes, getOrgans} from "./services/hierarchyService.ts";
+import { DataContextProvider } from './context/DataContextProvider.tsx';
+import { fetchJSON, fetchKnowledgeStatements, fetchMajorNerves } from "./services/fetchService.ts";
+import { getUniqueMajorNerves } from "./services/filterValuesService.ts";
+import { HierarchicalNode, KnowledgeStatement, Organ } from "./models/explorer.ts";
+import { getHierarchicalNodes, getOrgans } from "./services/hierarchyService.ts";
 import Loader from './components/common/Loader.tsx';
 
 const App = () => {
@@ -73,9 +73,9 @@ const App = () => {
                     }, {});
                     setKnowledgeStatements(ksMap)
                 }).catch(error => {
-                // TODO: We should give feedback to the user
-                console.error("Failed to fetch knowledge statements data:", error);
-            })
+                    // TODO: We should give feedback to the user
+                    console.error("Failed to fetch knowledge statements data:", error);
+                })
         }
     }, [hierarchicalNodes]);
 
@@ -85,13 +85,13 @@ const App = () => {
     return (
         <>
             <ThemeProvider theme={theme}>
-                <CssBaseline/>
+                <CssBaseline />
                 <Router>
                     <Box>
-                        <Header/>
+                        <Header />
                         <Box className="MuiContainer">
                             <Routes>
-                                <Route path="/summary" element={<SummaryPage/>}/>
+                                <Route path="/summary" element={<SummaryPage />} />
                                 <Route path="/" element={isLoading ? <Loader /> :
                                     <DataContextProvider
                                         majorNerves={majorNerves}
@@ -99,7 +99,7 @@ const App = () => {
                                         organs={organs}
                                         knowledgeStatements={knowledgeStatements}
                                     >
-                                        <LayoutComponent/>
+                                        <LayoutComponent />
                                     </DataContextProvider>
                                 }
                                 />

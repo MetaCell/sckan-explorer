@@ -1,13 +1,17 @@
 import { Box, Chip, TextField, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowRightIcon } from "./icons";
 import { vars } from "../theme/variables";
 import SummaryHeader from "./connections/SummaryHeader";
 import CustomFilterDropdown from "./common/CustomFilterDropdown";
-import { Option } from "./common/Types";
-import { mockEntities } from "./common/MockEntities";
-// import HeatmapGrid from "./common/Heatmap";
+import { Option, PhenotypeDetail, SummaryType, ksMapType } from "./common/Types";
+import HeatmapGrid from "./common/Heatmap";
 import Details from "./connections/Details.tsx";
+import SummaryInstructions from "./connections/SummaryInstructions.tsx";
+import { ConnectionSummary, useDataContext } from "../context/DataContext.ts";
+import { calculateConnections, getHeatmapData, getYAxis } from "../services/heatmapService.ts";
+import { HierarchicalItem } from "./ConnectivityGrid.tsx";
+import { Organ } from "../models/explorer.ts";
 
 const { gray700, gray600A, gray100 } = vars;
 
@@ -27,246 +31,219 @@ const styles = {
     }
 }
 
-type PhenotypeDetail = {
-    label: string;
-    color: string;
-};
-const phenotype: PhenotypeDetail[] = [
-    {
-        label: 'Sympathetic',
-        color: '#9B18D8'
-    },
-    {
-        label: 'Parasympathetic',
-        color: '#2C2CCE'
-    },
-    {
-        label: 'Sensory',
-        color: '#DC6803'
-    },
-    {
-        label: 'Motor',
-        color: '#EAAA08'
+const generateRandomColor = () => `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+
+// const check each property inside to check if it is empty or not
+const checkIfConnectionSummaryIsEmpty = (connectionSummary: ConnectionSummary): boolean => {
+  return Object.values(connectionSummary).every((value) => {
+    if (Array.isArray(value)) {
+      return value.length === 0;
     }
-]
-
-// const xLabels: string[] = ["Brain", "Lungs", "Cervical", "Spinal", "Thoraic", "Kidney", "Urinary Tract"];
-// const initialList: ListItem[] = [
-//   {
-//     label: "Brain",
-//     options: [
-//       {
-//         label: "Cerebrum",
-//         options: [
-//           {
-//             label: "Frontal Lobe",
-//             options: [
-//               "Primary Motor Cortex",
-//               "Prefrontal Cortex",
-//             ],
-//             expanded: false,
-//           },
-//           {
-//             label: "Parietal Lobe",
-//             options: [
-//               "Primary Somatosensory Cortex",
-//               "Angular Gyrus",
-//             ],
-//             expanded: false,
-//           },
-//           {
-//             label: "Temporal Lobe",
-//             options: [
-//               "Primary Auditory Cortex",
-//               "Hippocampus",
-//             ],
-//             expanded: false,
-//           },
-//         ],
-//         expanded: false,
-//       },
-//       {
-//         label: "Cerebellum",
-//         options: [
-//           {
-//             label: "Anterior Lobe",
-//             options: [
-//               "Spinocerebellum",
-//               "Vestibulocerebellum",
-//             ],
-//             expanded: false,
-//           },
-//           {
-//             label: "Posterior Lobe",
-//             options: [
-//               "Neocerebellum",
-//             ],
-//             expanded: false,
-//           },
-//         ],
-//         expanded: false,
-//       },
-//       {
-//         label: "Brainstem",
-//         options: [
-//           {
-//             label: "Midbrain",
-//             options: [
-//               "Tectum",
-//               "Tegmentum",
-//             ],
-//             expanded: false,
-//           },
-//           {
-//             label: "Pons",
-//             options: [
-//               "Ventral Surface",
-//               "Dorsal Surface",
-//             ],
-//             expanded: false,
-//           },
-//           {
-//             label: "Medulla Oblongata",
-//             options: [
-//               {
-//                 label: "Pyramids",
-//                 options: [
-//                   "Corticospinal Tract",
-//                 ],
-//                 expanded: false,
-//               },
-//               {
-//                 label: "Olive",
-//                 options: [
-//                   "Inferior Olive",
-//                 ],
-//                 expanded: false,
-//               },
-//             ],
-//             expanded: false,
-//           },
-//         ],
-//         expanded: false,
-//       },
-//     ],
-//     expanded: false,
-//   },
-//   {
-//     label: "Nerves",
-//     options: [
-//       {
-//         label: "Cranial Nerves",
-//         options: [
-//           {
-//             label: "Olfactory Nerve",
-//             options: [
-//               "Olfactory Bulb",
-//             ],
-//             expanded: false,
-//           },
-//           {
-//             label: "Optic Nerve",
-//             options: [
-//               "Optic Chiasm",
-//             ],
-//             expanded: false,
-//           },
-//           {
-//             label: "Oculomotor Nerve",
-//             options: [
-//               "Superior Colliculus",
-//               "Edinger-Westphal Nucleus",
-//             ],
-//             expanded: false,
-//           },
-//         ],
-//         expanded: false,
-//       },
-//       {
-//         label: "Spinal Nerves",
-//         options: [
-//           {
-//             label: "Cervical Nerves",
-//             options: [
-//               "C1",
-//               "C2",
-//             ],
-//             expanded: false,
-//           },
-//           {
-//             label: "Thoracic Nerves",
-//             options: [
-//               // New nested options under "T1"
-//               {
-//                 label: "T1",
-//                 options: ["Sublevel 1", "Sublevel 2"],
-//                 expanded: false,
-//               },
-//               // New nested options under "T2"
-//               {
-//                 label: "T2",
-//                 options: ["Sublevel 1", "Sublevel 2"],
-//                 expanded: false,
-//               },
-//               // Add more nested options as needed
-//             ],
-//             expanded: false,
-//           },
-//           {
-//             label: "Lumbar Nerves",
-//             options: [
-//               "L1",
-//               "L2",
-//             ],
-//             expanded: false,
-//           },
-//         ],
-//         expanded: false,
-//       },
-//     ],
-//     expanded: false,
-//   },
-// ];
-
-const getEntities = (searchValue: string /* unused */): Option[] => {
-
-    console.log(`Received search value: ${searchValue}`);
-
-    // Return mockEntities or perform other logic
-    return mockEntities;
-};
-
-//
-// const initialData: number[][] = initialList.reduce((acc: number[][], item: ListItem) => {
-// const mainRow: number[] = new Array(xLabels.length)
-//     .fill(0)
-//     .map(() => Math.floor(Math.random() * 100));
-// const optionRows: number[][] = item.options.map(() =>
-//     /* remove the logic , it is just to show empty values as well */
-//     new Array(xLabels.length).fill(0).map((_, i:number) => i%3 === 0 ? Math.floor(Math.random() * 100) : 0)
-// );
-// return [...acc, mainRow, ...optionRows];
-// }, []);
+    if (typeof value === 'object') {
+      return checkIfConnectionSummaryIsEmpty(value);
+    }
+    return value === "";
+  });
+}
 
 
 
 function Connections() {
-    // const [list, setList] = useState<ListItem[]>(initialList);
-    // const [data, setData] = useState<number[][]>(initialData);
-    const [showConnectionDetails, setShowConnectionDetails] = useState<boolean>(true);
-    
+  const [showConnectionDetails, setShowConnectionDetails] = useState<SummaryType>('instruction');
+  const { selectedConnectionSummary, majorNerves, hierarchicalNodes, knowledgeStatements } = useDataContext();
+
+  useEffect(() => {
+    if (checkIfConnectionSummaryIsEmpty(selectedConnectionSummary)) {
+      setShowConnectionDetails('instruction');
+    } else {
+      setShowConnectionDetails('summary');
+    }
+  }, [selectedConnectionSummary])
+
+  function convertViaToString(via: string[]): string {
+    if (via.length === 0) return '-';
+    if (via.length > 1) {
+      return via.join(', ').replace(/,(?=[^,]*$)/, ' and');
+    }
+    return via[0];
+  }
+
+  function getAllViasFromConnections(connections: ksMapType): { [key: string]: string } {
+    let vias: { [key: string]: string } = {};
+    Object.values(connections).forEach(connection => {
+      if (connection.ks.via && connection.ks.via.length > 0) {
+        const flattenedVias = connection.ks.via.flatMap(via => via.anatomical_entities);
+        flattenedVias.forEach(via => {
+          vias[via.id] = via.name;
+        });
+      }
+    });
+    return vias;
+  }
+
+  const viasConnection = getAllViasFromConnections(selectedConnectionSummary.connections);
+  const viasStatement = convertViaToString(Object.values(viasConnection))
+  const viaIds = Object.keys(viasConnection);
+  const totalConnectionCount = Object.keys(selectedConnectionSummary.connections).length;
+
+  function getAllPhenotypes(connections: ksMapType): string[] {
+    const phenotypeNames: Set<string> = new Set();
+    Object.values(connections).forEach(connection => {
+      if (connection.ks?.phenotype) {
+        phenotypeNames.add(connection.ks.phenotype);
+      }
+    });
+    return Array.from(phenotypeNames)
+  }
+  const phenotypes = getAllPhenotypes(selectedConnectionSummary.connections);
+  const [phenotypeFilters, setPhenotypeFilters] = useState<PhenotypeDetail[]>([]);
+
+  useEffect(() => {
+    if (phenotypes.length > 0 && phenotypeFilters.length === 0) {
+      const ph = phenotypes.map((phenotype, index) => ({
+        label: phenotype,
+        color: generateRandomColor()
+      }))
+      setPhenotypeFilters(ph);
+    }
+  }, [phenotypes]);
+
+
+  const searchPhenotypeFilter = (searchValue: string): Option[] => {
+    let searchedPhenotype = phenotypes
+    return searchedPhenotype.map((phenotype) => ({
+      id: phenotype,
+      label: phenotype,
+      group: 'Phenotype',
+      content: []
+    }));
+  }
+
+  const getNerveFilters = (viasConnection: { [key: string]: string }, majorNerves: Set<string>) => {
+    let nerves: { [key: string]: string } = {};
+    Object.keys(viasConnection).forEach(via => {
+      if (Array.from(majorNerves).includes(via)) {
+        nerves[via] = viasConnection[via];
+      }
+    });
+    return nerves;
+  }
+
+  const nerves = getNerveFilters(viasConnection, majorNerves);
+
+
+  const searchNerveFilter = (searchValue: string): Option[] => {
+    let searchedNerve = Object.keys(nerves)
+    return searchedNerve.map((nerve) => ({
+      id: nerve,
+      label: nerves[nerve],
+      group: 'Nerve',
+      content: []
+    }));
+  }
+
+  const [connectionsMap, setConnectionsMap] = useState<Map<string, number[]>>(new Map());
+
+  // Convert hierarchicalNodes to hierarchicalItems
+  useEffect(() => {
+    if (!checkIfConnectionSummaryIsEmpty(selectedConnectionSummary)) {
+      const endorgan = Array.from(selectedConnectionSummary?.endOrgan.children)?.reduce((acc, organ) => {
+        acc[organ.id] = { ...organ, children: new Set() };
+        return acc;
+      }, {} as Record<string, Organ>);
+
+      const hierarchyNode = {
+        [selectedConnectionSummary.hierarchy.id]: selectedConnectionSummary.hierarchy
+      }
+      const connections = calculateConnections(hierarchicalNodes, endorgan, knowledgeStatements, true);
+      setConnectionsMap(connections)
+    }
+  }, [hierarchicalNodes, selectedConnectionSummary?.endOrgan, knowledgeStatements]);
+
+  function getXAxisForHeatmap() {
+    if (selectedConnectionSummary.endOrgan?.children) {
+      const uniqueEndOrgans = new Set(Array.from(selectedConnectionSummary.endOrgan.children).map((endOrgan) => endOrgan.name));
+      return Array.from(uniqueEndOrgans);
+    }
+    return []
+  }
+  const xAxis = getXAxisForHeatmap()
+  const yAxisCon = selectedConnectionSummary.hierarchy
+
+  const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
+
+  useEffect(() => {
+    if (!checkIfConnectionSummaryIsEmpty(selectedConnectionSummary)) {
+      const yAxis = getYAxis(hierarchicalNodes);
+
+      function yAxisNode(node: HierarchicalItem): HierarchicalItem {
+        if (node?.id === yAxisCon?.id) {
+          return node;
+        }
+        if (node.children) {
+          let found = false;
+          for (let child of node.children) {
+            if (found) break;
+            const nodeFound = yAxisNode(child);
+            if (nodeFound?.id) {
+              found = true;
+              return nodeFound;
+            }
+          }
+        }
+
+        return {} as HierarchicalItem;
+      }
+
+      const yNode = yAxis.map(yAxisNode).filter(node => Object.keys(node).length > 0);
+      setYAxis(yNode);
+    }
+  }, [selectedConnectionSummary]);
+
+
+
+  const heatmapData = useMemo(() => {
+    const data = getHeatmapData(yAxis, connectionsMap);
+    return data;
+  }, [yAxis, connectionsMap]);
+
+  const [uniqueKS, setUniqueKS] = useState<ksMapType>({});
+
+
+  const handleClickCell = (x: number, y: number): void => {
+    if (Object.keys(selectedConnectionSummary.connections).length !== 0) {
+      setShowConnectionDetails('detailedSummary');
+      setUniqueKS(selectedConnectionSummary.connections)
+    }
+  }
+
+  const [connectionCount, setConnectionCount] = useState(1);
+
+
     return (
         <Box display='flex' flexDirection='column' minHeight={1}>
+        {
+          showConnectionDetails !== 'instruction' &&
           <SummaryHeader
             showDetails={showConnectionDetails}
             setShowDetails={setShowConnectionDetails}
-            numOfConnections={5}
-            connection='ilxtr:neuron-type-aacar-11'
+            uniqueKS={uniqueKS}
+            connectionCount={connectionCount}
+            setConnectionCount={setConnectionCount}
           />
+        }
           
-          {showConnectionDetails ?
+        {showConnectionDetails === 'detailedSummary' ?
             <>
-              <Details />
+            <Details
+              uniqueKS={uniqueKS}
+              connectionCount={connectionCount}
+            />
+          </>
+          :
+          showConnectionDetails === 'instruction' ?
+            <>
+              <SummaryInstructions />
             </>
             :
             <>
@@ -274,23 +251,23 @@ function Connections() {
                 <Box display='flex' alignItems='flex-end' gap={1.5}>
                   <Box flex={1}>
                     <Typography sx={{...styles.heading, marginBottom: '0.75rem'}}>Connection origin</Typography>
-                    <TextField value='Thoracic' fullWidth />
+                    <TextField value={selectedConnectionSummary?.origin || ''} fullWidth />
                   </Box>
                   <ArrowRightIcon />
                   <Box flex={1}>
                     <Typography sx={{...styles.heading, marginBottom: '0.75rem'}}>End Organ</Typography>
-                    <TextField value='Heart' fullWidth />
+                    <TextField value={selectedConnectionSummary?.endOrgan?.name} fullWidth />
                   </Box>
                 </Box>
                 
                 <Box>
                   <Typography sx={styles.heading}>Amount of connections</Typography>
-                  <Chip label="23 connections" variant="outlined" color="primary" />
+                  <Chip label={totalConnectionCount + ' connections'} variant="outlined" color="primary" />
                 </Box>
                 
                 <Box>
                   <Typography sx={styles.heading}>Connections are through these nerves</Typography>
-                  <Typography sx={styles.text}>Pudendal, vagus and splanchnic</Typography>
+                  <Typography sx={styles.text}>{viasStatement}</Typography>
                 </Box>
             </Box>
 
@@ -311,7 +288,7 @@ function Connections() {
                       value: "",
                       id: "Phenotype",
                       searchPlaceholder: "Search Phenotype",
-                      onSearch: (searchValue: string) => getEntities(searchValue),
+                      onSearch: (searchValue: string) => searchPhenotypeFilter(searchValue),
                     }}
                   />
                   <CustomFilterDropdown
@@ -321,68 +298,88 @@ function Connections() {
                       value: "",
                       id: "nerve",
                       searchPlaceholder: "Search Nerve",
-                      onSearch: (searchValue: string) => getEntities(searchValue),
+                      onSearch: (searchValue: string) => searchNerveFilter(searchValue),
                     }}
                   />
                 </Box>
-                {/*<HeatmapGrid secondary yAxisLabels={list} data={data} xAxisLabel={xLabels} setYAxis={setList} setXAxis={setData} xAxisLabel={'Project to'} yAxisLabel={'Somas in'} />*/}
+                <HeatmapGrid secondary
+                  yAxis={yAxis}
+                  setYAxis={setYAxis}
+                  xAxis={xAxis}
+                  onCellClick={handleClickCell}
+                  phenotypeFilters={phenotypeFilters}
+                  selectedCell={{ x: -1, y: -1 }}
+                  heatmapData={heatmapData}
+                  xAxisLabel={'Project to'}
+                  yAxisLabel={'Somas in'}
+                />
               </Box>
-              
-              <Box sx={{
-                position: 'sticky',
-                bottom: 0,
-                padding: '0 1.5rem',
-                background: '#fff'
-              }}>
-                <Box sx={{
-                  borderTop: `0.0625rem solid ${gray100}`,
-                  padding: '0.9375rem 0',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between'
-                }}>
-                  <Typography sx={{
-                    fontSize: '0.75rem',
-                    fontWeight: 500,
-                    lineHeight: '1.125rem',
-                    color: '#818898'
-                  }}>Phenotype</Typography>
-                  
-                  <Box sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1.5rem'
-                  }}>
-                    {phenotype.map((type: PhenotypeDetail) => (
-                      <Box sx={{
-                        p: '0.1875rem 0.25rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.375rem'
-                      }}>
-                        <Box sx={{
-                          width: '1.4794rem',
-                          height: '1rem',
-                          borderRadius: '0.125rem',
-                          background: type.color
-                        }} />
-                        <Typography sx={{
-                          fontSize: '0.75rem',
-                          fontWeight: 400,
-                          lineHeight: '1.125rem',
-                          color: '#4A4C4F'
-                        }}>{type.label}</Typography>
-                      </Box>
-                    ))}
-                  </Box>
-                </Box>
-              </Box>
+              <PhenotypeLegend phenotypes={phenotypeFilters} />
             </>
-          }
-         
-          
+        }
+
+
+      </Box>
+  )
+}
+
+const PhenotypeLegend = (
+  { phenotypes }: { phenotypes: PhenotypeDetail[] }
+) => {
+  return (
+    <Box sx={{
+      position: 'sticky',
+      bottom: 0,
+      padding: '0 1.5rem',
+      background: '#fff'
+    }}>
+      <Box sx={{
+        borderTop: `0.0625rem solid ${gray100}`,
+        padding: '0.9375rem 0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <Typography sx={{
+          fontSize: '0.75rem',
+          fontWeight: 500,
+          lineHeight: '1.125rem',
+          color: '#818898'
+        }}>Phenotype</Typography>
+
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1.5rem'
+        }}>
+          {phenotypes?.map((type: PhenotypeDetail) => (
+            <Box sx={{
+              p: '0.1875rem 0.25rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.375rem'
+            }}
+              key={type.label}
+            >
+              <Box sx={{
+                width: '1.4794rem',
+                height: '1rem',
+                borderRadius: '0.125rem',
+                background: generateRandomColor()
+              }} />
+              <Typography sx={{
+                fontSize: '0.75rem',
+                fontWeight: 400,
+                lineHeight: '1.125rem',
+                color: '#4A4C4F'
+              }}>{type.label}</Typography>
+            </Box>
+          ))}
         </Box>
+      </Box>
+    </Box>
     )
+
 }
 
 export default Connections
