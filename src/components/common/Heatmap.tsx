@@ -10,23 +10,27 @@ import {HierarchicalItem} from "../ConnectivityGrid.tsx";
 const {gray50, primaryPurple500, gray25, gray100A, gray500} = vars;
 
 
-const generateYLabels = (list: HierarchicalItem[], prefix = ''): string[] => {
+const getYLabelsAndIds = (list: HierarchicalItem[], prefix = ''): { labels: string[], ids: string[] } => {
     let labels: string[] = [];
+    let ids: string[] = [];
     list.forEach(item => {
         const fullLabel = prefix ? `${prefix} - ${item.label}` : item.label;
         labels.push(fullLabel);
+        ids.push(item.id);  // Capture the ID
         if (item.expanded && item.children.length > 0) {
-            labels = labels.concat(generateYLabels(item.children, fullLabel));
+            const children = getYLabelsAndIds(item.children, fullLabel);
+            labels = labels.concat(children.labels);
+            ids = ids.concat(children.ids);
         }
     });
-    return labels;
+    return { labels, ids };
 };
 
 interface HeatmapGridProps {
-    connectionsMap: Map<string, number[]>;
+    connectionsMap: Map<string, Set<string>[]>;
     xAxis: string[];
     initialYAxis: HierarchicalItem[];
-    onCellClick?: (x: string, y: string) => void;
+    onCellClick?: (x: number, y: string) => void;
     xAxisLabel?: string;
     yAxisLabels?: string;
     secondary?: boolean;
@@ -76,13 +80,14 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         setYAxis(updatedList);
     };
 
-    const handleClick = (x: number, y: number): void => {
+    const handleClick = (x: number, y: number, yIds: string[]): void => {
         setSelectedCell({x, y});
         if(onCellClick){
-            console.log("To be implemented")
+            onCellClick(x, yIds[y])
         }
     };
 
+    const yAxisData = getYLabelsAndIds(yAxis)
     return (
         <Box flex={1} my={3} display='inline-flex' flexDirection='column'>
             <Box mb={1.5} pl="17.375rem">
@@ -188,7 +193,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                 }}>
                     <HeatMap
                         xLabels={xAxis}
-                        yLabels={generateYLabels(yAxis)}
+                        yLabels={yAxisData.labels}
                         xLabelsLocation={"top"}
                         xLabelsVisibility={xAxis.map(() => true)}
                         xLabelWidth={160}
@@ -196,7 +201,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                         data={data}
                         // squares
                         height={43}
-                        onClick={(x: number, y: number) => handleClick(x, y)}
+                        onClick={(x: number, y: number) => handleClick(x, y, yAxisData.ids)}
                         cellStyle={(_background: string, value: number, min: number, max: number, _data: string, _x: number, _y: number) => {
                             const isSelectedCell = selectedCell?.x === _x && selectedCell?.y === _y
                             const normalizedValue = max !== min ? (value - min) / (max - min) : 0;

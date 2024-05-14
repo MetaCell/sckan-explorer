@@ -7,6 +7,7 @@ import {calculateConnections, getMinMaxConnections, getXAxis, getYAxis} from "..
 import FiltersDropdowns from "./FiltersDropdowns.tsx";
 
 export interface HierarchicalItem {
+    id: string;
     label: string;
     children: HierarchicalItem[];
     expanded: boolean;
@@ -21,7 +22,7 @@ function ConnectivityGrid() {
 
     const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
     const [xAxis, setXAxis] = useState<string[]>([]);
-    const [connectionsMap, setConnectionsMap] = useState<Map<string, number[]>>(new Map());
+    const [connectionsMap, setConnectionsMap] = useState<Map<string, Set<string>[]>>(new Map());
 
     // Convert hierarchicalNodes to hierarchicalItems
     useEffect(() => {
@@ -43,9 +44,11 @@ function ConnectivityGrid() {
         setYAxis(yAxis);
     }, [hierarchicalNodes]);
 
-    const handleClick = (x: string, y: string): void => {
-        console.log(x)
-        console.log(y)
+    const handleClick = (x: number, y: string): void => {
+        const row = connectionsMap.get(y)
+        if(row){
+            console.log(row[x])
+        }
     };
 
     const isLoading = yAxis.length == 0
