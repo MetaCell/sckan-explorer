@@ -59,7 +59,7 @@ function ConnectivityGrid() {
         const detailedHeatmap = getDetailedHeatmapData(yAxis, connectionsMap);
         const origin = detailedHeatmap[y];
 
-        const hierarchy = getHierarchyFromId(origin.id, hierarchicalNodes);  // improve this to get it from the uri
+        const hierarchy = getHierarchyFromId(origin.id, hierarchicalNodes);
 
         function getLeafHierarchyList(hierarchy_id: string, hierarchicalNodes: Record<string, HierarchicalNode>): string[] {
             const hierarchy = hierarchicalNodes[hierarchy_id];

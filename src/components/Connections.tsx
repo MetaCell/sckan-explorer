@@ -9,7 +9,7 @@ import HeatmapGrid from "./common/Heatmap";
 import Details from "./connections/Details.tsx";
 import SummaryInstructions from "./connections/SummaryInstructions.tsx";
 import { ConnectionSummary, useDataContext } from "../context/DataContext.ts";
-import { calculateConnections, getHeatmapData, getYAxis } from "../services/heatmapService.ts";
+import { SubConnections, calculateSecondaryHeatmapConnections, getSecondaryHeatmapData, getYAxis } from "../services/heatmapService.ts";
 import { HierarchicalItem } from "./ConnectivityGrid.tsx";
 import { Organ } from "../models/explorer.ts";
 
@@ -31,7 +31,19 @@ const styles = {
     }
 }
 
-const generateRandomColor = () => `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+const generatePhenotypeColors = (num: number) => {
+  // some fixed colors for phenotypes - 4 colors
+  const colors = [
+    'rgba(155, 24, 216, 1)',
+    'rgba(44, 44, 206, 1)',
+    'rgba(220, 104, 3, 1)',
+    'rgba(234, 170, 8, 1)',
+  ];
+  for (let i = 4; i < num; i++) {
+    colors.push(`rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`);
+  }
+  return colors;
+}
 
 // const check each property inside to check if it is empty or not
 const checkIfConnectionSummaryIsEmpty = (connectionSummary: ConnectionSummary): boolean => {
@@ -83,7 +95,6 @@ function Connections() {
 
   const viasConnection = getAllViasFromConnections(selectedConnectionSummary.connections);
   const viasStatement = convertViaToString(Object.values(viasConnection))
-  const viaIds = Object.keys(viasConnection);
   const totalConnectionCount = Object.keys(selectedConnectionSummary.connections).length;
 
   function getAllPhenotypes(connections: ksMapType): string[] {
@@ -91,21 +102,19 @@ function Connections() {
     Object.values(connections).forEach(connection => {
       if (connection.ks?.phenotype) {
         phenotypeNames.add(connection.ks.phenotype);
+      } else {
+        phenotypeNames.add('UNKNOWN');
       }
     });
     return Array.from(phenotypeNames)
   }
   const phenotypes = getAllPhenotypes(selectedConnectionSummary.connections);
-  const [phenotypeFilters, setPhenotypeFilters] = useState<PhenotypeDetail[]>([]);
-
-  useEffect(() => {
-    if (phenotypes.length > 0 && phenotypeFilters.length === 0) {
-      const ph = phenotypes.map((phenotype, index) => ({
-        label: phenotype,
-        color: generateRandomColor()
-      }))
-      setPhenotypeFilters(ph);
-    }
+  const phenotypeFilters: PhenotypeDetail[] = useMemo(() => {
+    const phenotypeColors: string[] = generatePhenotypeColors(phenotypes.length)
+    return phenotypes.map((phenotype, index) => ({
+      label: phenotype,
+      color: phenotypeColors[index]
+    }))
   }, [phenotypes]);
 
 
@@ -142,20 +151,17 @@ function Connections() {
     }));
   }
 
-  const [connectionsMap, setConnectionsMap] = useState<Map<string, number[]>>(new Map());
+  const [connectionsMap, setConnectionsMap] = useState<Map<string, SubConnections[]>>(new Map());
 
   // Convert hierarchicalNodes to hierarchicalItems
   useEffect(() => {
-    if (!checkIfConnectionSummaryIsEmpty(selectedConnectionSummary)) {
+    if (!checkIfConnectionSummaryIsEmpty(selectedConnectionSummary) && phenotypeFilters) {
       const endorgan = Array.from(selectedConnectionSummary?.endOrgan.children)?.reduce((acc, organ) => {
         acc[organ.id] = { ...organ, children: new Set() };
         return acc;
       }, {} as Record<string, Organ>);
 
-      const hierarchyNode = {
-        [selectedConnectionSummary.hierarchy.id]: selectedConnectionSummary.hierarchy
-      }
-      const connections = calculateConnections(hierarchicalNodes, endorgan, knowledgeStatements, true);
+      const connections = calculateSecondaryHeatmapConnections(hierarchicalNodes, endorgan, knowledgeStatements, phenotypeFilters, true);
       setConnectionsMap(connections)
     }
   }, [hierarchicalNodes, selectedConnectionSummary?.endOrgan, knowledgeStatements]);
@@ -200,10 +206,8 @@ function Connections() {
     }
   }, [selectedConnectionSummary]);
 
-
-
   const heatmapData = useMemo(() => {
-    const data = getHeatmapData(yAxis, connectionsMap);
+    const data = getSecondaryHeatmapData(yAxis, connectionsMap);
     return data;
   }, [yAxis, connectionsMap]);
 
@@ -302,14 +306,13 @@ function Connections() {
                     }}
                   />
                 </Box>
-                <HeatmapGrid secondary
+                <HeatmapGrid
                   yAxis={yAxis}
                   setYAxis={setYAxis}
                   xAxis={xAxis}
                   onCellClick={handleClickCell}
-                  phenotypeFilters={phenotypeFilters}
                   selectedCell={{ x: -1, y: -1 }}
-                  heatmapData={heatmapData}
+                  secondaryHeatmapData={heatmapData}
                   xAxisLabel={'Project to'}
                   yAxisLabel={'Somas in'}
                 />
@@ -365,7 +368,7 @@ const PhenotypeLegend = (
                 width: '1.4794rem',
                 height: '1rem',
                 borderRadius: '0.125rem',
-                background: generateRandomColor()
+                background: `${type.color}`
               }} />
               <Typography sx={{
                 fontSize: '0.75rem',

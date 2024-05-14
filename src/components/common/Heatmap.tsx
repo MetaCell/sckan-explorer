@@ -4,9 +4,8 @@ import { vars } from "../../theme/variables";
 import CollapsibleList from "./CollapsibleList";
 import HeatMap from "react-heatmap-grid";
 import HeatmapTooltip from "./HeatmapTooltip";
-import { getHeatmapData } from "../../services/heatmapService.ts";
 import { HierarchicalItem } from "../ConnectivityGrid.tsx";
-import { PhenotypeDetail } from "./Types.ts";
+import { ISubConnections } from "../../services/heatmapService.ts";
 
 const { gray50, primaryPurple500, gray25, gray100A, gray500 } = vars;
 
@@ -32,31 +31,27 @@ interface HeatmapGridProps {
     xAxisLabel?: string;
     yAxisLabel?: string;
     selectedCell?: { x: number, y: number } | null;
-    heatmapData: number[][];
-    secondary?: boolean;
-    phenotypeFilters?: PhenotypeDetail[];
+    heatmapData?: number[][];
+    secondaryHeatmapData?: ISubConnections[][];
 }
 
-const getCellBgColor = (value: number) => {
-    if (value % 4) {
-        return '#2C2CCE'; // Blue for multiples of 4
-    } else if (value % 6) {
-        return '#DC6803'; // Orange for multiples of 6
-    } else if (value % 8) {
-        return '#EAAA08'; // Yellow for multiples of 8
-    } else if (value > 10) {
-        return 'linear-gradient(to right, #2C2CCE 50%, #9B18D8 50%)'; // Gradient for values greater than 10
-    } else {
-        return gray25// Default color
-    }
-};
+const prepareSecondaryHeatmaptData = (data?: ISubConnections[][]): number[][] => {
+    if (!data) return [];
+    return data.map(row => row.map(cell => cell.count));
+}
+
+const containsSecondaryHeatmapData = (data: any): boolean => {
+    if (!data || !data.length) return false;
+    return true;
+}
 
 const HeatmapGrid: FC<HeatmapGridProps> = ({
     xAxis, yAxis, setYAxis,
     xAxisLabel, yAxisLabel,
-    onCellClick, selectedCell, heatmapData, secondary, phenotypeFilters
+    onCellClick, selectedCell, heatmapData, secondaryHeatmapData
 }) => {
-
+    const secondary = containsSecondaryHeatmapData(secondaryHeatmapData);
+    const KSCountHeatmapData = secondary ? prepareSecondaryHeatmaptData(secondaryHeatmapData) : heatmapData;
     const handleCollapseClick = (item: HierarchicalItem) => {
         const updateList = (list: HierarchicalItem[], selectedItem: HierarchicalItem): HierarchicalItem[] => {
             return list?.map(listItem => {
@@ -74,13 +69,29 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     };
 
     const getCellBgColorFromPhenotype = (
-        background: string,
         value: number,
         min: number,
         max: number,
-        normalizedValue: number
+        normalizedValue: number,
+        _x: number,
+        _y: number
     ) => {
-        return `rgba(131, 0, 191, ${normalizedValue})`
+        if (secondary && secondaryHeatmapData && secondaryHeatmapData[_y] && secondaryHeatmapData[_y][_x]) {
+            const phenotypeColors = secondaryHeatmapData[_y][_x]?.color;
+
+            const phenotypeColorsWithPercentage = phenotypeColors.map((color, index) => {
+                return `${color} ${100 / phenotypeColors.length * index}%, ${color} ${100 / phenotypeColors.length * (index + 1)}%`
+            })
+            let phenotypeColor = phenotypeColors.length > 1 ? `linear-gradient(to right, ${phenotypeColorsWithPercentage.join(',')}` :
+                phenotypeColors.length === 1 ? phenotypeColors[0] : '';
+            phenotypeColor = phenotypeColor.replace(/rgba\(([^,]+),([^,]+),([^,]+),([^)]+)\)/, `rgba($1,$2,$3,${normalizedValue})`).replace(
+                /rgb\(([^,]+),([^,]+),([^,]+)\)/, `rgba($1,$2,$3,${normalizedValue})`
+            );
+
+            // Replace rgba(a,b,c,d) -> rgba(a,b,c,normalizedValue) and rgb(a,b,c) -> rgba(a,b,c,normalizedValue)
+            return phenotypeColor ? phenotypeColor : `rgba(131, 0, 191, ${normalizedValue})`;
+        }
+        return `rgba(0, 0, 0, ${normalizedValue})`
     };
 
     return (
@@ -194,7 +205,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                         xLabelsVisibility={xAxis?.map(() => true)}
                         xLabelWidth={160}
                         yLabelWidth={250}
-                        data={heatmapData}
+                        data={KSCountHeatmapData}
                         // squares
                         height={43}
                         onClick={(x: number, y: number) => onCellClick && onCellClick(x, y)}
@@ -215,13 +226,13 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                             if (secondary) { // to show another heatmap, can be changed when data is added
                                 return {
                                     ...commonStyles,
-                                    // background: getCellBgColor(value),
                                     background: getCellBgColorFromPhenotype(
-                                        _background,
                                         value,
                                         min,
                                         max,
-                                        normalizedValue
+                                        normalizedValue,
+                                        _x,
+                                        _y
                                     )
                                 }
                             } else {
@@ -238,7 +249,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                         cellRender={(value: number, x: number, y: number) => (
                             <HeatmapTooltip
                                 value={value} x={x} y={y}
-                                secondary={secondary} getCellBgColor={getCellBgColor}
+                                secondary={secondary} getCellBgColor={(value) => 'rgba(0,0,0,0)'}
                             />
                         )}
                     />

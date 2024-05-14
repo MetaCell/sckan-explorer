@@ -50,7 +50,6 @@ interface KnowledgeStatementAPI {
 
 
 export function mapApiResponseToKnowledgeStatements(composerResponse: ComposerResponse) {
-    console.log("ks", composerResponse.results)
     return composerResponse.results.map(ks => ({
         id: String(ks.reference_uri),
         phenotype: ks.phenotype?.name || "",
