@@ -13,6 +13,12 @@ export interface Filters {
 }
 
 
+export interface SummaryFilters {
+    Phenotype: Option[];
+    Nerve: Option[];
+}
+
+
 export interface ConnectionSummary {
     connections: ksMapType;  // displaying connection 1 of 5
     origin: string;
@@ -22,6 +28,7 @@ export interface ConnectionSummary {
 
 export interface DataContext {
     filters: Filters;
+    summaryFilters: SummaryFilters;
     majorNerves: Set<string>;
     organs: Record<string, Organ>;
     hierarchicalNodes: Record<string, HierarchicalNode>;
@@ -39,6 +46,10 @@ export const DataContext = createContext<DataContext>({
         Phenotype: [],
         apiNATOMY: [],
         Via: []
+    },
+    summaryFilters: {
+        Phenotype: [],
+        Nerve: []
     },
     majorNerves: new Set<string>(),
     organs: {},
