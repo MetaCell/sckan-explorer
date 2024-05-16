@@ -41,7 +41,8 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
         acc[rootNode.id] = {
             id: rootNode.id,
             name: rootNode.name,
-            children: new Set<string>()
+            uri: '',
+            children: new Set<string>(),
         };
         return acc;
     }, {} as Record<string, HierarchicalNode>);
@@ -65,6 +66,7 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
                     hierarchicalNodes[currentPath] = {
                         id: currentPath,
                         name: levelName,
+                        uri: '',
                         children: new Set<string>()
                     };
                 }
@@ -90,30 +92,43 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
                 leafNode = {
                     id: leafNodeId,
                     name: leafNodeName,
+                    uri: '',
                     children: new Set<string>(),
-                    connectionDetails: {}
+                    connectionDetails: {},
+                    endOrgansUri: {}
                 };
                 hierarchicalNodes[leafNodeId] = leafNode;
             }
 
             // Update or initialize connection details
             leafNode.connectionDetails = leafNode.connectionDetails || {};
+            leafNode.endOrgansUri = leafNode.endOrgansUri || {};
 
             const neuronId = entry.Neuron_ID?.value;
             let targetOrganIRI = entry.Target_Organ_IRI?.value;
+            let endOrganIRI = entry.B_ID?.value;
 
             if (neuronId) {
                 if (!targetOrganIRI) {
                     console.warn(`Target_Organ_IRI not found for entry with Neuron_ID: ${neuronId}`);
                     targetOrganIRI = OTHER_X_AXIS_ID
                 }
+                if (!endOrganIRI) {
+                    endOrganIRI = OTHER_X_AXIS_ID;
+                    console.warn(`B_ID not found for entry with Neuron_ID: ${neuronId}`);
+                }
+
                 // Ensure connectionDetails for this targetOrganIRI is initialized
                 if (!leafNode.connectionDetails[targetOrganIRI]) {
                     leafNode.connectionDetails[targetOrganIRI] = new Set<string>();  // Initialize as an empty set
                 }
+                if (!leafNode.endOrgansUri[endOrganIRI]) {
+                    leafNode.endOrgansUri[endOrganIRI] = new Set<string>(); // Initialize as an empty array
+                }
 
                 // Add the KnowledgeStatement to the array for this target organ
                 leafNode.connectionDetails[targetOrganIRI].add(neuronId);
+                leafNode.endOrgansUri[endOrganIRI].add(neuronId);
             } else {
 
                 if (!neuronId) {

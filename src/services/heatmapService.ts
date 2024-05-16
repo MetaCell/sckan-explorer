@@ -1,7 +1,6 @@
-import {HierarchicalNode, KnowledgeStatement, Organ} from "../models/explorer.ts";
-import {HierarchicalItem} from "../components/ConnectivityGrid.tsx";
+import { HierarchicalNode, KnowledgeStatement, Organ } from "../models/explorer.ts";
 import {ROOTS} from "./hierarchyService.ts";
-import { IHeatmapMatrixInformation, Option, ksMapType } from "../components/common/Types.ts";
+import { HierarchicalItem, IHeatmapMatrixInformation, Option, ksMapType } from "../components/common/Types.ts";
 import {Filters} from "../context/DataContext.ts";
 
 export function getYAxis(hierarchicalNodes: Record<string, HierarchicalNode>): HierarchicalItem[] {
