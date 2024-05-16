@@ -10,7 +10,7 @@ import { vars } from "../../theme/variables.ts";
 import PopulationDisplay from "./PopulationDisplay.tsx";
 import CommonAccordion from "../common/Accordion.tsx";
 import CommonChip from "../common/CommonChip.tsx";
-import { ArrowOutward, HelpCircle } from "../icons";
+import { ArrowOutward } from "../icons";
 import { ksMapType } from '../common/Types.ts';
 import { KnowledgeStatement } from '../../models/explorer.ts';
 

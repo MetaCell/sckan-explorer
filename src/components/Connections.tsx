@@ -3,8 +3,7 @@ import { Box, Chip, TextField, Typography } from "@mui/material";
 import { ArrowRightIcon } from "./icons";
 import { vars } from "../theme/variables";
 import { HierarchicalItem, ISubConnections, Option, SummaryType, ksMapType } from "./common/Types";
-import { mockEntities } from "./common/MockEntities";
-import { Filters, useDataContext } from "../context/DataContext.ts";
+import { useDataContext } from "../context/DataContext.ts";
 import {
   calculateSecondaryConnections,
   checkIfConnectionSummaryIsEmpty, convertViaToString, generatePhenotypeColors,
@@ -12,14 +11,14 @@ import {
   getSecondaryHeatmapData,
   getYAxisNode
 } from "../services/summaryHeatmapService.ts";
-import { getYAxis, calculateConnections, getKnowledgeStatementAndCount } from "../services/heatmapService.ts";
+import { getYAxis, getKnowledgeStatementAndCount } from "../services/heatmapService.ts";
 import CustomFilterDropdown from "./common/CustomFilterDropdown";
 import SummaryHeader from "./connections/SummaryHeader";
 import Details from "./connections/Details.tsx";
 import SummaryInstructions from "./connections/SummaryInstructions.tsx";
 import PhenotypeLegend from "./connections/PhenotypeLegend.tsx";
 import HeatmapGrid from "./common/Heatmap.tsx";
-import { HierarchicalNode, Organ } from "../models/explorer.ts";
+import { Organ } from "../models/explorer.ts";
 
 const { gray700, gray600A, gray100 } = vars;
 
@@ -84,13 +83,6 @@ function Connections() {
   const totalConnectionCount = Object.keys(selectedConnectionSummary.connections).length;
   const phenotypes = getAllPhenotypes(selectedConnectionSummary.connections);
   const [phenotypeFilters, setPhenotypeFilters] = useState<PhenotypeDetail[]>(phenotype);
-  // const phenotypeFilters: PhenotypeDetail[] = useMemo(() => {
-  //   const phenotypeColors: string[] = generatePhenotypeColors(phenotypes.length)
-  //   return phenotypes.map((phenotype, index) => ({
-  //     label: phenotype,
-  //     color: phenotypeColors[index]
-  //   }))
-  // }, [phenotypes]);
 
   useEffect(() => {
     if (!checkIfConnectionSummaryIsEmpty(selectedConnectionSummary)) {
@@ -102,12 +94,13 @@ function Connections() {
       })))
     }
 
-  }, [])
+  }, [selectedConnectionSummary])
 
   const nerves = getNerveFilters(viasConnection, majorNerves);
 
   const searchPhenotypeFilter = (searchValue: string): Option[] => {
-    let searchedPhenotype = phenotypes
+    console.log(searchValue)
+    const searchedPhenotype = phenotypes
     return searchedPhenotype.map((phenotype) => ({
       id: phenotype,
       label: phenotype,
@@ -115,8 +108,10 @@ function Connections() {
       content: []
     }));
   }
+
   const searchNerveFilter = (searchValue: string): Option[] => {
-    let searchedNerve = Object.keys(nerves)
+    console.log(searchValue)
+    const searchedNerve = Object.keys(nerves)
     return searchedNerve.map((nerve) => ({
       id: nerve,
       label: nerves[nerve],
@@ -135,7 +130,7 @@ function Connections() {
       const connections = calculateSecondaryConnections(hierarchicalNodes, endorgans, knowledgeStatements, summaryFilters, phenotypeFilters);
       setConnectionsMap(connections);
     }
-  }, [hierarchicalNodes, selectedConnectionSummary?.endOrgan, knowledgeStatements, phenotypeFilters]);
+  }, [hierarchicalNodes, selectedConnectionSummary, summaryFilters, knowledgeStatements, phenotypeFilters]);
 
   function getXAxisForHeatmap() {
     if (selectedConnectionSummary.endOrgan?.children) {
@@ -154,12 +149,12 @@ function Connections() {
         .filter((node: HierarchicalItem) => Object.keys(node).length > 0);
       setYAxis(yNode);
     }
-  }, [selectedConnectionSummary]);
+  }, [selectedConnectionSummary, hierarchicalNodes, yAxisCon]);
 
   const heatmapData = useMemo(() => {
     const data = getSecondaryHeatmapData(yAxis, connectionsMap);
     return data;
-  }, [yAxis, xAxis, connectionsMap, selectedConnectionSummary.connections]);
+  }, [yAxis, connectionsMap]);
 
   const [uniqueKS, setUniqueKS] = useState<ksMapType>({});
 

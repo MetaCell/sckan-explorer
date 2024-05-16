@@ -59,9 +59,9 @@ const PopulationDisplay = ({
     const origins = connectionDetails?.origins || [];
     const destinations = destinationDetails.flatMap(dest => dest.anatomical_entities);
     const vias = viaDetails.flatMap(via => via.anatomical_entities);
-    origins.forEach((origin, index) => {
-      destinations.forEach((destination, index) => {
-        vias.forEach((via, index) => {
+    origins.forEach((origin) => {
+      destinations.forEach((destination) => {
+        vias.forEach((via) => {
           rowData.push({
             Origin: origin.name,
             Destination: destination.name,

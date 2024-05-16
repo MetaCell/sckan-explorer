@@ -39,6 +39,7 @@ export const DataContextProvider = ({
     const dataContextValue = {
         filters,
         summaryFilters,
+        setSummaryFilters,
         organs,
         majorNerves,
         hierarchicalNodes,

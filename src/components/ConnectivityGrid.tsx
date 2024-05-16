@@ -2,7 +2,7 @@ import { Box, Button, Typography } from "@mui/material";
 import React, {useEffect, useMemo, useState} from "react";
 import {vars} from "../theme/variables";
 import HeatmapGrid from "./common/Heatmap";
-import { SummaryFilters, useDataContext } from "../context/DataContext.ts";
+import { useDataContext } from "../context/DataContext.ts";
 import {
     calculateConnections, getMinMaxConnections, getHierarchyFromId,
     getXAxisOrgans, getYAxis, getHeatmapData,

@@ -205,7 +205,7 @@ export function getKnowledgeStatementAndCount(ksIds: Set<string>, knowledgeState
     const ksMap: ksMapType = {};
     ksIds.forEach((id: string) => {
         const ks = knowledgeStatements[id];
-        if (ks && !ksMap.hasOwnProperty(id)) {
+        if (ks) {
             ksMap[id] = {
                 'ks': ks,
                 'count': ksMap[id] ? ksMap[id].count + 1 : 1

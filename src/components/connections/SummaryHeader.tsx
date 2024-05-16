@@ -5,7 +5,7 @@ import { ArrowDown, ArrowRight, ArrowUp, HelpCircle } from "../icons";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import { SummaryType, ksMapType } from '../common/Types';
 
-const { gray100, primaryPurple600, gray600A, gray500 } = vars;
+const { gray100, gray600A, gray500 } = vars;
 
 const SummaryHeader = ({
    showDetails,

@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from "react";
+import React, { FC } from "react";
 import { Box, Typography } from "@mui/material";
 import { vars } from "../../theme/variables";
 import CollapsibleList from "./CollapsibleList";
@@ -8,7 +8,7 @@ import { HierarchicalItem, ISubConnections } from "./Types.ts";
 import { getNormalizedValueForMinMax } from "../../services/summaryHeatmapService.ts";
 
 
-const { gray50, primaryPurple500, gray25, gray100A, gray500 } = vars;
+const { gray50, primaryPurple500, gray100A, gray500 } = vars;
 
 
 const generateYLabelsAndIds = (list: HierarchicalItem[], prefix = ''): { labels: string[], ids: string[] } => {
@@ -78,10 +78,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     const getCellBgColorFromPhenotype = (
         normalizedValue: number,
         _x: number,
-        _y: number,
-        value: number,
-        min: number,
-        max: number
+        _y: number
     ) => {
         if (secondary && secondaryHeatmapData && secondaryHeatmapData[_y] && secondaryHeatmapData[_y][_x]) {
             const phenotypeColors = secondaryHeatmapData[_y][_x]?.color;
@@ -238,8 +235,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                                     background: getCellBgColorFromPhenotype(
                                         safeNormalizedValue,
                                         _x,
-                                        _y,
-                                        value, min, max
+                                        _y
                                     )
                                 }
                             } else {
@@ -256,7 +252,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                         cellRender={(value: number, x: number, y: number) => (
                             <HeatmapTooltip
                                 value={value} x={x} y={y}
-                                secondary={secondary} getCellBgColor={(value) => 'rgba(0,0,0,0)'}
+                                secondary={secondary} getCellBgColor={() => 'rgba(0,0,0,0)'}
                             />
                         )}
                     />

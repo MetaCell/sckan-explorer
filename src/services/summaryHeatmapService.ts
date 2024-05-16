@@ -40,7 +40,7 @@ export function convertViaToString(via: string[]): string {
 }
 
 export function getAllViasFromConnections(connections: ksMapType): { [key: string]: string } {
-	let vias: { [key: string]: string } = {};
+	const vias: { [key: string]: string } = {};
 	Object.values(connections).forEach(connection => {
 		if (connection.ks.via && connection.ks.via.length > 0) {
 			const flattenedVias = connection.ks.via.flatMap(via => via.anatomical_entities);
@@ -65,7 +65,7 @@ export function getAllPhenotypes(connections: ksMapType): string[] {
 }
 
 export const getNerveFilters = (viasConnection: { [key: string]: string }, majorNerves: Set<string>) => {
-	let nerves: { [key: string]: string } = {};
+	const nerves: { [key: string]: string } = {};
 	Object.keys(viasConnection).forEach(via => {
 		if (Array.from(majorNerves).includes(via)) {
 			nerves[via] = viasConnection[via];
@@ -80,7 +80,7 @@ export function getYAxisNode(node: HierarchicalItem, yAxisCon: HierarchicalNode)
 	}
 	if (node.children) {
 		let found = false;
-		for (let child of node.children) {
+		for (const child of node.children) {
 			if (found) break;
 			const nodeFound = getYAxisNode(child, yAxisCon);
 			if (nodeFound?.id) {
@@ -127,6 +127,9 @@ export function getSecondaryHeatmapData(yAxis: HierarchicalItem[], connections: 
 }
 
 export function summaryFilterKnowledgeStatements(knowledgeStatements: Record<string, KnowledgeStatement>, summaryFilters: SummaryFilters): Record<string, KnowledgeStatement> {
+	const phenotypeIds = summaryFilters.Phenotype.map(option => option.id);
+	const nerveIds = summaryFilters.Nerve.map(option => option.id);
+	console.log(phenotypeIds, nerveIds);
 	return knowledgeStatements;
 }
 
@@ -137,7 +140,7 @@ export function calculateSecondaryConnections(
 ): Map<string, ISubConnections[]> {
 
 	// Apply filters to organs and knowledge statements
-	let knowledgeStatements = summaryFilterKnowledgeStatements(allKnowledgeStatements, summaryFilters);
+	const knowledgeStatements = summaryFilterKnowledgeStatements(allKnowledgeStatements, summaryFilters);
 
 	// Create a map of organ IRIs to their index positions for quick lookup
 	// const sortedOrgans = Object.values(allOrgans).sort((a, b) => a.order - b.order);
@@ -156,7 +159,7 @@ export function calculateSecondaryConnections(
 		}
 
 		const node = hierarchicalNodes[nodeId];
-		const result: ISubConnections[] = Object.values(endorgans).map(organ => ({ count: 0, color: [], ksIds: new Set<string>() }));
+		const result: ISubConnections[] = Object.values(endorgans).map(() => ({ count: 0, color: [], ksIds: new Set<string>() }));
 		if (node.children && node.children.size > 0) {
 			node.children.forEach(childId => {
 				const childConnections = computeNodeConnections(childId);

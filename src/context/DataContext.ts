@@ -34,6 +34,7 @@ export interface DataContext {
     hierarchicalNodes: Record<string, HierarchicalNode>;
     knowledgeStatements: Record<string, KnowledgeStatement>;
     setFilters: React.Dispatch<React.SetStateAction<Filters>>;
+    setSummaryFilters: React.Dispatch<React.SetStateAction<SummaryFilters>>;
     selectedConnectionSummary: ConnectionSummary;
     setConnectionSummary: React.Dispatch<React.SetStateAction<ConnectionSummary>>;
 }
@@ -56,6 +57,8 @@ export const DataContext = createContext<DataContext>({
     hierarchicalNodes: {},
     knowledgeStatements: {},
     setFilters: () => {
+    },
+    setSummaryFilters: () => {
     },
     selectedConnectionSummary: {
         connections: {},
