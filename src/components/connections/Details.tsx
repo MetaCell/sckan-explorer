@@ -11,6 +11,8 @@ import PopulationDisplay from "./PopulationDisplay.tsx";
 import CommonAccordion from "../common/Accordion.tsx";
 import CommonChip from "../common/CommonChip.tsx";
 import { ArrowOutward, HelpCircle } from "../icons";
+import { ksMapType } from '../common/Types.ts';
+import { KnowledgeStatement } from '../../models/explorer.ts';
 
 const { gray500, gray700, gray800} = vars;
 
@@ -35,30 +37,50 @@ const RowStack = ({ label, value, Icon }: {label: string, value: string, Icon?: 
   </Stack>
 );
 
-const Details = () => {
-  const detailsObject = {
-    knowledge_statement: 'Fifth thoracic dorsal root ganglion to Heart right ventricle via White matter of spinal cord',
-    type: 'Sympathetic',
-    connectionDetails: [
-      {
-        label: 'Status',
-        value: 'Inferred',
-        icon: HelpCircle
-      },
-      {
-        label: 'Species',
-        value: 'Mammal',
-      },
-      {
-        label: 'Label',
-        value: 'Neuron type aacar 13',
-      },
-      {
-        label: 'Provenances',
-        value: ['www.microsoft.com', 'google.com'],
-      },
-    ]
-  }
+const Details = ({
+  uniqueKS,
+  connectionCount
+}: {
+  uniqueKS: ksMapType,
+  connectionCount: number
+}) => {
+  const connectionDetails = uniqueKS !== undefined ?
+    uniqueKS[Object.keys(uniqueKS)[connectionCount - 1]]?.ks
+    : {} as KnowledgeStatement;
+  const phenotype = connectionDetails?.phenotype || ''
+  const detailsObject = [
+    {
+      label: 'Laterality',
+      value: connectionDetails?.laterality || '-',
+      icon: undefined
+    },
+    {
+      label: 'Projection',
+      value: connectionDetails?.projection || '-',
+      icon: undefined
+    },
+    {
+      label: 'Circuit Type',
+      value: connectionDetails?.circuit_type || '-',
+      icon: undefined
+    },
+    {
+      label: 'Provenances',
+      value: connectionDetails?.provenances || [],
+      icon: undefined
+    }, 
+    {
+      label: 'PhenoType',
+      value: connectionDetails?.phenotype || '-',
+      icon: undefined
+    },
+    {
+      label: 'Sex',
+      value: connectionDetails?.sex.name || '-',
+      icon: undefined
+    }
+  ]
+
   return (
     <Stack spacing='1.5rem'>
       <Box pl='1.5rem' pr='1.5rem'>
@@ -80,16 +102,16 @@ const Details = () => {
             Knowledge statement
           </Typography>
           <Typography variant='body1' color={gray500}>
-            {detailsObject.knowledge_statement}
+            {connectionDetails?.statement_preview || connectionDetails?.knowledge_statement || '-'}
           </Typography>
-          <CommonChip label={detailsObject.type} variant="outlined" />
+          {phenotype && <CommonChip label={phenotype} variant="outlined" />}
           <CommonAccordion
             summary="Connection Details"
             details={
               <>
                 <Stack spacing={1}>
                   {
-                    detailsObject.connectionDetails.map((row) =>
+                    detailsObject.map((row) =>
                       !Array.isArray(row.value) ?
                         <RowStack label={row.label} value={row.value} Icon={row.icon} /> :
                         <Stack
@@ -101,11 +123,12 @@ const Details = () => {
                           <Stack
                             direction="row"
                             alignItems="center"
+                            flexWrap={'wrap'}
                             spacing={'.5rem'}
                           >
                             {
-                              row.value.map((row) =>
-                                <CommonChip label={row} variant="outlined" className='link' icon={<ArrowOutwardRoundedIcon fontSize='small' />} />
+                              row.value.map((row, index) =>
+                                <CommonChip key={index} label={row} variant="outlined" className='link' icon={<ArrowOutwardRoundedIcon fontSize='small' />} />
                               )
                             }
                           </Stack>
@@ -120,7 +143,9 @@ const Details = () => {
       </Box>
    
       <Divider />
-      <PopulationDisplay />
+      <PopulationDisplay
+        connectionDetails={connectionDetails}
+      />
     </Stack>
   );
 };

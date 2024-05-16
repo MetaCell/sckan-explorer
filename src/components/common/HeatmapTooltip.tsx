@@ -40,7 +40,7 @@ const HeatmapTooltip: FC<HeatmapTooltipProps> = ({value, x, y, secondary, getCel
               <Box sx={{
                 width: '1.4794rem', 
                 height: '1rem', 
-                background: getCellBgColor(value)       
+                background: getCellBgColor(value)
               }} 
               />
               <Typography sx={commonTextStyles}>

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useStore} from 'react-redux';
-import {Box, CircularProgress} from "@mui/material";
+import { Box } from "@mui/material";
 import {getLayoutManagerInstance} from "@metacell/geppetto-meta-client/common/layout/LayoutManager";
 import {addWidget} from '@metacell/geppetto-meta-client/common/layout/actions';
 import {connectionsWidget, connectivityGridWidget} from "./layout-manager/widgets.ts";
