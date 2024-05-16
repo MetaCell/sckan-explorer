@@ -1,26 +1,20 @@
-import {Box, Button, CircularProgress, Typography} from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import React, {useEffect, useMemo, useState} from "react";
 import {vars} from "../theme/variables";
 import HeatmapGrid from "./common/Heatmap";
-import {useDataContext} from "../context/DataContext.ts";
+import { SummaryFilters, useDataContext } from "../context/DataContext.ts";
 import {
     calculateConnections, getMinMaxConnections, getHierarchyFromId,
     getXAxisOrgans, getYAxis, getHeatmapData,
     getKnowledgeStatementAndCount
 } from "../services/heatmapService.ts";
 import FiltersDropdowns from "./FiltersDropdowns.tsx";
-import { DetailedHeatmapData } from "./common/Types.ts";
+import { DetailedHeatmapData, HierarchicalItem } from "./common/Types.ts";
 import { Organ } from "../models/explorer.ts";
+import Loader from "./common/Loader.tsx";
 
-export interface HierarchicalItem {
-    id: string;
-    label: string;
-    children: HierarchicalItem[];
-    expanded: boolean;
-}
 
 const {gray500, white: white, gray25, gray100, primaryPurple600, gray400} = vars;
-
 
 
 function ConnectivityGrid() {
@@ -69,8 +63,7 @@ function ConnectivityGrid() {
     const handleClick = (x: number, y: number, yId: string): void => {
         setSelectedCell({ x, y });
         const row = connectionsMap.get(yId);
-        if(row){
-            console.log(row[x])
+        if (row) {
             const endOrgan = xAxisOrgans[x];
             const origin = detailedHeatmapData[y];
             const hierarchy = getHierarchyFromId(origin.id, hierarchicalNodes);
@@ -87,7 +80,7 @@ function ConnectivityGrid() {
 
     const isLoading = yAxis.length == 0
 
-    return (isLoading ? <CircularProgress/> : (
+    return (isLoading ? <Loader /> : (
         <Box minHeight='100%' p={3} pb={0} fontSize={14} display='flex' flexDirection='column'>
             <Box pb={2.5}>
                 <Typography variant="h6" sx={{fontWeight: 400}}>Connection Origin to End Organ</Typography>
@@ -98,7 +91,7 @@ function ConnectivityGrid() {
             <HeatmapGrid
                 yAxis={yAxis}
                 setYAxis={setYAxis}
-                heatmapData={heatmapData}
+                heatmapData={heatmapData || []}
                 xAxis={xAxis}
                 xAxisLabel={'End organ'} yAxisLabel={'Connection Origin'}
                 onCellClick={handleClick}

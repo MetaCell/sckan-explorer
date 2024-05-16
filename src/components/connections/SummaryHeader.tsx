@@ -1,34 +1,43 @@
-import { useState } from 'react';
 import { Box, Button, ButtonGroup, Divider, Typography, Stack, Link } from "@mui/material";
 import { vars } from "../../theme/variables";
 import IconButton from "@mui/material/IconButton";
 import { ArrowDown, ArrowRight, ArrowUp, HelpCircle } from "../icons";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
+import { SummaryType, ksMapType } from '../common/Types';
 
 const { gray100, primaryPurple600, gray600A, gray500 } = vars;
 
 const SummaryHeader = ({
    showDetails,
    setShowDetails,
-   numOfConnections,
-   connection
-  }: {
-  showDetails: boolean,
-  setShowDetails: (showDetails: boolean) => void,
-  numOfConnections: number,
-  connection: string
+  uniqueKS,
+  connectionCount,
+  setConnectionCount,
+  totalConnectionCount
+}: {
+    showDetails: SummaryType,
+    setShowDetails: (showDetails: SummaryType) => void,
+    uniqueKS: ksMapType,
+    connectionCount: number,
+    setConnectionCount: (connectionCount: number) => void,
+    totalConnectionCount: number
 }) => {
-  const [connectionCount, setConnectionCount] = useState(1);
-  
+  const totalUniqueKS = Object.keys(uniqueKS).length;
+
+  function getConnectionId() {
+    return Object.keys(uniqueKS)[connectionCount - 1] || ''
+  }
+  const connectionId = getConnectionId()
+
   const handleUpClick = () => {
-    if (connectionCount < numOfConnections) {
-      setConnectionCount(prevCount => prevCount + 1);
+    if (connectionCount < totalUniqueKS) {
+      setConnectionCount(connectionCount + 1);
     }
   };
   
   const handleDownClick = () => {
     if (connectionCount > 1) {
-      setConnectionCount(prevCount => prevCount - 1);
+      setConnectionCount(connectionCount - 1);
     }
   };
   
@@ -53,18 +62,21 @@ const SummaryHeader = ({
         alignItems='center'
         spacing='1rem'
       >
-        {showDetails && <ButtonGroup variant="outlined" sx={{
+        {showDetails === 'detailedSummary' && <ButtonGroup variant="outlined" sx={{
           '& .MuiButtonBase-root': {
             width: '2rem',
             height: '2rem'
           }
         }}>
-            <IconButton onClick={handleUpClick}>
-                <ArrowUp />
-            </IconButton>
-            <IconButton sx={{ marginLeft: '.25rem' }} onClick={handleDownClick}>
-                <ArrowDown />
-            </IconButton>
+          <IconButton
+            onClick={handleUpClick}>
+            <ArrowUp />
+          </IconButton>
+          <IconButton sx={{
+            marginLeft: '.25rem',
+          }} onClick={handleDownClick}>
+            <ArrowDown />
+          </IconButton>
         </ButtonGroup>
         }
         
@@ -72,18 +84,20 @@ const SummaryHeader = ({
           separator={<ArrowRight />}
           aria-label="breadcrumb"
         >
-          {showDetails ?
-            <Link underline="hover" onClick={() => setShowDetails(false)}>
+          {showDetails === 'detailedSummary' ? (
+            <Link underline="hover" onClick={() => setShowDetails('summary')}>
               Summary
-            </Link> :
+            </Link>
+          ) : showDetails === 'summary' ? (
             <Typography>
               Summary
             </Typography>
+            ) : <></>
           }
           {
-            showDetails &&
+            showDetails === 'detailedSummary' &&
               <Typography>
-                {connection}
+                {connectionId}
               </Typography>
           }
         </Breadcrumbs>
@@ -95,43 +109,38 @@ const SummaryHeader = ({
         gap: '0.75rem'
       }}>
         {
-          showDetails ?
+          showDetails === 'detailedSummary' ? (
             <>
               <Typography variant='subtitle1' color={gray500}>
-                Displaying connection {connectionCount} of {numOfConnections}
+                Displaying connection {connectionCount} of {totalUniqueKS}
               </Typography>
               <HelpCircle />
-            </> :
-            <>
-          <Typography sx={{
-              fontSize: '0.875rem',
-              fontWeight: 500,
-              lineHeight: '1.25rem',
-              color: primaryPurple600
-          }}>Summary</Typography>
-
-          <Box sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem'
-          }}>
-              <Typography sx={{
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                lineHeight: '1.25rem',
-                color: gray600A
-                
-              }}>{numOfConnections} connections</Typography>
-              
-              <Divider sx={{
-                height: '2.25rem',
-                width: '0.0625rem',
-                background: gray100
-              }} />
-              
-              <Button variant="contained">Download results (.csv)</Button>
-              </Box>
             </>
+          ) : showDetails === 'summary' ? (
+            <>
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem'
+                }}>
+                  <Typography sx={{
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    lineHeight: '1.25rem',
+                    color: gray600A
+
+                  }}>{totalConnectionCount} connections</Typography>
+
+                  <Divider sx={{
+                    height: '2.25rem',
+                    width: '0.0625rem',
+                    background: gray100
+                  }} />
+
+                  <Button variant="contained">Download results (.csv)</Button>
+                </Box>
+              </>
+            ) : <></>
         }
       </Box>
     </Stack>
