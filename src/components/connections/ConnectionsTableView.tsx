@@ -8,23 +8,16 @@ import Paper from '@mui/material/Paper';
 import {vars} from "../../theme/variables.ts";
 
 const { gray50, gray25} = vars
-function createData(
-  Origin: string,
-  Destination: string,
-  Via: string,
-) {
-  return { Origin, Destination, Via };
+
+export interface Row {
+  Origin: string;
+  Destination: string;
+  Via: string;
 }
 
-const rows = [
-  createData('Third thoracic dorsal root ganglion', 'Heart right ventricle', 'White matter of spinal cord'),
-  createData('Third thoracic dorsal root ganglion', 'Heart right ventricle', 'White matter of spinal cord'),
-  createData('Third thoracic dorsal root ganglion', 'Heart right ventricle', 'White matter of spinal cord'),
-  createData('Third thoracic dorsal root ganglion', 'Heart right ventricle', 'White matter of spinal cord'),
-  createData('Third thoracic dorsal root ganglion', 'Heart right ventricle', 'White matter of spinal cord'),
-];
-
-export default function ConnectionsTableView() {
+export default function ConnectionsTableView(
+  { tableData }: { tableData: Row[] }
+) {
   return (
     <TableContainer component={Paper}>
       <Table aria-label="customized table">
@@ -44,7 +37,7 @@ export default function ConnectionsTableView() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
+          {tableData.map((row) => (
             <TableRow key={row.Origin} sx={{
               '&:nth-of-type(even)': {
                 backgroundColor: gray25,

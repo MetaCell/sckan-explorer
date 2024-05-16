@@ -10,14 +10,16 @@ import {CanvasWidget} from '@projectstorm/react-canvas-core';
 import {CustomNodeModel} from "./models/CustomNodeModel";
 import {CustomNodeFactory} from "./factories/CustomNodeFactory";
 import {
-    AnatomicalEntity,
-    DestinationSerializerDetails,
-    ForwardConnection,
     NodeTypes,
     TypeB60Enum,
     TypeC11Enum,
-    ViaSerializerDetails
 } from "../../models/composer";
+import {
+    AnatomicalEntity,
+    DestinationExplorerSerializerDetails,
+    ViaExplorerSerializerDetails,
+    ForwardConnection,
+} from "../../models/explorer";
 
 
 export interface CustomNodeOptions extends BasePositionModelOptions {
@@ -40,8 +42,8 @@ const DestinationTypeMapping: Record<TypeC11Enum, string> = {
 
 interface GraphDiagramProps {
     origins: AnatomicalEntity[] | undefined;
-    vias: ViaSerializerDetails[] | undefined;
-    destinations: DestinationSerializerDetails[] | undefined;
+    vias: ViaExplorerSerializerDetails[] | undefined;
+    destinations: DestinationExplorerSerializerDetails[] | undefined;
     forward_connection?: ForwardConnection[] | undefined;
 }
 
@@ -75,8 +77,8 @@ const createLink = (sourceNode: CustomNodeModel, targetNode: CustomNodeModel, so
 
 const processData = (
     origins: AnatomicalEntity[] | undefined,
-    vias: ViaSerializerDetails[] | undefined,
-    destinations: DestinationSerializerDetails[] | undefined,
+    vias: ViaExplorerSerializerDetails[] | undefined,
+    destinations: DestinationExplorerSerializerDetails[] | undefined,
     forward_connection: ForwardConnection[],
 ): { nodes: CustomNodeModel[], links: DefaultLinkModel[] } => {
     const nodes: CustomNodeModel[] = [];
@@ -91,8 +93,8 @@ const processData = (
 
     origins?.forEach(origin => {
         const id = getId(NodeTypes.Origin, origin)
-        const name = origin.simple_entity !== null ? origin.simple_entity.name : origin.region_layer?.region.name + '(' + origin.region_layer?.layer.name + ')';
-        const ontology_uri = origin.simple_entity !== null ? origin.simple_entity.ontology_uri : origin.region_layer?.region.ontology_uri + ', ' + origin.region_layer?.layer.ontology_uri;
+        const name = origin.name
+        const ontology_uri = origin.ontology_uri
         const fws: never[] = []
         const originNode = new CustomNodeModel(
             NodeTypes.Origin,
@@ -116,8 +118,8 @@ const processData = (
         let yVia = layerIndex * yIncrement + yStart;
         via.anatomical_entities.forEach(entity => {
             const id = getId(NodeTypes.Via + layerIndex, entity)
-            const name = entity.simple_entity !== null ? entity.simple_entity.name : entity.region_layer?.region.name + '(' + entity.region_layer?.layer.name + ')';
-            const ontology_uri = entity.simple_entity !== null ? entity.simple_entity.ontology_uri : entity.region_layer?.region.ontology_uri + ', ' + entity.region_layer?.layer.ontology_uri;
+            const name = entity.name
+            const ontology_uri = entity.ontology_uri
             const fws: never[] = []
             const viaNode = new CustomNodeModel(
                 NodeTypes.Via,
@@ -160,10 +162,10 @@ const processData = (
     // Process Destinations
     destinations?.forEach(destination => {
         destination.anatomical_entities.forEach(entity => {
-            const name = entity.simple_entity !== null ? entity.simple_entity.name : entity.region_layer?.region.name + '(' + entity.region_layer?.layer.name + ')';
-            const ontology_uri = entity.simple_entity !== null ? entity.simple_entity.ontology_uri : entity.region_layer?.region.ontology_uri + ', ' + entity.region_layer?.layer.ontology_uri;
+            const name = entity.name
+            const ontology_uri = entity.ontology_uri
             const fws = forward_connection.filter(single_fw => {
-                const origins = single_fw.origins.map((origin: { id: number } | number) => typeof origin === 'object' ? origin.id : origin);
+                const origins = single_fw.origins.map((origin: { id: string } | number) => typeof origin === 'object' ? origin.id : origin);
                 return origins.includes(entity.id);
 
             });
