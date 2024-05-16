@@ -12,7 +12,8 @@ export type Option = {
 }
 
 export type ksMapType = Record<string, { ks: KnowledgeStatement, count: number }>;
-export interface ISubConnections { count: number, color: string[] };
+export type ISubConnections = { count: number, color: string[], ksIds: Set<string> };
+export type SummaryType = 'summary' | 'detailedSummary' | 'instruction';
 
 export type DetailedHeatmapData = { label: string, data: Set<string>[], id: string }[];
 
@@ -20,3 +21,14 @@ export interface IHeatmapMatrixInformation {
   heatmapMatrix: number[][];
   detailedHeatmap: DetailedHeatmapData;
 }
+export interface HierarchicalItem {
+  id: string;
+  label: string;
+  children: HierarchicalItem[];
+  expanded: boolean;
+}
+
+export type PhenotypeDetail = {
+  label: string;
+  color: string;
+};
