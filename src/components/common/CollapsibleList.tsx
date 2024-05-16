@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { Box, Button } from "@mui/material";
 import { MinusIcon, PlusIcon } from "../icons";
 import { vars } from "../../theme/variables";
-import {HierarchicalItem} from "../ConnectivityGrid.tsx";
+import { HierarchicalItem } from "./Types";
 const { gray700, gray100, gray50, primaryPurple500, gray25, gray200, primaryPurple700 } = vars;
 
 

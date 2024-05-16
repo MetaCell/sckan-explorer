@@ -1,4 +1,4 @@
-import {AnatomicalEntity} from "../models/composer.ts";
+import { AnatomicalEntity, TypeB60Enum, TypeC11Enum } from "../models/composer.ts";
 import { Sex } from "../models/explorer.ts";
 
 
@@ -62,7 +62,8 @@ export function mapApiResponseToKnowledgeStatements(composerResponse: ComposerRe
             return {
                 ...dest,
                 anatomical_entities: anatomicalEntities,
-                from_entities: fromEntities
+                from_entities: fromEntities,
+                type: dest.type as TypeC11Enum
             }
         }),
         via: ks.vias.flatMap(via => {
@@ -71,7 +72,8 @@ export function mapApiResponseToKnowledgeStatements(composerResponse: ComposerRe
             return {
                 ...via,
                 anatomical_entities: anatomicalEntities,
-                from_entities: fromEntities
+                from_entities: fromEntities,
+                type: via.type as TypeB60Enum
             }
         }),
         forwardConnections: ks.forward_connection.map(fc => fc.reference_uri || ""),
