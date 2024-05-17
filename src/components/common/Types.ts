@@ -1,4 +1,5 @@
 import { KnowledgeStatement } from "../../models/explorer";
+import { Filters } from "../../context/DataContext.ts";
 
 export type OptionDetail = {
   title: string; // What to display as the title/label for the property.
@@ -31,4 +32,5 @@ export interface HierarchicalItem {
 export type PhenotypeDetail = {
   label: string;
   color: string;
+  ksId: string;
 };
