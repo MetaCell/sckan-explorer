@@ -18,7 +18,7 @@ import Details from "./connections/Details.tsx";
 import SummaryInstructions from "./connections/SummaryInstructions.tsx";
 import PhenotypeLegend from "./connections/PhenotypeLegend.tsx";
 import HeatmapGrid from "./common/Heatmap.tsx";
-import { Organ } from "../models/explorer.ts";
+import {BaseEntity, Organ} from "../models/explorer.ts";
 
 const { gray700, gray600A, gray100 } = vars;
 
@@ -122,20 +122,19 @@ function Connections() {
 
   useEffect(() => {
     if (!checkIfConnectionSummaryIsEmpty(selectedConnectionSummary) && phenotypeFilters) {
-      const endorgans = Array.from(selectedConnectionSummary?.endOrgan.children)?.reduce((acc, organ) => {
-        acc[organ.id] = { ...organ, children: new Set(), order: 0 };  // FIXME: order 0???
-        return acc;
+      const destinations = Array.from(selectedConnectionSummary?.endOrgan.children.values()).reduce((acc, organ, index) => {
+          acc[organ.id] = { ...organ, children: new Map<string, BaseEntity>(), order: index };
+          return acc;
       }, {} as Record<string, Organ>);
 
-      const connections = calculateSecondaryConnections(hierarchicalNodes, endorgans, knowledgeStatements, summaryFilters, phenotypeFilters);
+      const connections = calculateSecondaryConnections(hierarchicalNodes, destinations, knowledgeStatements, summaryFilters, phenotypeFilters);
       setConnectionsMap(connections);
     }
   }, [hierarchicalNodes, selectedConnectionSummary, summaryFilters, knowledgeStatements, phenotypeFilters]);
 
   function getXAxisForHeatmap() {
     if (selectedConnectionSummary.endOrgan?.children) {
-      const uniqueEndOrgans = new Set(Array.from(selectedConnectionSummary.endOrgan.children).map((endOrgan) => endOrgan.name));
-      return Array.from(uniqueEndOrgans);
+      return Array.from(selectedConnectionSummary.endOrgan.children.values()).map((endOrgan) => endOrgan.name);
     }
     return []
   }
@@ -183,7 +182,7 @@ function Connections() {
             />
           )
         }
-          
+
         {showConnectionDetails === 'detailedSummary' ? (
             <>
             <Details
@@ -209,12 +208,12 @@ function Connections() {
                       <TextField value={selectedConnectionSummary?.endOrgan?.name} fullWidth />
                   </Box>
                 </Box>
-                
+
                 <Box>
                   <Typography sx={styles.heading}>Amount of connections</Typography>
                     <Chip label={totalConnectionCount + ' connections'} variant="outlined" color="primary" />
                 </Box>
-                
+
                 <Box>
                   <Typography sx={styles.heading}>Connections are through these nerves</Typography>
                     <Typography sx={styles.text}>{viasStatement}</Typography>
@@ -266,8 +265,8 @@ function Connections() {
             </>
             )
         }
-         
-          
+
+
         </Box>
     )
 }
