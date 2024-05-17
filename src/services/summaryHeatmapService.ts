@@ -3,6 +3,7 @@ import { HierarchicalItem, ISubConnections, ksMapType } from "../components/comm
 import { ConnectionSummary, SummaryFilters } from "../context/DataContext.ts";
 import { HierarchicalNode, KnowledgeStatement, Organ } from "../models/explorer.ts";
 import { PhenotypeDetail } from "../components/common/Types.ts";
+import { OTHER_LABEL } from "../constants.tsx";
 
 
 export const checkIfConnectionSummaryIsEmpty = (connectionSummary: ConnectionSummary): boolean => {
@@ -58,7 +59,7 @@ export function getAllPhenotypes(connections: ksMapType): string[] {
 		if (connection.ks?.phenotype) {
 			phenotypeNames.add(connection.ks.phenotype);
 		} else {
-			phenotypeNames.add('other');
+			phenotypeNames.add(OTHER_LABEL);
 		}
 	});
 	return Array.from(phenotypeNames)
@@ -129,8 +130,14 @@ export function getSecondaryHeatmapData(yAxis: HierarchicalItem[], connections: 
 export function summaryFilterKnowledgeStatements(knowledgeStatements: Record<string, KnowledgeStatement>, summaryFilters: SummaryFilters): Record<string, KnowledgeStatement> {
 	const phenotypeIds = summaryFilters.Phenotype.map(option => option.id);
 	const nerveIds = summaryFilters.Nerve.map(option => option.id);
-	console.log(phenotypeIds, nerveIds);
-	return knowledgeStatements;
+	return Object.entries(knowledgeStatements).reduce((filtered, [id, ks]) => {
+		const phenotypeMatch = !phenotypeIds.length || phenotypeIds.includes(ks.phenotype);
+		const nerveMatch = !nerveIds.length || ks.via?.some(via => via.anatomical_entities.map(entity => entity.id).some(id => nerveIds.includes(id)));
+		if (phenotypeMatch && nerveMatch) {
+			filtered[id] = ks;
+		}
+		return filtered;
+	}, {} as Record<string, KnowledgeStatement>);
 }
 
 export function calculateSecondaryConnections(
@@ -187,7 +194,7 @@ export function calculateSecondaryConnections(
 							const ksPhenotypes = knowledgeStatementIds.map(ksId => knowledgeStatements[ksId].phenotype).filter(phenotype => phenotype !== '');
 							const phenotypeColorsSet = new Set<string>();
 
-							const unknownFilter = phenotypes.find(p => p.label === 'other');
+							const unknownFilter = phenotypes.find(p => p.label === OTHER_LABEL);
 							ksPhenotypes.length === 0 ? phenotypeColorsSet.add(unknownFilter?.color || '') :
 								ksPhenotypes.map(phenotype => {
 									const phn = phenotypes.find(p => p.label === phenotype);
@@ -220,5 +227,6 @@ export const getNormalizedValueForMinMax = (value: number, min: number, max: num
 	// keep the min 0 always... 
 	// Ex. for situations where min is 4... the value 4 will not be shown...
 	min = 0;
+	if (max === 0) return 0;
 	return max !== min ? (value - min) / (max - min) : 1;
 }
