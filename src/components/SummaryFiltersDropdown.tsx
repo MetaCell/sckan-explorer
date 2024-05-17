@@ -29,7 +29,7 @@ const SummaryFiltersDropdown = ({ nerves, phenotypes }: {
 	nerves: { [key: string]: string },
 	phenotypes: PhenotypeDetail[]
 }) => {
-	const { summaryFilters, setSummaryFilters, knowledgeStatements, organs } = useDataContext();
+	const { summaryFilters, setSummaryFilters } = useDataContext();
 
 	const convertNervesToOptions = (nerves: { [key: string]: string }): Option[] => {
 		return Object.keys(nerves).map(nerve => ({
