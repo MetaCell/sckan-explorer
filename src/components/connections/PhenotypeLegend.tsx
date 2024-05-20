@@ -34,27 +34,27 @@ const PhenotypeLegend = (
 					alignItems: 'center',
 					gap: '1.5rem'
 				}}>
-					{phenotypes?.map((type: PhenotypeDetail) => (
+					{phenotypes?.map((phenotype: PhenotypeDetail) => (
 						<Box sx={{
 							p: '0.1875rem 0.25rem',
 							display: 'flex',
 							alignItems: 'center',
 							gap: '0.375rem'
 						}}
-							key={type.label}
+							key={phenotype.label}
 						>
 							<Box sx={{
 								width: '1.4794rem',
 								height: '1rem',
 								borderRadius: '0.125rem',
-								background: `${type.color}`
+								background: `${phenotype.color}`
 							}} />
 							<Typography sx={{
 								fontSize: '0.75rem',
 								fontWeight: 400,
 								lineHeight: '1.125rem',
 								color: '#4A4C4F'
-							}}>{type.label}</Typography>
+							}}>{phenotype.label}</Typography>
 						</Box>
 					))}
 				</Box>

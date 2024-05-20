@@ -16,7 +16,7 @@ export interface BaseEntity {
 }
 
 export interface Organ extends BaseEntity {
-    children: Set<BaseEntity>;
+    children: Map<string, BaseEntity>;
 
     order: number;
 }

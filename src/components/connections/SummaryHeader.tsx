@@ -3,7 +3,7 @@ import { vars } from "../../theme/variables";
 import IconButton from "@mui/material/IconButton";
 import { ArrowDown, ArrowRight, ArrowUp, HelpCircle } from "../icons";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
-import { SummaryType, ksMapType } from '../common/Types';
+import { SummaryType, KsMapType } from '../common/Types';
 
 const { gray100, gray600A, gray500 } = vars;
 
@@ -11,33 +11,33 @@ const SummaryHeader = ({
    showDetails,
    setShowDetails,
   uniqueKS,
-  connectionCount,
-  setConnectionCount,
+  connectionPage,
+  setConnectionPage,
   totalConnectionCount
 }: {
     showDetails: SummaryType,
     setShowDetails: (showDetails: SummaryType) => void,
-    uniqueKS: ksMapType,
-    connectionCount: number,
-    setConnectionCount: (connectionCount: number) => void,
+    uniqueKS: KsMapType,
+    connectionPage: number,
+    setConnectionPage: (connectionPage: number) => void,
     totalConnectionCount: number
 }) => {
   const totalUniqueKS = Object.keys(uniqueKS).length;
 
   function getConnectionId() {
-    return Object.keys(uniqueKS)[connectionCount - 1] || ''
+    return Object.keys(uniqueKS)[connectionPage - 1] || ''
   }
   const connectionId = getConnectionId()
 
   const handleUpClick = () => {
-    if (connectionCount < totalUniqueKS) {
-      setConnectionCount(connectionCount + 1);
+    if (connectionPage < totalUniqueKS) {
+      setConnectionPage(connectionPage + 1);
     }
   };
   
   const handleDownClick = () => {
-    if (connectionCount > 1) {
-      setConnectionCount(connectionCount - 1);
+    if (connectionPage > 1) {
+      setConnectionPage(connectionPage - 1);
     }
   };
   
@@ -62,7 +62,7 @@ const SummaryHeader = ({
         alignItems='center'
         spacing='1rem'
       >
-        {showDetails === 'detailedSummary' && <ButtonGroup variant="outlined" sx={{
+        {showDetails === SummaryType.DetailedSummary && <ButtonGroup variant="outlined" sx={{
           '& .MuiButtonBase-root': {
             width: '2rem',
             height: '2rem'
@@ -84,18 +84,18 @@ const SummaryHeader = ({
           separator={<ArrowRight />}
           aria-label="breadcrumb"
         >
-          {showDetails === 'detailedSummary' ? (
-            <Link underline="hover" onClick={() => setShowDetails('summary')}>
+          {showDetails === SummaryType.DetailedSummary ? (
+            <Link underline="hover" onClick={() => setShowDetails(SummaryType.Summary)}>
               Summary
             </Link>
-          ) : showDetails === 'summary' ? (
+          ) : showDetails === SummaryType.Summary ? (
             <Typography>
               Summary
             </Typography>
             ) : <></>
           }
           {
-            showDetails === 'detailedSummary' &&
+            showDetails === SummaryType.DetailedSummary &&
               <Typography>
                 {connectionId}
               </Typography>
@@ -109,14 +109,14 @@ const SummaryHeader = ({
         gap: '0.75rem'
       }}>
         {
-          showDetails === 'detailedSummary' ? (
+          showDetails === SummaryType.DetailedSummary ? (
             <>
               <Typography variant='subtitle1' color={gray500}>
-                Displaying connection {connectionCount} of {totalUniqueKS}
+                Displaying connection {connectionPage} of {totalUniqueKS}
               </Typography>
               <HelpCircle />
             </>
-          ) : showDetails === 'summary' ? (
+          ) : showDetails === SummaryType.Summary ? (
             <>
                 <Box sx={{
                   display: 'flex',

@@ -157,7 +157,7 @@ export const getOrgans = (jsonData: JsonData): Record<string, Organ> => {
     organsRecord[OTHER_X_AXIS_ID] = {
         id: OTHER_X_AXIS_ID,
         name: OTHER_X_AXIS_LABEL,
-        children: new Set<BaseEntity>(),
+        children: new Map<string, BaseEntity>(),
         order: 0
     };
 
@@ -172,17 +172,23 @@ export const getOrgans = (jsonData: JsonData): Record<string, Organ> => {
                 organsRecord[organId] = {
                     id: organId,
                     name: organName,
-                    children: new Set<BaseEntity>(),
+                    children: new Map<string, BaseEntity>(),
                     order: ++creationOrder
                 };
             }
 
             if (childId && childName) {
-                organsRecord[organId].children.add({id: childId, name: childName});
+                const organ = organsRecord[organId];
+                if (!organ.children.has(childId)) {
+                    organ.children.set(childId, {id: childId, name: childName});
+                }
             }
         } else {
             if (childId && childName) {
-                organsRecord[OTHER_X_AXIS_ID].children.add({id: childId, name: childName});
+                const otherOrgan = organsRecord[OTHER_X_AXIS_ID];
+                if (!otherOrgan.children.has(childId)) {
+                    otherOrgan.children.set(childId, {id: childId, name: childName});
+                }
             }
         }
     });

@@ -4,8 +4,9 @@ import { vars } from "../../theme/variables";
 import CollapsibleList from "./CollapsibleList";
 import HeatMap from "react-heatmap-grid";
 import HeatmapTooltip from "./HeatmapTooltip";
-import { HierarchicalItem, ISubConnections } from "./Types.ts";
+import { HierarchicalItem, SubConnections } from "./Types.ts";
 import { getNormalizedValueForMinMax } from "../../services/summaryHeatmapService.ts";
+import { getPhenotypeColors } from "../../services/heatmapService.ts";
 
 
 const { gray50, primaryPurple500, gray100A, gray500 } = vars;
@@ -36,10 +37,10 @@ interface HeatmapGridProps {
     yAxisLabel?: string;
     selectedCell?: { x: number, y: number } | null;
     heatmapData?: number[][];
-    secondaryHeatmapData?: ISubConnections[][];
+    secondaryHeatmapData?: SubConnections[][];
 }
 
-const prepareSecondaryHeatmapData = (data?: ISubConnections[][]): number[][] => {
+const prepareSecondaryHeatmapData = (data?: SubConnections[][]): number[][] => {
     if (!data) return [];
     // Counts the size of the secondary heatmap cell
     return data.map(row => row.map(cell => cell.ksIds.size));
@@ -81,16 +82,8 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         _y: number
     ) => {
         if (secondary && secondaryHeatmapData && secondaryHeatmapData[_y] && secondaryHeatmapData[_y][_x]) {
-            const phenotypeColors = secondaryHeatmapData[_y][_x]?.color;
-
-            const phenotypeColorsWithPercentage = phenotypeColors.map((color, index) => {
-                return `${color} ${100 / phenotypeColors.length * index}%, ${color} ${100 / phenotypeColors.length * (index + 1)}%`
-            })
-            let phenotypeColor = phenotypeColors.length > 1 ? `linear-gradient(to right, ${phenotypeColorsWithPercentage.join(',')}` :
-                phenotypeColors.length === 1 ? phenotypeColors[0] : '';
-            phenotypeColor = phenotypeColor?.replace(/rgba\(([^,]+),([^,]+),([^,]+),([^)]+)\)/g, `rgba($1,$2,$3,${normalizedValue})`).replace(
-                /rgb\(([^,]+),([^,]+),([^,]+)\)/g, `rgba($1,$2,$3,${normalizedValue})`
-            );
+            const phenotypeColors = secondaryHeatmapData[_y][_x]?.colors;
+            const phenotypeColor = getPhenotypeColors(normalizedValue, phenotypeColors);
 
             return phenotypeColor ? phenotypeColor : `rgba(131, 0, 191, ${normalizedValue})`;
         }

@@ -11,7 +11,7 @@ import PopulationDisplay from "./PopulationDisplay.tsx";
 import CommonAccordion from "../common/Accordion.tsx";
 import CommonChip from "../common/CommonChip.tsx";
 import { ArrowOutward } from "../icons";
-import { ksMapType } from '../common/Types.ts';
+import { KsMapType } from '../common/Types.ts';
 import { KnowledgeStatement } from '../../models/explorer.ts';
 
 const { gray500, gray700, gray800} = vars;
@@ -39,13 +39,13 @@ const RowStack = ({ label, value, Icon }: {label: string, value: string, Icon?: 
 
 const Details = ({
   uniqueKS,
-  connectionCount
+  connectionPage
 }: {
-  uniqueKS: ksMapType,
-  connectionCount: number
+    uniqueKS: KsMapType,
+    connectionPage: number
 }) => {
   const connectionDetails = uniqueKS !== undefined ?
-    uniqueKS[Object.keys(uniqueKS)[connectionCount - 1]]?.ks
+    uniqueKS[Object.keys(uniqueKS)[connectionPage - 1]]?.ks
     : {} as KnowledgeStatement;
   const phenotype = connectionDetails?.phenotype || ''
   const detailsObject = [

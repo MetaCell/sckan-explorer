@@ -1,6 +1,6 @@
 import { HierarchicalNode, KnowledgeStatement, Organ } from "../models/explorer.ts";
 import {ROOTS} from "./hierarchyService.ts";
-import { HierarchicalItem, IHeatmapMatrixInformation, Option, ksMapType } from "../components/common/Types.ts";
+import { HierarchicalItem, IHeatmapMatrixInformation, Option, KsMapType } from "../components/common/Types.ts";
 import {Filters} from "../context/DataContext.ts";
 
 export function getYAxis(hierarchicalNodes: Record<string, HierarchicalNode>): HierarchicalItem[] {
@@ -185,7 +185,7 @@ export function filterKnowledgeStatements(knowledgeStatements: Record<string, Kn
         const phenotypeMatch = !phenotypeIds.length || phenotypeIds.includes(ks.phenotype);
         const apiNATOMYMatch = !apiNATOMYIds.length || apiNATOMYIds.includes(ks.apinatomy);
         const speciesMatch = !speciesIds.length || ks.species.some(species => speciesIds.includes(species.id));
-        const viaMatch = !viaIds.length || ks.via.some(via => viaIds.includes(via.id.toString()));
+        const viaMatch = !viaIds.length || ks.via.flatMap(v => v.anatomical_entities).some(v => viaIds.includes(v.id));
         const originMatch = !originIds.length || ks.origins.some(origin => originIds.includes(origin.id));
 
         if (phenotypeMatch && apiNATOMYMatch && speciesMatch && viaMatch && originMatch) {
@@ -197,12 +197,12 @@ export function filterKnowledgeStatements(knowledgeStatements: Record<string, Kn
 
 
 export function getHierarchyFromId(id: string, hierarchicalNodes: Record<string, HierarchicalNode>): HierarchicalNode {
-    return Object.values(hierarchicalNodes).find(node => node.id === id) as HierarchicalNode;
+    return hierarchicalNodes[id];
 }
 
 
-export function getKnowledgeStatementAndCount(ksIds: Set<string>, knowledgeStatements: Record<string, KnowledgeStatement>): ksMapType {
-    const ksMap: ksMapType = {};
+export function getKnowledgeStatementAndCount(ksIds: Set<string>, knowledgeStatements: Record<string, KnowledgeStatement>): KsMapType {
+    const ksMap: KsMapType = {};
     ksIds.forEach((id: string) => {
         const ks = knowledgeStatements[id];
         if (ks) {
@@ -214,3 +214,21 @@ export function getKnowledgeStatementAndCount(ksIds: Set<string>, knowledgeState
     });
     return ksMap;
 }
+
+export const getPhenotypeColors = (normalizedValue: number, phenotypeColors: string[]): string => {
+    // convert each to percentage values = for linear gradient
+    // example: rgba(131, 0, 191, 0.5) 0%, rgba(131, 0, 191, 0.5) 50%, rgba(131, 0, 191, 0.5) 100%
+    const phenotypeColorsWithPercentage = phenotypeColors.map((color, index) => {
+        return `${color} ${100 / phenotypeColors.length * index}%, ${color} ${100 / phenotypeColors.length * (index + 1)}%`
+    });
+
+    // if there are multiple colors, create a linear gradient
+    let phenotypeColor = phenotypeColors.length > 1 ? `linear-gradient(to right, ${phenotypeColorsWithPercentage.join(',')}` :
+        phenotypeColors.length === 1 ? phenotypeColors[0] : '';
+
+    // replace the alpha value of the color with the normalized value
+    phenotypeColor = phenotypeColor?.replace(/rgba\(([^,]+),([^,]+),([^,]+),([^)]+)\)/g, `rgba($1,$2,$3,${normalizedValue})`).replace(
+        /rgb\(([^,]+),([^,]+),([^,]+)\)/g, `rgba($1,$2,$3,${normalizedValue})`
+    );
+    return phenotypeColor ? phenotypeColor : `rgba(131, 0, 191, ${normalizedValue})`;
+};
