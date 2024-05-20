@@ -4,7 +4,7 @@ import { vars } from "../../theme/variables";
 import CollapsibleList from "./CollapsibleList";
 import HeatMap from "react-heatmap-grid";
 import HeatmapTooltip from "./HeatmapTooltip";
-import { HierarchicalItem, ISubConnections } from "./Types.ts";
+import { HierarchicalItem, SubConnections } from "./Types.ts";
 import { getNormalizedValueForMinMax } from "../../services/summaryHeatmapService.ts";
 import { getPhenotypeColors } from "../../services/heatmapService.ts";
 
@@ -37,10 +37,10 @@ interface HeatmapGridProps {
     yAxisLabel?: string;
     selectedCell?: { x: number, y: number } | null;
     heatmapData?: number[][];
-    secondaryHeatmapData?: ISubConnections[][];
+    secondaryHeatmapData?: SubConnections[][];
 }
 
-const prepareSecondaryHeatmapData = (data?: ISubConnections[][]): number[][] => {
+const prepareSecondaryHeatmapData = (data?: SubConnections[][]): number[][] => {
     if (!data) return [];
     // Counts the size of the secondary heatmap cell
     return data.map(row => row.map(cell => cell.ksIds.size));
@@ -82,7 +82,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         _y: number
     ) => {
         if (secondary && secondaryHeatmapData && secondaryHeatmapData[_y] && secondaryHeatmapData[_y][_x]) {
-            const phenotypeColors = secondaryHeatmapData[_y][_x]?.color;
+            const phenotypeColors = secondaryHeatmapData[_y][_x]?.colors;
             const phenotypeColor = getPhenotypeColors(normalizedValue, phenotypeColors);
 
             return phenotypeColor ? phenotypeColor : `rgba(131, 0, 191, ${normalizedValue})`;

@@ -1,5 +1,5 @@
 
-import { HierarchicalItem, ISubConnections, KsMapType } from "../components/common/Types.ts";
+import { HierarchicalItem, SubConnections, KsMapType } from "../components/common/Types.ts";
 import { ConnectionSummary, SummaryFilters } from "../context/DataContext.ts";
 import { HierarchicalNode, KnowledgeStatement, Organ } from "../models/explorer.ts";
 import { PhenotypeDetail } from "../components/common/Types.ts";
@@ -94,8 +94,8 @@ export function getYAxisNode(node: HierarchicalItem, yAxisCon: HierarchicalNode)
 }
 
 
-export function getSecondaryHeatmapData(yAxis: HierarchicalItem[], connections: Map<string, ISubConnections[]>) {
-	const newData: ISubConnections[][] = [];
+export function getSecondaryHeatmapData(yAxis: HierarchicalItem[], connections: Map<string, SubConnections[]>) {
+	const newData: SubConnections[][] = [];
 
 	function addDataForItem(item: HierarchicalItem) {
 		const itemData = connections.get(item.id);
@@ -137,7 +137,7 @@ export function calculateSecondaryConnections(
 	hierarchicalNodes: Record<string, HierarchicalNode>, endorgans: Record<string, Organ>,
 	allKnowledgeStatements: Record<string, KnowledgeStatement>, summaryFilters: SummaryFilters,
 	phenotypes: PhenotypeDetail[]
-): Map<string, ISubConnections[]> {
+): Map<string, SubConnections[]> {
 
 	// Apply filters to organs and knowledge statements
 	const knowledgeStatements = summaryFilterKnowledgeStatements(allKnowledgeStatements, summaryFilters);
@@ -150,22 +150,22 @@ export function calculateSecondaryConnections(
 	}, {});
 
 	// Memoization map to store computed results for nodes
-	const memo = new Map<string, ISubConnections[]>();
+	const memo = new Map<string, SubConnections[]>();
 
 	// Function to compute node connections with memoization
-	function computeNodeConnections(nodeId: string): ISubConnections[] {
+	function computeNodeConnections(nodeId: string): SubConnections[] {
 		if (memo.has(nodeId)) {
 			return memo.get(nodeId)!;
 		}
 
 		const node = hierarchicalNodes[nodeId];
-		const result: ISubConnections[] = Object.values(endorgans).map(() => ({ count: 0, color: [], ksIds: new Set<string>() }));
+		const result: SubConnections[] = Object.values(endorgans).map(() => ({ count: 0, colors: [], ksIds: new Set<string>() }));
 		if (node.children && node.children.size > 0) {
 			node.children.forEach(childId => {
 				const childConnections = computeNodeConnections(childId);
 				childConnections.forEach((child, index) => {
 					result[index].count += child.count;
-					result[index].color = [...new Set([...result[index].color, ...child.color])];
+					result[index].colors = [...new Set([...result[index].colors, ...child.colors])];
 					result[index].ksIds = new Set([...result[index].ksIds, ...child.ksIds]);
 				});
 			});
@@ -181,7 +181,7 @@ export function calculateSecondaryConnections(
 
 						if (knowledgeStatementIds.length === 0) {
 							result[index].count += 0;
-							result[index].color = []
+							result[index].colors = []
 
 						} else {
 							const ksPhenotypes = knowledgeStatementIds.map(ksId => knowledgeStatements[ksId].phenotype).filter(phenotype => phenotype !== '');
@@ -196,7 +196,7 @@ export function calculateSecondaryConnections(
 
 							const phenotypeColors = Array.from(phenotypeColorsSet)
 							result[index].count += knowledgeStatementIds.length;
-							result[index].color = phenotypeColors
+							result[index].colors = phenotypeColors
 							result[index].ksIds = new Set([...result[index].ksIds, ...knowledgeStatementIds]);
 						}
 					}
@@ -208,7 +208,7 @@ export function calculateSecondaryConnections(
 		return result;
 	}
 
-	const connectionsMap = new Map<string, ISubConnections[]>();
+	const connectionsMap = new Map<string, SubConnections[]>();
 	Object.values(hierarchicalNodes).forEach(node => {
 		connectionsMap.set(node.id, computeNodeConnections(node.id));
 	});

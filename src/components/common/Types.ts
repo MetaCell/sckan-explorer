@@ -12,7 +12,7 @@ export type Option = {
 }
 
 export type KsMapType = Record<string, { ks: KnowledgeStatement, count: number }>;
-export type ISubConnections = { count: number, color: string[], ksIds: Set<string> };
+export type SubConnections = { count: number, colors: string[], ksIds: Set<string> };
 export enum SummaryType {
   Summary = 'summary',
   DetailedSummary = 'detailedSummary',

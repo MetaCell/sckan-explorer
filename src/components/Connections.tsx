@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Box, Chip, TextField, Typography } from "@mui/material";
 import { ArrowRightIcon } from "./icons";
 import { vars } from "../theme/variables";
-import { HierarchicalItem, ISubConnections, Option, SummaryType, KsMapType } from "./common/Types";
+import { HierarchicalItem, SubConnections, Option, SummaryType, KsMapType } from "./common/Types";
 import { useDataContext } from "../context/DataContext.ts";
 import {
   calculateSecondaryConnections,
@@ -64,7 +64,7 @@ const phenotype: PhenotypeDetail[] = [
 
 function Connections() {
   const [showConnectionDetails, setShowConnectionDetails] = useState<SummaryType>(SummaryType.Instruction);
-  const [connectionsMap, setConnectionsMap] = useState<Map<string, ISubConnections[]>>(new Map());
+  const [connectionsMap, setConnectionsMap] = useState<Map<string, SubConnections[]>>(new Map());
   const [connectionPage, setConnectionPage] = useState(1);   // represents the page number / index of the connections - if (x,y) has 4 connections, then connectionPage will be 1, 2, 3, 4
   const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
   const [selectedCell, setSelectedCell] = useState<{ x: number, y: number } | null>(null);
