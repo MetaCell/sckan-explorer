@@ -185,7 +185,7 @@ export function filterKnowledgeStatements(knowledgeStatements: Record<string, Kn
         const phenotypeMatch = !phenotypeIds.length || phenotypeIds.includes(ks.phenotype);
         const apiNATOMYMatch = !apiNATOMYIds.length || apiNATOMYIds.includes(ks.apinatomy);
         const speciesMatch = !speciesIds.length || ks.species.some(species => speciesIds.includes(species.id));
-        const viaMatch = !viaIds.length || ks.via.some(via => viaIds.includes(via.id.toString()));
+        const viaMatch = !viaIds.length || ks.via.flatMap(v => v.anatomical_entities).some(v => viaIds.includes(v.id));
         const originMatch = !originIds.length || ks.origins.some(origin => originIds.includes(origin.id));
 
         if (phenotypeMatch && apiNATOMYMatch && speciesMatch && viaMatch && originMatch) {
