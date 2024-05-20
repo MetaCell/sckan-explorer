@@ -6,6 +6,7 @@ import HeatMap from "react-heatmap-grid";
 import HeatmapTooltip from "./HeatmapTooltip";
 import { HierarchicalItem, ISubConnections } from "./Types.ts";
 import { getNormalizedValueForMinMax } from "../../services/summaryHeatmapService.ts";
+import { getPhenotypeColors } from "../../services/heatmapService.ts";
 
 
 const { gray50, primaryPurple500, gray100A, gray500 } = vars;
@@ -82,15 +83,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     ) => {
         if (secondary && secondaryHeatmapData && secondaryHeatmapData[_y] && secondaryHeatmapData[_y][_x]) {
             const phenotypeColors = secondaryHeatmapData[_y][_x]?.color;
-
-            const phenotypeColorsWithPercentage = phenotypeColors.map((color, index) => {
-                return `${color} ${100 / phenotypeColors.length * index}%, ${color} ${100 / phenotypeColors.length * (index + 1)}%`
-            })
-            let phenotypeColor = phenotypeColors.length > 1 ? `linear-gradient(to right, ${phenotypeColorsWithPercentage.join(',')}` :
-                phenotypeColors.length === 1 ? phenotypeColors[0] : '';
-            phenotypeColor = phenotypeColor?.replace(/rgba\(([^,]+),([^,]+),([^,]+),([^)]+)\)/g, `rgba($1,$2,$3,${normalizedValue})`).replace(
-                /rgb\(([^,]+),([^,]+),([^,]+)\)/g, `rgba($1,$2,$3,${normalizedValue})`
-            );
+            const phenotypeColor = getPhenotypeColors(normalizedValue, phenotypeColors);
 
             return phenotypeColor ? phenotypeColor : `rgba(131, 0, 191, ${normalizedValue})`;
         }

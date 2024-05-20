@@ -25,6 +25,7 @@ function ConnectivityGrid() {
     const [connectionsMap, setConnectionsMap] = useState<Map<string, Set<string>[]>>(new Map());
     const [selectedCell, setSelectedCell] = useState<{ x: number, y: number } | null>(null);
     const [detailedHeatmapData, setDetailedHeatmapData] = useState<DetailedHeatmapData>([]);
+    const [heatmapData, setHeatmapData] = useState<number[][]>([]);
 
     // Convert hierarchicalNodes to hierarchicalItems
     useEffect(() => {
@@ -51,12 +52,9 @@ function ConnectivityGrid() {
     }, [hierarchicalNodes]);
 
     useEffect(() => {
-        const detailedHeatmap = getHeatmapData(yAxis, connectionsMap).detailedHeatmap;
-        setDetailedHeatmapData(detailedHeatmap);
-    }, [yAxis, connectionsMap]);
-
-    const heatmapData = useMemo(() => {
-        return getHeatmapData(yAxis, connectionsMap).heatmapMatrix;
+        const heatmapdata = getHeatmapData(yAxis, connectionsMap);
+        setHeatmapData(heatmapdata.heatmapMatrix);
+        setDetailedHeatmapData(heatmapdata.detailedHeatmap);
     }, [yAxis, connectionsMap]);
 
 

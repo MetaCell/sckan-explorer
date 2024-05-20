@@ -11,9 +11,13 @@ export type Option = {
   content: OptionDetail[];
 }
 
-export type ksMapType = Record<string, { ks: KnowledgeStatement, count: number }>;
+export type KsMapType = Record<string, { ks: KnowledgeStatement, count: number }>;
 export type ISubConnections = { count: number, color: string[], ksIds: Set<string> };
-export type SummaryType = 'summary' | 'detailedSummary' | 'instruction';
+export enum SummaryType {
+  Summary = 'summary',
+  DetailedSummary = 'detailedSummary',
+  Instruction = 'instruction'
+}
 
 export type DetailedHeatmapData = { label: string, data: Set<string>[], id: string }[];
 

@@ -1,5 +1,5 @@
 
-import { HierarchicalItem, ISubConnections, ksMapType } from "../components/common/Types.ts";
+import { HierarchicalItem, ISubConnections, KsMapType } from "../components/common/Types.ts";
 import { ConnectionSummary, SummaryFilters } from "../context/DataContext.ts";
 import { HierarchicalNode, KnowledgeStatement, Organ } from "../models/explorer.ts";
 import { PhenotypeDetail } from "../components/common/Types.ts";
@@ -39,7 +39,7 @@ export function convertViaToString(via: string[]): string {
 	return via[0];
 }
 
-export function getAllViasFromConnections(connections: ksMapType): { [key: string]: string } {
+export function getAllViasFromConnections(connections: KsMapType): { [key: string]: string } {
 	const vias: { [key: string]: string } = {};
 	Object.values(connections).forEach(connection => {
 		if (connection.ks.via && connection.ks.via.length > 0) {
@@ -52,7 +52,7 @@ export function getAllViasFromConnections(connections: ksMapType): { [key: strin
 	return vias;
 }
 
-export function getAllPhenotypes(connections: ksMapType): string[] {
+export function getAllPhenotypes(connections: KsMapType): string[] {
 	const phenotypeNames: Set<string> = new Set();
 	Object.values(connections).forEach(connection => {
 		if (connection.ks?.phenotype) {

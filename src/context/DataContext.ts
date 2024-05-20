@@ -1,7 +1,7 @@
 import React, {createContext, useContext} from "react";
 import {Organ, HierarchicalNode, KnowledgeStatement} from "../models/explorer";
 import {Option} from "../components/common/Types.ts";
-import { ksMapType } from "../components/common/Types";
+import { KsMapType } from "../components/common/Types";
 
 export interface Filters {
     Origin: Option[];
@@ -20,7 +20,7 @@ export interface SummaryFilters {
 
 
 export interface ConnectionSummary {
-    connections: ksMapType;  // displaying connection 1 of 5
+    connections: KsMapType;  // displaying connection 1 of 5
     origin: string;
     endOrgan: Organ;
     hierarchy: HierarchicalNode;
