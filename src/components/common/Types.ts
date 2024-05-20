@@ -35,4 +35,5 @@ export interface HierarchicalItem {
 export type PhenotypeDetail = {
   label: string;
   color: string;
+  ksId: string;
 };

@@ -8,6 +8,7 @@ export const OTHER_X_AXIS_ID = 'OTHER_X'
 export const OTHER_X_AXIS_LABEL = 'Other'
 
 export const SYNONYMS_TITLE = "synonyms"
+export const OTHER_LABEL = 'other'
 
 export const FIXED_FOUR_PHENOTYPE_COLORS_ARRAY = [
 	'rgba(155, 24, 216, 1)',

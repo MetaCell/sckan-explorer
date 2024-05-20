@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Box, Chip, TextField, Typography } from "@mui/material";
 import { ArrowRightIcon } from "./icons";
 import { vars } from "../theme/variables";
-import { HierarchicalItem, SubConnections, Option, SummaryType, KsMapType } from "./common/Types";
+import { HierarchicalItem, SubConnections, PhenotypeDetail, SummaryType, KsMapType } from "./common/Types";
 import { useDataContext } from "../context/DataContext.ts";
 import {
   calculateSecondaryConnections,
@@ -12,13 +12,13 @@ import {
   getYAxisNode
 } from "../services/summaryHeatmapService.ts";
 import { getYAxis, getKnowledgeStatementAndCount } from "../services/heatmapService.ts";
-import CustomFilterDropdown from "./common/CustomFilterDropdown";
 import SummaryHeader from "./connections/SummaryHeader";
 import Details from "./connections/Details.tsx";
 import SummaryInstructions from "./connections/SummaryInstructions.tsx";
 import PhenotypeLegend from "./connections/PhenotypeLegend.tsx";
 import HeatmapGrid from "./common/Heatmap.tsx";
 import { BaseEntity, Organ } from "../models/explorer.ts";
+import SummaryFiltersDropdown from "./SummaryFiltersDropdown.tsx";
 
 const { gray700, gray600A, gray100 } = vars;
 
@@ -37,29 +37,6 @@ const styles = {
     color: gray600A
   }
 }
-
-type PhenotypeDetail = {
-  label: string;
-  color: string;
-};
-const phenotype: PhenotypeDetail[] = [
-  {
-    label: 'Sympathetic',
-    color: '#9B18D8'
-  },
-  {
-    label: 'Parasympathetic',
-    color: '#2C2CCE'
-  },
-  {
-    label: 'Sensory',
-    color: '#DC6803'
-  },
-  {
-    label: 'Motor',
-    color: '#EAAA08'
-  }
-]
 
 
 function Connections() {
@@ -81,8 +58,7 @@ function Connections() {
   const viasConnection = getAllViasFromConnections(selectedConnectionSummary.connections);
   const viasStatement = convertViaToString(Object.values(viasConnection))
   const totalConnectionCount = Object.keys(selectedConnectionSummary.connections).length;
-  const phenotypes = getAllPhenotypes(selectedConnectionSummary.connections);
-  const [phenotypeFilters, setPhenotypeFilters] = useState<PhenotypeDetail[]>(phenotype);
+  const [phenotypeFilters, setPhenotypeFilters] = useState<PhenotypeDetail[]>([]);
 
   useEffect(() => {
     if (!checkIfConnectionSummaryIsEmpty(selectedConnectionSummary)) {
@@ -90,7 +66,8 @@ function Connections() {
       const phenotypeColors: string[] = generatePhenotypeColors(phenotypes.length)
       setPhenotypeFilters(phenotypes.map((phenotype, index) => ({
         label: phenotype,
-        color: phenotypeColors[index]
+        color: phenotypeColors[index],
+        ksId: ''
       })))
     }
 
@@ -98,27 +75,6 @@ function Connections() {
 
   const nerves = getNerveFilters(viasConnection, majorNerves);
 
-  const searchPhenotypeFilter = (searchValue: string): Option[] => {
-    console.log(searchValue)
-    const searchedPhenotype = phenotypes
-    return searchedPhenotype.map((phenotype) => ({
-      id: phenotype,
-      label: phenotype,
-      group: 'Phenotype',
-      content: []
-    }));
-  }
-
-  const searchNerveFilter = (searchValue: string): Option[] => {
-    console.log(searchValue)
-    const searchedNerve = Object.keys(nerves)
-    return searchedNerve.map((nerve) => ({
-      id: nerve,
-      label: nerves[nerve],
-      group: 'Nerve',
-      content: []
-    }));
-  }
 
   useEffect(() => {
     if (!checkIfConnectionSummaryIsEmpty(selectedConnectionSummary) && phenotypeFilters) {
@@ -228,26 +184,7 @@ function Connections() {
                 Summary map shows the connections of the selected connection origin and end organ with phenotypes. Select individual squares to view the details of each connections.
               </Typography>
             </Box>
-            <Box display="flex" gap={1} flexWrap='wrap'>
-              <CustomFilterDropdown
-                key={"Phenotype"}
-                id={"Phenotype"}
-                placeholder="Phenotype"
-                searchPlaceholder="Search Phenotype"
-                selectedOptions={[]}
-                onSearch={(searchValue: string) => searchPhenotypeFilter(searchValue)}
-                onSelect={() => { }}
-              />
-              <CustomFilterDropdown
-                key={"Nerve"}
-                id={"Nerve"}
-                placeholder="Nerve"
-                searchPlaceholder="Search Nerve"
-                selectedOptions={[]}
-                onSearch={(searchValue: string) => searchNerveFilter(searchValue)}
-                onSelect={() => { }}
-              />
-            </Box>
+            <SummaryFiltersDropdown nerves={nerves} phenotypes={phenotypeFilters} />
             <HeatmapGrid
               yAxis={yAxis}
               setYAxis={setYAxis}

@@ -1,6 +1,6 @@
 // Search origins
-import {Option} from "../components/common/Types.ts";
-import {SYNONYMS_TITLE} from "../settings.ts";
+import { Option } from "../components/common/Types.ts";
+import { SYNONYMS_TITLE } from "../settings.ts";
 
 export const searchOrigins = (searchValue: string, options: Option[]): Option[] => {
     return searchAnatomicalEntities(searchValue, options);
@@ -26,6 +26,13 @@ export const searchVias = (searchValue: string, options: Option[]): Option[] => 
     return searchAnatomicalEntities(searchValue, options);
 };
 
+export const searchNerveFilter = (value: string, nerveOptions: Option[]): Option[] => {
+    return searchByLabel(value, nerveOptions);
+}
+
+export const searchPhenotypeFilter = (value: string, phenotypeOptions: Option[]): Option[] => {
+    return searchByLabel(value, phenotypeOptions);
+}
 
 const searchByLabel = (searchValue: string, options: Option[]): Option[] => {
     const lowerSearchValue = searchValue.toLowerCase();
