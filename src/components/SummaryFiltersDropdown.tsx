@@ -4,7 +4,7 @@ import CustomFilterDropdown from "./common/CustomFilterDropdown";
 import { Option, PhenotypeDetail } from "./common/Types";
 import { Box } from "@mui/material";
 import { searchNerveFilter, searchPhenotypeFilter } from "../services/searchService";
-import { OTHER_LABEL } from "../constants";
+import { OTHER_LABEL } from "../settings";
 
 interface FilterConfig {
 	id: keyof SummaryFilters;

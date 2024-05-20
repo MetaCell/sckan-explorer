@@ -3,7 +3,7 @@ import { HierarchicalItem, ISubConnections, ksMapType } from "../components/comm
 import { ConnectionSummary, SummaryFilters } from "../context/DataContext.ts";
 import { HierarchicalNode, KnowledgeStatement, Organ } from "../models/explorer.ts";
 import { PhenotypeDetail } from "../components/common/Types.ts";
-import { OTHER_LABEL } from "../constants.tsx";
+import { OTHER_LABEL } from "../settings.ts";
 
 
 export const checkIfConnectionSummaryIsEmpty = (connectionSummary: ConnectionSummary): boolean => {
