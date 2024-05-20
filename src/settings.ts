@@ -9,3 +9,9 @@ export const OTHER_X_AXIS_LABEL = 'Other'
 
 export const SYNONYMS_TITLE = "synonyms"
 
+export const FIXED_FOUR_PHENOTYPE_COLORS_ARRAY = [
+	'rgba(155, 24, 216, 1)',
+	'rgba(44, 44, 206, 1)',
+	'rgba(220, 104, 3, 1)',
+	'rgba(234, 170, 8, 1)',
+]

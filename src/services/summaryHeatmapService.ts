@@ -3,6 +3,7 @@ import { HierarchicalItem, SubConnections, KsMapType } from "../components/commo
 import { ConnectionSummary, SummaryFilters } from "../context/DataContext.ts";
 import { HierarchicalNode, KnowledgeStatement, Organ } from "../models/explorer.ts";
 import { PhenotypeDetail } from "../components/common/Types.ts";
+import { FIXED_FOUR_PHENOTYPE_COLORS_ARRAY } from "../settings.ts";
 
 
 export const checkIfConnectionSummaryIsEmpty = (connectionSummary: ConnectionSummary): boolean => {
@@ -18,13 +19,7 @@ export const checkIfConnectionSummaryIsEmpty = (connectionSummary: ConnectionSum
 }
 
 export const generatePhenotypeColors = (num: number) => {
-	// some fixed colors for phenotypes - 4 colors
-	const colors = [
-		'rgba(155, 24, 216, 1)',
-		'rgba(44, 44, 206, 1)',
-		'rgba(220, 104, 3, 1)',
-		'rgba(234, 170, 8, 1)',
-	];
+	const colors: string[] = FIXED_FOUR_PHENOTYPE_COLORS_ARRAY;
 	for (let i = 4; i < num; i++) {
 		colors.push(`rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`);
 	}
