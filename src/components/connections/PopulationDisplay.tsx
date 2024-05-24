@@ -50,7 +50,7 @@ const PopulationDisplay = ({
 }) => {
   const [value, setValue] = React.useState(0);
   
-  const viaDetails: ViaExplorerSerializerDetails[] = connectionDetails?.via || [];
+  const viaDetails: ViaExplorerSerializerDetails[] = connectionDetails?.vias || [];
   const destinationDetails: DestinationExplorerSerializerDetails[] = connectionDetails?.destinations || [];
   const origins = connectionDetails?.origins || [];
 

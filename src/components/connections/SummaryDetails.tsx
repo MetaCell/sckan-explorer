@@ -10,13 +10,13 @@ import { vars } from "../../theme/variables.ts";
 import PopulationDisplay from "./PopulationDisplay.tsx";
 import CommonAccordion from "../common/Accordion.tsx";
 import CommonChip from "../common/CommonChip.tsx";
-import { ArrowOutward } from "../icons";
+import { ArrowOutward } from "../icons/index.tsx";
 import { KsMapType } from '../common/Types.ts';
 import { KnowledgeStatement } from '../../models/explorer.ts';
 
-const { gray500, gray700, gray800} = vars;
+const { gray500, gray700, gray800 } = vars;
 
-const RowStack = ({ label, value, Icon }: {label: string, value: string, Icon?: React.ElementType}) => (
+const RowStack = ({ label, value, Icon }: { label: string, value: string, Icon?: React.ElementType }) => (
   <Stack
     direction="row"
     alignItems="center"
@@ -37,15 +37,15 @@ const RowStack = ({ label, value, Icon }: {label: string, value: string, Icon?: 
   </Stack>
 );
 
-const Details = ({
+const SummaryDetails = ({
   uniqueKS,
   connectionPage
 }: {
-    uniqueKS: KsMapType,
-    connectionPage: number
+  uniqueKS: KsMapType,
+  connectionPage: number
 }) => {
   const connectionDetails = uniqueKS !== undefined ?
-    uniqueKS[Object.keys(uniqueKS)[connectionPage - 1]]?.ks
+    uniqueKS[Object.keys(uniqueKS)[connectionPage - 1]]
     : {} as KnowledgeStatement;
   const phenotype = connectionDetails?.phenotype || ''
   const detailsObject = [
@@ -68,7 +68,7 @@ const Details = ({
       label: 'Provenances',
       value: connectionDetails?.provenances || [],
       icon: undefined
-    }, 
+    },
     {
       label: 'PhenoType',
       value: connectionDetails?.phenotype || '-',
@@ -141,7 +141,7 @@ const Details = ({
           />
         </Stack>
       </Box>
-   
+
       <Divider />
       <PopulationDisplay
         connectionDetails={connectionDetails}
@@ -150,4 +150,4 @@ const Details = ({
   );
 };
 
-export default Details;
+export default SummaryDetails;

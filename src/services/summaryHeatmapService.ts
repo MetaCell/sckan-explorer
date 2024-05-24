@@ -1,22 +1,10 @@
 
 import { HierarchicalItem, SubConnections, KsMapType } from "../components/common/Types.ts";
-import { ConnectionSummary, SummaryFilters } from "../context/DataContext.ts";
+import { SummaryFilters } from "../context/DataContext.ts";
 import { HierarchicalNode, KnowledgeStatement, Organ } from "../models/explorer.ts";
 import { PhenotypeDetail } from "../components/common/Types.ts";
-import { FIXED_FOUR_PHENOTYPE_COLORS_ARRAY } from "../settings.ts";
+import { FIXED_FOUR_PHENOTYPE_COLORS_ARRAY, OTHER_PHENOTYPE_LABEL } from "../settings.ts";
 
-
-export const checkIfConnectionSummaryIsEmpty = (connectionSummary: ConnectionSummary): boolean => {
-	return Object.values(connectionSummary).every((value) => {
-		if (Array.isArray(value)) {
-			return value.length === 0;
-		}
-		if (typeof value === 'object') {
-			return checkIfConnectionSummaryIsEmpty(value);
-		}
-		return value === "";
-	});
-}
 
 export const generatePhenotypeColors = (num: number) => {
 	const colors: string[] = FIXED_FOUR_PHENOTYPE_COLORS_ARRAY;
@@ -37,8 +25,8 @@ export function convertViaToString(via: string[]): string {
 export function getAllViasFromConnections(connections: KsMapType): { [key: string]: string } {
 	const vias: { [key: string]: string } = {};
 	Object.values(connections).forEach(connection => {
-		if (connection.ks.via && connection.ks.via.length > 0) {
-			const flattenedVias = connection.ks.via.flatMap(via => via.anatomical_entities);
+		if (connection.vias && connection.vias.length > 0) {
+			const flattenedVias = connection.vias.flatMap(via => via.anatomical_entities);
 			flattenedVias.forEach(via => {
 				vias[via.id] = via.name;
 			});
@@ -50,10 +38,10 @@ export function getAllViasFromConnections(connections: KsMapType): { [key: strin
 export function getAllPhenotypes(connections: KsMapType): string[] {
 	const phenotypeNames: Set<string> = new Set();
 	Object.values(connections).forEach(connection => {
-		if (connection.ks?.phenotype) {
-			phenotypeNames.add(connection.ks.phenotype);
+		if (connection?.phenotype) {
+			phenotypeNames.add(connection.phenotype);
 		} else {
-			phenotypeNames.add('other');
+			phenotypeNames.add(OTHER_PHENOTYPE_LABEL);
 		}
 	});
 	return Array.from(phenotypeNames)
@@ -62,7 +50,7 @@ export function getAllPhenotypes(connections: KsMapType): string[] {
 export const getNerveFilters = (viasConnection: { [key: string]: string }, majorNerves: Set<string>) => {
 	const nerves: { [key: string]: string } = {};
 	Object.keys(viasConnection).forEach(via => {
-		if (Array.from(majorNerves).includes(via)) {
+		if (majorNerves.has(via)) {
 			nerves[via] = viasConnection[via];
 		}
 	});
@@ -164,14 +152,14 @@ export function calculateSecondaryConnections(
 					result[index].ksIds = new Set([...result[index].ksIds, ...child.ksIds]);
 				});
 			});
-		} else if (node.endOrgansUri || node.connectionDetails) {
-			if (node.endOrgansUri) {
+		} else if (node.destinationDetails || node.connectionDetails) {
+			if (node.destinationDetails) {
 				// Add the sub end organs to the connection details
-				Object.keys(node.endOrgansUri).forEach(endOrganIRI => {
+				Object.keys(node.destinationDetails).forEach(endOrganIRI => {
 					const index = organIndexMap[endOrganIRI];
-					node.endOrgansUri = node.endOrgansUri || {}; // Keeps linter happy
+					node.destinationDetails = node.destinationDetails || {}; // Keeps linter happy
 					if (index !== undefined) {
-						const knowledgeStatementIds = Array.from(node.endOrgansUri[endOrganIRI])
+						const knowledgeStatementIds = Array.from(node.destinationDetails[endOrganIRI])
 							.filter(ksId => ksId in knowledgeStatements);
 
 						if (knowledgeStatementIds.length === 0) {
@@ -182,7 +170,7 @@ export function calculateSecondaryConnections(
 							const ksPhenotypes = knowledgeStatementIds.map(ksId => knowledgeStatements[ksId].phenotype).filter(phenotype => phenotype !== '');
 							const phenotypeColorsSet = new Set<string>();
 
-							const unknownFilter = phenotypes.find(p => p.label === 'other');
+							const unknownFilter = phenotypes.find(p => p.label === OTHER_PHENOTYPE_LABEL);
 							ksPhenotypes.length === 0 ? phenotypeColorsSet.add(unknownFilter?.color || '') :
 								ksPhenotypes.map(phenotype => {
 									const phn = phenotypes.find(p => p.label === phenotype);
@@ -216,4 +204,11 @@ export const getNormalizedValueForMinMax = (value: number, min: number, max: num
 	// Ex. for situations where min is 4... the value 4 will not be shown...
 	min = 0;
 	return max !== min ? (value - min) / (max - min) : 1;
+}
+
+export function getXAxisForHeatmap(endorgan: Organ) {
+	if (endorgan?.children) {
+		return Array.from(endorgan.children.values()).map((endOrgan) => endOrgan.name);
+	}
+	return []
 }

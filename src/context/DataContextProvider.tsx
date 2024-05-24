@@ -28,12 +28,7 @@ export const DataContextProvider = ({
         Nerve: []
     });
 
-    const [selectedConnectionSummary, setSelectedConnectionSummary] = useState<ConnectionSummary>({
-        connections: {},
-        origin: "",
-        endOrgan: {} as Organ,
-        hierarchy: {} as HierarchicalNode,
-    });
+    const [selectedConnectionSummary, setSelectedConnectionSummary] = useState<ConnectionSummary | null>(null);
 
 
     const dataContextValue = {

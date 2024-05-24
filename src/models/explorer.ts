@@ -182,7 +182,7 @@ export interface KnowledgeStatement {
      * @type {Array<ViaExplorerSerializerDetails>}
      * @memberof KnowledgeStatement
      */
-    via: ViaExplorerSerializerDetails[];
+    vias: ViaExplorerSerializerDetails[];
     /**
      *
      * @type {Array<AnatomicalEntity>}
@@ -298,5 +298,5 @@ export interface HierarchicalNode {
      * @type {Record<string, Set<string>>}
      * @memberof HierarchicalNode
      */
-    endOrgansUri?: Record<string, Set<string>>;
+    destinationDetails?: Record<string, Set<string>>;
 }

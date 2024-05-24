@@ -47,7 +47,7 @@ export const getUniqueOrigins = (knowledgeStatements: Record<string, KnowledgeSt
 export const getUniqueVias = (knowledgeStatements: Record<string, KnowledgeStatement>): Option[] => {
     let vias: AnatomicalEntity[] = [];
     Object.values(knowledgeStatements).forEach(ks => {
-        const anatomical_entities = ks.via.flatMap(via => via.anatomical_entities);
+        const anatomical_entities = ks.vias.flatMap(via => via.anatomical_entities);
         vias = vias.concat(anatomical_entities);
     });
     return getUniqueEntities(vias);

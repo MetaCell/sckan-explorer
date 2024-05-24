@@ -66,7 +66,7 @@ export function mapApiResponseToKnowledgeStatements(composerResponse: ComposerRe
                 type: dest.type as TypeC11Enum
             }
         }),
-        via: ks.vias.flatMap(via => {
+        vias: ks.vias.flatMap(via => {
             const anatomicalEntities = via.anatomical_entities.map(viaA => getAnatomicalEntity(viaA));
             const fromEntities = via.from_entities.map(fromE => getAnatomicalEntity(fromE));
             return {

@@ -35,8 +35,8 @@ export interface DataContext {
     knowledgeStatements: Record<string, KnowledgeStatement>;
     setFilters: React.Dispatch<React.SetStateAction<Filters>>;
     setSummaryFilters: React.Dispatch<React.SetStateAction<SummaryFilters>>;
-    selectedConnectionSummary: ConnectionSummary;
-    setConnectionSummary: React.Dispatch<React.SetStateAction<ConnectionSummary>>;
+    selectedConnectionSummary: ConnectionSummary | null;
+    setConnectionSummary: React.Dispatch<React.SetStateAction<ConnectionSummary | null>>;
 }
 
 export const DataContext = createContext<DataContext>({
@@ -60,12 +60,7 @@ export const DataContext = createContext<DataContext>({
     },
     setSummaryFilters: () => {
     },
-    selectedConnectionSummary: {
-        connections: {},
-        origin: "",
-        endOrgan: {} as Organ,
-        hierarchy: {} as HierarchicalNode,
-    },
+    selectedConnectionSummary: null,
     setConnectionSummary: () => {
     }
 });
