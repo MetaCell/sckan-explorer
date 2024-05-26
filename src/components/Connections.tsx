@@ -133,10 +133,13 @@ function Connections() {
   }, [hierarchicalNodes, selectedConnectionSummary, summaryFilters, knowledgeStatements, phenotypeFilters]);
 
   function getXAxisForHeatmap() {
-    if (selectedConnectionSummary.endOrgan?.children) {
-      return Array.from(selectedConnectionSummary.endOrgan.children.values()).map((endOrgan) => endOrgan.name);
+  const [xAxis, setXAxis] = useState<string[]>([]);
+  useEffect(() => {
+    if (selectedConnectionSummary) {
+      const xAxis = getXAxisForHeatmap(selectedConnectionSummary?.endOrgan || {} as Organ)
+      setXAxis(xAxis);
     }
-    return []
+  }, [selectedConnectionSummary]);
   }
   const xAxis = getXAxisForHeatmap()
   const yAxisCon = selectedConnectionSummary.hierarchy
