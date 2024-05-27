@@ -183,7 +183,7 @@ function Connections() {
                 Summary map shows the connections of the selected connection origin and end organ with phenotypes. Select individual squares to view the details of each connections.
               </Typography>
             </Box>
-              <SummaryFiltersDropdown nerves={nerves} phenotypes={phenotypes} />
+            <SummaryFiltersDropdown nerves={nerves} phenotypes={phenotypes} />
             <HeatmapGrid
               yAxis={yAxis}
               setYAxis={setYAxis}
@@ -196,7 +196,7 @@ function Connections() {
             />
           </Box>
 
-            <PhenotypeLegend phenotypes={phenotypes} />
+          <PhenotypeLegend phenotypes={phenotypes} />
         </>
       )
       }

@@ -169,7 +169,7 @@ export function calculateSecondaryConnections(
 						const ksPhenotypes = knowledgeStatementIds.map(ksId => knowledgeStatements[ksId].phenotype).filter(phenotype => phenotype !== '');
 						const phenotypeColorsSet = new Set<string>();
 
-						const unknownFilter = phenotypes.find(p => p.label === OTHER_PHENOTYPE_LABEL);
+						const unknownFilter = phenotypes.find(p => p.label === 'other');
 						ksPhenotypes.length === 0 ? phenotypeColorsSet.add(unknownFilter?.color || '') :
 							ksPhenotypes.map(phenotype => {
 								const phn = phenotypes.find(p => p.label === phenotype);
