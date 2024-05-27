@@ -14,7 +14,12 @@ export type Option = {
 export type LabelIdPair = { labels: string[], ids: string[] };
 
 export type KsMapType = Record<string, KnowledgeStatement>;
-export type SubConnections = { phenotypes: string[], ksIds: Set<string> };
+
+export type PhenotypeKsIdMap = { phenotypes: string[], ksIds: Set<string> };
+
+// SummaryType - Three types of summary views - default - instruction. 
+// When user clicks the primary heatmap, the summary view will be displayed.
+// When user clicks the secondary heatmap, the detailed summary view will be displayed.
 export enum SummaryType {
   Summary = 'summary',
   DetailedSummary = 'detailedSummary',
@@ -23,7 +28,7 @@ export enum SummaryType {
 
 export type DetailedHeatmapData = { label: string, data: Set<string>[], id: string }[];
 
-export interface IHeatmapMatrixInformation {
+export interface HeatmapMatrixInformation {
   heatmapMatrix: number[][];
   detailedHeatmap: DetailedHeatmapData;
 }

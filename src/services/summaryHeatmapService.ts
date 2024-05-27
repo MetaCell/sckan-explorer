@@ -1,7 +1,6 @@
-
-import { HierarchicalItem, SubConnections, KsMapType } from "../components/common/Types.ts";
-import { SummaryFilters } from "../context/DataContext.ts";
-import { HierarchicalNode, KnowledgeStatement, Organ } from "../models/explorer.ts";
+import { HierarchicalItem, PhenotypeKsIdMap, KsMapType } from "../components/common/Types.ts";
+import { ConnectionSummary, SummaryFilters } from "../context/DataContext.ts";
+import { HierarchicalNode, KnowledgeStatement, Organ, BaseEntity } from "../models/explorer.ts";
 import { FIXED_FOUR_PHENOTYPE_COLORS_ARRAY, OTHER_PHENOTYPE_LABEL } from "../settings.ts";
 
 
@@ -57,28 +56,30 @@ export const getNerveFilters = (viasConnection: { [key: string]: string }, major
 	return nerves;
 }
 
-export function getYAxisNode(node: HierarchicalItem, yAxisCon: HierarchicalNode): HierarchicalItem {
-	if (node?.id === yAxisCon?.id) {
-		return node;
-	}
-	if (node.children) {
-		let found = false;
-		for (const child of node.children) {
-			if (found) break;
-			const nodeFound = getYAxisNode(child, yAxisCon);
-			if (nodeFound?.id) {
-				found = true;
-				return nodeFound;
-			}
-		}
-	}
 
-	return {} as HierarchicalItem;
+
+export function summaryFilterKnowledgeStatements(knowledgeStatements: Record<string, KnowledgeStatement>, summaryFilters: SummaryFilters): Record<string, KnowledgeStatement> {
+	const phenotypeIds = summaryFilters.Phenotype.map(option => option.id);
+	const nerveIds = summaryFilters.Nerve.map(option => option.id);
+	return Object.entries(knowledgeStatements).reduce((filtered, [id, ks]) => {
+		const phenotypeMatch = !phenotypeIds.length || phenotypeIds.includes(ks.phenotype);
+		const nerveMatch = !nerveIds.length || ks.vias?.some(via => via.anatomical_entities.map(entity => entity.id).some(id => nerveIds.includes(id)));
+		if (phenotypeMatch && nerveMatch) {
+			filtered[id] = ks;
+		}
+		return filtered;
+	}, {} as Record<string, KnowledgeStatement>);
 }
 
 
-export function getSecondaryHeatmapData(yAxis: HierarchicalItem[], connections: Map<string, SubConnections[]>) {
-	const newData: SubConnections[][] = [];
+// NOTE: this function is similar to /services/heatmapService.ts - getHeatmapData
+// output type - PhenotypeKsIdMap[][]
+// ***** Recursive function - traverseItems *****
+// logic to note below - item.expanded
+// If item.expanded is true, store the data for the current item/level and traverse further into the expanded item
+// else just store the data for that level
+export function getSecondaryHeatmapData(yAxis: HierarchicalItem[], connections: Map<string, PhenotypeKsIdMap[]>) {
+	const newData: PhenotypeKsIdMap[][] = [];
 
 	function addDataForItem(item: HierarchicalItem) {
 		const itemData = connections.get(item.id);
@@ -109,24 +110,18 @@ export function getSecondaryHeatmapData(yAxis: HierarchicalItem[], connections: 
 	return newData;
 }
 
-export function summaryFilterKnowledgeStatements(knowledgeStatements: Record<string, KnowledgeStatement>, summaryFilters: SummaryFilters): Record<string, KnowledgeStatement> {
-	const phenotypeIds = summaryFilters.Phenotype.map(option => option.id);
-	const nerveIds = summaryFilters.Nerve.map(option => option.id);
-	return Object.entries(knowledgeStatements).reduce((filtered, [id, ks]) => {
-		const phenotypeMatch = !phenotypeIds.length || phenotypeIds.includes(ks.phenotype);
-		const nerveMatch = !nerveIds.length || ks.vias?.some(via => via.anatomical_entities.map(entity => entity.id).some(id => nerveIds.includes(id)));
-		if (phenotypeMatch && nerveMatch) {
-			filtered[id] = ks;
-		}
-		return filtered;
-	}, {} as Record<string, KnowledgeStatement>);
-}
 
+// NOTE: the following function is similar to /services/heatmapService.ts - calculateConnections
+// output type - Map<string, PhenotypeKsIdMap[]>
+// ***** Recursive function - computeNodeConnections *****
+// logic to note below - node.destinationDetails
+// If node.destinationDetails is present, store the phenotypes and knowledge statement ids for each end organ in the result array
+// If node.children is present, recursively call the function on each child node and merge the results
 export function calculateSecondaryConnections(
 	hierarchicalNodes: Record<string, HierarchicalNode>, endorgans: Record<string, Organ>,
 	allKnowledgeStatements: Record<string, KnowledgeStatement>, summaryFilters: SummaryFilters,
 	hierarchyNode: HierarchicalNode
-): Map<string, SubConnections[]> {
+): Map<string, PhenotypeKsIdMap[]> {
 
 	// Apply filters to organs and knowledge statements
 	const knowledgeStatements = summaryFilterKnowledgeStatements(allKnowledgeStatements, summaryFilters);
@@ -137,16 +132,16 @@ export function calculateSecondaryConnections(
 	}, {});
 
 	// Memoization map to store computed results for nodes
-	const memo = new Map<string, SubConnections[]>();
+	const memo = new Map<string, PhenotypeKsIdMap[]>();
 
 	// Function to compute node connections with memoization
-	function computeNodeConnections(nodeId: string): SubConnections[] {
+	function computeNodeConnections(nodeId: string): PhenotypeKsIdMap[] {
 		if (memo.has(nodeId)) {
 			return memo.get(nodeId)!;
 		}
 
 		const node = hierarchicalNodes[nodeId];
-		const result: SubConnections[] = Object.values(endorgans).map(() => ({ phenotypes: [], ksIds: new Set<string>() }));
+		const result: PhenotypeKsIdMap[] = Object.values(endorgans).map(() => ({ phenotypes: [], ksIds: new Set<string>() }));
 
 		if (node.children && node.children.size > 0) {
 			node.children.forEach(childId => {
@@ -197,3 +192,15 @@ export function getXAxisForHeatmap(endorgan: Organ) {
 	}
 	return []
 }
+
+export const getDestinations = (connection: ConnectionSummary): Record<string, Organ> => {
+	return Array.from(connection.endOrgan?.children?.values()).reduce((acc, organ, index) => {
+		acc[organ.id] = { ...organ, children: new Map<string, BaseEntity>(), order: index };
+		return acc;
+	}, {} as Record<string, Organ>);
+};
+
+export const getConnectionDetails = (uniqueKS: KsMapType, connectionPage: number): KnowledgeStatement => {
+	const connectionDetails = uniqueKS !== undefined ? uniqueKS[Object.keys(uniqueKS)[connectionPage - 1]] : {} as KnowledgeStatement;
+	return connectionDetails;
+};

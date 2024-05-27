@@ -40,7 +40,6 @@ const SummaryFiltersDropdown = ({ nerves, phenotypes }: {
 		}));
 	}
 	const convertPhenotypesToOptions = (phenotypes: PhenotypeType): Option[] => {
-		// filter the phenotype where label is other
 		return Object.values(phenotypes).map(phenotype => ({
 			id: phenotype.label,
 			label: phenotype.label,

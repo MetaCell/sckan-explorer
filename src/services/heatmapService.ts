@@ -1,6 +1,6 @@
 import { HierarchicalNode, KnowledgeStatement, Organ } from "../models/explorer.ts";
 import {ROOTS} from "./hierarchyService.ts";
-import { HierarchicalItem, IHeatmapMatrixInformation, Option, KsMapType, LabelIdPair } from "../components/common/Types.ts";
+import { HierarchicalItem, HeatmapMatrixInformation, Option, KsMapType, LabelIdPair } from "../components/common/Types.ts";
 import {Filters} from "../context/DataContext.ts";
 
 export function getYAxis(hierarchicalNodes: Record<string, HierarchicalNode>, hierarchyNode?: Record<string, HierarchicalNode>): HierarchicalItem[] {
@@ -98,7 +98,7 @@ export function calculateConnections(hierarchicalNodes: Record<string, Hierarchi
 
 
 export function getHeatmapData(yAxis: HierarchicalItem[], connections: Map<string, Set<string>[]>) {
-    const heatmapInformation: IHeatmapMatrixInformation = {
+    const heatmapInformation: HeatmapMatrixInformation = {
         heatmapMatrix: [],
         detailedHeatmap: []
     }

@@ -4,7 +4,7 @@ import { vars } from "../../theme/variables";
 import CollapsibleList from "./CollapsibleList";
 import HeatMap from "react-heatmap-grid";
 import HeatmapTooltip from "./HeatmapTooltip";
-import { HierarchicalItem, PhenotypeType, SubConnections } from "./Types.ts";
+import { HierarchicalItem, PhenotypeType, PhenotypeKsIdMap } from "./Types.ts";
 import { getNormalizedValueForMinMax } from "../../services/summaryHeatmapService.ts";
 import { generateYLabelsAndIds, getPhenotypeColors } from "../../services/heatmapService.ts";
 import { OTHER_PHENOTYPE_LABEL } from "../../settings.ts";
@@ -21,11 +21,11 @@ interface HeatmapGridProps {
     yAxisLabel?: string;
     selectedCell?: { x: number, y: number } | null;
     heatmapData?: number[][];
-    secondaryHeatmapData?: SubConnections[][];
+    secondaryHeatmapData?: PhenotypeKsIdMap[][];
     phenotypes?: PhenotypeType;
 }
 
-const prepareSecondaryHeatmapData = (data?: SubConnections[][]): number[][] => {
+const prepareSecondaryHeatmapData = (data?: PhenotypeKsIdMap[][]): number[][] => {
     if (!data) return [];
     return data.map(row => row.map(cell => cell.ksIds.size));
 }
@@ -72,11 +72,12 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         _x: number,
         _y: number
     ) => {
+        // Gets the color for secondary heatmap cell based on the phenotypes
         if (phenotypes && secondary && secondaryHeatmapData && secondaryHeatmapData[_y] && secondaryHeatmapData[_y][_x]) {
-            const matrixCellPhenotypes = secondaryHeatmapData[_y][_x]?.phenotypes;
+            const heatmapCellPhenotypes = secondaryHeatmapData[_y][_x]?.phenotypes;
 
             const phenotypeColorsSet = new Set<string>();
-            matrixCellPhenotypes.forEach(phenotype => {
+            heatmapCellPhenotypes.forEach(phenotype => {
                 const phnColor = phenotypes[phenotype]?.color
                 if (phnColor) {
                     phenotypeColorsSet.add(phnColor);

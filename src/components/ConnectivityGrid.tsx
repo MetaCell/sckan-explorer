@@ -57,6 +57,7 @@ function ConnectivityGrid() {
     }, [yAxis, connectionsMap]);
 
     const handleClick = (x: number, y: number, yId: string): void => {
+        // When the primary heatmap cell is clicked - this sets the react-context state for Connections in SummaryType.summary
         setSelectedCell({ x, y });
         const row = connectionsMap.get(yId);
         if (row) {

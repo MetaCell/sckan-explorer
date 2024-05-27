@@ -7,6 +7,17 @@ import { SummaryType, KsMapType } from '../common/Types';
 
 const { gray100, gray600A, gray500 } = vars;
 
+
+type SummaryHeaderProps = {
+  showDetails: SummaryType,
+  setShowDetails: (showDetails: SummaryType) => void,
+  uniqueKS: KsMapType,
+  connectionPage: number,
+  setConnectionPage: (connectionPage: number) => void,
+  totalConnectionCount: number
+}
+
+
 const SummaryHeader = ({
    showDetails,
    setShowDetails,
@@ -14,14 +25,7 @@ const SummaryHeader = ({
   connectionPage,
   setConnectionPage,
   totalConnectionCount
-}: {
-    showDetails: SummaryType,
-    setShowDetails: (showDetails: SummaryType) => void,
-    uniqueKS: KsMapType,
-    connectionPage: number,
-    setConnectionPage: (connectionPage: number) => void,
-    totalConnectionCount: number
-}) => {
+}: SummaryHeaderProps) => {
   const totalUniqueKS = Object.keys(uniqueKS).length;
 
   function getConnectionId() {

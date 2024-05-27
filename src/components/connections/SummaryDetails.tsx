@@ -12,7 +12,7 @@ import CommonAccordion from "../common/Accordion.tsx";
 import CommonChip from "../common/CommonChip.tsx";
 import { ArrowOutward } from "../icons/index.tsx";
 import { KsMapType } from '../common/Types.ts';
-import { KnowledgeStatement } from '../../models/explorer.ts';
+import { getConnectionDetails } from '../../services/summaryHeatmapService.ts';
 
 const { gray500, gray700, gray800 } = vars;
 
@@ -37,17 +37,20 @@ const RowStack = ({ label, value, Icon }: { label: string, value: string, Icon?:
   </Stack>
 );
 
+
+type SummaryDetailsProps = {
+  uniqueKS: KsMapType,
+  connectionPage: number
+}
+
 const SummaryDetails = ({
   uniqueKS,
   connectionPage
-}: {
-  uniqueKS: KsMapType,
-  connectionPage: number
-}) => {
-  const connectionDetails = uniqueKS !== undefined ?
-    uniqueKS[Object.keys(uniqueKS)[connectionPage - 1]]
-    : {} as KnowledgeStatement;
+}: SummaryDetailsProps) => {
+  const connectionDetails = getConnectionDetails(uniqueKS, connectionPage);
   const phenotype = connectionDetails?.phenotype || ''
+
+  // Details shown in the dropdown - from composer
   const detailsObject = [
     {
       label: 'Laterality',
