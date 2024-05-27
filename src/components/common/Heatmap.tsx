@@ -1,4 +1,4 @@
-import React, { FC, useMemo, } from "react";
+import React, { FC, useCallback, useMemo, } from "react";
 import { Box, Typography } from "@mui/material";
 import { vars } from "../../theme/variables";
 import CollapsibleList from "./CollapsibleList";
@@ -24,11 +24,10 @@ interface HeatmapGridProps {
 }
 
 const prepareSecondaryHeatmapData = (data?: SubConnections[][]): number[][] => {
-    return useMemo(() => {
-        if (!data) return [];
-        return data.map(row => row.map(cell => cell.ksIds.size));
-    }, [data])
+    if (!data) return [];
+    return data.map(row => row.map(cell => cell.ksIds.size));
 }
+
 
 const HeatmapGrid: FC<HeatmapGridProps> = ({
     xAxis, yAxis, setYAxis,
@@ -36,8 +35,12 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     onCellClick, selectedCell, heatmapData, secondaryHeatmapData
 }) => {
     const secondary = secondaryHeatmapData ? true : false;
-    const heatmapMatrixData = secondary ? prepareSecondaryHeatmapData(secondaryHeatmapData) : heatmapData;
-    const handleCollapseClick = (item: HierarchicalItem) => {
+
+    const heatmapMatrixData = useMemo(() => {
+        return secondary ? prepareSecondaryHeatmapData(secondaryHeatmapData) : heatmapData;
+    }, [secondary, secondaryHeatmapData, heatmapData]);
+
+    const handleCollapseClick = useCallback((item: HierarchicalItem) => {
         const updateList = (list: HierarchicalItem[], selectedItem: HierarchicalItem): HierarchicalItem[] => {
             return list?.map(listItem => {
                 if (listItem.label === selectedItem.label) {
@@ -50,9 +53,11 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         };
         const updatedList = updateList(yAxis, item);
         setYAxis(updatedList);
-    };
+    }, [yAxis, setYAxis]);
 
     const yAxisData = generateYLabelsAndIds(yAxis);
+
+
 
     const handleCellClick = (x: number, y: number) => {
         const ids = yAxisData.ids

@@ -7,10 +7,9 @@ import {
     calculateConnections, getMinMaxConnections, getHierarchyFromId,
     getXAxisOrgans, getYAxis, getHeatmapData,
     getKnowledgeStatementMap,
-    generateYLabelsAndIds
 } from "../services/heatmapService.ts";
 import FiltersDropdowns from "./FiltersDropdowns.tsx";
-import { DetailedHeatmapData, HierarchicalItem } from "./common/Types.ts";
+import { HierarchicalItem } from "./common/Types.ts";
 import { Organ } from "../models/explorer.ts";
 import Loader from "./common/Loader.tsx";
 

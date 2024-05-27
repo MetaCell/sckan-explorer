@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Box, Chip, TextField, Typography } from "@mui/material";
 import { ArrowRightIcon } from "./icons";
 import { vars } from "../theme/variables";
-import { HierarchicalItem, SubConnections, PhenotypeDetail, SummaryType, KsMapType, LabelIdPair } from "./common/Types";
+import { HierarchicalItem, SubConnections, PhenotypeDetail, SummaryType, KsMapType } from "./common/Types";
 import { useDataContext } from "../context/DataContext.ts";
 import {
   calculateSecondaryConnections,
@@ -10,15 +10,13 @@ import {
   getAllPhenotypes, getAllViasFromConnections, getNerveFilters,
   getSecondaryHeatmapData,
   getXAxisForHeatmap,
-  getYAxisNode
 } from "../services/summaryHeatmapService.ts";
-import { getYAxis, getKnowledgeStatementMap, generateYLabelsAndIds } from "../services/heatmapService.ts";
-import CustomFilterDropdown from "./common/CustomFilterDropdown";
+import { getYAxis, getKnowledgeStatementMap } from "../services/heatmapService.ts";
 import SummaryHeader from "./connections/SummaryHeader";
 import SummaryInstructions from "./connections/SummaryInstructions.tsx";
 import PhenotypeLegend from "./connections/PhenotypeLegend.tsx";
 import HeatmapGrid from "./common/Heatmap.tsx";
-import { BaseEntity, HierarchicalNode, Organ } from "../models/explorer.ts";
+import { BaseEntity, Organ } from "../models/explorer.ts";
 import SummaryDetails from "./connections/SummaryDetails.tsx";
 import SummaryFiltersDropdown from "./SummaryFiltersDropdown.tsx";
 

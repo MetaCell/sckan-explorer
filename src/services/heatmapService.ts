@@ -211,7 +211,7 @@ export const getPhenotypeColors = (normalizedValue: number, phenotypeColors: str
     });
 
     // if there are multiple colors, create a linear gradient
-    let phenotypeColor = phenotypeColors.length > 1 ? `linear-gradient(to right, ${phenotypeColorsWithPercentage.join(',')}` :
+    const phenotypeColor = phenotypeColors.length > 1 ? `linear-gradient(to right, ${phenotypeColorsWithPercentage.join(',')}` :
         phenotypeColors.length === 1 ? phenotypeColors[0] : '';
 
     // ADD the following if we need opacity for secondary/phenotype heatmap -  replace the alpha value of the color with the normalized value
