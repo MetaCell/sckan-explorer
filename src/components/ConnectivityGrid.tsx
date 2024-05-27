@@ -6,7 +6,8 @@ import { useDataContext } from "../context/DataContext.ts";
 import {
     calculateConnections, getMinMaxConnections, getHierarchyFromId,
     getXAxisOrgans, getYAxis, getHeatmapData,
-    getKnowledgeStatementAndCount
+    getKnowledgeStatementMap,
+    generateYLabelsAndIds
 } from "../services/heatmapService.ts";
 import FiltersDropdowns from "./FiltersDropdowns.tsx";
 import { DetailedHeatmapData, HierarchicalItem } from "./common/Types.ts";
@@ -24,10 +25,7 @@ function ConnectivityGrid() {
     const [xAxisOrgans, setXAxisOrgans] = useState<Organ[]>([]);
     const [connectionsMap, setConnectionsMap] = useState<Map<string, Set<string>[]>>(new Map());
     const [selectedCell, setSelectedCell] = useState<{ x: number, y: number } | null>(null);
-    const [detailedHeatmapData, setDetailedHeatmapData] = useState<DetailedHeatmapData>([]);
-    const [heatmapData, setHeatmapData] = useState<number[][]>([]);
 
-    // Convert hierarchicalNodes to hierarchicalItems
     useEffect(() => {
         const connections = calculateConnections(hierarchicalNodes, organs, knowledgeStatements, filters);
         setConnectionsMap(connections)
@@ -51,12 +49,13 @@ function ConnectivityGrid() {
         setYAxis(yAxis);
     }, [hierarchicalNodes]);
 
-    useEffect(() => {
+    const { heatmapData, detailedHeatmapData } = useMemo(() => {
         const heatmapdata = getHeatmapData(yAxis, connectionsMap);
-        setHeatmapData(heatmapdata.heatmapMatrix);
-        setDetailedHeatmapData(heatmapdata.detailedHeatmap);
+        return {
+            heatmapData: heatmapdata.heatmapMatrix,
+            detailedHeatmapData: heatmapdata.detailedHeatmap,
+        };
     }, [yAxis, connectionsMap]);
-
 
     const handleClick = (x: number, y: number, yId: string): void => {
         setSelectedCell({ x, y });
@@ -65,7 +64,7 @@ function ConnectivityGrid() {
             const endOrgan = xAxisOrgans[x];
             const origin = detailedHeatmapData[y];
             const hierarchy = getHierarchyFromId(origin.id, hierarchicalNodes);
-            const ksMap = getKnowledgeStatementAndCount(row[x], knowledgeStatements);
+            const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
 
             setConnectionSummary({
                 origin: origin.label,
@@ -75,13 +74,12 @@ function ConnectivityGrid() {
             });
         }
     };
-
     const isLoading = yAxis.length == 0
 
     return (isLoading ? <Loader /> : (
         <Box minHeight='100%' p={3} pb={0} fontSize={14} display='flex' flexDirection='column'>
             <Box pb={2.5}>
-                <Typography variant="h6" sx={{fontWeight: 400}}>Connection Origin to End Organ</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 400 }}>Connection Origin to End Organ</Typography>
             </Box>
 
             <FiltersDropdowns/>
@@ -89,7 +87,7 @@ function ConnectivityGrid() {
             <HeatmapGrid
                 yAxis={yAxis}
                 setYAxis={setYAxis}
-                heatmapData={heatmapData || []}
+                heatmapData={heatmapData}
                 xAxis={xAxis}
                 xAxisLabel={'End organ'} yAxisLabel={'Connection Origin'}
                 onCellClick={handleClick}
@@ -105,7 +103,7 @@ function ConnectivityGrid() {
                 justifyContent='space-between'
                 position='sticky'
                 bottom={0}
-                sx={{background: white}}
+                sx={{ background: white }}
             >
                 <Button variant="text" sx={{
                     fontSize: '0.875rem',

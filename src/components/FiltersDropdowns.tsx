@@ -2,7 +2,7 @@ import {Box} from "@mui/material";
 import CustomFilterDropdown from "./common/CustomFilterDropdown.tsx";
 import React, {useMemo} from "react";
 import {Filters, useDataContext} from "../context/DataContext.ts";
-import {Option} from "./common/Types.ts";
+import { Option } from "./common/Types.ts";
 import {
     getUniqueApinatomies, getUniqueOrgans,
     getUniqueOrigins,
@@ -16,7 +16,6 @@ import {
     searchPhenotypes,
     searchSpecies, searchVias
 } from "../services/searchService.ts";
-
 
 interface FilterConfig {
     id: keyof Filters;

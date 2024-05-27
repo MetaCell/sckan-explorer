@@ -2,23 +2,25 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Box, Chip, TextField, Typography } from "@mui/material";
 import { ArrowRightIcon } from "./icons";
 import { vars } from "../theme/variables";
-import { HierarchicalItem, SubConnections, Option, SummaryType, KsMapType } from "./common/Types";
+import { HierarchicalItem, SubConnections, PhenotypeDetail, SummaryType, KsMapType, LabelIdPair } from "./common/Types";
 import { useDataContext } from "../context/DataContext.ts";
 import {
   calculateSecondaryConnections,
-  checkIfConnectionSummaryIsEmpty, convertViaToString, generatePhenotypeColors,
+  convertViaToString, generatePhenotypeColors,
   getAllPhenotypes, getAllViasFromConnections, getNerveFilters,
   getSecondaryHeatmapData,
+  getXAxisForHeatmap,
   getYAxisNode
 } from "../services/summaryHeatmapService.ts";
-import { getYAxis, getKnowledgeStatementAndCount } from "../services/heatmapService.ts";
+import { getYAxis, getKnowledgeStatementMap, generateYLabelsAndIds } from "../services/heatmapService.ts";
 import CustomFilterDropdown from "./common/CustomFilterDropdown";
 import SummaryHeader from "./connections/SummaryHeader";
-import Details from "./connections/Details.tsx";
 import SummaryInstructions from "./connections/SummaryInstructions.tsx";
 import PhenotypeLegend from "./connections/PhenotypeLegend.tsx";
 import HeatmapGrid from "./common/Heatmap.tsx";
-import { BaseEntity, Organ } from "../models/explorer.ts";
+import { BaseEntity, HierarchicalNode, Organ } from "../models/explorer.ts";
+import SummaryDetails from "./connections/SummaryDetails.tsx";
+import SummaryFiltersDropdown from "./SummaryFiltersDropdown.tsx";
 
 const { gray700, gray600A, gray100 } = vars;
 
@@ -38,29 +40,6 @@ const styles = {
   }
 }
 
-type PhenotypeDetail = {
-  label: string;
-  color: string;
-};
-const phenotype: PhenotypeDetail[] = [
-  {
-    label: 'Sympathetic',
-    color: '#9B18D8'
-  },
-  {
-    label: 'Parasympathetic',
-    color: '#2C2CCE'
-  },
-  {
-    label: 'Sensory',
-    color: '#DC6803'
-  },
-  {
-    label: 'Motor',
-    color: '#EAAA08'
-  }
-]
-
 
 function Connections() {
   const [showConnectionDetails, setShowConnectionDetails] = useState<SummaryType>(SummaryType.Instruction);
@@ -70,69 +49,50 @@ function Connections() {
   const [selectedCell, setSelectedCell] = useState<{ x: number, y: number } | null>(null);
 
   const { selectedConnectionSummary, majorNerves, hierarchicalNodes, knowledgeStatements, summaryFilters } = useDataContext();
+
   useEffect(() => {
-    if (checkIfConnectionSummaryIsEmpty(selectedConnectionSummary)) {
-      setShowConnectionDetails(SummaryType.Instruction);
-    } else {
+    if (selectedConnectionSummary) {
       setShowConnectionDetails(SummaryType.Summary);
     }
   }, [selectedConnectionSummary])
 
-  const viasConnection = getAllViasFromConnections(selectedConnectionSummary.connections);
+  const viasConnection = getAllViasFromConnections(selectedConnectionSummary?.connections || {} as KsMapType);
   const viasStatement = convertViaToString(Object.values(viasConnection))
-  const totalConnectionCount = Object.keys(selectedConnectionSummary.connections).length;
-  const phenotypes = getAllPhenotypes(selectedConnectionSummary.connections);
-  const [phenotypeFilters, setPhenotypeFilters] = useState<PhenotypeDetail[]>(phenotype);
+  const totalConnectionCount = Object.keys(selectedConnectionSummary?.connections || {} as KsMapType).length;
+  const phenotypeNamesArray = useMemo(() => getAllPhenotypes(selectedConnectionSummary?.connections || {} as KsMapType), [selectedConnectionSummary]);
+  const [phenotypes, setPhenotypes] = useState<PhenotypeDetail[]>([]);
+
 
   useEffect(() => {
-    if (!checkIfConnectionSummaryIsEmpty(selectedConnectionSummary)) {
-      const phenotypes = getAllPhenotypes(selectedConnectionSummary.connections);
-      const phenotypeColors: string[] = generatePhenotypeColors(phenotypes.length)
-      setPhenotypeFilters(phenotypes.map((phenotype, index) => ({
+    if (selectedConnectionSummary && phenotypeNamesArray && phenotypeNamesArray.length > 0) {
+      const phenotypeColors: string[] = generatePhenotypeColors(phenotypeNamesArray.length)
+      setPhenotypes(phenotypeNamesArray.map((phenotype, index) => ({
         label: phenotype,
-        color: phenotypeColors[index]
+        color: phenotypeColors[index],
+        ksId: ''
       })))
     }
-
-  }, [selectedConnectionSummary])
+  }, [phenotypeNamesArray, selectedConnectionSummary])
 
   const nerves = getNerveFilters(viasConnection, majorNerves);
 
-  const searchPhenotypeFilter = (searchValue: string): Option[] => {
-    console.log(searchValue)
-    const searchedPhenotype = phenotypes
-    return searchedPhenotype.map((phenotype) => ({
-      id: phenotype,
-      label: phenotype,
-      group: 'Phenotype',
-      content: []
-    }));
-  }
-
-  const searchNerveFilter = (searchValue: string): Option[] => {
-    console.log(searchValue)
-    const searchedNerve = Object.keys(nerves)
-    return searchedNerve.map((nerve) => ({
-      id: nerve,
-      label: nerves[nerve],
-      group: 'Nerve',
-      content: []
-    }));
-  }
 
   useEffect(() => {
-    if (!checkIfConnectionSummaryIsEmpty(selectedConnectionSummary) && phenotypeFilters) {
-      const destinations = Array.from(selectedConnectionSummary?.endOrgan.children.values()).reduce((acc, organ, index) => {
+    if (selectedConnectionSummary && phenotypes) {
+      const destinations = Array.from(selectedConnectionSummary.endOrgan?.children?.values()).reduce((acc, organ, index) => {
         acc[organ.id] = { ...organ, children: new Map<string, BaseEntity>(), order: index };
         return acc;
       }, {} as Record<string, Organ>);
 
-      const connections = calculateSecondaryConnections(hierarchicalNodes, destinations, knowledgeStatements, summaryFilters, phenotypeFilters);
+      const connections = calculateSecondaryConnections(
+        hierarchicalNodes, destinations, knowledgeStatements, summaryFilters, phenotypes,
+        selectedConnectionSummary.hierarchy
+      );
       setConnectionsMap(connections);
     }
-  }, [hierarchicalNodes, selectedConnectionSummary, summaryFilters, knowledgeStatements, phenotypeFilters]);
+  }, [hierarchicalNodes, selectedConnectionSummary, summaryFilters, knowledgeStatements, phenotypes]);
 
-  function getXAxisForHeatmap() {
+
   const [xAxis, setXAxis] = useState<string[]>([]);
   useEffect(() => {
     if (selectedConnectionSummary) {
@@ -140,22 +100,20 @@ function Connections() {
       setXAxis(xAxis);
     }
   }, [selectedConnectionSummary]);
-  }
-  const xAxis = getXAxisForHeatmap()
-  const yAxisCon = selectedConnectionSummary.hierarchy
 
   useEffect(() => {
-    if (!checkIfConnectionSummaryIsEmpty(selectedConnectionSummary)) {
-      const yAxis = getYAxis(hierarchicalNodes);
-      const yNode = yAxis.map((node: HierarchicalItem) => getYAxisNode(node, yAxisCon))
-        .filter((node: HierarchicalItem) => Object.keys(node).length > 0);
-      setYAxis(yNode);
+    if (selectedConnectionSummary && hierarchicalNodes) {
+      const hierarchyNode = {
+        [selectedConnectionSummary.hierarchy.id]: selectedConnectionSummary.hierarchy
+      }
+      const yHierarchicalItem = getYAxis(hierarchicalNodes, hierarchyNode);
+      setYAxis(yHierarchicalItem);
     }
-  }, [selectedConnectionSummary, hierarchicalNodes, yAxisCon]);
+  }, [selectedConnectionSummary, hierarchicalNodes]);
+
 
   const heatmapData = useMemo(() => {
-    const data = getSecondaryHeatmapData(yAxis, connectionsMap);
-    return data;
+    return getSecondaryHeatmapData(yAxis, connectionsMap);
   }, [yAxis, connectionsMap]);
 
   const [uniqueKS, setUniqueKS] = useState<KsMapType>({});
@@ -164,39 +122,35 @@ function Connections() {
     setSelectedCell({ x, y });
     setConnectionPage(1)
     const row = connectionsMap.get(yId);
-    if (Object.keys(selectedConnectionSummary.connections).length !== 0 && row) {
+    if (selectedConnectionSummary && Object.keys(selectedConnectionSummary.connections).length !== 0 && row) {
       setShowConnectionDetails(SummaryType.DetailedSummary)
-      const ksMap = getKnowledgeStatementAndCount(row[x].ksIds, knowledgeStatements);
-      setUniqueKS(ksMap)
+      const ksMap = getKnowledgeStatementMap(row[x].ksIds, knowledgeStatements);
+      setUniqueKS(ksMap);
     }
   }
+
   return (
     <Box display='flex' flexDirection='column' minHeight={1}>
+      <SummaryHeader
+        showDetails={showConnectionDetails}
+        setShowDetails={setShowConnectionDetails}
+        uniqueKS={uniqueKS}
+        connectionPage={connectionPage}
+        setConnectionPage={setConnectionPage}
+        totalConnectionCount={totalConnectionCount}
+      />
       {
-        showConnectionDetails !== SummaryType.Instruction && (
-          <SummaryHeader
-            showDetails={showConnectionDetails}
-            setShowDetails={setShowConnectionDetails}
-            uniqueKS={uniqueKS}
-            connectionPage={connectionPage}
-            setConnectionPage={setConnectionPage}
-            totalConnectionCount={totalConnectionCount}
-          />
+        showConnectionDetails === SummaryType.Instruction && (
+          <SummaryInstructions />
         )
       }
 
-      {showConnectionDetails === 'detailedSummary' ? (
-        <>
-          <Details
-            uniqueKS={uniqueKS}
-            connectionPage={connectionPage}
-          />
-        </>
-      ) : showConnectionDetails === SummaryType.Instruction ? (
-        <>
-          <SummaryInstructions />
-        </>
-      ) : (
+      {showConnectionDetails === SummaryType.DetailedSummary ? (
+        <SummaryDetails
+          uniqueKS={uniqueKS}
+          connectionPage={connectionPage}
+        />
+      ) : showConnectionDetails === SummaryType.Instruction ? (<></>) : (
         <>
           <Box p={3} display='flex' flexDirection='column' gap={3}>
             <Box display='flex' alignItems='flex-end' gap={1.5}>
@@ -231,26 +185,7 @@ function Connections() {
                 Summary map shows the connections of the selected connection origin and end organ with phenotypes. Select individual squares to view the details of each connections.
               </Typography>
             </Box>
-            <Box display="flex" gap={1} flexWrap='wrap'>
-              <CustomFilterDropdown
-                key={"Phenotype"}
-                id={"Phenotype"}
-                placeholder="Phenotype"
-                searchPlaceholder="Search Phenotype"
-                selectedOptions={[]}
-                onSearch={(searchValue: string) => searchPhenotypeFilter(searchValue)}
-                onSelect={() => { }}
-              />
-              <CustomFilterDropdown
-                key={"Nerve"}
-                id={"Nerve"}
-                placeholder="Nerve"
-                searchPlaceholder="Search Nerve"
-                selectedOptions={[]}
-                onSearch={(searchValue: string) => searchNerveFilter(searchValue)}
-                onSelect={() => { }}
-              />
-            </Box>
+              <SummaryFiltersDropdown nerves={nerves} phenotypes={phenotypes} />
             <HeatmapGrid
               yAxis={yAxis}
               setYAxis={setYAxis}
@@ -263,7 +198,7 @@ function Connections() {
             />
           </Box>
 
-          <PhenotypeLegend phenotypes={phenotypeFilters} />
+            <PhenotypeLegend phenotypes={phenotypes} />
         </>
       )
       }

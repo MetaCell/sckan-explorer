@@ -40,7 +40,11 @@ const SummaryHeader = ({
       setConnectionPage(connectionPage - 1);
     }
   };
-  
+
+  if (showDetails === SummaryType.Instruction) {
+    return <></>
+  }
+
   return (
     <Stack
       direction='row'
@@ -88,11 +92,11 @@ const SummaryHeader = ({
             <Link underline="hover" onClick={() => setShowDetails(SummaryType.Summary)}>
               Summary
             </Link>
-          ) : showDetails === SummaryType.Summary ? (
+          ) : (
             <Typography>
               Summary
             </Typography>
-            ) : <></>
+            )
           }
           {
             showDetails === SummaryType.DetailedSummary &&
@@ -116,7 +120,7 @@ const SummaryHeader = ({
               </Typography>
               <HelpCircle />
             </>
-          ) : showDetails === SummaryType.Summary ? (
+          ) : (
             <>
                 <Box sx={{
                   display: 'flex',
@@ -140,7 +144,7 @@ const SummaryHeader = ({
                   <Button variant="contained">Download results (.csv)</Button>
                 </Box>
               </>
-            ) : <></>
+            )
         }
       </Box>
     </Stack>

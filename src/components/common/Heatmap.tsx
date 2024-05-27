@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useMemo, } from "react";
 import { Box, Typography } from "@mui/material";
 import { vars } from "../../theme/variables";
 import CollapsibleList from "./CollapsibleList";
@@ -6,27 +6,10 @@ import HeatMap from "react-heatmap-grid";
 import HeatmapTooltip from "./HeatmapTooltip";
 import { HierarchicalItem, SubConnections } from "./Types.ts";
 import { getNormalizedValueForMinMax } from "../../services/summaryHeatmapService.ts";
-import { getPhenotypeColors } from "../../services/heatmapService.ts";
+import { generateYLabelsAndIds, getPhenotypeColors } from "../../services/heatmapService.ts";
 
 
 const { gray50, primaryPurple500, gray100A, gray500 } = vars;
-
-
-const generateYLabelsAndIds = (list: HierarchicalItem[], prefix = ''): { labels: string[], ids: string[] } => {
-    let labels: string[] = [];
-    let ids: string[] = [];
-    list?.forEach(item => {
-        const fullLabel = prefix ? `${prefix} - ${item.label}` : item.label;
-        labels.push(fullLabel);
-        ids.push(item.id);
-        if (item.expanded && item.children.length > 0) {
-            const children = generateYLabelsAndIds(item.children, fullLabel);
-            labels = labels.concat(children.labels);
-            ids = ids.concat(children.ids);
-        }
-    });
-    return { labels, ids };
-};
 
 interface HeatmapGridProps {
     xAxis: string[];
@@ -41,9 +24,10 @@ interface HeatmapGridProps {
 }
 
 const prepareSecondaryHeatmapData = (data?: SubConnections[][]): number[][] => {
-    if (!data) return [];
-    // Counts the size of the secondary heatmap cell
-    return data.map(row => row.map(cell => cell.ksIds.size));
+    return useMemo(() => {
+        if (!data) return [];
+        return data.map(row => row.map(cell => cell.ksIds.size));
+    }, [data])
 }
 
 const HeatmapGrid: FC<HeatmapGridProps> = ({
@@ -51,7 +35,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     xAxisLabel, yAxisLabel,
     onCellClick, selectedCell, heatmapData, secondaryHeatmapData
 }) => {
-    const secondary = secondaryHeatmapData ? true : false
+    const secondary = secondaryHeatmapData ? true : false;
     const heatmapMatrixData = secondary ? prepareSecondaryHeatmapData(secondaryHeatmapData) : heatmapData;
     const handleCollapseClick = (item: HierarchicalItem) => {
         const updateList = (list: HierarchicalItem[], selectedItem: HierarchicalItem): HierarchicalItem[] => {
@@ -68,13 +52,14 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         setYAxis(updatedList);
     };
 
+    const yAxisData = generateYLabelsAndIds(yAxis);
+
     const handleCellClick = (x: number, y: number) => {
         const ids = yAxisData.ids
         if (onCellClick) {
             onCellClick(x, y, ids[y]);
         }
     }
-
 
     const getCellBgColorFromPhenotype = (
         normalizedValue: number,
@@ -89,7 +74,6 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         }
         return `rgba(0, 0, 0, ${normalizedValue})`
     };
-    const yAxisData = generateYLabelsAndIds(yAxis)
 
     return (
         <Box flex={1} my={3} display='inline-flex' flexDirection='column'>
@@ -117,7 +101,6 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                         color: gray500
 
                     }}>{yAxisLabel}</Typography>
-
                 )}
 
                 <Box width={1} position='relative'
@@ -195,61 +178,65 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                             }
                         }
                     }}>
-                    <HeatMap
-                        xLabels={xAxis}
-                        yLabels={generateYLabelsAndIds(yAxis).labels}
-                        xLabelsLocation={"top"}
-                        xLabelsVisibility={xAxis?.map(() => true)}
-                        xLabelWidth={160}
-                        yLabelWidth={250}
-                        data={heatmapMatrixData}
-                        // squares
-                        height={43}
-                        onClick={(x: number, y: number) => handleCellClick(x, y)}
-                        cellStyle={(_background: string, value: number, min: number, max: number, _data: string, _x: number, _y: number) => {
-                            const isSelectedCell = selectedCell?.x === _x && selectedCell?.y === _y
-                            const normalizedValue = getNormalizedValueForMinMax(value, min, max);
-                            const safeNormalizedValue = Math.min(Math.max(normalizedValue, 0), 1);
+                    {
+                        yAxisData && heatmapMatrixData && heatmapMatrixData.length > 0 && heatmapMatrixData[0].length > 0 && (
+                            <HeatMap
+                                xLabels={xAxis}
+                                yLabels={yAxisData.labels}
+                                xLabelsLocation={"top"}
+                                xLabelsVisibility={xAxis?.map(() => true)}
+                                xLabelWidth={160}
+                                yLabelWidth={250}
+                                data={heatmapMatrixData}
+                                // squares
+                                height={43}
+                                onClick={(x: number, y: number) => handleCellClick(x, y)}
+                                cellStyle={(_background: string, value: number, min: number, max: number, _data: string, _x: number, _y: number) => {
+                                    const isSelectedCell = selectedCell?.x === _x && selectedCell?.y === _y
+                                    const normalizedValue = getNormalizedValueForMinMax(value, min, max);
+                                    const safeNormalizedValue = Math.min(Math.max(normalizedValue, 0), 1);
 
-                            const commonStyles = {
-                                fontSize: "0.6875rem",
-                                minWidth: '2rem',
-                                height: '2rem',
-                                borderRadius: '0.25rem',
-                                margin: '0.125rem',
-                                borderStyle: 'solid',
-                                borderWidth: '0.0625rem',
-                                borderColor: 1 - (max - value) / (max - min) <= 0.1 ? gray100A : 'rgba(255, 255, 255, 0.2)',
-                            }
-                            if (secondary) { // to show another heatmap, can be changed when data is added
-                                return {
-                                    ...commonStyles,
-                                    borderColor: gray100A,
-                                    background: getCellBgColorFromPhenotype(
-                                        safeNormalizedValue,
-                                        _x,
-                                        _y
-                                    )
-                                }
-                            } else {
-                                return {
-                                    ...commonStyles,
-                                    borderWidth: isSelectedCell ? '0.125rem' : '0.0625rem',
-                                    borderColor: isSelectedCell ? '#8300BF' : 1 - (max - value) / (max - min) <= 0.1 ? gray100A : 'rgba(255, 255, 255, 0.2)',
-                                    background: `rgba(131, 0, 191, ${safeNormalizedValue})`,
-                                }
-                            }
+                                    const commonStyles = {
+                                        fontSize: "0.6875rem",
+                                        minWidth: '2rem',
+                                        height: '2rem',
+                                        borderRadius: '0.25rem',
+                                        margin: '0.125rem',
+                                        borderStyle: 'solid',
+                                        borderWidth: '0.0625rem',
+                                        borderColor: 1 - (max - value) / (max - min) <= 0.1 ? gray100A : 'rgba(255, 255, 255, 0.2)',
+                                    }
+                                    if (secondary) { // to show another heatmap, can be changed when data is added
+                                        return {
+                                            ...commonStyles,
+                                            borderColor: gray100A,
+                                            background: getCellBgColorFromPhenotype(
+                                                safeNormalizedValue,
+                                                _x,
+                                                _y
+                                            )
+                                        }
+                                    } else {
+                                        return {
+                                            ...commonStyles,
+                                            borderWidth: isSelectedCell ? '0.125rem' : '0.0625rem',
+                                            borderColor: isSelectedCell ? '#8300BF' : 1 - (max - value) / (max - min) <= 0.1 ? gray100A : 'rgba(255, 255, 255, 0.2)',
+                                            background: `rgba(131, 0, 191, ${safeNormalizedValue})`,
+                                        }
+                                    }
 
 
-                        }}
-                        cellRender={(value: number, x: number, y: number) => (
-                            <HeatmapTooltip
-                                value={value} x={x} y={y}
-                                secondary={secondary} getCellBgColor={() => 'rgba(0,0,0,0)'}
+                                }}
+                                cellRender={(value: number, x: number, y: number) => (
+                                    <>
+                                        <HeatmapTooltip
+                                            value={value} x={x} y={y}
+                                            secondary={secondary} getCellBgColor={() => 'rgba(0,0,0,0)'}
+                                        />
+                                    </>
+                                )}
                             />
                         )}
-                    />
-
                     <CollapsibleList list={yAxis} onItemClick={handleCollapseClick} />
 
                 </Box>

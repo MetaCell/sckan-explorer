@@ -1,9 +1,9 @@
 import { HierarchicalNode, KnowledgeStatement, Organ } from "../models/explorer.ts";
 import {ROOTS} from "./hierarchyService.ts";
-import { HierarchicalItem, IHeatmapMatrixInformation, Option, KsMapType } from "../components/common/Types.ts";
+import { HierarchicalItem, IHeatmapMatrixInformation, Option, KsMapType, LabelIdPair } from "../components/common/Types.ts";
 import {Filters} from "../context/DataContext.ts";
 
-export function getYAxis(hierarchicalNodes: Record<string, HierarchicalNode>): HierarchicalItem[] {
+export function getYAxis(hierarchicalNodes: Record<string, HierarchicalNode>, hierarchyNode?: Record<string, HierarchicalNode>): HierarchicalItem[] {
     function buildListItem(nodeId: string): HierarchicalItem {
         const node = hierarchicalNodes[nodeId];
         const childrenListItems: HierarchicalItem[] = [];
@@ -20,8 +20,8 @@ export function getYAxis(hierarchicalNodes: Record<string, HierarchicalNode>): H
         };
     }
 
-
-    return ROOTS.map(root => {
+    const yRoot = hierarchyNode ? Object.values(hierarchyNode) : ROOTS
+    return yRoot.map(root => {
         return hierarchicalNodes[root.id] ? buildListItem(root.id) : null;
     }).filter(item => item !== null) as HierarchicalItem[];
 }
@@ -107,29 +107,20 @@ export function getHeatmapData(yAxis: HierarchicalItem[], connections: Map<strin
         const itemConnections = connections.get(item.id);
         if (itemConnections) {
             const itemConnectionsCount = itemConnections.map(set => set.size);
-            // heatmapMatrix.push(itemConnectionsCount);
             heatmapInformation.heatmapMatrix.push(itemConnectionsCount);
+            heatmapInformation.detailedHeatmap.push({ label: item.label, id: item.id || '', data: itemConnections || [] })
         }
     }
 
     function traverseItems(items: HierarchicalItem[], fetchNextLevel: boolean) {
         items.forEach(item => {
             if (item.expanded) {
-                // push the details of the current item
-                const itemData = connections.get(item.label);
-                heatmapInformation.detailedHeatmap.push({ label: item.label, id: item.id || '', data: itemData || [] })
-
-                // Fetch data for the current expanded item
                 addDataForItem(item);
                 // Traverse further into the expanded item
                 if (item.children && typeof item.children[0] !== 'string') {
                     traverseItems(item.children as HierarchicalItem[], true);
                 }
             } else if (fetchNextLevel) {
-                const itemData = connections.get(item.label);
-                heatmapInformation.detailedHeatmap.push({ label: item.label, id: item.id || '', data: itemData || [] })
-
-                // Fetch data for the immediate children of the last expanded item
                 addDataForItem(item);
             }
         });
@@ -223,9 +214,26 @@ export const getPhenotypeColors = (normalizedValue: number, phenotypeColors: str
     let phenotypeColor = phenotypeColors.length > 1 ? `linear-gradient(to right, ${phenotypeColorsWithPercentage.join(',')}` :
         phenotypeColors.length === 1 ? phenotypeColors[0] : '';
 
-    // replace the alpha value of the color with the normalized value
-    phenotypeColor = phenotypeColor?.replace(/rgba\(([^,]+),([^,]+),([^,]+),([^)]+)\)/g, `rgba($1,$2,$3,${normalizedValue})`).replace(
-        /rgb\(([^,]+),([^,]+),([^,]+)\)/g, `rgba($1,$2,$3,${normalizedValue})`
-    );
+    // ADD the following if we need opacity for secondary/phenotype heatmap -  replace the alpha value of the color with the normalized value
+    // phenotypeColor = phenotypeColor?.replace(/rgba\(([^,]+),([^,]+),([^,]+),([^)]+)\)/g, `rgba($1,$2,$3,${normalizedValue})`).replace(
+    //     /rgb\(([^,]+),([^,]+),([^,]+)\)/g, `rgba($1,$2,$3,${normalizedValue})`
+    // );
     return phenotypeColor ? phenotypeColor : `rgba(131, 0, 191, ${normalizedValue})`;
+};
+
+
+export const generateYLabelsAndIds = (list: HierarchicalItem[], prefix = ''): LabelIdPair => {
+    let labels: string[] = [];
+    let ids: string[] = [];
+    list?.forEach(item => {
+        const fullLabel = prefix ? `${prefix} - ${item.label}` : item.label;
+        labels.push(fullLabel);
+        ids.push(item.id);
+        if (item.expanded && item.children.length > 0) {
+            const children = generateYLabelsAndIds(item.children, fullLabel);
+            labels = labels.concat(children.labels);
+            ids = ids.concat(children.ids);
+        }
+    });
+    return { labels, ids };
 };

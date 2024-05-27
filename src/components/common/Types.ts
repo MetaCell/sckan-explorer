@@ -11,9 +11,10 @@ export type Option = {
   content: OptionDetail[];
 }
 
+export type LabelIdPair = { labels: string[], ids: string[] };
 
 export type KsMapType = Record<string, KnowledgeStatement>;
-export type SubConnections = { count: number, colors: string[], ksIds: Set<string> };
+export type SubConnections = { colors: string[], ksIds: Set<string> };
 export enum SummaryType {
   Summary = 'summary',
   DetailedSummary = 'detailedSummary',
@@ -36,4 +37,5 @@ export interface HierarchicalItem {
 export type PhenotypeDetail = {
   label: string;
   color: string;
+  ksId: string;
 };
