@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Box, Chip, TextField, Typography } from "@mui/material";
 import { ArrowRightIcon } from "./icons";
 import { vars } from "../theme/variables";
-import { HierarchicalItem, SubConnections, PhenotypeDetail, SummaryType, KsMapType } from "./common/Types";
+import { HierarchicalItem, SubConnections, SummaryType, KsMapType, PhenotypeType } from "./common/Types";
 import { useDataContext } from "../context/DataContext.ts";
 import {
   calculateSecondaryConnections,
@@ -58,17 +58,20 @@ function Connections() {
   const viasStatement = convertViaToString(Object.values(viasConnection))
   const totalConnectionCount = Object.keys(selectedConnectionSummary?.connections || {} as KsMapType).length;
   const phenotypeNamesArray = useMemo(() => getAllPhenotypes(selectedConnectionSummary?.connections || {} as KsMapType), [selectedConnectionSummary]);
-  const [phenotypes, setPhenotypes] = useState<PhenotypeDetail[]>([]);
+  const [phenotypes, setPhenotypes] = useState<PhenotypeType>({});
 
 
   useEffect(() => {
     if (selectedConnectionSummary && phenotypeNamesArray && phenotypeNamesArray.length > 0) {
       const phenotypeColors: string[] = generatePhenotypeColors(phenotypeNamesArray.length)
-      setPhenotypes(phenotypeNamesArray.map((phenotype, index) => ({
-        label: phenotype,
-        color: phenotypeColors[index],
-        ksId: ''
-      })))
+      const phenotypes: PhenotypeType = {};
+      phenotypeNamesArray.forEach((phenotype, index) => {
+        phenotypes[phenotype] = {
+          label: phenotype,
+          color: phenotypeColors[index],
+        }
+      })
+      setPhenotypes(phenotypes);
     }
   }, [phenotypeNamesArray, selectedConnectionSummary])
 
@@ -76,16 +79,13 @@ function Connections() {
 
 
   useEffect(() => {
-    if (selectedConnectionSummary && phenotypes) {
+    if (selectedConnectionSummary && phenotypes && selectedConnectionSummary.hierarchy && hierarchicalNodes) {
       const destinations = Array.from(selectedConnectionSummary.endOrgan?.children?.values()).reduce((acc, organ, index) => {
         acc[organ.id] = { ...organ, children: new Map<string, BaseEntity>(), order: index };
         return acc;
       }, {} as Record<string, Organ>);
 
-      const connections = calculateSecondaryConnections(
-        hierarchicalNodes, destinations, knowledgeStatements, summaryFilters, phenotypes,
-        selectedConnectionSummary.hierarchy
-      );
+      const connections = calculateSecondaryConnections(hierarchicalNodes, destinations, knowledgeStatements, summaryFilters, selectedConnectionSummary.hierarchy)
       setConnectionsMap(connections);
     }
   }, [hierarchicalNodes, selectedConnectionSummary, summaryFilters, knowledgeStatements, phenotypes]);
@@ -193,6 +193,7 @@ function Connections() {
               secondaryHeatmapData={heatmapData}
               xAxisLabel={'Project to'}
               yAxisLabel={'Somas in'}
+                phenotypes={phenotypes}
             />
           </Box>
 

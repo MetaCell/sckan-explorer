@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { SummaryFilters, useDataContext } from "../context/DataContext";
 import CustomFilterDropdown from "./common/CustomFilterDropdown";
-import { Option, PhenotypeDetail } from "./common/Types";
+import { Option, PhenotypeType } from "./common/Types";
 import { Box } from "@mui/material";
 import { searchNerveFilter, searchPhenotypeFilter } from "../services/searchService";
 import { OTHER_PHENOTYPE_LABEL } from "../settings";
@@ -27,7 +27,7 @@ const filterConfig: FilterConfig[] = [
 
 const SummaryFiltersDropdown = ({ nerves, phenotypes }: {
 	nerves: { [key: string]: string },
-	phenotypes: PhenotypeDetail[]
+	phenotypes: PhenotypeType
 }) => {
 	const { summaryFilters, setSummaryFilters } = useDataContext();
 
@@ -39,9 +39,9 @@ const SummaryFiltersDropdown = ({ nerves, phenotypes }: {
 			content: []
 		}));
 	}
-	const convertPhenotypesToOptions = (phenotypes: PhenotypeDetail[]): Option[] => {
+	const convertPhenotypesToOptions = (phenotypes: PhenotypeType): Option[] => {
 		// filter the phenotype where label is other
-		return phenotypes.map(phenotype => ({
+		return Object.values(phenotypes).map(phenotype => ({
 			id: phenotype.label,
 			label: phenotype.label,
 			group: 'Phenotype',

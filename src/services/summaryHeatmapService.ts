@@ -2,7 +2,6 @@
 import { HierarchicalItem, SubConnections, KsMapType } from "../components/common/Types.ts";
 import { SummaryFilters } from "../context/DataContext.ts";
 import { HierarchicalNode, KnowledgeStatement, Organ } from "../models/explorer.ts";
-import { PhenotypeDetail } from "../components/common/Types.ts";
 import { FIXED_FOUR_PHENOTYPE_COLORS_ARRAY, OTHER_PHENOTYPE_LABEL } from "../settings.ts";
 
 
@@ -126,7 +125,7 @@ export function summaryFilterKnowledgeStatements(knowledgeStatements: Record<str
 export function calculateSecondaryConnections(
 	hierarchicalNodes: Record<string, HierarchicalNode>, endorgans: Record<string, Organ>,
 	allKnowledgeStatements: Record<string, KnowledgeStatement>, summaryFilters: SummaryFilters,
-	phenotypes: PhenotypeDetail[], hierarchyNode: HierarchicalNode
+	hierarchyNode: HierarchicalNode
 ): Map<string, SubConnections[]> {
 
 	// Apply filters to organs and knowledge statements
@@ -147,12 +146,13 @@ export function calculateSecondaryConnections(
 		}
 
 		const node = hierarchicalNodes[nodeId];
-		const result: SubConnections[] = Object.values(endorgans).map(() => ({ colors: [], ksIds: new Set<string>() }));
+		const result: SubConnections[] = Object.values(endorgans).map(() => ({ phenotypes: [], ksIds: new Set<string>() }));
+
 		if (node.children && node.children.size > 0) {
 			node.children.forEach(childId => {
 				const childConnections = computeNodeConnections(childId);
 				childConnections.forEach((child, index) => {
-					result[index].colors = [...new Set([...result[index].colors, ...child.colors])];
+					result[index].phenotypes = [...new Set([...result[index].phenotypes, ...child.phenotypes])];
 					result[index].ksIds = new Set([...result[index].ksIds, ...child.ksIds]);
 				});
 			});
@@ -165,21 +165,12 @@ export function calculateSecondaryConnections(
 					const knowledgeStatementIds = Array.from(node.destinationDetails[endOrganIRI])
 						.filter(ksId => ksId in knowledgeStatements);
 
-					if (knowledgeStatementIds.length > 0) {
-						const ksPhenotypes = knowledgeStatementIds.map(ksId => knowledgeStatements[ksId].phenotype).filter(phenotype => phenotype !== '');
-						const phenotypeColorsSet = new Set<string>();
+					const ksPhenotypes = knowledgeStatementIds.map(ksId => {
+						return knowledgeStatements[ksId].phenotype ? knowledgeStatements[ksId].phenotype : OTHER_PHENOTYPE_LABEL
+					})
 
-						const unknownFilter = phenotypes.find(p => p.label === 'other');
-						ksPhenotypes.length === 0 ? phenotypeColorsSet.add(unknownFilter?.color || '') :
-							ksPhenotypes.map(phenotype => {
-								const phn = phenotypes.find(p => p.label === phenotype);
-								phn ? phenotypeColorsSet.add(phn.color) : phenotypeColorsSet.add(unknownFilter?.color || '')  // FIXME: Could be a bug
-							})
-
-						const phenotypeColors = Array.from(phenotypeColorsSet)
-						result[index].colors = phenotypeColors
-						result[index].ksIds = new Set([...result[index].ksIds, ...knowledgeStatementIds]);
-					}
+					result[index].phenotypes = [...new Set(ksPhenotypes)];
+					result[index].ksIds = new Set([...result[index].ksIds, ...knowledgeStatementIds]);
 				}
 			});
 		}
@@ -187,7 +178,6 @@ export function calculateSecondaryConnections(
 		memo.set(nodeId, result);
 		return result;
 	}
-
 	computeNodeConnections(hierarchyNode.id)
 	return memo;
 }

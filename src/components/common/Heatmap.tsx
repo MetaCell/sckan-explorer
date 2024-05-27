@@ -4,9 +4,10 @@ import { vars } from "../../theme/variables";
 import CollapsibleList from "./CollapsibleList";
 import HeatMap from "react-heatmap-grid";
 import HeatmapTooltip from "./HeatmapTooltip";
-import { HierarchicalItem, SubConnections } from "./Types.ts";
+import { HierarchicalItem, PhenotypeType, SubConnections } from "./Types.ts";
 import { getNormalizedValueForMinMax } from "../../services/summaryHeatmapService.ts";
 import { generateYLabelsAndIds, getPhenotypeColors } from "../../services/heatmapService.ts";
+import { OTHER_PHENOTYPE_LABEL } from "../../settings.ts";
 
 
 const { gray50, primaryPurple500, gray100A, gray500 } = vars;
@@ -21,6 +22,7 @@ interface HeatmapGridProps {
     selectedCell?: { x: number, y: number } | null;
     heatmapData?: number[][];
     secondaryHeatmapData?: SubConnections[][];
+    phenotypes?: PhenotypeType;
 }
 
 const prepareSecondaryHeatmapData = (data?: SubConnections[][]): number[][] => {
@@ -32,7 +34,7 @@ const prepareSecondaryHeatmapData = (data?: SubConnections[][]): number[][] => {
 const HeatmapGrid: FC<HeatmapGridProps> = ({
     xAxis, yAxis, setYAxis,
     xAxisLabel, yAxisLabel,
-    onCellClick, selectedCell, heatmapData, secondaryHeatmapData
+    onCellClick, selectedCell, heatmapData, secondaryHeatmapData, phenotypes
 }) => {
     const secondary = secondaryHeatmapData ? true : false;
 
@@ -58,7 +60,6 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     const yAxisData = generateYLabelsAndIds(yAxis);
 
 
-
     const handleCellClick = (x: number, y: number) => {
         const ids = yAxisData.ids
         if (onCellClick) {
@@ -71,8 +72,20 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         _x: number,
         _y: number
     ) => {
-        if (secondary && secondaryHeatmapData && secondaryHeatmapData[_y] && secondaryHeatmapData[_y][_x]) {
-            const phenotypeColors = secondaryHeatmapData[_y][_x]?.colors;
+        if (phenotypes && secondary && secondaryHeatmapData && secondaryHeatmapData[_y] && secondaryHeatmapData[_y][_x]) {
+            const matrixCellPhenotypes = secondaryHeatmapData[_y][_x]?.phenotypes;
+
+            const phenotypeColorsSet = new Set<string>();
+            matrixCellPhenotypes.forEach(phenotype => {
+                const phnColor = phenotypes[phenotype]?.color
+                if (phnColor) {
+                    phenotypeColorsSet.add(phnColor);
+                } else {
+                    phenotypeColorsSet.add(phenotypes[OTHER_PHENOTYPE_LABEL].color);
+                }
+            });
+
+            const phenotypeColors = Array.from(phenotypeColorsSet);
             const phenotypeColor = getPhenotypeColors(normalizedValue, phenotypeColors);
 
             return phenotypeColor ? phenotypeColor : `rgba(131, 0, 191, ${normalizedValue})`;

@@ -1,13 +1,14 @@
 import { Box, Typography } from "@mui/material"
-import { PhenotypeDetail } from "../common/Types"
+import { PhenotypeDetail, PhenotypeType } from "../common/Types"
 import { vars } from "../../theme/variables";
 
 const { gray100 } = vars;
 
 
 const PhenotypeLegend = (
-	{ phenotypes }: { phenotypes: PhenotypeDetail[] }
+	{ phenotypes }: { phenotypes: PhenotypeType }
 ) => {
+	const phenotypesLegends = Object.values(phenotypes);
 	return (
 		<Box sx={{
 			position: 'sticky',
@@ -34,7 +35,7 @@ const PhenotypeLegend = (
 					alignItems: 'center',
 					gap: '1.5rem'
 				}}>
-					{phenotypes?.map((phenotype: PhenotypeDetail) => (
+					{phenotypesLegends?.map((phenotype: PhenotypeDetail) => (
 						<Box sx={{
 							p: '0.1875rem 0.25rem',
 							display: 'flex',
