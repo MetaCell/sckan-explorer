@@ -1,16 +1,16 @@
-import React, { FC, useCallback, useMemo, } from "react";
-import { Box, Typography } from "@mui/material";
-import { vars } from "../../theme/variables";
+import React, {FC, useCallback, useMemo,} from "react";
+import {Box, Typography} from "@mui/material";
+import {vars} from "../../theme/variables";
 import CollapsibleList from "./CollapsibleList";
 import HeatMap from "react-heatmap-grid";
-import HeatmapTooltip from "./HeatmapTooltip";
-import { HierarchicalItem, PhenotypeType, PhenotypeKsIdMap } from "./Types.ts";
-import { getNormalizedValueForMinMax } from "../../services/summaryHeatmapService.ts";
-import { generateYLabelsAndIds, getPhenotypeColors } from "../../services/heatmapService.ts";
-import { OTHER_PHENOTYPE_LABEL } from "../../settings.ts";
+import HeatmapTooltip, {HeatmapTooltipRow} from "./HeatmapTooltip";
+import {HierarchicalItem, PhenotypeType, PhenotypeKsIdMap} from "./Types.ts";
+import {getNormalizedValueForMinMax} from "../../services/summaryHeatmapService.ts";
+import {generateYLabelsAndIds, getPhenotypeColors} from "../../services/heatmapService.ts";
+import {OTHER_PHENOTYPE_LABEL} from "../../settings.ts";
 
 
-const { gray50, primaryPurple500, gray100A, gray500 } = vars;
+const {gray50, primaryPurple500, gray100A, gray500} = vars;
 
 interface HeatmapGridProps {
     xAxis: string[];
@@ -27,28 +27,49 @@ interface HeatmapGridProps {
 
 const prepareSecondaryHeatmapData = (data?: PhenotypeKsIdMap[][]): number[][] => {
     if (!data) return [];
-    return data.map(row => row.map(cell => cell.ksIds.size));
+    return data.map(row => row.map(cell => {
+        return Object.values(cell).reduce((acc, phenotype) => acc + phenotype.ksIds.size, 0);
+    }));
 }
 
 
 const HeatmapGrid: FC<HeatmapGridProps> = ({
-    xAxis, yAxis, setYAxis,
-    xAxisLabel, yAxisLabel,
-    onCellClick, selectedCell, heatmapData, secondaryHeatmapData, phenotypes
-}) => {
-    const secondary = secondaryHeatmapData ? true : false;
+                                               xAxis, yAxis, setYAxis,
+                                               xAxisLabel, yAxisLabel,
+                                               onCellClick, selectedCell, heatmapData, secondaryHeatmapData, phenotypes
+                                           }) => {
+
+    const secondary = !!secondaryHeatmapData;
+    const yAxisData = generateYLabelsAndIds(yAxis);
 
     const heatmapMatrixData = useMemo(() => {
         return secondary ? prepareSecondaryHeatmapData(secondaryHeatmapData) : heatmapData;
     }, [secondary, secondaryHeatmapData, heatmapData]);
 
+    const xLabelToIndex = useMemo(() => {
+        const lookup: { [key: string]: number } = {};
+        xAxis.forEach((label, index) => {
+            lookup[label] = index;
+        });
+        return lookup;
+    }, [xAxis]);
+
+    const yLabelToIndex = useMemo(() => {
+        const lookup: { [key: string]: number } = {};
+        yAxisData.labels.forEach((label, index) => {
+            lookup[label] = index;
+        });
+        return lookup;
+    }, [yAxisData.labels]);
+
+
     const handleCollapseClick = useCallback((item: HierarchicalItem) => {
         const updateList = (list: HierarchicalItem[], selectedItem: HierarchicalItem): HierarchicalItem[] => {
             return list?.map(listItem => {
                 if (listItem.label === selectedItem.label) {
-                    return { ...listItem, expanded: !listItem.expanded };
+                    return {...listItem, expanded: !listItem.expanded};
                 } else if (listItem.children) {
-                    return { ...listItem, children: updateList(listItem.children, selectedItem) };
+                    return {...listItem, children: updateList(listItem.children, selectedItem)};
                 }
                 return listItem;
             });
@@ -56,9 +77,6 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         const updatedList = updateList(yAxis, item);
         setYAxis(updatedList);
     }, [yAxis, setYAxis]);
-
-    const yAxisData = generateYLabelsAndIds(yAxis);
-
 
     const handleCellClick = (x: number, y: number) => {
         const ids = yAxisData.ids
@@ -74,11 +92,11 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     ) => {
         // Gets the color for secondary heatmap cell based on the phenotypes
         if (phenotypes && secondary && secondaryHeatmapData && secondaryHeatmapData[_y] && secondaryHeatmapData[_y][_x]) {
-            const heatmapCellPhenotypes = secondaryHeatmapData[_y][_x]?.phenotypes;
-
+            const heatmapCellPhenotypes = secondaryHeatmapData[_y][_x];
             const phenotypeColorsSet = new Set<string>();
-            heatmapCellPhenotypes.forEach(phenotype => {
-                const phnColor = phenotypes[phenotype]?.color
+
+            Object.keys(heatmapCellPhenotypes).forEach(phenotype => {
+                const phnColor = phenotypes[phenotype]?.color;
                 if (phnColor) {
                     phenotypeColorsSet.add(phnColor);
                 } else {
@@ -88,10 +106,22 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
 
             const phenotypeColors = Array.from(phenotypeColorsSet);
             const phenotypeColor = getPhenotypeColors(normalizedValue, phenotypeColors);
-
             return phenotypeColor ? phenotypeColor : `rgba(131, 0, 191, ${normalizedValue})`;
         }
         return `rgba(0, 0, 0, ${normalizedValue})`
+    };
+
+    const getTooltipRows = (xIndex: number, yIndex: number): HeatmapTooltipRow[] => {
+        if (secondary && secondaryHeatmapData && phenotypes && secondaryHeatmapData[yIndex] && secondaryHeatmapData[yIndex][xIndex]) {
+            const heatmapCellPhenotypes = secondaryHeatmapData[yIndex][xIndex];
+
+            return Object.keys(heatmapCellPhenotypes).map(phenotype => ({
+                color: phenotypes[phenotype]?.color || phenotypes[OTHER_PHENOTYPE_LABEL].color,
+                name: phenotype,
+                count: heatmapCellPhenotypes[phenotype].ksIds.size
+            }));
+        }
+        return [];
     };
 
     return (
@@ -123,80 +153,80 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                 )}
 
                 <Box width={1} position='relative'
-                    sx={{
-                        '& > div:first-of-type': {
-                            '& > div:last-of-type': {
-                                '& > div': {
-                                    '& > div': {
-                                        '&:not(:first-of-type)': {
-                                            '&:hover': {
-                                                boxShadow: '0rem 0.0625rem 0.125rem 0rem #1018280F, 0rem 0.0625rem 0.1875rem 0rem #1018281A'
-                                            },
-                                            '& > div': {
-                                                paddingTop: '0 !important',
-                                                height: '100%',
+                     sx={{
+                         '& > div:first-of-type': {
+                             '& > div:last-of-type': {
+                                 '& > div': {
+                                     '& > div': {
+                                         '&:not(:first-of-type)': {
+                                             '&:hover': {
+                                                 boxShadow: '0rem 0.0625rem 0.125rem 0rem #1018280F, 0rem 0.0625rem 0.1875rem 0rem #1018281A'
+                                             },
+                                             '& > div': {
+                                                 paddingTop: '0 !important',
+                                                 height: '100%',
 
-                                                '& > div': {
-                                                    height: '100%',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center'
-                                                }
-                                            }
-                                        },
-                                        '&:first-of-type': {
-                                            width: '15.625rem',
-                                            flex: 'none !important',
-                                            '& > div': {
-                                                opacity: 0
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            '& > div:first-of-type': {
-                                '& > div': {
-                                    writingMode: 'vertical-lr',
-                                    lineHeight: 1,
-                                    display: 'flex',
-                                    justifyContent: 'flex-end',
-                                    alignItems: 'center',
-                                    fontSize: '0.875rem',
-                                    fontWeight: '500',
-                                    marginLeft: '0.125rem',
-                                    padding: '0.875rem 0',
-                                    position: 'relative',
-                                    borderRadius: '0.25rem',
-                                    minWidth: '2rem !important',
+                                                 '& > div': {
+                                                     height: '100%',
+                                                     display: 'flex',
+                                                     alignItems: 'center',
+                                                     justifyContent: 'center'
+                                                 }
+                                             }
+                                         },
+                                         '&:first-of-type': {
+                                             width: '15.625rem',
+                                             flex: 'none !important',
+                                             '& > div': {
+                                                 opacity: 0
+                                             }
+                                         }
+                                     }
+                                 }
+                             },
+                             '& > div:first-of-type': {
+                                 '& > div': {
+                                     writingMode: 'vertical-lr',
+                                     lineHeight: 1,
+                                     display: 'flex',
+                                     justifyContent: 'flex-end',
+                                     alignItems: 'center',
+                                     fontSize: '0.875rem',
+                                     fontWeight: '500',
+                                     marginLeft: '0.125rem',
+                                     padding: '0.875rem 0',
+                                     position: 'relative',
+                                     borderRadius: '0.25rem',
+                                     minWidth: '2rem !important',
 
-                                    '&:hover': {
-                                        background: gray50,
-                                        '&:before': {
-                                            content: '""',
-                                            width: '100%',
-                                            height: '0.0625rem',
-                                            background: primaryPurple500,
-                                            position: 'absolute',
-                                            top: '-0.25rem',
-                                            left: 0
-                                        },
-                                    },
+                                     '&:hover': {
+                                         background: gray50,
+                                         '&:before': {
+                                             content: '""',
+                                             width: '100%',
+                                             height: '0.0625rem',
+                                             background: primaryPurple500,
+                                             position: 'absolute',
+                                             top: '-0.25rem',
+                                             left: 0
+                                         },
+                                     },
 
-                                    '&:first-of-type': {
-                                        marginLeft: 0,
-                                        width: '15.625rem',
-                                        flex: 'none !important',
-                                        '&:hover': {
-                                            background: 'none',
-                                            '&:before': {
-                                                display: 'none'
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }}>
+                                     '&:first-of-type': {
+                                         marginLeft: 0,
+                                         width: '15.625rem',
+                                         flex: 'none !important',
+                                         '&:hover': {
+                                             background: 'none',
+                                             '&:before': {
+                                                 display: 'none'
+                                             }
+                                         }
+                                     }
+                                 }
+                             }
+                         }
+                     }}>
                     {
                         yAxisData && heatmapMatrixData && heatmapMatrixData.length > 0 && heatmapMatrixData[0].length > 0 && (
                             <HeatMap
@@ -246,17 +276,21 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
 
 
                                 }}
-                                cellRender={(value: number, x: number, y: number) => (
-                                    <>
+                                cellRender={(value: number, xLabel: string, yLabel: string) => {
+                                    const xIndex = xLabelToIndex[xLabel];
+                                    const yIndex = yLabelToIndex[yLabel];
+                                    return (
                                         <HeatmapTooltip
-                                            value={value} x={x} y={y}
-                                            secondary={secondary} getCellBgColor={() => 'rgba(0,0,0,0)'}
+                                            x={xLabel}
+                                            y={yLabel}
+                                            connections={value}
+                                            rows={secondary ? getTooltipRows(xIndex, yIndex) : undefined}
                                         />
-                                    </>
-                                )}
+                                    );
+                                }}
                             />
                         )}
-                    <CollapsibleList list={yAxis} onItemClick={handleCollapseClick} />
+                    <CollapsibleList list={yAxis} onItemClick={handleCollapseClick}/>
 
                 </Box>
             </Box>

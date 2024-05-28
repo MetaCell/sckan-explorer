@@ -141,14 +141,18 @@ export function calculateSecondaryConnections(
 		}
 
 		const node = hierarchicalNodes[nodeId];
-		const result: PhenotypeKsIdMap[] = Object.values(endorgans).map(() => ({ phenotypes: [], ksIds: new Set<string>() }));
+		const result: PhenotypeKsIdMap[] = Object.values(endorgans).map(() => ({}));
 
 		if (node.children && node.children.size > 0) {
 			node.children.forEach(childId => {
 				const childConnections = computeNodeConnections(childId);
 				childConnections.forEach((child, index) => {
-					result[index].phenotypes = [...new Set([...result[index].phenotypes, ...child.phenotypes])];
-					result[index].ksIds = new Set([...result[index].ksIds, ...child.ksIds]);
+					Object.keys(child).forEach(phenotype => {
+						if (!result[index][phenotype]) {
+							result[index][phenotype] = { ksIds: new Set<string>() };
+						}
+						result[index][phenotype].ksIds = new Set([...result[index][phenotype].ksIds, ...child[phenotype].ksIds]);
+					});
 				});
 			});
 		} else if (node.destinationDetails) {
@@ -160,12 +164,13 @@ export function calculateSecondaryConnections(
 					const knowledgeStatementIds = Array.from(node.destinationDetails[endOrganIRI])
 						.filter(ksId => ksId in knowledgeStatements);
 
-					const ksPhenotypes = knowledgeStatementIds.map(ksId => {
-						return knowledgeStatements[ksId].phenotype ? knowledgeStatements[ksId].phenotype : OTHER_PHENOTYPE_LABEL
-					})
-
-					result[index].phenotypes = [...new Set(ksPhenotypes)];
-					result[index].ksIds = new Set([...result[index].ksIds, ...knowledgeStatementIds]);
+					knowledgeStatementIds.forEach(ksId => {
+						const phenotype = knowledgeStatements[ksId].phenotype ? knowledgeStatements[ksId].phenotype : OTHER_PHENOTYPE_LABEL;
+						if (!result[index][phenotype]) {
+							result[index][phenotype] = { ksIds: new Set<string>() };
+						}
+						result[index][phenotype].ksIds.add(ksId);
+					});
 				}
 			});
 		}

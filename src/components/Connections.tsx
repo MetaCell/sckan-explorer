@@ -116,12 +116,18 @@ function Connections() {
   const handleCellClick = (x: number, y: number, yId: string): void => {
     // when the heatmap cell is clicked
     setSelectedCell({ x, y });
-    setConnectionPage(1)
     const row = connectionsMap.get(yId);
-    if (selectedConnectionSummary && Object.keys(selectedConnectionSummary.connections).length !== 0 && row) {
-      setShowConnectionDetails(SummaryType.DetailedSummary)
-      const ksMap = getKnowledgeStatementMap(row[x].ksIds, knowledgeStatements);
-      setUniqueKS(ksMap);
+    if (row) {
+      setConnectionPage(1)
+      const ksIds = Object.values(row[x]).reduce((acc, phenotypeData) => {
+        return new Set([...acc, ...phenotypeData.ksIds]);
+      }, new Set<string>());
+
+      if (selectedConnectionSummary && Object.keys(selectedConnectionSummary.connections).length !== 0) {
+        setShowConnectionDetails(SummaryType.DetailedSummary);
+        const ksMap = getKnowledgeStatementMap(ksIds, knowledgeStatements);
+        setUniqueKS(ksMap);
+      }
     }
   }
 
