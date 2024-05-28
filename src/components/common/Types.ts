@@ -29,7 +29,7 @@ export enum SummaryType {
   Instruction = 'instruction'
 }
 
-export type DetailedHeatmapData = { label: string, data: Set<string>[], id: string }[];
+export type DetailedHeatmapData = { label: string, data: string[][], id: string }[];
 
 export interface HeatmapMatrixInformation {
   heatmapMatrix: number[][];

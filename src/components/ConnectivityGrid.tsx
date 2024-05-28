@@ -22,7 +22,8 @@ function ConnectivityGrid() {
 
     const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
     const [xAxisOrgans, setXAxisOrgans] = useState<Organ[]>([]);
-    const [connectionsMap, setConnectionsMap] = useState<Map<string, Set<string>[]>>(new Map());
+    // Maps YaxisId -> KnowledgeStatementIds for each Organ
+    const [connectionsMap, setConnectionsMap] = useState<Map<string, Array<string>[]>>(new Map());
     const [selectedCell, setSelectedCell] = useState<{ x: number, y: number } | null>(null);
 
     useEffect(() => {

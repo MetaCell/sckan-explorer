@@ -35,7 +35,7 @@ export function getXAxisOrgans(organs: Record<string, Organ>): Organ[] {
 
 
 export function calculateConnections(hierarchicalNodes: Record<string, HierarchicalNode>, allOrgans: Record<string, Organ>,
-                                     allKnowledgeStatements: Record<string, KnowledgeStatement>, filters: Filters): Map<string, Set<string>[]> {
+                                     allKnowledgeStatements: Record<string, KnowledgeStatement>, filters: Filters): Map<string, string[][]> {
 
     // Apply filters to organs and knowledge statements
 
@@ -50,24 +50,22 @@ export function calculateConnections(hierarchicalNodes: Record<string, Hierarchi
     }, {});
 
     // Memoization map to store computed results for nodes
-    const memo = new Map<string, Set<string>[]>();
+    const memo = new Map<string, string[][]>();
 
     // Function to compute node connections with memoization
-    function computeNodeConnections(nodeId: string): Set<string>[] {
+    function computeNodeConnections(nodeId: string): string[][] {
         if (memo.has(nodeId)) {
             return memo.get(nodeId)!;
         }
 
         const node = hierarchicalNodes[nodeId];
-        const result = Array.from({ length: Object.keys(allOrgans).length }, () => new Set<string>());
+        const result: string[][] = Array.from({ length: Object.keys(allOrgans).length }, () => []);
 
         if (node.children && node.children.size > 0) {
             node.children.forEach(childId => {
                 const childConnections = computeNodeConnections(childId);
-                childConnections.forEach((set, index) => {
-                    set.forEach(knowledgeStatementId => {
-                        result[index].add(knowledgeStatementId);
-                    });
+                childConnections.forEach((arr, index) => {
+                    result[index] = result[index].concat(arr);
                 });
             });
         } else if (node.connectionDetails) {
@@ -78,7 +76,7 @@ export function calculateConnections(hierarchicalNodes: Record<string, Hierarchi
                     const knowledgeStatementIds = node.connectionDetails[targetOrganIRI];
                     knowledgeStatementIds.forEach(ksId => {
                         if (ksId in knowledgeStatements) {
-                            result[index].add(ksId);
+                            result[index].push(ksId);
                         }
                     });
                 }
@@ -89,7 +87,7 @@ export function calculateConnections(hierarchicalNodes: Record<string, Hierarchi
         return result;
     }
 
-    const connectionsMap = new Map<string, Set<string>[]>();
+    const connectionsMap = new Map<string, string[][]>();
     Object.values(hierarchicalNodes).forEach(node => {
         connectionsMap.set(node.id, computeNodeConnections(node.id));
     });
@@ -97,7 +95,7 @@ export function calculateConnections(hierarchicalNodes: Record<string, Hierarchi
 }
 
 
-export function getHeatmapData(yAxis: HierarchicalItem[], connections: Map<string, Set<string>[]>) {
+export function getHeatmapData(yAxis: HierarchicalItem[], connections: Map<string, string[][]>) {
     const heatmapInformation: HeatmapMatrixInformation = {
         heatmapMatrix: [],
         detailedHeatmap: []
@@ -106,7 +104,7 @@ export function getHeatmapData(yAxis: HierarchicalItem[], connections: Map<strin
     function addDataForItem(item: HierarchicalItem) {
         const itemConnections = connections.get(item.id);
         if (itemConnections) {
-            const itemConnectionsCount = itemConnections.map(set => set.size);
+            const itemConnectionsCount = itemConnections.map(arr => arr.length);
             heatmapInformation.heatmapMatrix.push(itemConnectionsCount);
             heatmapInformation.detailedHeatmap.push({ label: item.label, id: item.id || '', data: itemConnections || [] })
         }
@@ -132,7 +130,7 @@ export function getHeatmapData(yAxis: HierarchicalItem[], connections: Map<strin
     return heatmapInformation;
 }
 
-export function getMinMaxConnections(connectionsMap: Map<string, Set<string>[]>): { min: number, max: number } {
+export function getMinMaxConnections(connectionsMap: Map<string, string[][]>): { min: number, max: number } {
     let min = Infinity;
     let max = -Infinity;
 
@@ -140,8 +138,8 @@ export function getMinMaxConnections(connectionsMap: Map<string, Set<string>[]>)
         const connectionCounts = connectionsMap.get(root.id);
         if (connectionCounts) {
             // Flatten all connection counts and find min/max across all
-            connectionCounts.forEach(connectionSet => {
-                const size = connectionSet.size;
+            connectionCounts.forEach(connectionArray  => {
+                const size = connectionArray.length;
                 if (size < min) min = size;
                 if (size > max) max = size;
             });
@@ -192,7 +190,7 @@ export function getHierarchyFromId(id: string, hierarchicalNodes: Record<string,
 }
 
 
-export function getKnowledgeStatementMap(ksIds: Set<string>, knowledgeStatements: Record<string, KnowledgeStatement>): KsMapType {
+export function getKnowledgeStatementMap(ksIds: string[], knowledgeStatements: Record<string, KnowledgeStatement>): KsMapType {
     const ksMap: KsMapType = {};
     ksIds.forEach((id: string) => {
         const ks = knowledgeStatements[id];
