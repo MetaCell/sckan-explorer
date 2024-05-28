@@ -26,7 +26,7 @@ const {
 } = vars;
 
 
-type Option = {
+export type Option = {
     id: string;
     label: string;
     group: string;

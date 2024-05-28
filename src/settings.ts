@@ -6,6 +6,13 @@ export const COMPOSER_API_URL = "https://composer.sckan.dev.metacell.us/api"
 
 export const OTHER_X_AXIS_ID = 'OTHER_X'
 export const OTHER_X_AXIS_LABEL = 'Other'
-
+export const OTHER_PHENOTYPE_LABEL = 'other'
 export const SYNONYMS_TITLE = "synonyms"
+export const OTHER_LABEL = 'other'
 
+export const FIXED_FOUR_PHENOTYPE_COLORS_ARRAY = [
+	'rgba(155, 24, 216, 1)',
+	'rgba(44, 44, 206, 1)',
+	'rgba(220, 104, 3, 1)',
+	'rgba(234, 170, 8, 1)',
+]

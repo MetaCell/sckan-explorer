@@ -1,4 +1,6 @@
-import {AnatomicalEntity} from "../models/composer.ts";
+import { AnatomicalEntity, TypeB60Enum, TypeC11Enum } from "../models/composer.ts";
+import { Sex } from "../models/explorer.ts";
+
 
 export interface ComposerResponse {
     count: number;
@@ -13,13 +15,21 @@ interface KnowledgeStatementAPI {
     species: Array<{ name: string, ontology_uri: string }>;
     origins: Array<AnatomicalEntity>;
     destinations: Array<{
-        id: number,
-        anatomical_entities: Array<AnatomicalEntity>
+        id: number;
+        anatomical_entities: Array<AnatomicalEntity>;
+        from_entities: Array<AnatomicalEntity>;
+        type: string;
+        connectivity_statement_id: number;
+        are_connections_explicit: boolean;
     }>;
     vias: Array<{
         id: number;
         type: string;
         anatomical_entities: Array<AnatomicalEntity>;
+        from_entities: Array<AnatomicalEntity>;
+        order: number;
+        connectivity_statement_id: number;
+        are_connections_explicit: boolean;
     }>;
     from_entities: Array<AnatomicalEntity>;
     are_connections_explicit: boolean;
@@ -28,6 +38,14 @@ interface KnowledgeStatementAPI {
     phenotype: { name: string, ontology_uri: string };
     forward_connection: Array<{ reference_uri: string }>;
     reference_uri: string;
+    provenances: Array<{ id: number, uri: string, connectivity_statement_id: number }>;
+    knowledge_statement: string;
+    journey: string[];
+    laterality: string;
+    projection: string;
+    circuit_type: string;
+    sex: Sex;
+    statement_preview: string;
 }
 
 
@@ -38,11 +56,35 @@ export function mapApiResponseToKnowledgeStatements(composerResponse: ComposerRe
         apinatomy: ks.apinatomy_model || "",
         species: ks.species.map(species => getBaseEntity(species.name, species.ontology_uri)),
         origins: ks.origins.map(origin => getAnatomicalEntity(origin)),
-        destinations: ks.destinations.flatMap(dest => dest.anatomical_entities.map(destA => getAnatomicalEntity(destA))),
-        via: ks.vias.flatMap(via => via.anatomical_entities.map(viaA => {
-            return {...getAnatomicalEntity(viaA)}
-        })),
-        forwardConnections: ks.forward_connection.map(fc => fc.reference_uri || "")
+        destinations: ks.destinations.flatMap(dest => {
+            const anatomicalEntities = dest.anatomical_entities.map(destA => getAnatomicalEntity(destA));
+            const fromEntities = dest.from_entities.map(fromE => getAnatomicalEntity(fromE));
+            return {
+                ...dest,
+                anatomical_entities: anatomicalEntities,
+                from_entities: fromEntities,
+                type: dest.type as TypeC11Enum
+            }
+        }),
+        vias: ks.vias.flatMap(via => {
+            const anatomicalEntities = via.anatomical_entities.map(viaA => getAnatomicalEntity(viaA));
+            const fromEntities = via.from_entities.map(fromE => getAnatomicalEntity(fromE));
+            return {
+                ...via,
+                anatomical_entities: anatomicalEntities,
+                from_entities: fromEntities,
+                type: via.type as TypeB60Enum
+            }
+        }),
+        forwardConnections: ks.forward_connection.map(fc => fc.reference_uri || ""),
+        provenances: ks.provenances?.map(p => p.uri || ""),
+        knowledge_statement: ks.knowledge_statement || "",
+        journey: ks.journey || [],
+        laterality: ks.laterality || "",
+        projection: ks.projection || "",
+        circuit_type: ks.circuit_type || "",
+        sex: ks.sex || [],
+        statement_preview: ks.statement_preview || ""
     }));
 }
 
@@ -58,6 +100,7 @@ const getAnatomicalEntity = (anatomicalEntity: AnatomicalEntity) => {
     return {
         id: getAnatomicalEntityOntologyUri(anatomicalEntity) || "",
         name: getAnatomicalEntityName(anatomicalEntity) || "",
+        ontology_uri: getAnatomicalEntityOntologyUri(anatomicalEntity) || "",
         synonyms: anatomicalEntity.synonyms || ""
     }
 }

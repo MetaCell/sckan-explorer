@@ -41,7 +41,8 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
         acc[rootNode.id] = {
             id: rootNode.id,
             name: rootNode.name,
-            children: new Set<string>()
+            uri: '',
+            children: new Set<string>(),
         };
         return acc;
     }, {} as Record<string, HierarchicalNode>);
@@ -65,6 +66,7 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
                     hierarchicalNodes[currentPath] = {
                         id: currentPath,
                         name: levelName,
+                        uri: '',
                         children: new Set<string>()
                     };
                 }
@@ -90,30 +92,43 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
                 leafNode = {
                     id: leafNodeId,
                     name: leafNodeName,
+                    uri: '',
                     children: new Set<string>(),
-                    connectionDetails: {}
+                    connectionDetails: {},
+                    destinationDetails: {}
                 };
                 hierarchicalNodes[leafNodeId] = leafNode;
             }
 
             // Update or initialize connection details
             leafNode.connectionDetails = leafNode.connectionDetails || {};
+            leafNode.destinationDetails = leafNode.destinationDetails || {};
 
             const neuronId = entry.Neuron_ID?.value;
             let targetOrganIRI = entry.Target_Organ_IRI?.value;
+            let endOrganIRI = entry.B_ID?.value;
 
             if (neuronId) {
                 if (!targetOrganIRI) {
                     console.warn(`Target_Organ_IRI not found for entry with Neuron_ID: ${neuronId}`);
                     targetOrganIRI = OTHER_X_AXIS_ID
                 }
+                if (!endOrganIRI) {
+                    endOrganIRI = OTHER_X_AXIS_ID;
+                    console.warn(`B_ID not found for entry with Neuron_ID: ${neuronId}`);
+                }
+
                 // Ensure connectionDetails for this targetOrganIRI is initialized
                 if (!leafNode.connectionDetails[targetOrganIRI]) {
                     leafNode.connectionDetails[targetOrganIRI] = new Set<string>();  // Initialize as an empty set
                 }
+                if (!leafNode.destinationDetails[endOrganIRI]) {
+                    leafNode.destinationDetails[endOrganIRI] = new Set<string>(); // Initialize as an empty array
+                }
 
                 // Add the KnowledgeStatement to the array for this target organ
                 leafNode.connectionDetails[targetOrganIRI].add(neuronId);
+                leafNode.destinationDetails[endOrganIRI].add(neuronId);
             } else {
 
                 if (!neuronId) {
@@ -142,7 +157,7 @@ export const getOrgans = (jsonData: JsonData): Record<string, Organ> => {
     organsRecord[OTHER_X_AXIS_ID] = {
         id: OTHER_X_AXIS_ID,
         name: OTHER_X_AXIS_LABEL,
-        children: new Set<BaseEntity>(),
+        children: new Map<string, BaseEntity>(),
         order: 0
     };
 
@@ -157,17 +172,23 @@ export const getOrgans = (jsonData: JsonData): Record<string, Organ> => {
                 organsRecord[organId] = {
                     id: organId,
                     name: organName,
-                    children: new Set<BaseEntity>(),
+                    children: new Map<string, BaseEntity>(),
                     order: ++creationOrder
                 };
             }
 
             if (childId && childName) {
-                organsRecord[organId].children.add({id: childId, name: childName});
+                const organ = organsRecord[organId];
+                if (!organ.children.has(childId)) {
+                    organ.children.set(childId, {id: childId, name: childName});
+                }
             }
         } else {
             if (childId && childName) {
-                organsRecord[OTHER_X_AXIS_ID].children.add({id: childId, name: childName});
+                const otherOrgan = organsRecord[OTHER_X_AXIS_ID];
+                if (!otherOrgan.children.has(childId)) {
+                    otherOrgan.children.set(childId, {id: childId, name: childName});
+                }
             }
         }
     });

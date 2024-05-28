@@ -1,30 +1,30 @@
-import {Box, Button, CircularProgress, Typography} from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import React, {useEffect, useMemo, useState} from "react";
 import {vars} from "../theme/variables";
 import HeatmapGrid from "./common/Heatmap";
-import {useDataContext} from "../context/DataContext.ts";
-import {calculateConnections, getMinMaxConnections, getXAxis, getYAxis} from "../services/heatmapService.ts";
+import { useDataContext } from "../context/DataContext.ts";
+import {
+    calculateConnections, getMinMaxConnections, getHierarchyFromId,
+    getXAxisOrgans, getYAxis, getHeatmapData,
+    getKnowledgeStatementMap,
+} from "../services/heatmapService.ts";
 import FiltersDropdowns from "./FiltersDropdowns.tsx";
+import { HierarchicalItem } from "./common/Types.ts";
+import { Organ } from "../models/explorer.ts";
+import Loader from "./common/Loader.tsx";
 
-export interface HierarchicalItem {
-    id: string;
-    label: string;
-    children: HierarchicalItem[];
-    expanded: boolean;
-}
 
 const {gray500, white: white, gray25, gray100, primaryPurple600, gray400} = vars;
 
 
-
 function ConnectivityGrid() {
-    const {hierarchicalNodes, organs, knowledgeStatements, filters} = useDataContext();
+    const { hierarchicalNodes, organs, knowledgeStatements, filters, setConnectionSummary } = useDataContext();
 
     const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
-    const [xAxis, setXAxis] = useState<string[]>([]);
+    const [xAxisOrgans, setXAxisOrgans] = useState<Organ[]>([]);
     const [connectionsMap, setConnectionsMap] = useState<Map<string, Set<string>[]>>(new Map());
+    const [selectedCell, setSelectedCell] = useState<{ x: number, y: number } | null>(null);
 
-    // Convert hierarchicalNodes to hierarchicalItems
     useEffect(() => {
         const connections = calculateConnections(hierarchicalNodes, organs, knowledgeStatements, filters);
         setConnectionsMap(connections)
@@ -35,35 +35,63 @@ function ConnectivityGrid() {
     }, [connectionsMap]);
 
     useEffect(() => {
-        const xAxis = getXAxis(organs);
-        setXAxis(xAxis);
+        const organList = getXAxisOrgans(organs);
+        setXAxisOrgans(organList);
     }, [organs]);
+
+    const xAxis = useMemo(() => {
+        return xAxisOrgans.map(organ => organ.name);
+    }, [xAxisOrgans]);
 
     useEffect(() => {
         const yAxis = getYAxis(hierarchicalNodes);
         setYAxis(yAxis);
     }, [hierarchicalNodes]);
 
-    const handleClick = (x: number, y: string): void => {
-        const row = connectionsMap.get(y)
-        if(row){
-            console.log(row[x])
+    const { heatmapData, detailedHeatmapData } = useMemo(() => {
+        const heatmapdata = getHeatmapData(yAxis, connectionsMap);
+        return {
+            heatmapData: heatmapdata.heatmapMatrix,
+            detailedHeatmapData: heatmapdata.detailedHeatmap,
+        };
+    }, [yAxis, connectionsMap]);
+
+    const handleClick = (x: number, y: number, yId: string): void => {
+        // When the primary heatmap cell is clicked - this sets the react-context state for Connections in SummaryType.summary
+        setSelectedCell({ x, y });
+        const row = connectionsMap.get(yId);
+        if (row) {
+            const endOrgan = xAxisOrgans[x];
+            const origin = detailedHeatmapData[y];
+            const hierarchy = getHierarchyFromId(origin.id, hierarchicalNodes);
+            const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
+
+            setConnectionSummary({
+                origin: origin.label,
+                endOrgan: endOrgan,
+                connections: ksMap,
+                hierarchy: hierarchy
+            });
         }
     };
-
     const isLoading = yAxis.length == 0
 
-    return (isLoading ? <CircularProgress/> : (
+    return (isLoading ? <Loader /> : (
         <Box minHeight='100%' p={3} pb={0} fontSize={14} display='flex' flexDirection='column'>
             <Box pb={2.5}>
-                <Typography variant="h6" sx={{fontWeight: 400}}>Connection Origin to End Organ</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 400 }}>Connection Origin to End Organ</Typography>
             </Box>
 
             <FiltersDropdowns/>
 
-            <HeatmapGrid initialYAxis={yAxis} xAxis={xAxis} connectionsMap={connectionsMap}
-                         xAxisLabel={'End organ'} yAxisLabels={'Connection Origin'}
-                         onCellClick={handleClick}
+            <HeatmapGrid
+                yAxis={yAxis}
+                setYAxis={setYAxis}
+                heatmapData={heatmapData}
+                xAxis={xAxis}
+                xAxisLabel={'End organ'} yAxisLabel={'Connection Origin'}
+                onCellClick={handleClick}
+                selectedCell={selectedCell}
             />
 
             <Box
@@ -75,7 +103,7 @@ function ConnectivityGrid() {
                 justifyContent='space-between'
                 position='sticky'
                 bottom={0}
-                sx={{background: white}}
+                sx={{ background: white }}
             >
                 <Button variant="text" sx={{
                     fontSize: '0.875rem',

@@ -1,14 +1,15 @@
 import {PropsWithChildren, useState} from 'react';
-import {DataContext, Filters} from "./DataContext";
+import { DataContext, Filters, ConnectionSummary, SummaryFilters } from "./DataContext";
 import {HierarchicalNode, KnowledgeStatement, Organ} from "../models/explorer.ts";
 
+
 export const DataContextProvider = ({
-                                        hierarchicalNodes,
-                                        organs,
-                                        majorNerves,
-                                        knowledgeStatements,
-                                        children
-                                    }: PropsWithChildren<{
+    hierarchicalNodes,
+    organs,
+    majorNerves,
+    knowledgeStatements,
+    children
+}: PropsWithChildren<{
     hierarchicalNodes: Record<string, HierarchicalNode>;
     organs: Record<string, Organ>;
     majorNerves: Set<string>;
@@ -22,15 +23,25 @@ export const DataContextProvider = ({
         apiNATOMY: [],
         Via: []
     });
+    const [summaryFilters, setSummaryFilters] = useState<SummaryFilters>({
+        Phenotype: [],
+        Nerve: []
+    });
+
+    const [selectedConnectionSummary, setSelectedConnectionSummary] = useState<ConnectionSummary | null>(null);
 
 
     const dataContextValue = {
         filters,
+        summaryFilters,
+        setSummaryFilters,
         organs,
         majorNerves,
         hierarchicalNodes,
         knowledgeStatements,
         setFilters,
+        selectedConnectionSummary,
+        setConnectionSummary: setSelectedConnectionSummary
     };
 
     return (

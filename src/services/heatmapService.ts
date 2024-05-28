@@ -1,10 +1,9 @@
-import {HierarchicalNode, KnowledgeStatement, Organ} from "../models/explorer.ts";
-import {HierarchicalItem} from "../components/ConnectivityGrid.tsx";
+import { HierarchicalNode, KnowledgeStatement, Organ } from "../models/explorer.ts";
 import {ROOTS} from "./hierarchyService.ts";
-import {Option} from "../components/common/Types.ts";
+import { HierarchicalItem, HeatmapMatrixInformation, Option, KsMapType, LabelIdPair } from "../components/common/Types.ts";
 import {Filters} from "../context/DataContext.ts";
 
-export function getYAxis(hierarchicalNodes: Record<string, HierarchicalNode>): HierarchicalItem[] {
+export function getYAxis(hierarchicalNodes: Record<string, HierarchicalNode>, hierarchyNode?: Record<string, HierarchicalNode>): HierarchicalItem[] {
     function buildListItem(nodeId: string): HierarchicalItem {
         const node = hierarchicalNodes[nodeId];
         const childrenListItems: HierarchicalItem[] = [];
@@ -21,16 +20,17 @@ export function getYAxis(hierarchicalNodes: Record<string, HierarchicalNode>): H
         };
     }
 
-
-    return ROOTS.map(root => {
+    const yRoot = hierarchyNode ? Object.values(hierarchyNode) : ROOTS
+    return yRoot.map(root => {
         return hierarchicalNodes[root.id] ? buildListItem(root.id) : null;
     }).filter(item => item !== null) as HierarchicalItem[];
 }
 
-export function getXAxis(organs: Record<string, Organ>): string[] {
+
+export function getXAxisOrgans(organs: Record<string, Organ>): Organ[] {
     return Object.values(organs)
         .sort((a, b) => a.order - b.order)
-        .map(organ => organ.name);
+        .map(organ => organ);
 }
 
 
@@ -96,28 +96,31 @@ export function calculateConnections(hierarchicalNodes: Record<string, Hierarchi
     return connectionsMap;
 }
 
+
 export function getHeatmapData(yAxis: HierarchicalItem[], connections: Map<string, Set<string>[]>) {
-    const newData: number[][] = [];
+    const heatmapInformation: HeatmapMatrixInformation = {
+        heatmapMatrix: [],
+        detailedHeatmap: []
+    }
 
     function addDataForItem(item: HierarchicalItem) {
         const itemConnections = connections.get(item.id);
         if (itemConnections) {
             const itemConnectionsCount = itemConnections.map(set => set.size);
-            newData.push(itemConnectionsCount);
+            heatmapInformation.heatmapMatrix.push(itemConnectionsCount);
+            heatmapInformation.detailedHeatmap.push({ label: item.label, id: item.id || '', data: itemConnections || [] })
         }
     }
 
     function traverseItems(items: HierarchicalItem[], fetchNextLevel: boolean) {
         items.forEach(item => {
             if (item.expanded) {
-                // Fetch data for the current expanded item
                 addDataForItem(item);
                 // Traverse further into the expanded item
                 if (item.children && typeof item.children[0] !== 'string') {
                     traverseItems(item.children as HierarchicalItem[], true);
                 }
             } else if (fetchNextLevel) {
-                // Fetch data for the immediate children of the last expanded item
                 addDataForItem(item);
             }
         });
@@ -126,7 +129,7 @@ export function getHeatmapData(yAxis: HierarchicalItem[], connections: Map<strin
     // Start traversal with the initial yAxis, allowing to fetch immediate children of the root if expanded
     traverseItems(yAxis, true);
 
-    return newData;
+    return heatmapInformation;
 }
 
 export function getMinMaxConnections(connectionsMap: Map<string, Set<string>[]>): { min: number, max: number } {
@@ -173,7 +176,7 @@ export function filterKnowledgeStatements(knowledgeStatements: Record<string, Kn
         const phenotypeMatch = !phenotypeIds.length || phenotypeIds.includes(ks.phenotype);
         const apiNATOMYMatch = !apiNATOMYIds.length || apiNATOMYIds.includes(ks.apinatomy);
         const speciesMatch = !speciesIds.length || ks.species.some(species => speciesIds.includes(species.id));
-        const viaMatch = !viaIds.length || ks.via.some(via => viaIds.includes(via.id));
+        const viaMatch = !viaIds.length || ks.vias.flatMap(via => via.anatomical_entities).some(via => viaIds.includes(via.id));
         const originMatch = !originIds.length || ks.origins.some(origin => originIds.includes(origin.id));
 
         if (phenotypeMatch && apiNATOMYMatch && speciesMatch && viaMatch && originMatch) {
@@ -182,3 +185,55 @@ export function filterKnowledgeStatements(knowledgeStatements: Record<string, Kn
         return filtered;
     }, {} as Record<string, KnowledgeStatement>);
 }
+
+
+export function getHierarchyFromId(id: string, hierarchicalNodes: Record<string, HierarchicalNode>): HierarchicalNode {
+    return hierarchicalNodes[id];
+}
+
+
+export function getKnowledgeStatementMap(ksIds: Set<string>, knowledgeStatements: Record<string, KnowledgeStatement>): KsMapType {
+    const ksMap: KsMapType = {};
+    ksIds.forEach((id: string) => {
+        const ks = knowledgeStatements[id];
+        if (ks) {
+            ksMap[id] = ks;
+        }
+    });
+    return ksMap;
+}
+
+export const getPhenotypeColors = (normalizedValue: number, phenotypeColors: string[]): string => {
+    // convert each to percentage values = for linear gradient
+    // example: rgba(131, 0, 191, 0.5) 0%, rgba(131, 0, 191, 0.5) 50%, rgba(131, 0, 191, 0.5) 100%
+    const phenotypeColorsWithPercentage = phenotypeColors.map((color, index) => {
+        return `${color} ${100 / phenotypeColors.length * index}%, ${color} ${100 / phenotypeColors.length * (index + 1)}%`
+    });
+
+    // if there are multiple colors, create a linear gradient
+    const phenotypeColor = phenotypeColors.length > 1 ? `linear-gradient(to right, ${phenotypeColorsWithPercentage.join(',')}` :
+        phenotypeColors.length === 1 ? phenotypeColors[0] : '';
+
+    // ADD the following if we need opacity for secondary/phenotype heatmap -  replace the alpha value of the color with the normalized value
+    // phenotypeColor = phenotypeColor?.replace(/rgba\(([^,]+),([^,]+),([^,]+),([^)]+)\)/g, `rgba($1,$2,$3,${normalizedValue})`).replace(
+    //     /rgb\(([^,]+),([^,]+),([^,]+)\)/g, `rgba($1,$2,$3,${normalizedValue})`
+    // );
+    return phenotypeColor ? phenotypeColor : `rgba(131, 0, 191, ${normalizedValue})`;
+};
+
+
+export const generateYLabelsAndIds = (list: HierarchicalItem[], prefix = ''): LabelIdPair => {
+    let labels: string[] = [];
+    let ids: string[] = [];
+    list?.forEach(item => {
+        const fullLabel = prefix ? `${prefix} - ${item.label}` : item.label;
+        labels.push(fullLabel);
+        ids.push(item.id);
+        if (item.expanded && item.children.length > 0) {
+            const children = generateYLabelsAndIds(item.children, fullLabel);
+            labels = labels.concat(children.labels);
+            ids = ids.concat(children.ids);
+        }
+    });
+    return { labels, ids };
+};

@@ -6,9 +6,9 @@ import {
   Tabs, Tab
 } from "@mui/material";
 import { vars } from "../../theme/variables.ts";
-import ConnectionsTableView from "./ConnectionsTableView.tsx";
+import ConnectionsTableView, { Row } from "./ConnectionsTableView.tsx";
 import GraphDiagram from "../graphDiagram/GraphDiagram.tsx";
-import {MOCKED_composerStatement} from "../../resources/mockedData/MOCKED_composerStatement.ts";
+import { DestinationExplorerSerializerDetails, KnowledgeStatement, ViaExplorerSerializerDetails } from '../../models/explorer.ts';
 
 const { gray700} = vars
 
@@ -43,10 +43,38 @@ function CustomTabPanel(props: TabPanelProps) {
     </Box>
   );
 }
-const PopulationDisplay = () => {
+const PopulationDisplay = ({
+  connectionDetails
+}: {
+  connectionDetails: KnowledgeStatement
+}) => {
   const [value, setValue] = React.useState(0);
   
-  
+  const viaDetails: ViaExplorerSerializerDetails[] = connectionDetails?.vias || [];
+  const destinationDetails: DestinationExplorerSerializerDetails[] = connectionDetails?.destinations || [];
+  const origins = connectionDetails?.origins || [];
+
+  const getTabularData = (connectionDetails: KnowledgeStatement): Row[] => {
+    const rowData: Row[] = [];
+    const origins = connectionDetails?.origins || [];
+    const destinations = destinationDetails.flatMap(dest => dest.anatomical_entities);
+    const vias = viaDetails.flatMap(via => via.anatomical_entities);
+    origins.forEach((origin) => {
+      destinations.forEach((destination) => {
+        vias.forEach((via) => {
+          rowData.push({
+            Origin: origin.name,
+            Destination: destination.name,
+            Via: via.name
+          });
+        })
+      })
+    })
+    return rowData;
+  }
+
+  const tableData = getTabularData(connectionDetails);
+
   // @ts-expect-error Explanation: Handling Event properly
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -65,12 +93,12 @@ const PopulationDisplay = () => {
       </Stack>
       <CustomTabPanel value={value} index={0}>
         <Box sx={{height: '50rem', width: '100%', background: '#EDEFF2'}}>
-          <GraphDiagram origins={MOCKED_composerStatement.origins} vias={MOCKED_composerStatement.vias}
-                        destinations={MOCKED_composerStatement.destinations}/>
+          <GraphDiagram origins={origins} vias={viaDetails}
+            destinations={destinationDetails} />
         </Box>
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
-        <ConnectionsTableView />
+        <ConnectionsTableView tableData={tableData} />
       </CustomTabPanel>
     </Stack>
   );

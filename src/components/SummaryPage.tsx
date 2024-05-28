@@ -1,11 +1,12 @@
 import React, {useState, useEffect} from "react";
-import {Box, CircularProgress, Divider, Stack, Tab, Tabs, Typography} from "@mui/material";
+import { Box, Divider, Stack, Tab, Tabs, Typography } from "@mui/material";
 import { vars } from "../theme/variables.ts";
 import {Detail} from "./summaryPage/Detail.tsx";
 import {Section} from "./summaryPage/Section.tsx";
 import {Notes} from "./summaryPage/Notes.tsx";
 import {TabPanel} from "./summaryPage/TabPanel.tsx";
 import InfoTab from "./summaryPage/InfoTab.tsx";
+import Loader from "./common/Loader.tsx";
 
 interface DataType {
   [key: string]: {
@@ -48,7 +49,7 @@ const SummaryPage = () => {
   }, []);
 
   if (!data || !labels) return <Box display='flex' justifyContent='center' alignItems='center' width={1}>
-    <CircularProgress />
+    <Loader />
   </Box>
   return (
     <Box width={1} className='database-summary'>

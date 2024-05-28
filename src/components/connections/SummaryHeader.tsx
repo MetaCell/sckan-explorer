@@ -1,37 +1,54 @@
-import { useState } from 'react';
 import { Box, Button, ButtonGroup, Divider, Typography, Stack, Link } from "@mui/material";
 import { vars } from "../../theme/variables";
 import IconButton from "@mui/material/IconButton";
 import { ArrowDown, ArrowRight, ArrowUp, HelpCircle } from "../icons";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
+import { SummaryType, KsMapType } from '../common/Types';
 
-const { gray100, primaryPurple600, gray600A, gray500 } = vars;
+const { gray100, gray600A, gray500 } = vars;
+
+
+type SummaryHeaderProps = {
+  showDetails: SummaryType,
+  setShowDetails: (showDetails: SummaryType) => void,
+  uniqueKS: KsMapType,
+  connectionPage: number,
+  setConnectionPage: (connectionPage: number) => void,
+  totalConnectionCount: number
+}
+
 
 const SummaryHeader = ({
    showDetails,
    setShowDetails,
-   numOfConnections,
-   connection
-  }: {
-  showDetails: boolean,
-  setShowDetails: (showDetails: boolean) => void,
-  numOfConnections: number,
-  connection: string
-}) => {
-  const [connectionCount, setConnectionCount] = useState(1);
-  
+  uniqueKS,
+  connectionPage,
+  setConnectionPage,
+  totalConnectionCount
+}: SummaryHeaderProps) => {
+  const totalUniqueKS = Object.keys(uniqueKS).length;
+
+  function getConnectionId() {
+    return Object.keys(uniqueKS)[connectionPage - 1] || ''
+  }
+  const connectionId = getConnectionId()
+
   const handleUpClick = () => {
-    if (connectionCount < numOfConnections) {
-      setConnectionCount(prevCount => prevCount + 1);
+    if (connectionPage < totalUniqueKS) {
+      setConnectionPage(connectionPage + 1);
     }
   };
   
   const handleDownClick = () => {
-    if (connectionCount > 1) {
-      setConnectionCount(prevCount => prevCount - 1);
+    if (connectionPage > 1) {
+      setConnectionPage(connectionPage - 1);
     }
   };
-  
+
+  if (showDetails === SummaryType.Instruction) {
+    return <></>
+  }
+
   return (
     <Stack
       direction='row'
@@ -53,18 +70,21 @@ const SummaryHeader = ({
         alignItems='center'
         spacing='1rem'
       >
-        {showDetails && <ButtonGroup variant="outlined" sx={{
+        {showDetails === SummaryType.DetailedSummary && <ButtonGroup variant="outlined" sx={{
           '& .MuiButtonBase-root': {
             width: '2rem',
             height: '2rem'
           }
         }}>
-            <IconButton onClick={handleUpClick}>
-                <ArrowUp />
-            </IconButton>
-            <IconButton sx={{ marginLeft: '.25rem' }} onClick={handleDownClick}>
-                <ArrowDown />
-            </IconButton>
+          <IconButton
+            onClick={handleUpClick}>
+            <ArrowUp />
+          </IconButton>
+          <IconButton sx={{
+            marginLeft: '.25rem',
+          }} onClick={handleDownClick}>
+            <ArrowDown />
+          </IconButton>
         </ButtonGroup>
         }
         
@@ -72,18 +92,20 @@ const SummaryHeader = ({
           separator={<ArrowRight />}
           aria-label="breadcrumb"
         >
-          {showDetails ?
-            <Link underline="hover" onClick={() => setShowDetails(false)}>
+          {showDetails === SummaryType.DetailedSummary ? (
+            <Link underline="hover" onClick={() => setShowDetails(SummaryType.Summary)}>
               Summary
-            </Link> :
+            </Link>
+          ) : (
             <Typography>
               Summary
             </Typography>
+            )
           }
           {
-            showDetails &&
+            showDetails === SummaryType.DetailedSummary &&
               <Typography>
-                {connection}
+                {connectionId}
               </Typography>
           }
         </Breadcrumbs>
@@ -95,43 +117,38 @@ const SummaryHeader = ({
         gap: '0.75rem'
       }}>
         {
-          showDetails ?
+          showDetails === SummaryType.DetailedSummary ? (
             <>
               <Typography variant='subtitle1' color={gray500}>
-                Displaying connection {connectionCount} of {numOfConnections}
+                Displaying connection {connectionPage} of {totalUniqueKS}
               </Typography>
               <HelpCircle />
-            </> :
-            <>
-          <Typography sx={{
-              fontSize: '0.875rem',
-              fontWeight: 500,
-              lineHeight: '1.25rem',
-              color: primaryPurple600
-          }}>Summary</Typography>
-
-          <Box sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem'
-          }}>
-              <Typography sx={{
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                lineHeight: '1.25rem',
-                color: gray600A
-                
-              }}>{numOfConnections} connections</Typography>
-              
-              <Divider sx={{
-                height: '2.25rem',
-                width: '0.0625rem',
-                background: gray100
-              }} />
-              
-              <Button variant="contained">Download results (.csv)</Button>
-              </Box>
             </>
+          ) : (
+            <>
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem'
+                }}>
+                  <Typography sx={{
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    lineHeight: '1.25rem',
+                    color: gray600A
+
+                  }}>{totalConnectionCount} connections</Typography>
+
+                  <Divider sx={{
+                    height: '2.25rem',
+                    width: '0.0625rem',
+                    background: gray100
+                  }} />
+
+                  <Button variant="contained">Download results (.csv)</Button>
+                </Box>
+              </>
+            )
         }
       </Box>
     </Stack>
