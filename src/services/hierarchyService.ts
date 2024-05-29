@@ -120,15 +120,15 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
 
                 // Ensure connectionDetails for this targetOrganIRI is initialized
                 if (!leafNode.connectionDetails[targetOrganIRI]) {
-                    leafNode.connectionDetails[targetOrganIRI] = new Set<string>();  // Initialize as an empty set
+                    leafNode.connectionDetails[targetOrganIRI] = [];  // Initialize as an empty set
                 }
                 if (!leafNode.destinationDetails[endOrganIRI]) {
-                    leafNode.destinationDetails[endOrganIRI] = new Set<string>(); // Initialize as an empty array
+                    leafNode.destinationDetails[endOrganIRI] = []; // Initialize as an empty array
                 }
 
                 // Add the KnowledgeStatement to the array for this target organ
-                leafNode.connectionDetails[targetOrganIRI].add(neuronId);
-                leafNode.destinationDetails[endOrganIRI].add(neuronId);
+                leafNode.connectionDetails[targetOrganIRI].push(neuronId);
+                leafNode.destinationDetails[endOrganIRI].push(neuronId);
             } else {
 
                 if (!neuronId) {

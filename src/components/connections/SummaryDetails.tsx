@@ -39,15 +39,15 @@ const RowStack = ({ label, value, Icon }: { label: string, value: string, Icon?:
 
 
 type SummaryDetailsProps = {
-  uniqueKS: KsMapType,
+  knowledgeStatementsMap: KsMapType,
   connectionPage: number
 }
 
 const SummaryDetails = ({
-  uniqueKS,
+  knowledgeStatementsMap,
   connectionPage
 }: SummaryDetailsProps) => {
-  const connectionDetails = getConnectionDetails(uniqueKS, connectionPage);
+  const connectionDetails = getConnectionDetails(knowledgeStatementsMap, connectionPage);
   const phenotype = connectionDetails?.phenotype || ''
 
   // Details shown in the dropdown - from composer

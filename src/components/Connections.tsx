@@ -46,7 +46,7 @@ function Connections() {
   const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
   const [selectedCell, setSelectedCell] = useState<{ x: number, y: number } | null>(null);   // useful for coordinates
   const [phenotypes, setPhenotypes] = useState<PhenotypeType>({});
-  const [uniqueKS, setUniqueKS] = useState<KsMapType>({});
+  const [knowledgeStatementsMap, setKnowledgeStatementsMap] = useState<KsMapType>({});
   const [xAxis, setXAxis] = useState<string[]>([]);
 
   const { selectedConnectionSummary, majorNerves, hierarchicalNodes, knowledgeStatements, summaryFilters } = useDataContext();
@@ -120,13 +120,13 @@ function Connections() {
     if (row) {
       setConnectionPage(1)
       const ksIds = Object.values(row[x]).reduce((acc, phenotypeData) => {
-        return new Set([...acc, ...phenotypeData.ksIds]);
-      }, new Set<string>());
+        return acc.concat(phenotypeData.ksIds);
+      }, [] as string[]);
 
       if (selectedConnectionSummary && Object.keys(selectedConnectionSummary.connections).length !== 0) {
         setShowConnectionDetails(SummaryType.DetailedSummary);
-        const ksMap = getKnowledgeStatementMap([...ksIds], knowledgeStatements);
-        setUniqueKS(ksMap);
+        const ksMap = getKnowledgeStatementMap(ksIds, knowledgeStatements);
+        setKnowledgeStatementsMap(ksMap);
       }
     }
   }
@@ -140,7 +140,7 @@ function Connections() {
       <SummaryHeader
         showDetails={showConnectionDetails}
         setShowDetails={setShowConnectionDetails}
-        uniqueKS={uniqueKS}
+        knowledgeStatementsMap={knowledgeStatementsMap}
         connectionPage={connectionPage}
         setConnectionPage={setConnectionPage}
         totalConnectionCount={totalConnectionCount}
@@ -153,7 +153,7 @@ function Connections() {
 
       {showConnectionDetails === SummaryType.DetailedSummary ? (
         <SummaryDetails
-          uniqueKS={uniqueKS}
+          knowledgeStatementsMap={knowledgeStatementsMap}
           connectionPage={connectionPage}
         />
       ) : showConnectionDetails === SummaryType.Instruction ? (<></>) : (

@@ -292,11 +292,11 @@ export interface HierarchicalNode {
      * @type {Record<string, Set<string>>}
      * @memberof HierarchicalNode
      */
-    connectionDetails?: Record<string, Set<string>>;
+    connectionDetails?: Record<string, string[]>;
     /**
      * The sub end organs of the node
      * @type {Record<string, Set<string>>}
      * @memberof HierarchicalNode
      */
-    destinationDetails?: Record<string, Set<string>>;
+    destinationDetails?: Record<string, string[]>;
 }

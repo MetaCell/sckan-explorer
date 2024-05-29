@@ -17,7 +17,7 @@ export type KsMapType = Record<string, KnowledgeStatement>;
 
 export type PhenotypeKsIdMap = {
   [phenotype: string]: {
-    ksIds: Set<string>;
+    ksIds: string[];
   };
 };
 // SummaryType - Three types of summary views - default - instruction. 
