@@ -15,8 +15,11 @@ export type LabelIdPair = { labels: string[], ids: string[] };
 
 export type KsMapType = Record<string, KnowledgeStatement>;
 
-export type PhenotypeKsIdMap = { phenotypes: string[], ksIds: Set<string> };
-
+export type PhenotypeKsIdMap = {
+  [phenotype: string]: {
+    ksIds: Set<string>;
+  };
+};
 // SummaryType - Three types of summary views - default - instruction. 
 // When user clicks the primary heatmap, the summary view will be displayed.
 // When user clicks the secondary heatmap, the detailed summary view will be displayed.
