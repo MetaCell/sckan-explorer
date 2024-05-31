@@ -184,10 +184,11 @@ export default function CustomEntitiesDropdown({
   selectedOptions,
   onSelect,
 }: EntitiesProps) {
+  const dropdownButtonRef = React.useRef<null | HTMLElement>(null);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(anchorEl ? null : event.currentTarget);
+  const handleClick = () => {
+    setAnchorEl(anchorEl ? null : dropdownButtonRef.current);
   };
 
   const open = Boolean(anchorEl);
@@ -241,7 +242,7 @@ export default function CustomEntitiesDropdown({
   };
 
   return (
-    <React.Fragment key={id}>
+    <React.Fragment>
       <Badge sx={styles.badge} badgeContent={selectedOptions?.length}>
         <Box
           aria-describedby={id}
@@ -251,6 +252,7 @@ export default function CustomEntitiesDropdown({
               : styles.root
           }
           onClick={handleClick}
+          ref={dropdownButtonRef}
         >
           {selectedOptions.length === 0 ? (
             <Typography sx={styles.placeholder}>{placeholder}</Typography>
@@ -264,7 +266,7 @@ export default function CustomEntitiesDropdown({
                       sx={styles.chip}
                       variant={'outlined'}
                       onClick={(e) => {
-                        handleClick(e);
+                        handleClick();
                         e.stopPropagation();
                       }}
                       label={`${item?.label}`}
