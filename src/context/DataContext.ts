@@ -1,6 +1,6 @@
 import React, {createContext, useContext} from "react";
 import {Organ, HierarchicalNode, KnowledgeStatement} from "../models/explorer";
-import {Option} from "../components/common/Types.ts";
+import {Option, PhenotypeDetail} from "../components/common/Types.ts";
 import { KsMapType } from "../components/common/Types";
 
 export interface Filters {
@@ -37,6 +37,7 @@ export interface DataContext {
     setSummaryFilters: React.Dispatch<React.SetStateAction<SummaryFilters>>;
     selectedConnectionSummary: ConnectionSummary | null;
     setConnectionSummary: React.Dispatch<React.SetStateAction<ConnectionSummary | null>>;
+    phenotypesColorMap: Record<string, PhenotypeDetail>;
 }
 
 export const DataContext = createContext<DataContext>({
@@ -62,7 +63,8 @@ export const DataContext = createContext<DataContext>({
     },
     selectedConnectionSummary: null,
     setConnectionSummary: () => {
-    }
+    },
+    phenotypesColorMap: {}
 });
 
 export const useDataContext = () => useContext(DataContext);

@@ -4,10 +4,11 @@ import {vars} from "../../theme/variables";
 import CollapsibleList from "./CollapsibleList";
 import HeatMap from "react-heatmap-grid";
 import HeatmapTooltip, {HeatmapTooltipRow} from "./HeatmapTooltip";
-import {HierarchicalItem, PhenotypeType, PhenotypeKsIdMap} from "./Types.ts";
+import {HierarchicalItem, PhenotypeKsIdMap} from "./Types.ts";
 import {getNormalizedValueForMinMax} from "../../services/summaryHeatmapService.ts";
 import {generateYLabelsAndIds, getPhenotypeColors} from "../../services/heatmapService.ts";
 import {OTHER_PHENOTYPE_LABEL} from "../../settings.ts";
+import {useDataContext} from "../../context/DataContext.ts";
 
 
 const {gray50, primaryPurple500, gray100A, gray500} = vars;
@@ -22,7 +23,6 @@ interface HeatmapGridProps {
     selectedCell?: { x: number, y: number } | null;
     heatmapData?: number[][];
     secondaryHeatmapData?: PhenotypeKsIdMap[][];
-    phenotypes?: PhenotypeType;
 }
 
 const prepareSecondaryHeatmapData = (data?: PhenotypeKsIdMap[][]): number[][] => {
@@ -34,10 +34,17 @@ const prepareSecondaryHeatmapData = (data?: PhenotypeKsIdMap[][]): number[][] =>
 
 
 const HeatmapGrid: FC<HeatmapGridProps> = ({
-                                               xAxis, yAxis, setYAxis,
-                                               xAxisLabel, yAxisLabel,
-                                               onCellClick, selectedCell, heatmapData, secondaryHeatmapData, phenotypes
+                                               xAxis,
+                                               yAxis,
+                                               setYAxis,
+                                               xAxisLabel,
+                                               yAxisLabel,
+                                               onCellClick,
+                                               selectedCell,
+                                               heatmapData,
+                                               secondaryHeatmapData
                                            }) => {
+    const {phenotypesColorMap} = useDataContext()
 
     const secondary = !!secondaryHeatmapData;
     const yAxisData = generateYLabelsAndIds(yAxis);
@@ -91,16 +98,16 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         _y: number
     ) => {
         // Gets the color for secondary heatmap cell based on the phenotypes
-        if (phenotypes && secondary && secondaryHeatmapData && secondaryHeatmapData[_y] && secondaryHeatmapData[_y][_x]) {
+        if (secondary && secondaryHeatmapData && secondaryHeatmapData[_y] && secondaryHeatmapData[_y][_x]) {
             const heatmapCellPhenotypes = secondaryHeatmapData[_y][_x];
             const phenotypeColorsSet = new Set<string>();
 
             Object.keys(heatmapCellPhenotypes).forEach(phenotype => {
-                const phnColor = phenotypes[phenotype]?.color;
+                const phnColor = phenotypesColorMap[phenotype]?.color;
                 if (phnColor) {
                     phenotypeColorsSet.add(phnColor);
                 } else {
-                    phenotypeColorsSet.add(phenotypes[OTHER_PHENOTYPE_LABEL].color);
+                    phenotypeColorsSet.add(phenotypesColorMap[OTHER_PHENOTYPE_LABEL].color);
                 }
             });
 
@@ -112,11 +119,11 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     };
 
     const getTooltipRows = (xIndex: number, yIndex: number): HeatmapTooltipRow[] => {
-        if (secondary && secondaryHeatmapData && phenotypes && secondaryHeatmapData[yIndex] && secondaryHeatmapData[yIndex][xIndex]) {
+        if (secondary && secondaryHeatmapData && secondaryHeatmapData[yIndex] && secondaryHeatmapData[yIndex][xIndex]) {
             const heatmapCellPhenotypes = secondaryHeatmapData[yIndex][xIndex];
 
             return Object.keys(heatmapCellPhenotypes).map(phenotype => ({
-                color: phenotypes[phenotype]?.color || phenotypes[OTHER_PHENOTYPE_LABEL].color,
+                color: phenotypesColorMap[phenotype]?.color || phenotypesColorMap[OTHER_PHENOTYPE_LABEL].color,
                 name: phenotype,
                 count: heatmapCellPhenotypes[phenotype].ksIds.length
             }));
