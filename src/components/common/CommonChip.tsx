@@ -1,12 +1,17 @@
 import React from 'react';
 import Chip, { ChipProps } from '@mui/material/Chip';
-import {vars} from "../../theme/variables.ts";
+import { vars } from '../../theme/variables.ts';
 
-const { primaryPurple500 } = vars
+const { primaryPurple500 } = vars;
 
 interface CommonChipProps extends ChipProps {}
 
-const CommonChip: React.FC<CommonChipProps> = ({ label, variant = "outlined", icon, ...props }) => {
+const CommonChip: React.FC<CommonChipProps> = ({
+  label,
+  variant = 'outlined',
+  icon,
+  ...props
+}) => {
   return (
     <Chip
       label={label}
@@ -16,8 +21,8 @@ const CommonChip: React.FC<CommonChipProps> = ({ label, variant = "outlined", ic
       sx={{
         '& .MuiSvgIcon-root': {
           order: 1,
-          color: primaryPurple500
-        }
+          color: primaryPurple500,
+        },
       }}
     />
   );
