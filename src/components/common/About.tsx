@@ -6,7 +6,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import CloseIcon from '@mui/icons-material/Close';
-import {FC} from "react";
+import { FC } from 'react';
 
 interface ModalProps {
   open: boolean;
@@ -19,45 +19,45 @@ interface DetailsItemProps {
   buttonText: string;
 }
 
-const DetailsUI: FC<DetailsItemProps> = ({heading, description = '', buttonText = ''}) => (
+const DetailsUI: FC<DetailsItemProps> = ({
+  heading,
+  description = '',
+  buttonText = '',
+}) => (
   <Box>
-    <Typography gutterBottom variant='h6'>{heading}</Typography>
-    {description && <Typography gutterBottom>
-      {description}
-    </Typography> }
-    {buttonText && <Typography variant='button'>{buttonText}</Typography>}
+    <Typography gutterBottom variant="h6">
+      {heading}
+    </Typography>
+    {description && <Typography gutterBottom>{description}</Typography>}
+    {buttonText && <Typography variant="button">{buttonText}</Typography>}
   </Box>
-)
+);
 
 const AboutContent = [
   {
     heading: 'About SCKAN Explorer',
-    description: 'A key component of the SPARC Program is SCKAN. It is a semantic store housing a comprehensive knowledge base of autonomic nervous system (ANS) and peripheral nervous system (PNS) nerve to end organ connectivity. Connectivity information is derived from SPARC experts, SPARC data, literature and textbooks. SCKAN supports reasoning and offers powerful query and visualization capabilities.',
-    buttonText: 'Learn more about SCKAN'
+    description:
+      'A key component of the SPARC Program is SCKAN. It is a semantic store housing a comprehensive knowledge base of autonomic nervous system (ANS) and peripheral nervous system (PNS) nerve to end organ connectivity. Connectivity information is derived from SPARC experts, SPARC data, literature and textbooks. SCKAN supports reasoning and offers powerful query and visualization capabilities.',
+    buttonText: 'Learn more about SCKAN',
   },
   {
     heading: 'Owner',
     description: 'SPARC Knowledge Core (K-CORE)',
-    buttonText: 'Learn more about SCKAN'
+    buttonText: 'Learn more about SCKAN',
   },
   {
     heading: 'Funding Program',
     description: 'SPARC',
-    buttonText: ''
+    buttonText: '',
   },
   {
     heading: 'Contact',
     buttonText: 'kcore@sparc.science',
     description: '',
   },
+];
 
-]
-
-const About: FC<ModalProps> = ({
-  open,
-  handleClose,
-}) => {
-
+const About: FC<ModalProps> = ({ open, handleClose }) => {
   return (
     <Dialog
       onClose={handleClose}
@@ -76,16 +76,23 @@ const About: FC<ModalProps> = ({
           top: 10,
         }}
       >
-        <CloseIcon/>
+        <CloseIcon />
       </IconButton>
       <DialogContent dividers>
-        { AboutContent.map((content) => <DetailsUI key={content?.heading} heading={content?.heading} description={content?.description} buttonText={content?.buttonText} /> )}
+        {AboutContent.map((content) => (
+          <DetailsUI
+            key={content?.heading}
+            heading={content?.heading}
+            description={content?.description}
+            buttonText={content?.buttonText}
+          />
+        ))}
         <Box className="MuiBoxMetacell-footer">
           <Typography>Powered by</Typography>
-          <img src={MetaCellLogo} alt='logo'/>
+          <img src={MetaCellLogo} alt="logo" />
         </Box>
       </DialogContent>
     </Dialog>
   );
-}
+};
 export default About;
