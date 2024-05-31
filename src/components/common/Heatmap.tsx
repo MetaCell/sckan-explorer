@@ -28,7 +28,7 @@ interface HeatmapGridProps {
 const prepareSecondaryHeatmapData = (data?: PhenotypeKsIdMap[][]): number[][] => {
     if (!data) return [];
     return data.map(row => row.map(cell => {
-        return Object.values(cell).reduce((acc, phenotype) => acc + phenotype.ksIds.size, 0);
+        return Object.values(cell).reduce((acc, phenotype) => acc + phenotype.ksIds.length, 0);
     }));
 }
 
@@ -118,7 +118,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
             return Object.keys(heatmapCellPhenotypes).map(phenotype => ({
                 color: phenotypes[phenotype]?.color || phenotypes[OTHER_PHENOTYPE_LABEL].color,
                 name: phenotype,
-                count: heatmapCellPhenotypes[phenotype].ksIds.size
+                count: heatmapCellPhenotypes[phenotype].ksIds.length
             }));
         }
         return [];

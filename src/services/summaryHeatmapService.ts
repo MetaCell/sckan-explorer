@@ -149,9 +149,9 @@ export function calculateSecondaryConnections(
 				childConnections.forEach((child, index) => {
 					Object.keys(child).forEach(phenotype => {
 						if (!result[index][phenotype]) {
-							result[index][phenotype] = { ksIds: new Set<string>() };
+							result[index][phenotype] = { ksIds: [] };
 						}
-						result[index][phenotype].ksIds = new Set([...result[index][phenotype].ksIds, ...child[phenotype].ksIds]);
+						result[index][phenotype].ksIds = result[index][phenotype].ksIds.concat(child[phenotype].ksIds);
 					});
 				});
 			});
@@ -167,9 +167,9 @@ export function calculateSecondaryConnections(
 					knowledgeStatementIds.forEach(ksId => {
 						const phenotype = knowledgeStatements[ksId].phenotype ? knowledgeStatements[ksId].phenotype : OTHER_PHENOTYPE_LABEL;
 						if (!result[index][phenotype]) {
-							result[index][phenotype] = { ksIds: new Set<string>() };
+							result[index][phenotype] = { ksIds: [] };
 						}
-						result[index][phenotype].ksIds.add(ksId);
+						result[index][phenotype].ksIds.push(ksId);
 					});
 				}
 			});
@@ -184,7 +184,7 @@ export function calculateSecondaryConnections(
 
 
 export const getNormalizedValueForMinMax = (value: number, min: number, max: number): number => {
-	// keep the min 0 always... 
+	// keep the min 0 always...
 	// Ex. for situations where min is 4... the value 4 will not be shown...
 	min = 0;
 	if (max === 0) return 0;
@@ -206,6 +206,5 @@ export const getDestinations = (connection: ConnectionSummary): Record<string, O
 };
 
 export const getConnectionDetails = (uniqueKS: KsMapType, connectionPage: number): KnowledgeStatement => {
-	const connectionDetails = uniqueKS !== undefined ? uniqueKS[Object.keys(uniqueKS)[connectionPage - 1]] : {} as KnowledgeStatement;
-	return connectionDetails;
+	return  uniqueKS !== undefined ? uniqueKS[Object.keys(uniqueKS)[connectionPage - 1]] : {} as KnowledgeStatement;
 };

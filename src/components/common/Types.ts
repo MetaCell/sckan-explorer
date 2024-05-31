@@ -17,7 +17,7 @@ export type KsMapType = Record<string, KnowledgeStatement>;
 
 export type PhenotypeKsIdMap = {
   [phenotype: string]: {
-    ksIds: Set<string>;
+    ksIds: string[];
   };
 };
 // SummaryType - Three types of summary views - default - instruction. 
@@ -29,7 +29,7 @@ export enum SummaryType {
   Instruction = 'instruction'
 }
 
-export type DetailedHeatmapData = { label: string, data: Set<string>[], id: string }[];
+export type DetailedHeatmapData = { label: string, data: string[][], id: string }[];
 
 export interface HeatmapMatrixInformation {
   heatmapMatrix: number[][];
