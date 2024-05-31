@@ -280,19 +280,19 @@ export interface HierarchicalNode {
   uri: string;
   /**
    *  The children of the node
-   * @type {Array<string>}
+   * @type {Set<string>}
    * @memberof HierarchicalNode
    */
   children: Set<string>;
   /**
    * The connection details of the node targetOrgan -> KnowledgeStatementsId
-   * @type {Record<string, Set<string>>}
+   * @type {Record<string, string[]>}
    * @memberof HierarchicalNode
    */
   connectionDetails?: Record<string, string[]>;
   /**
    * The sub end organs of the node
-   * @type {Record<string, Set<string>>}
+   * @type {Record<string, string[]>}
    * @memberof HierarchicalNode
    */
   destinationDetails?: Record<string, string[]>;
