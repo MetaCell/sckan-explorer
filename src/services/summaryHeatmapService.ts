@@ -63,7 +63,7 @@ export function getAllPhenotypes(
     });
   });
 
-  return Array.from(phenotypeNames);
+  return Array.from(phenotypeNames).sort();
 }
 
 export const getNerveFilters = (
