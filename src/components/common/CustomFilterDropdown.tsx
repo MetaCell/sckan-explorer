@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { Badge, InputAdornment, Popper, Tooltip } from '@mui/material';
+import {
+  Badge,
+  ClickAwayListener,
+  InputAdornment,
+  Popper,
+  Tooltip,
+} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import {
   TextField,
@@ -242,294 +248,297 @@ export default function CustomEntitiesDropdown({
   };
 
   return (
-    <React.Fragment>
-      <Badge sx={styles.badge} badgeContent={selectedOptions?.length}>
-        <Box
-          aria-describedby={id}
-          sx={
-            (open && selectedOptions.length > 0) || selectedOptions.length > 0
-              ? { ...styles.root, ...styles.rootHover }
-              : styles.root
-          }
-          onClick={handleClick}
-          ref={dropdownButtonRef}
-        >
-          {selectedOptions.length === 0 ? (
-            <Typography sx={styles.placeholder}>{placeholder}</Typography>
-          ) : (
-            <Box gap={0} display="flex" flexWrap="wrap" alignItems="center">
-              {updatedSelectedOptions?.map((item: Option) => {
-                return (
-                  <Tooltip title={item?.label} placement="top" arrow>
-                    <Chip
-                      key={item?.id}
-                      sx={styles.chip}
-                      variant={'outlined'}
-                      onClick={(e) => {
-                        handleClick();
-                        e.stopPropagation();
-                      }}
-                      label={`${item?.label}`}
-                    />
-                  </Tooltip>
-                );
-              })}
-              {selectedOptions?.length > 1 && (
-                <Typography
-                  sx={{
-                    ...styles.chip,
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: 0,
-                    fontWeight: 600,
-                    fontSize: '0.875rem',
-                    color: primaryPurple600,
-                  }}
-                >{`, +${selectedOptions?.length - 1}`}</Typography>
-              )}
-            </Box>
-          )}
-          {selectedOptions?.length ? (
-            <ClearOutlinedIcon
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelect([]);
-              }}
-              sx={{ ...styles.toggleIcon, color: primaryPurple600 }}
-            />
-          ) : open ? (
-            <ExpandLessIcon className="expand" sx={styles.toggleIcon} />
-          ) : (
-            <ExpandMoreIcon className="expand" sx={styles.toggleIcon} />
-          )}
-        </Box>
-      </Badge>
-
-      <Popper
-        key={`popper_${id}`}
-        id={popperId}
-        open={open}
-        placement="bottom-start"
-        anchorEl={anchorEl}
-        sx={{
-          height: '28.125rem',
-          borderRadius: '0.5rem',
-          background: white,
-          boxShadow:
-            '0 0.5rem 0.5rem -0.25rem rgba(7, 8, 8, 0.03), 0 1.25rem 1.5rem -0.25rem rgba(7, 8, 8, 0.08)',
-          m: '0.25rem 0  !important',
-          width: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          zIndex: 999,
-        }}
-      >
-        <Box
-          display="flex"
-          flex={1}
-          height={
-            autocompleteOptions.length > 0 ? 'calc(100% - 2.75rem)' : 'auto'
-          }
+    <ClickAwayListener onClickAway={() => setAnchorEl(null)}>
+      <Box>
+        <Badge sx={styles.badge} badgeContent={selectedOptions?.length}>
+          <Box
+            aria-describedby={id}
+            sx={
+              (open && selectedOptions.length > 0) || selectedOptions.length > 0
+                ? { ...styles.root, ...styles.rootHover }
+                : styles.root
+            }
+            onClick={handleClick}
+            ref={dropdownButtonRef}
+          >
+            {selectedOptions.length === 0 ? (
+              <Typography sx={styles.placeholder}>{placeholder}</Typography>
+            ) : (
+              <Box gap={0} display="flex" flexWrap="wrap" alignItems="center">
+                {updatedSelectedOptions?.map((item: Option) => {
+                  return (
+                    <Tooltip title={item?.label} placement="top" arrow>
+                      <Chip
+                        key={item?.id}
+                        sx={styles.chip}
+                        variant={'outlined'}
+                        onClick={(e) => {
+                          handleClick();
+                          e.stopPropagation();
+                        }}
+                        label={`${item?.label}`}
+                      />
+                    </Tooltip>
+                  );
+                })}
+                {selectedOptions?.length > 1 && (
+                  <Typography
+                    sx={{
+                      ...styles.chip,
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: 0,
+                      fontWeight: 600,
+                      fontSize: '0.875rem',
+                      color: primaryPurple600,
+                    }}
+                  >{`, +${selectedOptions?.length - 1}`}</Typography>
+                )}
+              </Box>
+            )}
+            {selectedOptions?.length ? (
+              <ClearOutlinedIcon
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelect([]);
+                }}
+                sx={{ ...styles.toggleIcon, color: primaryPurple600 }}
+              />
+            ) : open ? (
+              <ExpandLessIcon className="expand" sx={styles.toggleIcon} />
+            ) : (
+              <ExpandMoreIcon className="expand" sx={styles.toggleIcon} />
+            )}
+          </Box>
+        </Badge>
+        <Popper
+          key={`popper_${id}`}
+          id={popperId}
+          open={open}
+          placement="bottom-start"
+          anchorEl={anchorEl}
+          sx={{
+            height: '28.125rem',
+            borderRadius: '0.5rem',
+            background: white,
+            boxShadow:
+              '0 0.5rem 0.5rem -0.25rem rgba(7, 8, 8, 0.03), 0 1.25rem 1.5rem -0.25rem rgba(7, 8, 8, 0.08)',
+            m: '0.25rem 0  !important',
+            width: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            zIndex: 999,
+          }}
         >
           <Box
-            sx={{
-              ...styles.list,
-              width: '100%',
-              height: '100%',
-            }}
+            display="flex"
+            flex={1}
+            height={
+              autocompleteOptions.length > 0 ? 'calc(100% - 2.75rem)' : 'auto'
+            }
           >
             <Box
               sx={{
-                height: '2.8rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                flexWrap: 'wrap',
-                '& .MuiSvgIcon-root': {
-                  fontSize: '1rem',
-                  marginRight: '0 !important',
-                  width: '1.2rem',
-                  height: '1.2rem',
-                },
-                '& .MuiOutlinedInput-input': {
-                  padding: 0,
-                  fontSize: '0.875rem',
-                  color: gray500,
-                  fontWeight: '400',
-                  height: '2.8rem',
-
-                  '&::placeholder': {
-                    fontSize: '0.875rem',
-                    color: gray500,
-                    opacity: 1,
-                    fontWeight: '400',
-                  },
-                },
-
-                '& .MuiOutlinedInput-notchedOutline': {
-                  display: 'none',
-                },
-
-                '& .MuiOutlinedInput-root': {
-                  boxShadow: 'none',
-                  padding: '0',
-                  border: `${gray100} 0.0625rem solid`,
-                  borderRadius: '0.5rem 0.5rem 0 0',
-                },
-                '& .MuiBox-SearchMenu': {
-                  outline: 0,
-                },
+                ...styles.list,
+                width: '100%',
+                height: '100%',
               }}
             >
-              <TextField
-                fullWidth
-                type="text"
-                value={searchValue}
-                onChange={handleInputChange}
-                placeholder={searchPlaceholder}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon sx={{ fontSize: '1rem', color: gray600 }} />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Box>
-            {autocompleteOptions.length > 0 ? (
-              <>
-                <Box
-                  height="calc(100% - 2.8rem)"
-                  border={`0.0625rem solid ${gray100}`}
-                  borderTop={0}
-                  borderRadius="0 0 0.5rem 0.5rem"
-                >
-                  <Box
-                    height={1}
-                    sx={{
-                      '& .MuiListSubheader-root': {
-                        padding: '0 0.625rem',
-                        height: '2.2rem',
-                        border: `0.0625rem solid ${gray100}`,
-                        borderLeft: 0,
+              <Box
+                sx={{
+                  height: '2.8rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  flexWrap: 'wrap',
+                  '& .MuiSvgIcon-root': {
+                    fontSize: '1rem',
+                    marginRight: '0 !important',
+                    width: '1.2rem',
+                    height: '1.2rem',
+                  },
+                  '& .MuiOutlinedInput-input': {
+                    padding: 0,
+                    fontSize: '0.875rem',
+                    color: gray500,
+                    fontWeight: '400',
+                    height: '2.8rem',
 
-                        '& .MuiTypography-root': {
+                    '&::placeholder': {
+                      fontSize: '0.875rem',
+                      color: gray500,
+                      opacity: 1,
+                      fontWeight: '400',
+                    },
+                  },
+
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    display: 'none',
+                  },
+
+                  '& .MuiOutlinedInput-root': {
+                    boxShadow: 'none',
+                    padding: '0',
+                    border: `${gray100} 0.0625rem solid`,
+                    borderRadius: '0.5rem 0.5rem 0 0',
+                  },
+                  '& .MuiBox-SearchMenu': {
+                    outline: 0,
+                  },
+                }}
+              >
+                <TextField
+                  fullWidth
+                  type="text"
+                  value={searchValue}
+                  onChange={handleInputChange}
+                  placeholder={searchPlaceholder}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon sx={{ fontSize: '1rem', color: gray600 }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Box>
+              {autocompleteOptions.length > 0 ? (
+                <>
+                  <Box
+                    height="calc(100% - 2.8rem)"
+                    border={`0.0625rem solid ${gray100}`}
+                    borderTop={0}
+                    borderRadius="0 0 0.5rem 0.5rem"
+                  >
+                    <Box
+                      height={1}
+                      sx={{
+                        '& .MuiListSubheader-root': {
+                          padding: '0 0.625rem',
+                          height: '2.2rem',
+                          border: `0.0625rem solid ${gray100}`,
+                          borderLeft: 0,
+
+                          '& .MuiTypography-root': {
+                            fontSize: '0.75rem',
+                            lineHeight: '1.125rem',
+                            fontWeight: 600,
+                            color: gray700,
+                          },
+                        },
+                        '& .MuiCheckbox-root': {
+                          padding: 0,
+                        },
+                        '& .MuiButton-root': {
+                          padding: 0,
+                          height: '1.625rem',
                           fontSize: '0.75rem',
+                          textTransform: 'none',
                           lineHeight: '1.125rem',
                           fontWeight: 600,
-                          color: gray700,
+                          color: gray400,
                         },
-                      },
-                      '& .MuiCheckbox-root': {
-                        padding: 0,
-                      },
-                      '& .MuiButton-root': {
-                        padding: 0,
-                        height: '1.625rem',
-                        fontSize: '0.75rem',
-                        textTransform: 'none',
-                        lineHeight: '1.125rem',
-                        fontWeight: 600,
-                        color: gray400,
-                      },
 
-                      '& ul': {
-                        margin: 0,
-                        listStyle: 'none',
-                        padding: '0.5rem 0.0625rem 0 0.375rem',
-                        borderTop: 0,
-                        overflow: 'auto',
-                        height: 'calc(100% - 2.2rem)',
+                        '& ul': {
+                          margin: 0,
+                          listStyle: 'none',
+                          padding: '0.5rem 0.0625rem 0 0.375rem',
+                          borderTop: 0,
+                          overflow: 'auto',
+                          height: 'calc(100% - 2.2rem)',
 
-                        '& li': {
-                          padding: '0.5625rem 0.625rem',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          cursor: 'pointer',
+                          '& li': {
+                            padding: '0.5625rem 0.625rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            cursor: 'pointer',
 
-                          '&:hover': {
-                            background: gray50,
-                            borderRadius: '0.375rem',
-                          },
+                            '&:hover': {
+                              background: gray50,
+                              borderRadius: '0.375rem',
+                            },
 
-                          '&.selected': {
-                            borderRadius: '0.375rem',
-                          },
+                            '&.selected': {
+                              borderRadius: '0.375rem',
+                            },
 
-                          '& .MuiTypography-body1': {
-                            fontSize: '0.875rem',
-                            fontWeight: 500,
-                            lineHeight: '142.857%',
-                            padding: 0,
-                          },
+                            '& .MuiTypography-body1': {
+                              fontSize: '0.875rem',
+                              fontWeight: 500,
+                              lineHeight: '142.857%',
+                              padding: 0,
+                            },
 
-                          '& .MuiTypography-body2': {
-                            color: gray500,
-                            fontSize: '0.75rem',
-                            fontWeight: 400,
-                            lineHeight: '150%',
-                            padding: 0,
-                            whiteSpace: 'nowrap',
+                            '& .MuiTypography-body2': {
+                              color: gray500,
+                              fontSize: '0.75rem',
+                              fontWeight: 400,
+                              lineHeight: '150%',
+                              padding: 0,
+                              whiteSpace: 'nowrap',
+                            },
                           },
                         },
-                      },
-                    }}
-                  >
-                    <ListSubheader
-                      component="div"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'flex-end',
                       }}
                     >
-                      <Button
-                        onClick={resetSelection}
-                        sx={{
-                          '&:hover': {
-                            background: 'transparent',
-                          },
+                      <ListSubheader
+                        component="div"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'flex-end',
                         }}
                       >
-                        Reset Selection
-                      </Button>
-                    </ListSubheader>
-                    <ul>
-                      {autocompleteOptions.map((option: Option) => (
-                        <li
-                          key={option.id}
-                          onClick={() => handleOptionSelection(option)}
-                          className={isOptionSelected(option) ? 'selected' : ''}
+                        <Button
+                          onClick={resetSelection}
+                          sx={{
+                            '&:hover': {
+                              background: 'transparent',
+                            },
+                          }}
                         >
-                          <Checkbox
-                            disableRipple
-                            icon={<UncheckedItemIcon fontSize="small" />}
-                            checkedIcon={<CheckedItemIcon fontSize="small" />}
-                            checked={isOptionSelected(option)}
-                          />
-                          <Typography
-                            sx={{ width: 1, height: 1, padding: '0.625rem' }}
+                          Reset Selection
+                        </Button>
+                      </ListSubheader>
+                      <ul>
+                        {autocompleteOptions.map((option: Option) => (
+                          <li
+                            key={option.id}
+                            onClick={() => handleOptionSelection(option)}
+                            className={
+                              isOptionSelected(option) ? 'selected' : ''
+                            }
                           >
-                            {option?.label?.length > 100
-                              ? option?.label.slice(0, 100) + '...'
-                              : option?.label}
-                          </Typography>
-                          <Typography whiteSpace="nowrap" variant="body2">
-                            {option?.id}
-                          </Typography>
-                        </li>
-                      ))}
-                    </ul>
+                            <Checkbox
+                              disableRipple
+                              icon={<UncheckedItemIcon fontSize="small" />}
+                              checkedIcon={<CheckedItemIcon fontSize="small" />}
+                              checked={isOptionSelected(option)}
+                            />
+                            <Typography
+                              sx={{ width: 1, height: 1, padding: '0.625rem' }}
+                            >
+                              {option?.label?.length > 100
+                                ? option?.label.slice(0, 100) + '...'
+                                : option?.label}
+                            </Typography>
+                            <Typography whiteSpace="nowrap" variant="body2">
+                              {option?.id}
+                            </Typography>
+                          </li>
+                        ))}
+                      </ul>
+                    </Box>
                   </Box>
-                </Box>
-              </>
-            ) : (
-              <> "no result"</>
-            )}
+                </>
+              ) : (
+                <> "no result"</>
+              )}
+            </Box>
           </Box>
-        </Box>
-      </Popper>
-    </React.Fragment>
+        </Popper>
+      </Box>
+    </ClickAwayListener>
   );
 }
