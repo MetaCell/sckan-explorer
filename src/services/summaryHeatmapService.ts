@@ -1,3 +1,4 @@
+import chroma from 'chroma-js';
 import {
   HierarchicalItem,
   PhenotypeKsIdMap,
@@ -10,19 +11,14 @@ import {
   Organ,
   BaseEntity,
 } from '../models/explorer.ts';
-import {
-  FIXED_FOUR_PHENOTYPE_COLORS_ARRAY,
-  OTHER_PHENOTYPE_LABEL,
-} from '../settings.ts';
+import { OTHER_PHENOTYPE_LABEL } from '../settings.ts';
 
 export const generatePhenotypeColors = (num: number) => {
-  const colors: string[] = FIXED_FOUR_PHENOTYPE_COLORS_ARRAY;
-  for (let i = 4; i < num; i++) {
-    colors.push(
-      `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`,
-    );
-  }
-  return colors;
+  const scale = chroma
+    .scale(['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'brown'])
+    .mode('lch')
+    .colors(num);
+  return scale;
 };
 
 export function convertViaToString(via: string[]): string {
@@ -50,16 +46,24 @@ export function getAllViasFromConnections(connections: KsMapType): {
   return vias;
 }
 
-export function getAllPhenotypes(connections: KsMapType): string[] {
+export function getAllPhenotypes(
+  connections: Map<string, PhenotypeKsIdMap[]>,
+): string[] {
   const phenotypeNames: Set<string> = new Set();
-  Object.values(connections)?.forEach((connection) => {
-    if (connection?.phenotype) {
-      phenotypeNames.add(connection.phenotype);
-    } else {
-      phenotypeNames.add(OTHER_PHENOTYPE_LABEL);
-    }
+
+  connections.forEach((phenotypeKsIdMaps) => {
+    phenotypeKsIdMaps.forEach((phenotypeKsIdMap) => {
+      Object.keys(phenotypeKsIdMap).forEach((phenotype) => {
+        if (phenotype) {
+          phenotypeNames.add(phenotype);
+        } else {
+          phenotypeNames.add(OTHER_PHENOTYPE_LABEL);
+        }
+      });
+    });
   });
-  return Array.from(phenotypeNames);
+
+  return Array.from(phenotypeNames).sort();
 }
 
 export const getNerveFilters = (
@@ -221,6 +225,7 @@ export function calculateSecondaryConnections(
     memo.set(nodeId, result);
     return result;
   }
+
   computeNodeConnections(hierarchyNode.id);
   return memo;
 }

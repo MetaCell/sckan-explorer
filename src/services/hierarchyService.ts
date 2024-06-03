@@ -142,6 +142,25 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
     }
   });
 
+  // Sort the children of each node
+  Object.values(hierarchicalNodes).forEach((node) => {
+    if (node.children) {
+      node.children = new Set(
+        Array.from(node.children).sort((a, b) => {
+          const nodeA = hierarchicalNodes[a];
+          const nodeB = hierarchicalNodes[b];
+
+          // First, compare based on whether they have children
+          if (nodeA.children.size > 0 && nodeB.children.size === 0) return -1;
+          if (nodeA.children.size === 0 && nodeB.children.size > 0) return 1;
+
+          // If both have children or both don't have children, use natural sort
+          return naturalSort(nodeA.name, nodeB.name);
+        }),
+      );
+    }
+  });
+
   return hierarchicalNodes;
 };
 
@@ -197,4 +216,8 @@ export const getOrgans = (jsonData: JsonData): Record<string, Organ> => {
   organsRecord[OTHER_X_AXIS_ID].order = creationOrder + 1;
 
   return organsRecord;
+};
+
+const naturalSort = (a: string, b: string) => {
+  return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
 };

@@ -1,4 +1,4 @@
-import { PropsWithChildren, useState } from 'react';
+import { PropsWithChildren, useMemo, useState } from 'react';
 import {
   DataContext,
   Filters,
@@ -10,6 +10,9 @@ import {
   KnowledgeStatement,
   Organ,
 } from '../models/explorer.ts';
+import { PhenotypeDetail } from '../components/common/Types.ts';
+import { generatePhenotypeColors } from '../services/summaryHeatmapService.ts';
+import { OTHER_PHENOTYPE_LABEL } from '../settings.ts';
 
 export const DataContextProvider = ({
   hierarchicalNodes,
@@ -39,6 +42,25 @@ export const DataContextProvider = ({
   const [selectedConnectionSummary, setSelectedConnectionSummary] =
     useState<ConnectionSummary | null>(null);
 
+  const phenotypes = useMemo(() => {
+    const allPhenotypes = Object.values(knowledgeStatements).map(
+      (ks) => ks.phenotype || OTHER_PHENOTYPE_LABEL,
+    );
+    return Array.from(new Set(allPhenotypes)); // Get unique phenotypes
+  }, [knowledgeStatements]);
+
+  const phenotypesColorMap = useMemo(() => {
+    const colors = generatePhenotypeColors(phenotypes.length);
+    const colorMap: Record<string, PhenotypeDetail> = {};
+    phenotypes.forEach((phenotype, index) => {
+      colorMap[phenotype] = {
+        label: phenotype,
+        color: colors[index],
+      };
+    });
+    return colorMap;
+  }, [phenotypes]);
+
   const dataContextValue = {
     filters,
     summaryFilters,
@@ -50,6 +72,7 @@ export const DataContextProvider = ({
     setFilters,
     selectedConnectionSummary,
     setConnectionSummary: setSelectedConnectionSummary,
+    phenotypesColorMap,
   };
 
   return (

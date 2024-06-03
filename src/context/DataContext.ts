@@ -4,7 +4,7 @@ import {
   HierarchicalNode,
   KnowledgeStatement,
 } from '../models/explorer';
-import { Option } from '../components/common/Types.ts';
+import { Option, PhenotypeDetail } from '../components/common/Types.ts';
 import { KsMapType } from '../components/common/Types';
 
 export interface Filters {
@@ -41,6 +41,7 @@ export interface DataContext {
   setConnectionSummary: React.Dispatch<
     React.SetStateAction<ConnectionSummary | null>
   >;
+  phenotypesColorMap: Record<string, PhenotypeDetail>;
 }
 
 export const DataContext = createContext<DataContext>({
@@ -64,6 +65,7 @@ export const DataContext = createContext<DataContext>({
   setSummaryFilters: () => {},
   selectedConnectionSummary: null,
   setConnectionSummary: () => {},
+  phenotypesColorMap: {},
 });
 
 export const useDataContext = () => useContext(DataContext);
