@@ -3,9 +3,7 @@ export const SCKAN_JSON_URL =
 export const SCKAN_MAJOR_NERVES_JSON_URL =
   'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/major-nerves.json';
 
-// TODO: To change to the env variable when the deployment gets integrated with other sckan projects @dario
-export const COMPOSER_API_URL = 'https://composer.scicrunch.io/api';
-//export const COMPOSER_API_URL = import.meta.env.VITE_COMPOSER_API_URL
+export const COMPOSER_API_URL = import.meta.env.VITE_COMPOSER_API_URL;
 
 export const OTHER_X_AXIS_ID = 'OTHER_X';
 export const OTHER_X_AXIS_LABEL = 'Other';
