@@ -13,8 +13,8 @@ COPY replace_env_vars.sh ${BUILDDIR}
 
 RUN yarn install
 COPY . ${BUILDDIR}
+RUN /bin/sh replace_env_vars.sh './src/settings.ts'
 RUN yarn build
-RUN /bin/sh replace_env_vars.sh './dist/*.js'
 
 
 FROM nginx:1.19.3-alpine
