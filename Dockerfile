@@ -1,5 +1,4 @@
 ARG NODE_PARENT=node:18
-ARG VITE_COMPOSER_API_URL
 
 FROM  ${NODE_PARENT} as frontend
 
@@ -9,14 +8,13 @@ WORKDIR ${BUILDDIR}
 COPY package.json ${BUILDDIR}
 COPY yarn.lock ${BUILDDIR}
 COPY nginx/default.conf ${BUILDDIR}
+COPY replace_env_vars.sh ${BUILDDIR}
 
 RUN yarn install
 COPY . ${BUILDDIR}
-
-# Generate the .env file with ARG values
-RUN echo "VITE_COMPOSER_API_URL=${VITE_COMPOSER_API_URL}" > .env
-
 RUN yarn build
+RUN /bin/sh replace_env_vars.sh './dist/*.js'
+
 
 FROM nginx:1.19.3-alpine
 

@@ -20,9 +20,8 @@ steps:
     working_directory: ./sckan-explorer
     buildkit: true
     registry: "${{CODEFRESH_REGISTRY}}"
-    arguments:
-      build_arguments:
-        - VITE_COMPOSER_API_URL=${{VITE_COMPOSER_API_URL}}
+    environment:
+      - VITE_COMPOSER_API_URL=${{VITE_COMPOSER_API_URL}}
   deploy:
     stage: "deploy"
     title: "Deploying SCKANNER"
