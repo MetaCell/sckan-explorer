@@ -82,14 +82,14 @@ const SummaryHeader = ({
               },
             }}
           >
-            <IconButton onClick={handleUpClick}>
+            <IconButton onClick={handleDownClick}>
               <ArrowUp />
             </IconButton>
             <IconButton
               sx={{
                 marginLeft: '.25rem',
               }}
-              onClick={handleDownClick}
+              onClick={handleUpClick}
             >
               <ArrowDown />
             </IconButton>

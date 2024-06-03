@@ -153,7 +153,8 @@ function Connections() {
 
       if (
         selectedConnectionSummary &&
-        Object.keys(selectedConnectionSummary.connections).length !== 0
+        Object.keys(selectedConnectionSummary.connections).length !== 0 &&
+        ksIds.length > 0
       ) {
         setShowConnectionDetails(SummaryType.DetailedSummary);
         const ksMap = getKnowledgeStatementMap(ksIds, knowledgeStatements);

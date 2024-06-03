@@ -104,10 +104,10 @@ const SummaryDetails = ({
             Details
           </Typography>
           <Stack direction="row" alignItems="center" spacing=".5rem">
-            <Button variant="outlined" startIcon={<ArrowOutward />}>
+            <Button variant="outlined" startIcon={<ArrowOutward />} disabled={true}>
               View on SPARC Portal
             </Button>
-            <Button variant="contained">Download (.pdf)</Button>
+            <Button variant="contained">Download (.csv)</Button>
           </Stack>
         </Stack>
         <Stack mt="1.75rem" spacing=".5rem">
