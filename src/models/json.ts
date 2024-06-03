@@ -1,62 +1,61 @@
 type DataType = 'uri' | 'literal';
 
 interface Variable {
-    type: DataType;
-    value: string;
+  type: DataType;
+  value: string;
 }
 
 export interface Binding {
-    Neuron_ID?: Variable;
-    A_L1_ID?: Variable;
-    A_L1?: Variable;
-    A_L2_ID?: Variable;
-    A_L2?: Variable;
-    A_L3_ID?: Variable;
-    A_L3?: Variable;
-    A_ID?: Variable;
-    A?: Variable;
-    C_ID?: Variable;
-    C?: Variable;
-    C_Type?: Variable;
-    B_ID?: Variable;
-    B?: Variable;
-    Target_Organ_IRI?: Variable;
-    Target_Organ?: Variable;
+  Neuron_ID?: Variable;
+  A_L1_ID?: Variable;
+  A_L1?: Variable;
+  A_L2_ID?: Variable;
+  A_L2?: Variable;
+  A_L3_ID?: Variable;
+  A_L3?: Variable;
+  A_ID?: Variable;
+  A?: Variable;
+  C_ID?: Variable;
+  C?: Variable;
+  C_Type?: Variable;
+  B_ID?: Variable;
+  B?: Variable;
+  Target_Organ_IRI?: Variable;
+  Target_Organ?: Variable;
 
-    [key: string]: Variable | undefined; // This allows for any additional variable that follows the same pattern
+  [key: string]: Variable | undefined; // This allows for any additional variable that follows the same pattern
 }
 
 interface Result {
-    bindings: Binding[];
+  bindings: Binding[];
 }
 
 interface Head {
-    vars: string[];
+  vars: string[];
 }
 
 export interface JsonData {
-    head: Head;
-    results: Result;
+  head: Head;
+  results: Result;
 }
 
-
 interface NerveData {
-    type: string;
-    value: string;
+  type: string;
+  value: string;
 }
 
 interface NerveBinding {
-    Nerve_IRI: NerveData;
-    Nerve_Label: NerveData;
+  Nerve_IRI: NerveData;
+  Nerve_Label: NerveData;
 }
 
 interface NerveResult {
-    bindings: NerveBinding[];
+  bindings: NerveBinding[];
 }
 
 export interface NerveResponse {
-    head: {
-        vars: string[];
-    };
-    results: NerveResult;
+  head: {
+    vars: string[];
+  };
+  results: NerveResult;
 }

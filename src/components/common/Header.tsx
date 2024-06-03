@@ -10,30 +10,35 @@ import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import Logo from '../assets/svg/Logo.svg';
 import AboutScannerLogo from '../assets/svg/actions.svg';
-import MenuIcon  from '@mui/icons-material/Menu';
+import MenuIcon from '@mui/icons-material/Menu';
 import About from './About';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const pages = [{
-  title: 'Connectivity',
-  link: '/',
-},{
-  title: 'Database Summary',
-  link: '/summary',
-}];
+const pages = [
+  {
+    title: 'Connectivity',
+    link: '/',
+  },
+  {
+    title: 'Database Summary',
+    link: '/summary',
+  },
+];
 
 function Header() {
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
+  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
+    null,
+  );
   const navigate = useNavigate();
   const location = useLocation();
-  const { pathname} = location;
+  const { pathname } = location;
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
   };
 
   const handleCloseNavMenu = (link: string) => {
     setAnchorElNav(null);
-    navigate(link)
+    navigate(link);
   };
 
   const [open, setOpen] = React.useState(false);
@@ -41,7 +46,7 @@ function Header() {
   return (
     <>
       <AppBar position="fixed">
-        <Container maxWidth={false} sx={{padding: 0}}>
+        <Container maxWidth={false} sx={{ padding: 0 }}>
           <Toolbar disableGutters>
             <Typography
               variant="h6"
@@ -70,7 +75,7 @@ function Header() {
                 onClick={handleOpenNavMenu}
                 color="inherit"
               >
-                <MenuIcon/>
+                <MenuIcon />
               </IconButton>
               <Menu
                 id="menu-appbar"
@@ -91,7 +96,10 @@ function Header() {
                 }}
               >
                 {pages.map((page) => (
-                  <MenuItem key={page.title} onClick={() => handleCloseNavMenu(page.link)}>
+                  <MenuItem
+                    key={page.title}
+                    onClick={() => handleCloseNavMenu(page.link)}
+                  >
                     <Typography textAlign="center">{page.title}</Typography>
                   </MenuItem>
                 ))}
@@ -115,19 +123,19 @@ function Header() {
                 textDecoration: 'none',
               }}
             >
-               <img src={Logo} />
+              <img src={Logo} />
             </Typography>
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                {pages.map((page, i) => (
-                  <Button
-                    key={i}
-                    className={ pathname === page.link ? 'active' : ''}
-                    onClick={() => handleCloseNavMenu(page.link)}
-                    sx={{ my: 2, color: 'white', display: 'block' }}
-                  >
-                    {page.title}
-                  </Button>
-                ))}         
+              {pages.map((page, i) => (
+                <Button
+                  key={i}
+                  className={pathname === page.link ? 'active' : ''}
+                  onClick={() => handleCloseNavMenu(page.link)}
+                  sx={{ my: 2, color: 'white', display: 'block' }}
+                >
+                  {page.title}
+                </Button>
+              ))}
             </Box>
 
             <Box sx={{ flexGrow: 0 }}>
@@ -139,7 +147,7 @@ function Header() {
         </Container>
       </AppBar>
 
-      <About open={open} handleClose={() => setOpen(false)}/>
+      <About open={open} handleClose={() => setOpen(false)} />
     </>
   );
 }
