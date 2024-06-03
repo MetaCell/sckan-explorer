@@ -7,13 +7,11 @@ import {
   PhenotypeKsIdMap,
   SummaryType,
   KsMapType,
-  PhenotypeType,
 } from './common/Types';
 import { useDataContext } from '../context/DataContext.ts';
 import {
   calculateSecondaryConnections,
   convertViaToString,
-  generatePhenotypeColors,
   getAllPhenotypes,
   getAllViasFromConnections,
   getDestinations,
@@ -63,7 +61,6 @@ function Connections() {
     x: number;
     y: number;
   } | null>(null); // useful for coordinates
-  const [phenotypes, setPhenotypes] = useState<PhenotypeType>({});
   const [knowledgeStatementsMap, setKnowledgeStatementsMap] =
     useState<KsMapType>({});
   const [xAxis, setXAxis] = useState<string[]>([]);
@@ -91,42 +88,12 @@ function Connections() {
   const totalConnectionCount = Object.keys(
     selectedConnectionSummary?.connections || ({} as KsMapType),
   ).length;
-  const phenotypeNamesArray = useMemo(
-    () =>
-      getAllPhenotypes(
-        selectedConnectionSummary?.connections || ({} as KsMapType),
-      ),
-    [selectedConnectionSummary],
-  );
-
-  useEffect(() => {
-    // Generate the phenotype colors and set the phenotypes
-    if (
-      selectedConnectionSummary &&
-      phenotypeNamesArray &&
-      phenotypeNamesArray.length > 0
-    ) {
-      const phenotypeColors: string[] = generatePhenotypeColors(
-        phenotypeNamesArray.length,
-      );
-      const phenotypes: PhenotypeType = {};
-      phenotypeNamesArray.forEach((phenotype, index) => {
-        phenotypes[phenotype] = {
-          label: phenotype,
-          color: phenotypeColors[index],
-        };
-      });
-      setPhenotypes(phenotypes);
-    }
-  }, [phenotypeNamesArray, selectedConnectionSummary]);
-
   const nerves = getNerveFilters(viasConnection, majorNerves);
 
   useEffect(() => {
     // calculate the connectionsMap for the secondary heatmap
     if (
       selectedConnectionSummary &&
-      phenotypes &&
       selectedConnectionSummary.hierarchy &&
       hierarchicalNodes
     ) {
@@ -145,8 +112,12 @@ function Connections() {
     selectedConnectionSummary,
     summaryFilters,
     knowledgeStatements,
-    phenotypes,
   ]);
+
+  const selectedPhenotypes = useMemo(
+    () => getAllPhenotypes(connectionsMap),
+    [connectionsMap],
+  );
 
   useEffect(() => {
     // set the xAxis for the heatmap
@@ -283,7 +254,10 @@ function Connections() {
                 to view the details of each connections.
               </Typography>
             </Box>
-            <SummaryFiltersDropdown nerves={nerves} phenotypes={phenotypes} />
+            <SummaryFiltersDropdown
+              nerves={nerves}
+              phenotypes={selectedPhenotypes}
+            />
             <HeatmapGrid
               yAxis={yAxis}
               setYAxis={setYAxis}
@@ -293,11 +267,10 @@ function Connections() {
               secondaryHeatmapData={heatmapData}
               xAxisLabel={'Project to'}
               yAxisLabel={'Somas in'}
-              phenotypes={phenotypes}
             />
           </Box>
 
-          <PhenotypeLegend phenotypes={phenotypes} />
+          <PhenotypeLegend phenotypes={selectedPhenotypes} />
         </>
       )}
     </Box>

@@ -50,7 +50,3 @@ export type PhenotypeDetail = {
   label: string;
   color: string;
 };
-
-export type PhenotypeType = {
-  [key: string]: PhenotypeDetail;
-};

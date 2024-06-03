@@ -1,11 +1,11 @@
 import { Box, Typography } from '@mui/material';
-import { PhenotypeDetail, PhenotypeType } from '../common/Types';
 import { vars } from '../../theme/variables';
+import { useDataContext } from '../../context/DataContext.ts';
 
 const { gray100 } = vars;
 
-const PhenotypeLegend = ({ phenotypes }: { phenotypes: PhenotypeType }) => {
-  const phenotypesLegends = Object.values(phenotypes);
+const PhenotypeLegend = ({ phenotypes }: { phenotypes: string[] }) => {
+  const { phenotypesColorMap } = useDataContext();
   return (
     <Box
       sx={{
@@ -42,7 +42,7 @@ const PhenotypeLegend = ({ phenotypes }: { phenotypes: PhenotypeType }) => {
             gap: '1.5rem',
           }}
         >
-          {phenotypesLegends?.map((phenotype: PhenotypeDetail) => (
+          {phenotypes.map((phenotype: string) => (
             <Box
               sx={{
                 p: '0.1875rem 0.25rem',
@@ -50,14 +50,14 @@ const PhenotypeLegend = ({ phenotypes }: { phenotypes: PhenotypeType }) => {
                 alignItems: 'center',
                 gap: '0.375rem',
               }}
-              key={phenotype.label}
+              key={phenotype}
             >
               <Box
                 sx={{
                   width: '1.4794rem',
                   height: '1rem',
                   borderRadius: '0.125rem',
-                  background: `${phenotype.color}`,
+                  background: `${phenotypesColorMap[phenotype].color}`,
                 }}
               />
               <Typography
@@ -68,7 +68,7 @@ const PhenotypeLegend = ({ phenotypes }: { phenotypes: PhenotypeType }) => {
                   color: '#4A4C4F',
                 }}
               >
-                {phenotype.label}
+                {phenotype}
               </Typography>
             </Box>
           ))}
