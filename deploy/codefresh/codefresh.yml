@@ -15,10 +15,10 @@ steps:
     title: "Building SCKANNER"
     type: "build"
     image_name: "sckanner"
-    tag: "${{CF_BUILD_ID}}"
+    tag: "${{CF_SHORT_REVISION}}"
     dockerfile: Dockerfile
     working_directory: ./sckan-explorer
-    buildkit: true    
+    buildkit: true
     registry: "${{CODEFRESH_REGISTRY}}"
     arguments:
       build_arguments:
@@ -26,13 +26,12 @@ steps:
   deploy:
     stage: "deploy"
     title: "Deploying SCKANNER"
-    image: codefresh/kubectl
+    image: codefresh/cf-deploy-kubernetes
+    tag: latest
     working_directory: ./sckan-explorer/deploy/k8s
     commands:
-      - export CLUSTER_NAME="${{CLUSTER_NAME}}"
-      - export NAMESPACE="${{NAMESPACE}}"
-      - export CF_BUILD_ID
-      - export REGISTRY="${{REGISTRY}}/"
-      - export DOMAIN="${{DOMAIN}}"
-      - chmod +x ./deploy.sh
-      - ./deploy.sh
+      - /cf-deploy-kubernetes sckanner.yaml
+      - /cf-deploy-kubernetes ingress.yaml
+    environment:
+      - KUBECONTEXT=${{CLUSTER_NAME}}
+      - KUBERNETES_NAMESPACE=${{NAMESPACE}}
