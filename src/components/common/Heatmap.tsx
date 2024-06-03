@@ -254,7 +254,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                   alignItems: 'center',
                   fontSize: '0.875rem',
                   fontWeight: '500',
-                  marginLeft: '0.125rem',
+                  marginLeft: '0.25rem',
                   padding: '0.875rem 0',
                   position: 'relative',
                   borderRadius: '0.25rem',
@@ -298,7 +298,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                 yLabels={yAxisData.labels}
                 xLabelsLocation={'top'}
                 xLabelsVisibility={xAxis?.map(() => true)}
-                xLabelWidth={160}
+                xLabelWidth={250}
                 yLabelWidth={250}
                 data={heatmapMatrixData}
                 // squares
