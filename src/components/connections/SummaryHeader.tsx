@@ -12,6 +12,7 @@ import IconButton from '@mui/material/IconButton';
 import { ArrowDown, ArrowRight, ArrowUp, HelpCircle } from '../icons';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import { SummaryType, KsMapType } from '../common/Types';
+import { useDataContext } from '../../context/DataContext.ts';
 
 const { gray100, gray600A, gray500 } = vars;
 
@@ -34,6 +35,8 @@ const SummaryHeader = ({
 }: SummaryHeaderProps) => {
   const totalUniqueKS = Object.keys(knowledgeStatementsMap).length;
 
+  const { selectedConnectionSummary } = useDataContext();
+
   function getConnectionId() {
     return Object.keys(knowledgeStatementsMap)[connectionPage - 1] || '';
   }
@@ -49,6 +52,11 @@ const SummaryHeader = ({
     if (connectionPage > 1) {
       setConnectionPage(connectionPage - 1);
     }
+  };
+
+  const generateCSV = () => {
+    console.log('Generating CSV');
+    console.log(selectedConnectionSummary);
   };
 
   if (showDetails === SummaryType.Instruction) {
@@ -144,7 +152,7 @@ const SummaryHeader = ({
                   color: gray600A,
                 }}
               >
-                {totalConnectionCount} connections
+                {totalConnectionCount} populations
               </Typography>
 
               <Divider
@@ -155,7 +163,9 @@ const SummaryHeader = ({
                 }}
               />
 
-              <Button variant="contained">Download results (.csv)</Button>
+              <Button variant="contained" onClick={generateCSV}>
+                Download results (.csv)
+              </Button>
             </Box>
           </>
         )}
