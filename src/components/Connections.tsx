@@ -7,6 +7,7 @@ import {
   PhenotypeKsIdMap,
   SummaryType,
   KsMapType,
+  Option,
 } from './common/Types';
 import { useDataContext } from '../context/DataContext.ts';
 import {
@@ -64,14 +65,25 @@ function Connections() {
   const [knowledgeStatementsMap, setKnowledgeStatementsMap] =
     useState<KsMapType>({});
   const [xAxis, setXAxis] = useState<string[]>([]);
+  const [nerveFilters, setNerveFilters] = useState<Option[]>([]);
+  const [phenotypeFilters, setPhenotypeFilters] = useState<Option[]>([]);
 
   const {
     selectedConnectionSummary,
     majorNerves,
     hierarchicalNodes,
     knowledgeStatements,
-    summaryFilters,
+    filters,
   } = useDataContext();
+
+  const summaryFilters = useMemo(
+    () => ({
+      ...filters,
+      Nerve: nerveFilters,
+      Phenotype: phenotypeFilters,
+    }),
+    [filters, nerveFilters],
+  );
 
   useEffect(() => {
     // By default on the first render, show the instruction/summary
@@ -88,7 +100,8 @@ function Connections() {
   const totalConnectionCount = Object.keys(
     selectedConnectionSummary?.connections || ({} as KsMapType),
   ).length;
-  const nerves = getNerveFilters(viasConnection, majorNerves);
+
+  const availableNerves = getNerveFilters(viasConnection, majorNerves);
 
   useEffect(() => {
     // calculate the connectionsMap for the secondary heatmap
@@ -114,7 +127,7 @@ function Connections() {
     knowledgeStatements,
   ]);
 
-  const selectedPhenotypes = useMemo(
+  const availablePhenotypes = useMemo(
     () => getAllPhenotypes(connectionsMap),
     [connectionsMap],
   );
@@ -256,8 +269,12 @@ function Connections() {
               </Typography>
             </Box>
             <SummaryFiltersDropdown
-              nerves={nerves}
-              phenotypes={selectedPhenotypes}
+              nerves={availableNerves}
+              nerveFilters={nerveFilters}
+              setNerveFilters={setNerveFilters}
+              phenotypes={availablePhenotypes}
+              phenotypeFilters={phenotypeFilters}
+              setPhenotypeFilters={setPhenotypeFilters}
             />
             <HeatmapGrid
               yAxis={yAxis}
@@ -271,7 +288,7 @@ function Connections() {
             />
           </Box>
 
-          <PhenotypeLegend phenotypes={selectedPhenotypes} />
+          <PhenotypeLegend phenotypes={availablePhenotypes} />
         </>
       )}
     </Box>

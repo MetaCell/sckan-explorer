@@ -75,10 +75,10 @@ function ConnectivityGrid() {
   }, [hierarchicalNodes]);
 
   const { heatmapData, detailedHeatmapData } = useMemo(() => {
-    const heatmapdata = getHeatmapData(yAxis, connectionsMap);
+    const heatmapData = getHeatmapData(yAxis, connectionsMap);
     return {
-      heatmapData: heatmapdata.heatmapMatrix,
-      detailedHeatmapData: heatmapdata.detailedHeatmap,
+      heatmapData: heatmapData.heatmapMatrix,
+      detailedHeatmapData: heatmapData.detailedHeatmap,
     };
   }, [yAxis, connectionsMap]);
 

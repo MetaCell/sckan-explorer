@@ -21,11 +21,7 @@ import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { vars } from '../../theme/variables';
-
-type OptionDetail = {
-  title: string; // What to display as the title/label for the property.
-  value: string; // The actual value/content for the property.
-};
+import { Option } from './Types.ts';
 
 const {
   gray100,
@@ -38,13 +34,6 @@ const {
   primaryPurple300,
   gray50,
 } = vars;
-
-export type Option = {
-  id: string;
-  label: string;
-  group: string;
-  content: OptionDetail[];
-};
 
 const transition = {
   transition: 'all ease-in-out .3s',

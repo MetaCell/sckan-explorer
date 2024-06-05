@@ -12,6 +12,7 @@ import {
   BaseEntity,
 } from '../models/explorer.ts';
 import { OTHER_PHENOTYPE_LABEL } from '../settings.ts';
+import { filterKnowledgeStatements } from './heatmapService.ts';
 
 export const generatePhenotypeColors = (num: number) => {
   const scale = chroma
@@ -79,32 +80,6 @@ export const getNerveFilters = (
   return nerves;
 };
 
-export function summaryFilterKnowledgeStatements(
-  knowledgeStatements: Record<string, KnowledgeStatement>,
-  summaryFilters: SummaryFilters,
-): Record<string, KnowledgeStatement> {
-  const phenotypeIds = summaryFilters.Phenotype.map((option) => option.id);
-  const nerveIds = summaryFilters.Nerve.map((option) => option.id);
-  return Object.entries(knowledgeStatements).reduce(
-    (filtered, [id, ks]) => {
-      const phenotypeMatch =
-        !phenotypeIds.length || phenotypeIds.includes(ks.phenotype);
-      const nerveMatch =
-        !nerveIds.length ||
-        ks.vias?.some((via) =>
-          via.anatomical_entities
-            .map((entity) => entity.id)
-            .some((id) => nerveIds.includes(id)),
-        );
-      if (phenotypeMatch && nerveMatch) {
-        filtered[id] = ks;
-      }
-      return filtered;
-    },
-    {} as Record<string, KnowledgeStatement>,
-  );
-}
-
 // NOTE: this function is similar to /services/heatmapService.ts - getHeatmapData
 // output type - PhenotypeKsIdMap[][]
 // ***** Recursive function - traverseItems *****
@@ -160,7 +135,7 @@ export function calculateSecondaryConnections(
   hierarchyNode: HierarchicalNode,
 ): Map<string, PhenotypeKsIdMap[]> {
   // Apply filters to organs and knowledge statements
-  const knowledgeStatements = summaryFilterKnowledgeStatements(
+  const knowledgeStatements = filterKnowledgeStatements(
     allKnowledgeStatements,
     summaryFilters,
   );

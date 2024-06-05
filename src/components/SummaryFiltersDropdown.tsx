@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { SummaryFilters, useDataContext } from '../context/DataContext';
 import CustomFilterDropdown from './common/CustomFilterDropdown';
 import { Option } from './common/Types';
 import { Box } from '@mui/material';
@@ -10,7 +9,7 @@ import {
 import { OTHER_PHENOTYPE_LABEL } from '../settings';
 
 interface FilterConfig {
-  id: keyof SummaryFilters;
+  id: 'Phenotype' | 'Nerve';
   placeholder: string;
   searchPlaceholder: string;
 }
@@ -31,12 +30,18 @@ const filterConfig: FilterConfig[] = [
 const SummaryFiltersDropdown = ({
   nerves,
   phenotypes,
+  nerveFilters,
+  setNerveFilters,
+  phenotypeFilters,
+  setPhenotypeFilters,
 }: {
   nerves: { [key: string]: string };
   phenotypes: string[];
+  nerveFilters: Option[];
+  setNerveFilters: React.Dispatch<React.SetStateAction<Option[]>>;
+  phenotypeFilters: Option[];
+  setPhenotypeFilters: React.Dispatch<React.SetStateAction<Option[]>>;
 }) => {
-  const { summaryFilters, setSummaryFilters } = useDataContext();
-
   const convertNervesToOptions = (nerves: {
     [key: string]: string;
   }): Option[] => {
@@ -47,6 +52,7 @@ const SummaryFiltersDropdown = ({
       content: [],
     }));
   };
+
   const convertPhenotypesToOptions = (phenotypes: string[]): Option[] => {
     return phenotypes
       .map((phenotype) => ({
@@ -62,22 +68,33 @@ const SummaryFiltersDropdown = ({
     () => convertPhenotypesToOptions(phenotypes),
     [phenotypes],
   );
+
   const nerveOptions = useMemo(() => convertNervesToOptions(nerves), [nerves]);
 
-  const handleSelect = (
-    filterKey: keyof typeof summaryFilters,
-    selectedOptions: Option[],
-  ) => {
-    setSummaryFilters((prevFilters) => ({
-      ...prevFilters,
-      [filterKey]: selectedOptions,
-    }));
+  type FilterKey = 'Phenotype' | 'Nerve';
+
+  const filterStateMap: {
+    [K in FilterKey]: {
+      filters: Option[];
+      setFilters: React.Dispatch<React.SetStateAction<Option[]>>;
+      searchFunction: (value: string) => Option[];
+    };
+  } = {
+    Phenotype: {
+      filters: phenotypeFilters,
+      setFilters: setPhenotypeFilters,
+      searchFunction: (value: string) =>
+        searchPhenotypeFilter(value, phenotypeOptions),
+    },
+    Nerve: {
+      filters: nerveFilters,
+      setFilters: setNerveFilters,
+      searchFunction: (value: string) => searchNerveFilter(value, nerveOptions),
+    },
   };
 
-  const searchFunctions = {
-    Phenotype: (value: string) =>
-      searchPhenotypeFilter(value, phenotypeOptions),
-    Nerve: (value: string) => searchNerveFilter(value, nerveOptions),
+  const handleSelect = (filterKey: FilterKey, selectedOptions: Option[]) => {
+    filterStateMap[filterKey].setFilters(selectedOptions);
   };
 
   return (
@@ -88,13 +105,11 @@ const SummaryFiltersDropdown = ({
           id={filter.id}
           placeholder={filter.placeholder}
           searchPlaceholder={filter.searchPlaceholder}
-          selectedOptions={summaryFilters[filter.id]}
+          selectedOptions={filterStateMap[filter.id].filters}
           onSearch={(searchValue: string) =>
-            searchFunctions[filter.id](searchValue)
+            filterStateMap[filter.id].searchFunction(searchValue)
           }
-          onSelect={(options: Option[]) =>
-            handleSelect(filter.id as keyof SummaryFilters, options)
-          }
+          onSelect={(options: Option[]) => handleSelect(filter.id, options)}
         />
       ))}
     </Box>

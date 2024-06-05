@@ -16,8 +16,7 @@ export interface Filters {
   Via: Option[];
 }
 
-export interface SummaryFilters {
-  Phenotype: Option[];
+export interface SummaryFilters extends Filters {
   Nerve: Option[];
 }
 
@@ -30,13 +29,11 @@ export interface ConnectionSummary {
 
 export interface DataContext {
   filters: Filters;
-  summaryFilters: SummaryFilters;
   majorNerves: Set<string>;
   organs: Record<string, Organ>;
   hierarchicalNodes: Record<string, HierarchicalNode>;
   knowledgeStatements: Record<string, KnowledgeStatement>;
   setFilters: React.Dispatch<React.SetStateAction<Filters>>;
-  setSummaryFilters: React.Dispatch<React.SetStateAction<SummaryFilters>>;
   selectedConnectionSummary: ConnectionSummary | null;
   setConnectionSummary: React.Dispatch<
     React.SetStateAction<ConnectionSummary | null>
@@ -53,18 +50,15 @@ export const DataContext = createContext<DataContext>({
     apiNATOMY: [],
     Via: [],
   },
-  summaryFilters: {
-    Phenotype: [],
-    Nerve: [],
-  },
   majorNerves: new Set<string>(),
   organs: {},
   hierarchicalNodes: {},
   knowledgeStatements: {},
-  setFilters: () => {},
-  setSummaryFilters: () => {},
+  setFilters: () => {
+  },
   selectedConnectionSummary: null,
-  setConnectionSummary: () => {},
+  setConnectionSummary: () => {
+  },
   phenotypesColorMap: {},
 });
 
