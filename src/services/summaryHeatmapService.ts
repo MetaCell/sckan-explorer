@@ -47,21 +47,15 @@ export function getAllViasFromConnections(connections: KsMapType): {
   return vias;
 }
 
-export function getAllPhenotypes(
-  connections: Map<string, PhenotypeKsIdMap[]>,
-): string[] {
+export function getAllPhenotypes(connections: KsMapType): string[] {
   const phenotypeNames: Set<string> = new Set();
 
-  connections.forEach((phenotypeKsIdMaps) => {
-    phenotypeKsIdMaps.forEach((phenotypeKsIdMap) => {
-      Object.keys(phenotypeKsIdMap).forEach((phenotype) => {
-        if (phenotype) {
-          phenotypeNames.add(phenotype);
-        } else {
-          phenotypeNames.add(OTHER_PHENOTYPE_LABEL);
-        }
-      });
-    });
+  Object.values(connections).forEach((ks) => {
+    if (ks.phenotype) {
+      phenotypeNames.add(ks.phenotype);
+    } else {
+      phenotypeNames.add(OTHER_PHENOTYPE_LABEL);
+    }
   });
 
   return Array.from(phenotypeNames).sort();

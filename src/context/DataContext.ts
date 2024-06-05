@@ -54,11 +54,9 @@ export const DataContext = createContext<DataContext>({
   organs: {},
   hierarchicalNodes: {},
   knowledgeStatements: {},
-  setFilters: () => {
-  },
+  setFilters: () => {},
   selectedConnectionSummary: null,
-  setConnectionSummary: () => {
-  },
+  setConnectionSummary: () => {},
   phenotypesColorMap: {},
 });
 

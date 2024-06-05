@@ -51,6 +51,14 @@ const styles = {
 };
 
 function Connections() {
+  const {
+    selectedConnectionSummary,
+    majorNerves,
+    hierarchicalNodes,
+    knowledgeStatements,
+    filters,
+  } = useDataContext();
+
   const [showConnectionDetails, setShowConnectionDetails] =
     useState<SummaryType>(SummaryType.Instruction);
   const [connectionsMap, setConnectionsMap] = useState<
@@ -66,15 +74,13 @@ function Connections() {
     useState<KsMapType>({});
   const [xAxis, setXAxis] = useState<string[]>([]);
   const [nerveFilters, setNerveFilters] = useState<Option[]>([]);
-  const [phenotypeFilters, setPhenotypeFilters] = useState<Option[]>([]);
+  const [phenotypeFilters, setPhenotypeFilters] = useState<Option[]>(
+    filters.Phenotype,
+  );
 
-  const {
-    selectedConnectionSummary,
-    majorNerves,
-    hierarchicalNodes,
-    knowledgeStatements,
-    filters,
-  } = useDataContext();
+  useEffect(() => {
+    setPhenotypeFilters(filters.Phenotype);
+  }, [filters.Phenotype]);
 
   const summaryFilters = useMemo(
     () => ({
@@ -82,7 +88,7 @@ function Connections() {
       Nerve: nerveFilters,
       Phenotype: phenotypeFilters,
     }),
-    [filters, nerveFilters],
+    [filters, nerveFilters, phenotypeFilters],
   );
 
   useEffect(() => {
@@ -102,6 +108,13 @@ function Connections() {
   ).length;
 
   const availableNerves = getNerveFilters(viasConnection, majorNerves);
+  const availablePhenotypes = useMemo(
+    () =>
+      selectedConnectionSummary
+        ? getAllPhenotypes(selectedConnectionSummary.connections)
+        : [],
+    [selectedConnectionSummary],
+  );
 
   useEffect(() => {
     // calculate the connectionsMap for the secondary heatmap
@@ -127,11 +140,6 @@ function Connections() {
     knowledgeStatements,
   ]);
 
-  const availablePhenotypes = useMemo(
-    () => getAllPhenotypes(connectionsMap),
-    [connectionsMap],
-  );
-
   useEffect(() => {
     // set the xAxis for the heatmap
     if (selectedConnectionSummary) {
@@ -147,7 +155,7 @@ function Connections() {
     if (selectedConnectionSummary && hierarchicalNodes) {
       const hierarchyNode = {
         [selectedConnectionSummary.hierarchy.id]:
-          selectedConnectionSummary.hierarchy,
+        selectedConnectionSummary.hierarchy,
       };
       const yHierarchicalItem = getYAxis(hierarchicalNodes, hierarchyNode);
       setYAxis(yHierarchicalItem);

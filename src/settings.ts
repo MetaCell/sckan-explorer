@@ -24,7 +24,7 @@ export const DATABASE_FILES = {
 };
 
 // TODO: To change to the env variable when the deployment gets integrated with other sckan projects @dario
-export const COMPOSER_API_URL = 'https://composer.sckan.dev.metacell.us/api';
+export const COMPOSER_API_URL = 'https://composer.scicrunch.io/api';
 //export const COMPOSER_API_URL = import.meta.env.VITE_COMPOSER_API_URL
 
 export const OTHER_X_AXIS_ID = 'OTHER_X';
