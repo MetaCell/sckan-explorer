@@ -8,8 +8,10 @@ import {
 } from '../services/searchService';
 import { OTHER_PHENOTYPE_LABEL } from '../settings';
 
+type FilterKey = 'Phenotype' | 'Nerve';
+
 interface FilterConfig {
-  id: 'Phenotype' | 'Nerve';
+  id: FilterKey;
   placeholder: string;
   searchPlaceholder: string;
 }
@@ -70,8 +72,6 @@ const SummaryFiltersDropdown = ({
   );
 
   const nerveOptions = useMemo(() => convertNervesToOptions(nerves), [nerves]);
-
-  type FilterKey = 'Phenotype' | 'Nerve';
 
   const filterStateMap: {
     [K in FilterKey]: {
