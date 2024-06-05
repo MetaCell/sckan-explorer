@@ -5,7 +5,7 @@ import {
   KnowledgeStatement,
 } from '../models/explorer';
 import { Option, PhenotypeDetail } from '../components/common/Types.ts';
-import { KsMapType } from '../components/common/Types';
+import { KsRecord } from '../components/common/Types';
 
 export interface Filters {
   Origin: Option[];
@@ -21,10 +21,10 @@ export interface SummaryFilters extends Filters {
 }
 
 export interface ConnectionSummary {
-  connections: KsMapType; // displaying connection 1 of 5
-  origin: string;
+  connections: KsRecord;
+  filteredKnowledgeStatements: KsRecord;
+  hierarchicalNode: HierarchicalNode;
   endOrgan: Organ;
-  hierarchy: HierarchicalNode;
 }
 
 export interface DataContext {
@@ -35,9 +35,9 @@ export interface DataContext {
   knowledgeStatements: Record<string, KnowledgeStatement>;
   setFilters: React.Dispatch<React.SetStateAction<Filters>>;
   selectedConnectionSummary: ConnectionSummary | null;
-  setConnectionSummary: React.Dispatch<
-    React.SetStateAction<ConnectionSummary | null>
-  >;
+  setSelectedConnectionSummary: (
+    summary: Omit<ConnectionSummary, 'filteredKnowledgeStatements'>,
+  ) => void;
   phenotypesColorMap: Record<string, PhenotypeDetail>;
 }
 
@@ -56,7 +56,7 @@ export const DataContext = createContext<DataContext>({
   knowledgeStatements: {},
   setFilters: () => {},
   selectedConnectionSummary: null,
-  setConnectionSummary: () => {},
+  setSelectedConnectionSummary: () => {},
   phenotypesColorMap: {},
 });
 

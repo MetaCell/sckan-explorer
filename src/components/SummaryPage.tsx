@@ -150,13 +150,15 @@ const SummaryPage = () => {
       }
       if (filteredItem.length) {
         return {
-          label: item?.model?.value + '  (' + item?.neuron_category?.value + ')',
+          label:
+            item?.model?.value + '  (' + item?.neuron_category?.value + ')',
           count: item?.count?.value,
           change: item.count.value - filteredItem[0].count.value,
         };
       } else {
         return {
-          label: item?.model?.value + '  (' + item?.neuron_category?.value + ')',
+          label:
+            item?.model?.value + '  (' + item?.neuron_category?.value + ')',
           count: item?.count?.value,
           change: 0,
         };

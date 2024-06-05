@@ -11,7 +11,7 @@ import { vars } from '../../theme/variables';
 import IconButton from '@mui/material/IconButton';
 import { ArrowDown, ArrowRight, ArrowUp, HelpCircle } from '../icons';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
-import { SummaryType, KsMapType } from '../common/Types';
+import { SummaryType, KsRecord } from '../common/Types';
 import { useDataContext } from '../../context/DataContext.ts';
 
 const { gray100, gray600A, gray500 } = vars;
@@ -19,7 +19,7 @@ const { gray100, gray600A, gray500 } = vars;
 type SummaryHeaderProps = {
   showDetails: SummaryType;
   setShowDetails: (showDetails: SummaryType) => void;
-  knowledgeStatementsMap: KsMapType;
+  knowledgeStatementsMap: KsRecord;
   connectionPage: number;
   setConnectionPage: (connectionPage: number) => void;
   totalConnectionCount: number;

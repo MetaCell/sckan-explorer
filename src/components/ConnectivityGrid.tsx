@@ -6,7 +6,6 @@ import { useDataContext } from '../context/DataContext.ts';
 import {
   calculateConnections,
   getMinMaxConnections,
-  getHierarchyFromId,
   getXAxisOrgans,
   getYAxis,
   getHeatmapData,
@@ -32,7 +31,7 @@ function ConnectivityGrid() {
     organs,
     knowledgeStatements,
     filters,
-    setConnectionSummary,
+    setSelectedConnectionSummary,
   } = useDataContext();
 
   const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
@@ -88,15 +87,14 @@ function ConnectivityGrid() {
     const row = connectionsMap.get(yId);
     if (row) {
       const endOrgan = xAxisOrgans[x];
-      const origin = detailedHeatmapData[y];
-      const hierarchy = getHierarchyFromId(origin.id, hierarchicalNodes);
+      const nodeData = detailedHeatmapData[y];
+      const hierarchicalNode = hierarchicalNodes[nodeData.id];
       const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
 
-      setConnectionSummary({
-        origin: origin.label,
-        endOrgan: endOrgan,
+      setSelectedConnectionSummary({
         connections: ksMap,
-        hierarchy: hierarchy,
+        endOrgan: endOrgan,
+        hierarchicalNode: hierarchicalNode,
       });
     }
   };
