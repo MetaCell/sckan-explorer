@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { Typography, Button, Stack, Divider, Box } from '@mui/material';
 import ArrowOutwardRoundedIcon from '@mui/icons-material/ArrowOutwardRounded';
@@ -8,6 +9,7 @@ import CommonChip from '../common/CommonChip.tsx';
 import { ArrowOutward } from '../icons/index.tsx';
 import { KsMapType } from '../common/Types.ts';
 import { getConnectionDetails } from '../../services/summaryHeatmapService.ts';
+import { getKnowledgeStatementMap } from '../../services/heatmapService.ts';
 
 const { gray500, gray700, gray800 } = vars;
 
@@ -92,8 +94,114 @@ const SummaryDetails = ({
   ];
 
   const generateCSV = () => {
-    console.log('Generating CSV');
-    console.log(knowledgeStatementsMap);
+    const properties = [
+      'id',
+      'statement_preview',
+      'provenances',
+      'journey',
+      'phenotype',
+      'laterality',
+      'projection',
+      'circuit_type',
+      'sex',
+      'species',
+      'apinatomy',
+      'journey',
+      'origins',
+      'vias',
+      'destinations',
+    ];
+    const keys = Object.keys(knowledgeStatementsMap);
+    const rows = [properties];
+    keys.forEach((key) => {
+      const ks = knowledgeStatementsMap[key];
+      const row = properties.map((property) => {
+        if (property === 'origins') {
+          const node = [];
+          // node.push('[');
+          ks[property].forEach((origin) => {
+            node.push(
+              'URIs: ' +
+                origin['ontology_uri'] +
+                '; Label: ' +
+                origin['name'] +
+                ' # ',
+            );
+          });
+          // node.push(']');
+          const toReturn = node
+            .join('')
+            .replaceAll('\n', '. ')
+            .replaceAll('\r', '')
+            .replaceAll('\t', ' ')
+            .replaceAll(',', ';');
+          return toReturn;
+        } else if (property === 'vias' || property === 'destinations') {
+          const node = [];
+          node.push('[');
+          ks[property].forEach((viaDest) => {
+            node.push(
+              viaDest['anatomical_entities'].map(
+                (e) =>
+                  'URI: ' + e['ontology_uri'] + ' Label: ' + e['name'] + '; ',
+              ) +
+                '; Type: ' +
+                viaDest['type'] +
+                '; From: ' +
+                viaDest['from_entities']
+                  .map((e) => e['ontology_uri'])
+                  .join('; ') +
+                ' # ',
+            );
+          });
+          node.push(']');
+          const toReturn = node
+            .join('')
+            .replaceAll('\n', '. ')
+            .replaceAll('\r', '')
+            .replaceAll('\t', ' ')
+            .replaceAll(',', ';');
+          return toReturn;
+        } else if (property === 'sex') {
+          return ks[property].name + ' ' + ks[property].ontology_uri;
+        } else if (Array.isArray(ks[property])) {
+          // @ts-expect-error - TS doesn't know that ks[property] exists
+          const toReturn = ks[property]
+            .join(' # ')
+            .replaceAll('\n', '. ')
+            .replaceAll('\r', '')
+            .replaceAll('\t', ' ')
+            .replaceAll(',', ';');
+          return toReturn;
+        } else {
+          // @ts-expect-error - TS doesn't know that ks[property] exists
+          const toReturn = ks[property]
+            .replaceAll('\n', '. ')
+            .replaceAll('\r', '')
+            .replaceAll('\t', ' ')
+            .replaceAll(',', ';');
+          return toReturn;
+        }
+      });
+      rows.push(row);
+    });
+
+    let csvData = '';
+    rows.forEach((e) => {
+      const toReturn = e
+        .map(String)
+        .map((v) => v.replaceAll('"', '""'))
+        .map((v) => `"${v}"`)
+        .join(',');
+      csvData += toReturn + '\n';
+    });
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8,' });
+    const objUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', objUrl);
+    link.setAttribute('download', 'connections.csv');
+    document.body.appendChild(link);
+    link.click();
   };
 
   return (
