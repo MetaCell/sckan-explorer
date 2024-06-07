@@ -98,7 +98,6 @@ const SummaryDetails = ({
       'id',
       'statement_preview',
       'provenances',
-      'journey',
       'phenotype',
       'laterality',
       'projection',
@@ -118,56 +117,97 @@ const SummaryDetails = ({
       const row = properties.map((property) => {
         if (property === 'origins') {
           const node = [];
-          // node.push('[');
           ks[property].forEach((origin) => {
             node.push(
-              'URIs: ' +
+              '[ URIs: ' +
                 origin['ontology_uri'] +
                 '; Label: ' +
                 origin['name'] +
-                ' # ',
+                ' ]',
             );
           });
-          // node.push(']');
           const toReturn = node
-            .join('')
+            .join(' & ')
             .replaceAll('\n', '. ')
             .replaceAll('\r', '')
             .replaceAll('\t', ' ')
             .replaceAll(',', ';');
           return toReturn;
-        } else if (property === 'vias' || property === 'destinations') {
+        } else if (property === 'vias') {
           const node = [];
-          node.push('[');
-          ks[property].forEach((viaDest) => {
+          ks[property].forEach((via) => {
             node.push(
-              viaDest['anatomical_entities'].map(
-                (e) =>
-                  'URI: ' + e['ontology_uri'] + ' Label: ' + e['name'] + '; ',
-              ) +
-                '; Type: ' +
-                viaDest['type'] +
+              '[ (' +
+                via['anatomical_entities']
+                  .map(
+                    (e) =>
+                      'URI: ' + e['ontology_uri'] + '; Label: ' + e['name'],
+                  )
+                  .join(' & ') +
+                '); Type: ' +
+                via['type'] +
                 '; From: ' +
-                viaDest['from_entities']
-                  .map((e) => e['ontology_uri'])
-                  .join('; ') +
-                ' # ',
+                via['from_entities'].map((e) => e['ontology_uri']).join('; ') +
+                ' ]',
             );
           });
-          node.push(']');
           const toReturn = node
-            .join('')
+            .join(' & ')
+            .replaceAll('\n', '. ')
+            .replaceAll('\r', '')
+            .replaceAll('\t', ' ')
+            .replaceAll(',', ';');
+          return toReturn;
+        } else if (property === 'destinations') {
+          const node = [];
+          ks[property].forEach((dest) => {
+            node.push(
+              '[ (' +
+                dest['anatomical_entities']
+                  .map(
+                    (e) =>
+                      'URI: ' + e['ontology_uri'] + '; Label: ' + e['name'],
+                  )
+                  .join(' & ') +
+                '); Type: ' +
+                dest['type'] +
+                '; From: ' +
+                dest['from_entities'].map((e) => e['ontology_uri']).join('; ') +
+                ' ]',
+            );
+          });
+          const toReturn = node
+            .join(' & ')
             .replaceAll('\n', '. ')
             .replaceAll('\r', '')
             .replaceAll('\t', ' ')
             .replaceAll(',', ';');
           return toReturn;
         } else if (property === 'sex') {
-          return ks[property].name + ' ' + ks[property].ontology_uri;
+          if (ks[property].name && ks[property].ontology_uri) {
+            return (
+              '[ URI: ' +
+              ks[property].ontology_uri +
+              '; Label: ' +
+              ks[property].name +
+              ' ]'
+            );
+          } else {
+            return '';
+          }
+        } else if (property === 'species') {
+          if (ks[property].length) {
+            return ks[property]
+              .map((e) => '[ URI: ' + e.id + '; Label: ' + e.name + ' ]')
+              .join(' & ');
+          } else {
+            return '';
+          }
         } else if (Array.isArray(ks[property])) {
           // @ts-expect-error - TS doesn't know that ks[property] exists
           const toReturn = ks[property]
-            .join(' # ')
+            .map((v) => '[ ' + v + ' ]')
+            .join(' & ')
             .replaceAll('\n', '. ')
             .replaceAll('\r', '')
             .replaceAll('\t', ' ')
