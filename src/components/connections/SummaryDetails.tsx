@@ -7,7 +7,7 @@ import PopulationDisplay from './PopulationDisplay.tsx';
 import CommonAccordion from '../common/Accordion.tsx';
 import CommonChip from '../common/CommonChip.tsx';
 import { ArrowOutward } from '../icons/index.tsx';
-import { KsMapType } from '../common/Types.ts';
+import { KsRecord } from '../common/Types.ts';
 import { getConnectionDetails } from '../../services/summaryHeatmapService.ts';
 import { getKnowledgeStatementMap } from '../../services/heatmapService.ts';
 
@@ -45,7 +45,7 @@ const RowStack = ({
 );
 
 type SummaryDetailsProps = {
-  knowledgeStatementsMap: KsMapType;
+  knowledgeStatementsMap: KsRecord;
   connectionPage: number;
 };
 

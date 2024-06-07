@@ -8,7 +8,7 @@ import {
   HierarchicalItem,
   HeatmapMatrixInformation,
   Option,
-  KsMapType,
+  KsRecord,
   LabelIdPair,
 } from '../components/common/Types.ts';
 import { Filters } from '../context/DataContext.ts';
@@ -210,10 +210,11 @@ export function filterKnowledgeStatements(
   filters: Filters,
 ): Record<string, KnowledgeStatement> {
   const phenotypeIds = filters.Phenotype.map((option) => option.id);
-  const apiNATOMYIds = filters.apiNATOMY.map((option) => option.id);
-  const speciesIds = filters.Species.flatMap((option) => option.id);
-  const viaIds = filters.Via.flatMap((option) => option.id);
-  const originIds = filters.Origin.flatMap((option) => option.id);
+  const apiNATOMYIds =
+    (filters as Filters).apiNATOMY?.map((option) => option.id) || [];
+  const speciesIds = filters.Species?.flatMap((option) => option.id) || [];
+  const viaIds = filters.Via?.flatMap((option) => option.id) || [];
+  const originIds = filters.Origin?.flatMap((option) => option.id) || [];
 
   return Object.entries(knowledgeStatements).reduce(
     (filtered, [id, ks]) => {
@@ -223,15 +224,15 @@ export function filterKnowledgeStatements(
         !apiNATOMYIds.length || apiNATOMYIds.includes(ks.apinatomy);
       const speciesMatch =
         !speciesIds.length ||
-        ks.species.some((species) => speciesIds.includes(species.id));
+        ks.species?.some((species) => speciesIds.includes(species.id));
       const viaMatch =
         !viaIds.length ||
         ks.vias
-          .flatMap((via) => via.anatomical_entities)
+          ?.flatMap((via) => via.anatomical_entities)
           .some((via) => viaIds.includes(via.id));
       const originMatch =
         !originIds.length ||
-        ks.origins.some((origin) => originIds.includes(origin.id));
+        ks.origins?.some((origin) => originIds.includes(origin.id));
 
       if (
         phenotypeMatch &&
@@ -248,18 +249,11 @@ export function filterKnowledgeStatements(
   );
 }
 
-export function getHierarchyFromId(
-  id: string,
-  hierarchicalNodes: Record<string, HierarchicalNode>,
-): HierarchicalNode {
-  return hierarchicalNodes[id];
-}
-
 export function getKnowledgeStatementMap(
   ksIds: string[],
   knowledgeStatements: Record<string, KnowledgeStatement>,
-): KsMapType {
-  const ksMap: KsMapType = {};
+): KsRecord {
+  const ksMap: KsRecord = {};
   ksIds.forEach((id: string) => {
     const ks = knowledgeStatements[id];
     if (ks) {

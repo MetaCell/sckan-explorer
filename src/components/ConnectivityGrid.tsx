@@ -6,7 +6,6 @@ import { useDataContext } from '../context/DataContext.ts';
 import {
   calculateConnections,
   getMinMaxConnections,
-  getHierarchyFromId,
   getXAxisOrgans,
   getYAxis,
   getHeatmapData,
@@ -32,7 +31,8 @@ function ConnectivityGrid() {
     organs,
     knowledgeStatements,
     filters,
-    setConnectionSummary,
+    setFilters,
+    setSelectedConnectionSummary,
   } = useDataContext();
 
   const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
@@ -45,6 +45,7 @@ function ConnectivityGrid() {
     x: number;
     y: number;
   } | null>(null);
+  const [initialYAxis, setInitialYAxis] = useState<HierarchicalItem[]>([]);
 
   useEffect(() => {
     const connections = calculateConnections(
@@ -72,13 +73,14 @@ function ConnectivityGrid() {
   useEffect(() => {
     const yAxis = getYAxis(hierarchicalNodes);
     setYAxis(yAxis);
+    setInitialYAxis(yAxis);
   }, [hierarchicalNodes]);
 
   const { heatmapData, detailedHeatmapData } = useMemo(() => {
-    const heatmapdata = getHeatmapData(yAxis, connectionsMap);
+    const heatmapData = getHeatmapData(yAxis, connectionsMap);
     return {
-      heatmapData: heatmapdata.heatmapMatrix,
-      detailedHeatmapData: heatmapdata.detailedHeatmap,
+      heatmapData: heatmapData.heatmapMatrix,
+      detailedHeatmapData: heatmapData.detailedHeatmap,
     };
   }, [yAxis, connectionsMap]);
 
@@ -88,18 +90,31 @@ function ConnectivityGrid() {
     const row = connectionsMap.get(yId);
     if (row) {
       const endOrgan = xAxisOrgans[x];
-      const origin = detailedHeatmapData[y];
-      const hierarchy = getHierarchyFromId(origin.id, hierarchicalNodes);
+      const nodeData = detailedHeatmapData[y];
+      const hierarchicalNode = hierarchicalNodes[nodeData.id];
       const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
 
-      setConnectionSummary({
-        origin: origin.label,
-        endOrgan: endOrgan,
+      setSelectedConnectionSummary({
         connections: ksMap,
-        hierarchy: hierarchy,
+        endOrgan: endOrgan,
+        hierarchicalNode: hierarchicalNode,
       });
     }
   };
+
+  const handleReset = () => {
+    setYAxis(initialYAxis);
+    setFilters({
+      Origin: [],
+      EndOrgan: [],
+      Species: [],
+      Phenotype: [],
+      apiNATOMY: [],
+      Via: [],
+    });
+    setSelectedCell(null);
+  };
+
   const isLoading = yAxis.length == 0;
 
   return isLoading ? (
@@ -156,6 +171,7 @@ function ConnectivityGrid() {
               background: 'transparent',
             },
           }}
+          onClick={handleReset}
         >
           Reset grid
         </Button>

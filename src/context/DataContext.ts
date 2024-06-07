@@ -5,7 +5,7 @@ import {
   KnowledgeStatement,
 } from '../models/explorer';
 import { Option, PhenotypeDetail } from '../components/common/Types.ts';
-import { KsMapType } from '../components/common/Types';
+import { KsRecord } from '../components/common/Types';
 
 export interface Filters {
   Origin: Option[];
@@ -16,31 +16,28 @@ export interface Filters {
   Via: Option[];
 }
 
-export interface SummaryFilters {
-  Phenotype: Option[];
+export interface SummaryFilters extends Filters {
   Nerve: Option[];
 }
 
 export interface ConnectionSummary {
-  connections: KsMapType; // displaying connection 1 of 5
-  origin: string;
+  connections: KsRecord;
+  filteredKnowledgeStatements: KsRecord;
+  hierarchicalNode: HierarchicalNode;
   endOrgan: Organ;
-  hierarchy: HierarchicalNode;
 }
 
 export interface DataContext {
   filters: Filters;
-  summaryFilters: SummaryFilters;
   majorNerves: Set<string>;
   organs: Record<string, Organ>;
   hierarchicalNodes: Record<string, HierarchicalNode>;
   knowledgeStatements: Record<string, KnowledgeStatement>;
   setFilters: React.Dispatch<React.SetStateAction<Filters>>;
-  setSummaryFilters: React.Dispatch<React.SetStateAction<SummaryFilters>>;
   selectedConnectionSummary: ConnectionSummary | null;
-  setConnectionSummary: React.Dispatch<
-    React.SetStateAction<ConnectionSummary | null>
-  >;
+  setSelectedConnectionSummary: (
+    summary: Omit<ConnectionSummary, 'filteredKnowledgeStatements'>,
+  ) => void;
   phenotypesColorMap: Record<string, PhenotypeDetail>;
 }
 
@@ -53,18 +50,13 @@ export const DataContext = createContext<DataContext>({
     apiNATOMY: [],
     Via: [],
   },
-  summaryFilters: {
-    Phenotype: [],
-    Nerve: [],
-  },
   majorNerves: new Set<string>(),
   organs: {},
   hierarchicalNodes: {},
   knowledgeStatements: {},
   setFilters: () => {},
-  setSummaryFilters: () => {},
   selectedConnectionSummary: null,
-  setConnectionSummary: () => {},
+  setSelectedConnectionSummary: () => {},
   phenotypesColorMap: {},
 });
 
