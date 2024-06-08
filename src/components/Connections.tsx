@@ -4,7 +4,7 @@ import { ArrowRightIcon } from './icons';
 import { vars } from '../theme/variables';
 import {
   HierarchicalItem,
-  PhenotypeKsIdMap,
+  KsPerPhenotype,
   SummaryType,
   KsRecord,
   Option,
@@ -62,7 +62,7 @@ function Connections() {
   const [showConnectionDetails, setShowConnectionDetails] =
     useState<SummaryType>(SummaryType.Instruction);
   const [connectionsMap, setConnectionsMap] = useState<
-    Map<string, PhenotypeKsIdMap[]>
+    Map<string, KsPerPhenotype[]>
   >(new Map());
   const [connectionPage, setConnectionPage] = useState(1); // represents the page number / index of the connections - if (x,y) has 4 connections, then connectionPage will be 1, 2, 3, 4
   const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
@@ -181,9 +181,84 @@ function Connections() {
     }
   };
 
-  const heatmapData = useMemo(() => {
-    return getSecondaryHeatmapData(yAxis, connectionsMap);
-  }, [yAxis, connectionsMap]);
+  const { heatmapData, filteredYAxis, filteredXAxis } = useMemo(() => {
+    // Filter rows with no data
+    const filterYAxis = (items: HierarchicalItem[]): HierarchicalItem[] => {
+      return items
+        .map((item) => {
+          const row = connectionsMap.get(item.id);
+          const hasConnections =
+            row &&
+            row.some((connections) => Object.keys(connections).length > 0);
+
+          if (item.children) {
+            const filteredChildren = filterYAxis(item.children);
+            return filteredChildren.length > 0 || hasConnections
+              ? { ...item, children: filteredChildren }
+              : null;
+          }
+
+          return hasConnections ? item : null;
+        })
+        .filter((item) => item !== null) as HierarchicalItem[];
+    };
+
+    // Filter yAxis recursively
+    const filteredYAxis = filterYAxis(yAxis);
+
+    // Determine columns with data
+    const columnsWithData = new Set<number>();
+    filteredYAxis.forEach((item) => {
+      const row = connectionsMap.get(item.id);
+      if (row) {
+        row.forEach((connections, index) => {
+          if (Object.keys(connections).length > 0) {
+            columnsWithData.add(index);
+          }
+        });
+      }
+    });
+
+    // Recursive function to filter connections map
+    const filterConnectionsMap = (
+      items: HierarchicalItem[],
+      map: Map<string, KsPerPhenotype[]>,
+    ): Map<string, KsPerPhenotype[]> => {
+      const filteredMap = new Map<string, KsPerPhenotype[]>();
+      items.forEach((item) => {
+        const row = map.get(item.id);
+        if (row) {
+          const filteredRow = row.filter((_, index) =>
+            columnsWithData.has(index),
+          );
+          filteredMap.set(item.id, filteredRow);
+        }
+        if (item.children) {
+          const childMap = filterConnectionsMap(item.children, map);
+          childMap.forEach((value, key) => {
+            filteredMap.set(key, value);
+          });
+        }
+      });
+      return filteredMap;
+    };
+    const filteredConnectionsMap = filterConnectionsMap(
+      filteredYAxis,
+      connectionsMap,
+    );
+
+    // Filter xAxis
+    const filteredXAxis = xAxis.filter((_, index) =>
+      columnsWithData.has(index),
+    );
+
+    const heatmapData = getSecondaryHeatmapData(
+      filteredYAxis,
+      filteredConnectionsMap,
+    );
+
+    return { heatmapData, filteredYAxis, filteredXAxis };
+  }, [yAxis, xAxis, connectionsMap]);
 
   return (
     <Box display="flex" flexDirection="column" minHeight={1}>
@@ -282,9 +357,9 @@ function Connections() {
               setPhenotypeFilters={setPhenotypeFilters}
             />
             <HeatmapGrid
-              yAxis={yAxis}
+              yAxis={filteredYAxis}
               setYAxis={setYAxis}
-              xAxis={xAxis}
+              xAxis={filteredXAxis}
               onCellClick={handleCellClick}
               selectedCell={selectedCell}
               secondaryHeatmapData={heatmapData}

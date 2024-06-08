@@ -1,7 +1,7 @@
 import chroma from 'chroma-js';
 import {
   HierarchicalItem,
-  PhenotypeKsIdMap,
+  KsPerPhenotype,
   KsRecord,
 } from '../components/common/Types.ts';
 import { ConnectionSummary, SummaryFilters } from '../context/DataContext.ts';
@@ -107,9 +107,9 @@ export function summaryFilterKnowledgeStatements(
 // else just store the data for that level
 export function getSecondaryHeatmapData(
   yAxis: HierarchicalItem[],
-  connections: Map<string, PhenotypeKsIdMap[]>,
+  connections: Map<string, KsPerPhenotype[]>,
 ) {
-  const newData: PhenotypeKsIdMap[][] = [];
+  const newData: KsPerPhenotype[][] = [];
 
   function addDataForItem(item: HierarchicalItem) {
     const itemData = connections.get(item.id);
@@ -152,7 +152,7 @@ export function calculateSecondaryConnections(
   allKnowledgeStatements: Record<string, KnowledgeStatement>,
   summaryFilters: SummaryFilters,
   hierarchyNode: HierarchicalNode,
-): Map<string, PhenotypeKsIdMap[]> {
+): Map<string, KsPerPhenotype[]> {
   // Apply filters to organs and knowledge statements
 
   const knowledgeStatements = summaryFilterKnowledgeStatements(
@@ -169,16 +169,16 @@ export function calculateSecondaryConnections(
   );
 
   // Memoization map to store computed results for nodes
-  const memo = new Map<string, PhenotypeKsIdMap[]>();
+  const memo = new Map<string, KsPerPhenotype[]>();
 
   // Function to compute node connections with memoization
-  function computeNodeConnections(nodeId: string): PhenotypeKsIdMap[] {
+  function computeNodeConnections(nodeId: string): KsPerPhenotype[] {
     if (memo.has(nodeId)) {
       return memo.get(nodeId)!;
     }
 
     const node = hierarchicalNodes[nodeId];
-    const result: PhenotypeKsIdMap[] = Object.values(endorgans).map(() => ({}));
+    const result: KsPerPhenotype[] = Object.values(endorgans).map(() => ({}));
 
     if (node.children && node.children.size > 0) {
       node.children.forEach((childId) => {
@@ -222,7 +222,7 @@ export function calculateSecondaryConnections(
   }
 
   computeNodeConnections(hierarchyNode.id);
-  return memo;
+  return memo
 }
 
 export const getNormalizedValueForMinMax = (
