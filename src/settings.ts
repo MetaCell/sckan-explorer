@@ -39,3 +39,5 @@ export const FIXED_FOUR_PHENOTYPE_COLORS_ARRAY = [
   'rgba(220, 104, 3, 1)',
   'rgba(234, 170, 8, 1)',
 ];
+
+export const HIERARCHY_ID_PATH_DELIMITER = '#';

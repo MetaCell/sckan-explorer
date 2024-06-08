@@ -58,6 +58,7 @@ export const DataContextProvider = ({
   ) => {
     const filteredKnowledgeStatements = filterKnowledgeStatements(
       summary.connections,
+      hierarchicalNodes,
       filters,
     );
     setSelectedConnectionSummary({
@@ -70,6 +71,7 @@ export const DataContextProvider = ({
     if (selectedConnectionSummary) {
       const filteredKnowledgeStatements = filterKnowledgeStatements(
         selectedConnectionSummary.connections,
+        hierarchicalNodes,
         filters,
       );
       setSelectedConnectionSummary((prevSummary) =>

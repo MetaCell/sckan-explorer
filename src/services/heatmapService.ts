@@ -57,6 +57,7 @@ export function calculateConnections(
 
   const knowledgeStatements = filterKnowledgeStatements(
     allKnowledgeStatements,
+    hierarchicalNodes,
     filters,
   );
   const organs = filterOrgans(allOrgans, filters.EndOrgan);
@@ -207,14 +208,27 @@ export function filterOrgans(
 
 export function filterKnowledgeStatements(
   knowledgeStatements: Record<string, KnowledgeStatement>,
+  hierarchicalNodes: Record<string, HierarchicalNode>,
   filters: Filters,
 ): Record<string, KnowledgeStatement> {
   const phenotypeIds = filters.Phenotype.map((option) => option.id);
   const apiNATOMYIds =
     (filters as Filters).apiNATOMY?.map((option) => option.id) || [];
   const speciesIds = filters.Species?.flatMap((option) => option.id) || [];
-  const viaIds = filters.Via?.flatMap((option) => option.id) || [];
-  const originIds = filters.Origin?.flatMap((option) => option.id) || [];
+
+  const viaIds =
+    filters.Via?.flatMap((option) =>
+      isLeaf(option.id, hierarchicalNodes)
+        ? option.id
+        : getLeafDescendants(option.id, hierarchicalNodes),
+    ) || [];
+
+  const originIds =
+    filters.Origin?.flatMap((option) =>
+      isLeaf(option.id, hierarchicalNodes)
+        ? option.id
+        : getLeafDescendants(option.id, hierarchicalNodes),
+    ) || [];
 
   return Object.entries(knowledgeStatements).reduce(
     (filtered, [id, ks]) => {
@@ -248,6 +262,36 @@ export function filterKnowledgeStatements(
     {} as Record<string, KnowledgeStatement>,
   );
 }
+
+const isLeaf = (
+  nodeId: string,
+  hierarchicalNodes: Record<string, HierarchicalNode>,
+): boolean => {
+  return (
+    !hierarchicalNodes[nodeId]?.children ||
+    hierarchicalNodes[nodeId].children.size === 0
+  );
+};
+
+const getLeafDescendants = (
+  nodeId: string,
+  hierarchicalNodes: Record<string, HierarchicalNode>,
+): string[] => {
+  const descendants: string[] = [];
+
+  const getDescendants = (currentId: string) => {
+    const node = hierarchicalNodes[currentId];
+    if (node.children && node.children.size > 0) {
+      node.children.forEach((childId) => getDescendants(childId));
+    } else {
+      const descendantID = currentId.split('#').pop() || currentId;
+      descendants.push(descendantID);
+    }
+  };
+
+  getDescendants(nodeId);
+  return descendants;
+};
 
 export function getKnowledgeStatementMap(
   ksIds: string[],
