@@ -13,9 +13,12 @@ import { useDataContext } from '../context/DataContext.ts';
 import {
   calculateSecondaryConnections,
   convertViaToString,
+  filterConnectionsMap,
+  filterYAxis,
   getAllPhenotypes,
   getAllViasFromConnections,
   getDestinations,
+  getEmptyColumns,
   getNerveFilters,
   getSecondaryHeatmapData,
   getXAxisForHeatmap,
@@ -64,15 +67,18 @@ function Connections() {
   const [connectionsMap, setConnectionsMap] = useState<
     Map<string, KsPerPhenotype[]>
   >(new Map());
+  const [filteredConnectionsMap, setFilteredConnectionsMap] = useState<Map<string, KsPerPhenotype[]>>(new Map());
   const [connectionPage, setConnectionPage] = useState(1); // represents the page number / index of the connections - if (x,y) has 4 connections, then connectionPage will be 1, 2, 3, 4
   const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
+  const [xAxis, setXAxis] = useState<string[]>([]);
+  const [filteredYAxis, setFilteredYAxis] = useState<HierarchicalItem[]>([]);
+  const [filteredXAxis, setFilteredXAxis] = useState<string[]>([]);
   const [selectedCell, setSelectedCell] = useState<{
     x: number;
     y: number;
   } | null>(null); // useful for coordinates
   const [knowledgeStatementsMap, setKnowledgeStatementsMap] =
     useState<KsRecord>({});
-  const [xAxis, setXAxis] = useState<string[]>([]);
   const [nerveFilters, setNerveFilters] = useState<Option[]>([]);
   const [phenotypeFilters, setPhenotypeFilters] = useState<Option[]>([]);
 
@@ -161,7 +167,7 @@ function Connections() {
   const handleCellClick = (x: number, y: number, yId: string): void => {
     // when the heatmap cell is clicked
     setSelectedCell({ x, y });
-    const row = connectionsMap.get(yId);
+    const row = filteredConnectionsMap.get(yId);
     if (row) {
       setConnectionPage(1);
       const ksIds = Object.values(row[x]).reduce((acc, phenotypeData) => {
@@ -181,70 +187,18 @@ function Connections() {
     }
   };
 
-  const { heatmapData, filteredYAxis, filteredXAxis } = useMemo(() => {
-    // Filter rows with no data
-    const filterYAxis = (items: HierarchicalItem[]): HierarchicalItem[] => {
-      return items
-        .map((item) => {
-          const row = connectionsMap.get(item.id);
-          const hasConnections =
-            row &&
-            row.some((connections) => Object.keys(connections).length > 0);
-
-          if (item.children) {
-            const filteredChildren = filterYAxis(item.children);
-            return filteredChildren.length > 0 || hasConnections
-              ? { ...item, children: filteredChildren }
-              : null;
-          }
-
-          return hasConnections ? item : null;
-        })
-        .filter((item) => item !== null) as HierarchicalItem[];
-    };
-
-    // Filter yAxis recursively
-    const filteredYAxis = filterYAxis(yAxis);
+  useEffect(() => {
+    // Filter yAxis
+    const filteredYAxis = filterYAxis(yAxis, connectionsMap);
 
     // Determine columns with data
-    const columnsWithData = new Set<number>();
-    filteredYAxis.forEach((item) => {
-      const row = connectionsMap.get(item.id);
-      if (row) {
-        row.forEach((connections, index) => {
-          if (Object.keys(connections).length > 0) {
-            columnsWithData.add(index);
-          }
-        });
-      }
-    });
+    const columnsWithData = getEmptyColumns(filteredYAxis, connectionsMap);
 
-    // Recursive function to filter connections map
-    const filterConnectionsMap = (
-      items: HierarchicalItem[],
-      map: Map<string, KsPerPhenotype[]>,
-    ): Map<string, KsPerPhenotype[]> => {
-      const filteredMap = new Map<string, KsPerPhenotype[]>();
-      items.forEach((item) => {
-        const row = map.get(item.id);
-        if (row) {
-          const filteredRow = row.filter((_, index) =>
-            columnsWithData.has(index),
-          );
-          filteredMap.set(item.id, filteredRow);
-        }
-        if (item.children) {
-          const childMap = filterConnectionsMap(item.children, map);
-          childMap.forEach((value, key) => {
-            filteredMap.set(key, value);
-          });
-        }
-      });
-      return filteredMap;
-    };
+    // Filter connections map
     const filteredConnectionsMap = filterConnectionsMap(
       filteredYAxis,
       connectionsMap,
+      columnsWithData,
     );
 
     // Filter xAxis
@@ -252,14 +206,14 @@ function Connections() {
       columnsWithData.has(index),
     );
 
-    const heatmapData = getSecondaryHeatmapData(
-      filteredYAxis,
-      filteredConnectionsMap,
-    );
-
-    return { heatmapData, filteredYAxis, filteredXAxis };
+    setFilteredYAxis(filteredYAxis);
+    setFilteredXAxis(filteredXAxis);
+    setFilteredConnectionsMap(filteredConnectionsMap);
   }, [yAxis, xAxis, connectionsMap]);
 
+  const heatmapData = useMemo(() => {
+    return getSecondaryHeatmapData(filteredYAxis, filteredConnectionsMap);
+  }, [filteredYAxis, filteredConnectionsMap]);
   return (
     <Box display="flex" flexDirection="column" minHeight={1}>
       <SummaryHeader
