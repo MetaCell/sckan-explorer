@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import React from 'react';
 import { Typography, Button, Stack, Divider, Box } from '@mui/material';
@@ -9,7 +10,6 @@ import CommonChip from '../common/CommonChip.tsx';
 import { ArrowOutward } from '../icons/index.tsx';
 import { KsRecord } from '../common/Types.ts';
 import { getConnectionDetails } from '../../services/summaryHeatmapService.ts';
-import { getKnowledgeStatementMap } from '../../services/heatmapService.ts';
 
 const { gray500, gray700, gray800 } = vars;
 
