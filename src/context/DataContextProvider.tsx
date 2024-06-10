@@ -81,7 +81,7 @@ export const DataContextProvider = ({
           : null,
       );
     }
-  }, [filters]);
+  }, [filters, selectedConnectionSummary]);
 
   const dataContextValue = {
     filters,
