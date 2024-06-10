@@ -2,30 +2,15 @@ import { Stack, Tooltip, Typography } from '@mui/material';
 import { vars } from '../../theme/variables.ts';
 import { HelpCircle } from '../icons';
 import IconButton from '@mui/material/IconButton';
-const { gray500, gray700, gray600 } = vars;
-
-interface SectionDataType {
-  [key: string]: string | number;
-}
-
-type LabelsType = {
-  [key: string]: string;
-};
+const { gray700, gray600 } = vars;
 
 interface DetailProps {
   keyName: string;
-  sectionData: SectionDataType;
   value: string | number;
-  labels: LabelsType;
+  labels: string;
   index: number;
 }
-export const Detail = ({
-  keyName,
-  sectionData,
-  value,
-  labels,
-  index,
-}: DetailProps) => (
+export const Detail = ({ keyName, value, labels, index }: DetailProps) => (
   <Stack
     key={keyName}
     direction="row"
@@ -52,7 +37,7 @@ export const Detail = ({
         },
       }}
     >
-      {labels[keyName]}
+      {labels}
       {index === 0 && (
         <Tooltip title="This is a tooltip">
           <IconButton>
@@ -65,13 +50,12 @@ export const Detail = ({
       <Typography
         variant="h5"
         fontWeight={400}
-        width="23rem"
         textAlign="right"
         color={gray600}
       >
         {value}
       </Typography>
-      {sectionData[`${keyName}_changes`] && (
+      {/* {sectionData[`${keyName}_changes`] && (
         <Typography
           variant="body1"
           width="23rem"
@@ -80,7 +64,7 @@ export const Detail = ({
         >
           +{sectionData[`${keyName}_changes`]} change (since last stats)
         </Typography>
-      )}
+      )} */}
     </Stack>
   </Stack>
 );

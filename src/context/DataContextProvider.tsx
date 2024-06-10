@@ -1,10 +1,5 @@
-import { PropsWithChildren, useMemo, useState } from 'react';
-import {
-  DataContext,
-  Filters,
-  ConnectionSummary,
-  SummaryFilters,
-} from './DataContext';
+import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import { DataContext, Filters, ConnectionSummary } from './DataContext';
 import {
   HierarchicalNode,
   KnowledgeStatement,
@@ -13,6 +8,7 @@ import {
 import { PhenotypeDetail } from '../components/common/Types.ts';
 import { generatePhenotypeColors } from '../services/summaryHeatmapService.ts';
 import { OTHER_PHENOTYPE_LABEL } from '../settings.ts';
+import { filterKnowledgeStatements } from '../services/heatmapService.ts';
 
 export const DataContextProvider = ({
   hierarchicalNodes,
@@ -33,10 +29,6 @@ export const DataContextProvider = ({
     Phenotype: [],
     apiNATOMY: [],
     Via: [],
-  });
-  const [summaryFilters, setSummaryFilters] = useState<SummaryFilters>({
-    Phenotype: [],
-    Nerve: [],
   });
 
   const [selectedConnectionSummary, setSelectedConnectionSummary] =
@@ -61,17 +53,45 @@ export const DataContextProvider = ({
     return colorMap;
   }, [phenotypes]);
 
+  const handleSetSelectedConnectionSummary = (
+    summary: Omit<ConnectionSummary, 'filteredKnowledgeStatements'>,
+  ) => {
+    const filteredKnowledgeStatements = filterKnowledgeStatements(
+      summary.connections,
+      filters,
+    );
+    setSelectedConnectionSummary({
+      ...summary,
+      filteredKnowledgeStatements,
+    });
+  };
+
+  useEffect(() => {
+    if (selectedConnectionSummary) {
+      const filteredKnowledgeStatements = filterKnowledgeStatements(
+        selectedConnectionSummary.connections,
+        filters,
+      );
+      setSelectedConnectionSummary((prevSummary) =>
+        prevSummary
+          ? {
+              ...prevSummary,
+              filteredKnowledgeStatements,
+            }
+          : null,
+      );
+    }
+  }, [filters, selectedConnectionSummary]);
+
   const dataContextValue = {
     filters,
-    summaryFilters,
-    setSummaryFilters,
     organs,
     majorNerves,
     hierarchicalNodes,
     knowledgeStatements,
     setFilters,
     selectedConnectionSummary,
-    setConnectionSummary: setSelectedConnectionSummary,
+    setSelectedConnectionSummary: handleSetSelectedConnectionSummary,
     phenotypesColorMap,
   };
 
