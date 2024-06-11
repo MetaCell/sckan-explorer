@@ -53,37 +53,44 @@ export const DataContextProvider = ({
     return colorMap;
   }, [phenotypes]);
 
-  const handleSetSelectedConnectionSummary = (
-    summary: Omit<ConnectionSummary, 'filteredKnowledgeStatements'>,
+  const updateSelectedConnectionSummary = (
+    summary:
+      | Omit<ConnectionSummary, 'filteredKnowledgeStatements'>
+      | ConnectionSummary
+      | null,
+    filters: Filters,
+    hierarchicalNodes: Record<string, HierarchicalNode>,
   ) => {
-    const filteredKnowledgeStatements = filterKnowledgeStatements(
-      summary.connections,
-      hierarchicalNodes,
-      filters,
-    );
-    setSelectedConnectionSummary({
-      ...summary,
-      filteredKnowledgeStatements,
-    });
-  };
-
-  useEffect(() => {
-    if (selectedConnectionSummary) {
+    if (summary) {
       const filteredKnowledgeStatements = filterKnowledgeStatements(
-        selectedConnectionSummary.connections,
+        summary.connections,
         hierarchicalNodes,
         filters,
       );
-      setSelectedConnectionSummary((prevSummary) =>
-        prevSummary
-          ? {
-              ...prevSummary,
-              filteredKnowledgeStatements,
-            }
-          : null,
-      );
+      return {
+        ...summary,
+        filteredKnowledgeStatements,
+      };
     }
-  }, [filters, selectedConnectionSummary]);
+    return null;
+  };
+
+  const handleSetSelectedConnectionSummary = (
+    summary: Omit<ConnectionSummary, 'filteredKnowledgeStatements'>,
+  ) => {
+    const updatedSummary = updateSelectedConnectionSummary(
+      summary,
+      filters,
+      hierarchicalNodes,
+    );
+    setSelectedConnectionSummary(updatedSummary);
+  };
+
+  useEffect(() => {
+    setSelectedConnectionSummary((prevSummary) =>
+      updateSelectedConnectionSummary(prevSummary, filters, hierarchicalNodes),
+    );
+  }, [filters, hierarchicalNodes]);
 
   const dataContextValue = {
     filters,
