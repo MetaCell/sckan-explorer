@@ -27,9 +27,7 @@ interface HeatmapGridProps {
   secondaryHeatmapData?: KsPerPhenotype[][];
 }
 
-const prepareSecondaryHeatmapData = (
-  data?: KsPerPhenotype[][],
-): number[][] => {
+const prepareSecondaryHeatmapData = (data?: KsPerPhenotype[][]): number[][] => {
   if (!data) return [];
   return data.map((row) =>
     row.map((cell) => {

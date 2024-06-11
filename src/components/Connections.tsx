@@ -67,7 +67,9 @@ function Connections() {
   const [connectionsMap, setConnectionsMap] = useState<
     Map<string, KsPerPhenotype[]>
   >(new Map());
-  const [filteredConnectionsMap, setFilteredConnectionsMap] = useState<Map<string, KsPerPhenotype[]>>(new Map());
+  const [filteredConnectionsMap, setFilteredConnectionsMap] = useState<
+    Map<string, KsPerPhenotype[]>
+  >(new Map());
   const [connectionPage, setConnectionPage] = useState(1); // represents the page number / index of the connections - if (x,y) has 4 connections, then connectionPage will be 1, 2, 3, 4
   const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
   const [xAxis, setXAxis] = useState<string[]>([]);
