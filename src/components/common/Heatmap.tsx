@@ -4,7 +4,7 @@ import { vars } from '../../theme/variables';
 import CollapsibleList from './CollapsibleList';
 import HeatMap from 'react-heatmap-grid';
 import HeatmapTooltip, { HeatmapTooltipRow } from './HeatmapTooltip';
-import { HierarchicalItem, PhenotypeKsIdMap } from './Types.ts';
+import { HierarchicalItem, KsPerPhenotype } from './Types.ts';
 import { getNormalizedValueForMinMax } from '../../services/summaryHeatmapService.ts';
 import {
   generateYLabelsAndIds,
@@ -24,12 +24,10 @@ interface HeatmapGridProps {
   yAxisLabel?: string;
   selectedCell?: { x: number; y: number } | null;
   heatmapData?: number[][];
-  secondaryHeatmapData?: PhenotypeKsIdMap[][];
+  secondaryHeatmapData?: KsPerPhenotype[][];
 }
 
-const prepareSecondaryHeatmapData = (
-  data?: PhenotypeKsIdMap[][],
-): number[][] => {
+const prepareSecondaryHeatmapData = (data?: KsPerPhenotype[][]): number[][] => {
   if (!data) return [];
   return data.map((row) =>
     row.map((cell) => {

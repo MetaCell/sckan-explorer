@@ -4,7 +4,7 @@ import { ArrowRightIcon } from './icons';
 import { vars } from '../theme/variables';
 import {
   HierarchicalItem,
-  PhenotypeKsIdMap,
+  KsPerPhenotype,
   SummaryType,
   KsRecord,
   Option,
@@ -13,9 +13,12 @@ import { useDataContext } from '../context/DataContext.ts';
 import {
   calculateSecondaryConnections,
   convertViaToString,
+  filterConnectionsMap,
+  filterYAxis,
   getAllPhenotypes,
   getAllViasFromConnections,
   getDestinations,
+  getEmptyColumns,
   getNerveFilters,
   getSecondaryHeatmapData,
   getXAxisForHeatmap,
@@ -62,17 +65,22 @@ function Connections() {
   const [showConnectionDetails, setShowConnectionDetails] =
     useState<SummaryType>(SummaryType.Instruction);
   const [connectionsMap, setConnectionsMap] = useState<
-    Map<string, PhenotypeKsIdMap[]>
+    Map<string, KsPerPhenotype[]>
+  >(new Map());
+  const [filteredConnectionsMap, setFilteredConnectionsMap] = useState<
+    Map<string, KsPerPhenotype[]>
   >(new Map());
   const [connectionPage, setConnectionPage] = useState(1); // represents the page number / index of the connections - if (x,y) has 4 connections, then connectionPage will be 1, 2, 3, 4
   const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
+  const [xAxis, setXAxis] = useState<string[]>([]);
+  const [filteredYAxis, setFilteredYAxis] = useState<HierarchicalItem[]>([]);
+  const [filteredXAxis, setFilteredXAxis] = useState<string[]>([]);
   const [selectedCell, setSelectedCell] = useState<{
     x: number;
     y: number;
   } | null>(null); // useful for coordinates
   const [knowledgeStatementsMap, setKnowledgeStatementsMap] =
     useState<KsRecord>({});
-  const [xAxis, setXAxis] = useState<string[]>([]);
   const [nerveFilters, setNerveFilters] = useState<Option[]>([]);
   const [phenotypeFilters, setPhenotypeFilters] = useState<Option[]>([]);
 
@@ -161,7 +169,7 @@ function Connections() {
   const handleCellClick = (x: number, y: number, yId: string): void => {
     // when the heatmap cell is clicked
     setSelectedCell({ x, y });
-    const row = connectionsMap.get(yId);
+    const row = filteredConnectionsMap.get(yId);
     if (row) {
       setConnectionPage(1);
       const ksIds = Object.values(row[x]).reduce((acc, phenotypeData) => {
@@ -181,10 +189,33 @@ function Connections() {
     }
   };
 
-  const heatmapData = useMemo(() => {
-    return getSecondaryHeatmapData(yAxis, connectionsMap);
-  }, [yAxis, connectionsMap]);
+  useEffect(() => {
+    // Filter yAxis
+    const filteredYAxis = filterYAxis(yAxis, connectionsMap);
 
+    // Determine columns with data
+    const columnsWithData = getEmptyColumns(filteredYAxis, connectionsMap);
+
+    // Filter connections map
+    const filteredConnectionsMap = filterConnectionsMap(
+      filteredYAxis,
+      connectionsMap,
+      columnsWithData,
+    );
+
+    // Filter xAxis
+    const filteredXAxis = xAxis.filter((_, index) =>
+      columnsWithData.has(index),
+    );
+
+    setFilteredYAxis(filteredYAxis);
+    setFilteredXAxis(filteredXAxis);
+    setFilteredConnectionsMap(filteredConnectionsMap);
+  }, [yAxis, xAxis, connectionsMap]);
+
+  const heatmapData = useMemo(() => {
+    return getSecondaryHeatmapData(filteredYAxis, filteredConnectionsMap);
+  }, [filteredYAxis, filteredConnectionsMap]);
   return (
     <Box display="flex" flexDirection="column" minHeight={1}>
       <SummaryHeader
@@ -282,9 +313,9 @@ function Connections() {
               setPhenotypeFilters={setPhenotypeFilters}
             />
             <HeatmapGrid
-              yAxis={yAxis}
+              yAxis={filteredYAxis}
               setYAxis={setYAxis}
-              xAxis={xAxis}
+              xAxis={filteredXAxis}
               onCellClick={handleCellClick}
               selectedCell={selectedCell}
               secondaryHeatmapData={heatmapData}

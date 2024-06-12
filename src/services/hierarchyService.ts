@@ -1,8 +1,10 @@
 import { BaseEntity, HierarchicalNode, Organ } from '../models/explorer.ts';
 import { Binding, JsonData } from '../models/json.ts';
-import { OTHER_X_AXIS_ID, OTHER_X_AXIS_LABEL } from '../settings.ts';
-
-const PATH_DELIMITER = '#';
+import {
+  HIERARCHY_ID_PATH_DELIMITER,
+  OTHER_X_AXIS_ID,
+  OTHER_X_AXIS_LABEL,
+} from '../settings.ts';
 
 interface RootNode {
   name: string;
@@ -19,7 +21,7 @@ const CNS = {
 
 const PNS = {
   name: 'Peripheral nervous system',
-  id: 'http://purl.obolibrary.org/obo/UBERON_0000010 ',
+  id: 'http://purl.obolibrary.org/obo/UBERON_0000010',
   isAncestor: (a_l1_name: string) => a_l1_name !== 'brain' && a_l1_name !== '',
 } as RootNode;
 
@@ -60,7 +62,7 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
       const levelName = entry[`A_L${level}`]?.value;
 
       if (levelId && levelName) {
-        currentPath += `${PATH_DELIMITER}${levelId}`; // Append current level ID to path to create a unique path identifier
+        currentPath += `${HIERARCHY_ID_PATH_DELIMITER}${levelId}`; // Append current level ID to path to create a unique path identifier
 
         // Get or create the hierarchical node
         if (!hierarchicalNodes[currentPath]) {
@@ -83,7 +85,8 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
 
     // Process the leaf node given by A_ID column
     if (entry.A_ID && entry.A) {
-      const leafNodeId = currentPath + `${PATH_DELIMITER}${entry.A_ID.value}`;
+      const leafNodeId =
+        currentPath + `${HIERARCHY_ID_PATH_DELIMITER}${entry.A_ID.value}`;
       const leafNodeName = entry.A.value;
 
       // Get or create the leaf node

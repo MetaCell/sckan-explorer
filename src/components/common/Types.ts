@@ -15,7 +15,7 @@ export type LabelIdPair = { labels: string[]; ids: string[] };
 
 export type KsRecord = Record<string, KnowledgeStatement>;
 
-export type PhenotypeKsIdMap = {
+export type KsPerPhenotype = {
   [phenotype: string]: {
     ksIds: string[];
   };

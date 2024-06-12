@@ -1,7 +1,7 @@
 import chroma from 'chroma-js';
 import {
   HierarchicalItem,
-  PhenotypeKsIdMap,
+  KsPerPhenotype,
   KsRecord,
 } from '../components/common/Types.ts';
 import { ConnectionSummary, SummaryFilters } from '../context/DataContext.ts';
@@ -107,9 +107,9 @@ export function summaryFilterKnowledgeStatements(
 // else just store the data for that level
 export function getSecondaryHeatmapData(
   yAxis: HierarchicalItem[],
-  connections: Map<string, PhenotypeKsIdMap[]>,
+  connections: Map<string, KsPerPhenotype[]>,
 ) {
-  const newData: PhenotypeKsIdMap[][] = [];
+  const newData: KsPerPhenotype[][] = [];
 
   function addDataForItem(item: HierarchicalItem) {
     const itemData = connections.get(item.id);
@@ -152,7 +152,7 @@ export function calculateSecondaryConnections(
   allKnowledgeStatements: Record<string, KnowledgeStatement>,
   summaryFilters: SummaryFilters,
   hierarchyNode: HierarchicalNode,
-): Map<string, PhenotypeKsIdMap[]> {
+): Map<string, KsPerPhenotype[]> {
   // Apply filters to organs and knowledge statements
 
   const knowledgeStatements = summaryFilterKnowledgeStatements(
@@ -169,16 +169,16 @@ export function calculateSecondaryConnections(
   );
 
   // Memoization map to store computed results for nodes
-  const memo = new Map<string, PhenotypeKsIdMap[]>();
+  const memo = new Map<string, KsPerPhenotype[]>();
 
   // Function to compute node connections with memoization
-  function computeNodeConnections(nodeId: string): PhenotypeKsIdMap[] {
+  function computeNodeConnections(nodeId: string): KsPerPhenotype[] {
     if (memo.has(nodeId)) {
       return memo.get(nodeId)!;
     }
 
     const node = hierarchicalNodes[nodeId];
-    const result: PhenotypeKsIdMap[] = Object.values(endorgans).map(() => ({}));
+    const result: KsPerPhenotype[] = Object.values(endorgans).map(() => ({}));
 
     if (node.children && node.children.size > 0) {
       node.children.forEach((childId) => {
@@ -269,4 +269,72 @@ export const getConnectionDetails = (
   return uniqueKS !== undefined
     ? uniqueKS[Object.keys(uniqueKS)[connectionPage - 1]]
     : ({} as KnowledgeStatement);
+};
+
+export const filterYAxis = (
+  items: HierarchicalItem[],
+  connectionsMap: Map<string, KsPerPhenotype[]>,
+): HierarchicalItem[] => {
+  return items
+    .map((item) => {
+      const row = connectionsMap.get(item.id);
+      const hasConnections =
+        row && row.some((connections) => Object.keys(connections).length > 0);
+
+      if (item.children) {
+        const filteredChildren = filterYAxis(item.children, connectionsMap);
+        return filteredChildren.length > 0 || hasConnections
+          ? { ...item, children: filteredChildren }
+          : null;
+      }
+
+      return hasConnections ? item : null;
+    })
+    .filter((item): item is HierarchicalItem => item !== null);
+};
+
+// Determine columns with data
+export const getEmptyColumns = (
+  filteredYAxis: HierarchicalItem[],
+  connectionsMap: Map<string, KsPerPhenotype[]>,
+): Set<number> => {
+  const columnsWithData = new Set<number>();
+  filteredYAxis.forEach((item) => {
+    const row = connectionsMap.get(item.id);
+    if (row) {
+      row.forEach((connections, index) => {
+        if (Object.keys(connections).length > 0) {
+          columnsWithData.add(index);
+        }
+      });
+    }
+  });
+  return columnsWithData;
+};
+
+// Recursive function to filter connections map
+export const filterConnectionsMap = (
+  items: HierarchicalItem[],
+  map: Map<string, KsPerPhenotype[]>,
+  columnsWithData: Set<number>,
+): Map<string, KsPerPhenotype[]> => {
+  const filteredMap = new Map<string, KsPerPhenotype[]>();
+  items.forEach((item) => {
+    const row = map.get(item.id);
+    if (row) {
+      const filteredRow = row.filter((_, index) => columnsWithData.has(index));
+      filteredMap.set(item.id, filteredRow);
+    }
+    if (item.children) {
+      const childMap = filterConnectionsMap(
+        item.children,
+        map,
+        columnsWithData,
+      );
+      childMap.forEach((value, key) => {
+        filteredMap.set(key, value);
+      });
+    }
+  });
+  return filteredMap;
 };
