@@ -10,6 +10,9 @@ import {
   getYAxis,
   getHeatmapData,
   getKnowledgeStatementMap,
+  filterYAxis,
+  getEmptyColumns,
+  filterConnectionsMap,
 } from '../services/heatmapService.ts';
 import FiltersDropdowns from './FiltersDropdowns.tsx';
 import { HierarchicalItem } from './common/Types.ts';
