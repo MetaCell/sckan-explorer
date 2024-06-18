@@ -22,7 +22,10 @@ import {
 } from '../services/summaryHeatmapService.ts';
 import {
   getYAxis,
-  getKnowledgeStatementMap, filterYAxis, getEmptyColumns, filterConnectionsMap,
+  getKnowledgeStatementMap,
+  filterYAxis,
+  getEmptyColumns,
+  filterConnectionsMap,
 } from '../services/heatmapService.ts';
 import SummaryHeader from './connections/SummaryHeader';
 import SummaryInstructions from './connections/SummaryInstructions.tsx';

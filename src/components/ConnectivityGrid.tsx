@@ -10,9 +10,9 @@ import {
   getYAxis,
   getHeatmapData,
   getKnowledgeStatementMap,
-  filterYAxis,
-  getEmptyColumns,
   filterConnectionsMap,
+  getEmptyColumns,
+  filterYAxis,
 } from '../services/heatmapService.ts';
 import FiltersDropdowns from './FiltersDropdowns.tsx';
 import { HierarchicalItem } from './common/Types.ts';
@@ -38,17 +38,24 @@ function ConnectivityGrid() {
     setSelectedConnectionSummary,
   } = useDataContext();
 
-  const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
   const [xAxisOrgans, setXAxisOrgans] = useState<Organ[]>([]);
+  const [initialYAxis, setInitialYAxis] = useState<HierarchicalItem[]>([]);
+
+  const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
+  const [xAxis, setXAxis] = useState<string[]>([]);
   // Maps YaxisId -> KnowledgeStatementIds for each Organ
   const [connectionsMap, setConnectionsMap] = useState<
     Map<string, Array<string>[]>
   >(new Map());
+
+  const [filteredConnectionsMap, setFilteredConnectionsMap] = useState<
+    Map<string, Array<string>[]>
+  >(new Map());
+
   const [selectedCell, setSelectedCell] = useState<{
     x: number;
     y: number;
   } | null>(null);
-  const [initialYAxis, setInitialYAxis] = useState<HierarchicalItem[]>([]);
 
   useEffect(() => {
     const connections = calculateConnections(
@@ -69,28 +76,44 @@ function ConnectivityGrid() {
     setXAxisOrgans(organList);
   }, [organs]);
 
-  const xAxis = useMemo(() => {
-    return xAxisOrgans.map((organ) => organ.name);
-  }, [xAxisOrgans]);
-
   useEffect(() => {
     const yAxis = getYAxis(hierarchicalNodes);
     setYAxis(yAxis);
     setInitialYAxis(yAxis);
   }, [hierarchicalNodes]);
 
+  useEffect(() => {
+    if (connectionsMap.size > 0 && yAxis.length > 0) {
+      // Apply filtering logic
+      const filteredYAxis = filterYAxis<Array<string>>(yAxis, connectionsMap);
+      const columnsWithData = getEmptyColumns(filteredYAxis, connectionsMap);
+      const filteredConnectionsMap = filterConnectionsMap(
+        filteredYAxis,
+        connectionsMap,
+        columnsWithData,
+      );
+      const filteredOrgans = xAxisOrgans.filter((_, index) =>
+        columnsWithData.has(index),
+      );
+
+      setYAxis(filteredYAxis);
+      setXAxis(filteredOrgans.map((organ) => organ.name));
+      setFilteredConnectionsMap(filteredConnectionsMap);
+    }
+  }, [yAxis, connectionsMap, xAxisOrgans]);
+
   const { heatmapData, detailedHeatmapData } = useMemo(() => {
-    const heatmapData = getHeatmapData(yAxis, connectionsMap);
+    const heatmapData = getHeatmapData(yAxis, filteredConnectionsMap);
     return {
       heatmapData: heatmapData.heatmapMatrix,
       detailedHeatmapData: heatmapData.detailedHeatmap,
     };
-  }, [yAxis, connectionsMap]);
+  }, [yAxis, filteredConnectionsMap]);
 
   const handleClick = (x: number, y: number, yId: string): void => {
     // When the primary heatmap cell is clicked - this sets the react-context state for Connections in SummaryType.summary
     setSelectedCell({ x, y });
-    const row = connectionsMap.get(yId);
+    const row = filteredConnectionsMap.get(yId);
     if (row) {
       const endOrgan = xAxisOrgans[x];
       const nodeData = detailedHeatmapData[y];
