@@ -318,7 +318,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                     min,
                     max,
                   );
-                  const safeNormalizedValue = Math.min(
+                  let safeNormalizedValue = Math.min(
                     Math.max(normalizedValue, 0),
                     1,
                   );
@@ -348,6 +348,10 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                       ),
                     };
                   } else {
+                    safeNormalizedValue =
+                      safeNormalizedValue < 0.076 && safeNormalizedValue > 0
+                        ? 0.076
+                        : safeNormalizedValue;
                     return {
                       ...commonStyles,
                       borderWidth: isSelectedCell ? '0.125rem' : '0.0625rem',
