@@ -39,11 +39,11 @@ function ConnectivityGrid() {
   } = useDataContext();
 
   const [xAxisOrgans, setXAxisOrgans] = useState<Organ[]>([]);
+  const [filteredXOrgans, setFilteredXOrgans] = useState<Organ[]>([]);
   const [initialYAxis, setInitialYAxis] = useState<HierarchicalItem[]>([]);
 
   const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
   const [filteredYAxis, setFilteredYAxis] = useState<HierarchicalItem[]>([]);
-  const [filteredXAxis, setFilteredXAxis] = useState<string[]>([]);
   // Maps YaxisId -> KnowledgeStatementIds for each Organ
   const [connectionsMap, setConnectionsMap] = useState<
     Map<string, Array<string>[]>
@@ -98,7 +98,7 @@ function ConnectivityGrid() {
       );
 
       setFilteredYAxis(filteredYAxis);
-      setFilteredXAxis(filteredOrgans.map((organ) => organ.name));
+      setFilteredXOrgans(filteredOrgans);
       setFilteredConnectionsMap(filteredConnectionsMap);
     }
   }, [yAxis, connectionsMap, xAxisOrgans]);
@@ -116,7 +116,7 @@ function ConnectivityGrid() {
     setSelectedCell({ x, y });
     const row = filteredConnectionsMap.get(yId);
     if (row) {
-      const endOrgan = xAxisOrgans[x];
+      const endOrgan = filteredXOrgans[x];
       const nodeData = detailedHeatmapData[y];
       const hierarchicalNode = hierarchicalNodes[nodeData.id];
       const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
@@ -167,7 +167,7 @@ function ConnectivityGrid() {
         yAxis={filteredYAxis}
         setYAxis={setYAxis}
         heatmapData={heatmapData}
-        xAxis={filteredXAxis}
+        xAxis={filteredXOrgans.map((organ) => organ.name)}
         xAxisLabel={'End organ'}
         yAxisLabel={'Connection Origin'}
         onCellClick={handleClick}
