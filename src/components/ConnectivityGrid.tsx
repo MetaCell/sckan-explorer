@@ -42,7 +42,8 @@ function ConnectivityGrid() {
   const [initialYAxis, setInitialYAxis] = useState<HierarchicalItem[]>([]);
 
   const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
-  const [xAxis, setXAxis] = useState<string[]>([]);
+  const [filteredYAxis, setFilteredYAxis] = useState<HierarchicalItem[]>([]);
+  const [filteredXAxis, setFilteredXAxis] = useState<string[]>([]);
   // Maps YaxisId -> KnowledgeStatementIds for each Organ
   const [connectionsMap, setConnectionsMap] = useState<
     Map<string, Array<string>[]>
@@ -96,19 +97,19 @@ function ConnectivityGrid() {
         columnsWithData.has(index),
       );
 
-      setYAxis(filteredYAxis);
-      setXAxis(filteredOrgans.map((organ) => organ.name));
+      setFilteredYAxis(filteredYAxis);
+      setFilteredXAxis(filteredOrgans.map((organ) => organ.name));
       setFilteredConnectionsMap(filteredConnectionsMap);
     }
   }, [yAxis, connectionsMap, xAxisOrgans]);
 
   const { heatmapData, detailedHeatmapData } = useMemo(() => {
-    const heatmapData = getHeatmapData(yAxis, filteredConnectionsMap);
+    const heatmapData = getHeatmapData(filteredYAxis, filteredConnectionsMap);
     return {
       heatmapData: heatmapData.heatmapMatrix,
       detailedHeatmapData: heatmapData.detailedHeatmap,
     };
-  }, [yAxis, filteredConnectionsMap]);
+  }, [filteredYAxis, filteredConnectionsMap]);
 
   const handleClick = (x: number, y: number, yId: string): void => {
     // When the primary heatmap cell is clicked - this sets the react-context state for Connections in SummaryType.summary
@@ -163,10 +164,10 @@ function ConnectivityGrid() {
       <FiltersDropdowns />
 
       <HeatmapGrid
-        yAxis={yAxis}
+        yAxis={filteredYAxis}
         setYAxis={setYAxis}
         heatmapData={heatmapData}
-        xAxis={xAxis}
+        xAxis={filteredXAxis}
         xAxisLabel={'End organ'}
         yAxisLabel={'Connection Origin'}
         onCellClick={handleClick}
