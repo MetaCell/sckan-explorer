@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Divider, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { vars } from '../theme/variables.ts';
 import { Detail } from './summaryPage/Detail.tsx';
-import { Section } from './summaryPage/Section.tsx';
+import { Section, SubSection } from './summaryPage/Section.tsx';
 import { Notes } from './summaryPage/Notes.tsx';
 import { TabPanel } from './summaryPage/TabPanel.tsx';
 import InfoTab from './summaryPage/InfoTab.tsx';
@@ -26,6 +26,7 @@ const SummaryPage = () => {
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
+
   useEffect(() => {
     const dataToPull = {
       Latest: {
@@ -122,13 +123,13 @@ const SummaryPage = () => {
       }
       if (filteredItem.length) {
         return {
-          label: item?.phenotype?.value,
+          label: item?.phenotype?.value.split('/').at(-1),
           count: item?.count?.value,
           change: item.count.value - filteredItem[0].count.value,
         };
       } else {
         return {
-          label: item?.phenotype?.value,
+          label: item?.phenotype?.value.split('/').at(-1),
           count: item?.count?.value,
           change: 0,
         };
@@ -150,15 +151,15 @@ const SummaryPage = () => {
       }
       if (filteredItem.length) {
         return {
-          label:
-            item?.model?.value + '  (' + item?.neuron_category?.value + ')',
+          label: item?.model?.value,
+          category: item?.neuron_category?.value,
           count: item?.count?.value,
           change: item.count.value - filteredItem[0].count.value,
         };
       } else {
         return {
-          label:
-            item?.model?.value + '  (' + item?.neuron_category?.value + ')',
+          label: item?.model?.value,
+          category: item?.neuron_category?.value,
           count: item?.count?.value,
           change: 0,
         };
@@ -180,13 +181,15 @@ const SummaryPage = () => {
       }
       if (filteredItem.length) {
         return {
-          label: item?.type?.value + '  (' + item?.phenotype_label?.value + ')',
+          label: item?.type?.value,
+          category: item?.phenotype_label?.value,
           count: item?.count?.value,
           change: item.count.value - filteredItem[0].count.value,
         };
       } else {
         return {
-          label: item?.type?.value + '  (' + item?.phenotype_label?.value + ')',
+          label: item?.type?.value,
+          category: item?.phenotype_label?.value,
           count: item?.count?.value,
           change: 0,
         };
@@ -196,6 +199,50 @@ const SummaryPage = () => {
     setLoaded(true);
     setData(results);
   }, []);
+
+  const getDataPerSection = (section: any) => {
+    let total = 0;
+    const results = section.map((item: any) => {
+      total += Number(item.count);
+      return (
+        <Detail
+          keyName={item.label}
+          value={item.count}
+          labels={item.label}
+          index={Math.random()}
+        />
+      );
+    });
+    results.push(
+      <Detail
+        keyName="total"
+        value={total}
+        labels="Total"
+        index={Math.random()}
+      />,
+    );
+    return results;
+  }
+
+  const getSubcategories = (section: any) => {
+    const categories = [ ... new Set(section.map((item: any) => {
+      return item?.category
+    }))];
+    const results = categories.map((category: any) => {
+      const filteredItems = section.filter((item: any) => item.category === category);
+      return (
+        <SubSection title={category}>
+          {getDataPerSection(filteredItems)}
+          <Divider sx={{  borderColor: gray500 }} />
+        </SubSection>
+      );
+    });
+    return results;
+  };
+
+  const getDataByFilter = (section: any, filter: string) => {
+    return section.filter((item: any) => item.label.includes(filter));
+  };
 
   if (!loaded)
     return (
@@ -255,84 +302,19 @@ const SummaryPage = () => {
         </Box>
         <TabPanel value={value} index={0}>
           <Section title="Count of Neuron Populations">
-            {
-              // @ts-expect-error Explanation: Handling the data properly
-              data[FILES.CATEGORY].map((item: any) => {
-                return (
-                  <Detail
-                    keyName={item.label}
-                    value={item.count}
-                    labels={item.label}
-                    index={Math.random()}
-                  />
-                );
-              })
-            }
-            <Notes
-              text="SPARC connectivity only includes populations from ApINATOMY and NLP curated neuron populations. Neuron types from CUT and other evidence based models (EBM) are not considered for the SPARC project.
-              "
-            />
-            <Divider />
+            {getDataPerSection(data[FILES.CATEGORY])}
+            <Divider sx={{ borderColor: gray500 }} />
           </Section>
           <Section title="Count of Neuron Populations by Category">
-            {
-              // @ts-expect-error Explanation: Handling the data properly
-              data[FILES.SPECIES].map((item: any) => {
-                return (
-                  <Detail
-                    keyName={item.label}
-                    value={item.count}
-                    labels={item.label}
-                    index={Math.random()}
-                  />
-                );
-              })
-            }
-            <Notes
-              text="SPARC connectivity only includes populations from ApINATOMY and NLP curated neuron populations. Neuron types from CUT and other evidence based models (EBM) are not considered for the SPARC project.
-              "
-            />
-            <Divider />
+            {getSubcategories(data[FILES.SPECIES])}
           </Section>
-          <Section title="Count of Neuron Populations by Predicate">
-            {
-              // @ts-expect-error Explanation: Handling the data properly
-              data[FILES.PHENOTYPE].map((item: any) => {
-                return (
-                  <Detail
-                    keyName={item.label}
-                    value={item.count}
-                    labels={item.label}
-                    index={Math.random()}
-                  />
-                );
-              })
-            }
-            <Notes
-              text="SPARC connectivity only includes populations from ApINATOMY and NLP curated neuron populations. Neuron types from CUT and other evidence based models (EBM) are not considered for the SPARC project.
-              "
-            />
-            <Divider />
+          <Section title="Count of Neuron Population by Locational Phenotype">
+            {getDataPerSection(getDataByFilter(data[FILES.PHENOTYPE], 'Location'))}
+            <Divider sx={{ borderColor: gray500 }} />
           </Section>
           <Section title="Count of Neuron Populations by Model">
-            {
-              // @ts-expect-error Explanation: Handling the data properly
-              data[FILES.POPULATION].map((item: any) => {
-                return (
-                  <Detail
-                    keyName={item.label}
-                    value={item.count}
-                    labels={item.label}
-                    index={Math.random()}
-                  />
-                );
-              })
-            }
-            <Notes
-              text="SPARC connectivity only includes populations from ApINATOMY and NLP curated neuron populations. Neuron types from CUT and other evidence based models (EBM) are not considered for the SPARC project.
-              "
-            />
-            <Divider />
+            {getDataPerSection(data[FILES.CATEGORY])}
+            <Divider sx={{ borderColor: gray500 }} />
           </Section>
         </TabPanel>
         <TabPanel value={value} index={1}>

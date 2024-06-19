@@ -3,7 +3,6 @@ import {
   Box,
   Button,
   ButtonGroup,
-  IconButton,
   Typography,
 } from '@mui/material';
 import { vars } from '../../theme/variables';
@@ -18,7 +17,6 @@ import {
 } from '../../services/heatmapService.ts';
 import { OTHER_PHENOTYPE_LABEL } from '../../settings.ts';
 import { useDataContext } from '../../context/DataContext.ts';
-import { PurplePlus, PurpleMinus } from '../icons/index.tsx';
 
 const { gray50, primaryPurple500, gray100A, gray500 } = vars;
 
