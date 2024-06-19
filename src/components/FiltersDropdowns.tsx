@@ -100,14 +100,23 @@ const FiltersDropdowns: React.FC = () => {
     }));
   };
 
-  const searchFunctions = {
-    Origin: (value: string) => searchOrigins(value, originsOptions),
-    EndOrgan: (value: string) => searchEndOrgans(value, organsOptions),
-    Species: (value: string) => searchSpecies(value, speciesOptions),
-    Phenotype: (value: string) => searchPhenotypes(value, phenotypesOptions),
-    apiNATOMY: (value: string) => searchApiNATOMY(value, apinatomiesOptions),
-    Via: (value: string) => searchVias(value, viasOptions),
-  };
+  const searchFunctions = useMemo(() => {
+    return {
+      Origin: (value: string) => searchOrigins(value, originsOptions),
+      EndOrgan: (value: string) => searchEndOrgans(value, organsOptions),
+      Species: (value: string) => searchSpecies(value, speciesOptions),
+      Phenotype: (value: string) => searchPhenotypes(value, phenotypesOptions),
+      apiNATOMY: (value: string) => searchApiNATOMY(value, apinatomiesOptions),
+      Via: (value: string) => searchVias(value, viasOptions),
+    };
+  }, [
+    apinatomiesOptions,
+    organsOptions,
+    originsOptions,
+    phenotypesOptions,
+    speciesOptions,
+    viasOptions,
+  ]);
 
   return (
     <Box display="flex" gap={1} flexWrap="wrap">

@@ -352,3 +352,73 @@ export const generateYLabelsAndIds = (
   });
   return { labels, ids };
 };
+
+type ConnectionsMap<T> = Map<string, T[]>;
+
+export const filterYAxis = <T extends object>(
+  items: HierarchicalItem[],
+  connectionsMap: ConnectionsMap<T>,
+): HierarchicalItem[] => {
+  return items
+    .map((item) => {
+      const row = connectionsMap.get(item.id);
+      const hasConnections =
+        row && row.some((connections) => Object.keys(connections).length > 0);
+
+      if (item.children) {
+        const filteredChildren = filterYAxis(item.children, connectionsMap);
+        return filteredChildren.length > 0 || hasConnections
+          ? { ...item, children: filteredChildren }
+          : null;
+      }
+
+      return hasConnections ? item : null;
+    })
+    .filter((item): item is HierarchicalItem => item !== null);
+};
+
+// Determine columns with data
+export const getEmptyColumns = <T extends object>(
+  filteredYAxis: HierarchicalItem[],
+  connectionsMap: ConnectionsMap<T>,
+): Set<number> => {
+  const columnsWithData = new Set<number>();
+  filteredYAxis.forEach((item) => {
+    const row = connectionsMap.get(item.id);
+    if (row) {
+      row.forEach((connections, index) => {
+        if (Object.keys(connections).length > 0) {
+          columnsWithData.add(index);
+        }
+      });
+    }
+  });
+  return columnsWithData;
+};
+
+// Recursive function to filter connections map
+export const filterConnectionsMap = <T>(
+  items: HierarchicalItem[],
+  map: ConnectionsMap<T>,
+  columnsWithData: Set<number>,
+): ConnectionsMap<T> => {
+  const filteredMap = new Map<string, T[]>();
+  items.forEach((item) => {
+    const row = map.get(item.id);
+    if (row) {
+      const filteredRow = row.filter((_, index) => columnsWithData.has(index));
+      filteredMap.set(item.id, filteredRow);
+    }
+    if (item.children) {
+      const childMap = filterConnectionsMap(
+        item.children,
+        map,
+        columnsWithData,
+      );
+      childMap.forEach((value, key) => {
+        filteredMap.set(key, value);
+      });
+    }
+  });
+  return filteredMap;
+};
