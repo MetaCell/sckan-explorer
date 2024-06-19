@@ -76,7 +76,7 @@ export const DataContextProvider = ({
   };
 
   const handleSetSelectedConnectionSummary = (
-    summary: Omit<ConnectionSummary, 'filteredKnowledgeStatements'>,
+    summary: Omit<ConnectionSummary, 'filteredKnowledgeStatements'> | null,
   ) => {
     const updatedSummary = updateSelectedConnectionSummary(
       summary,

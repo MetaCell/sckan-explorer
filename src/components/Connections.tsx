@@ -97,6 +97,8 @@ function Connections() {
     // By default on the first render, show the instruction/summary
     if (selectedConnectionSummary) {
       setShowConnectionDetails(SummaryType.Summary);
+    } else {
+      setShowConnectionDetails(SummaryType.Instruction);
     }
   }, [selectedConnectionSummary]);
 

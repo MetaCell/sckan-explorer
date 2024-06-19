@@ -113,6 +113,7 @@ function ConnectivityGrid() {
       Via: [],
     });
     setSelectedCell(null);
+    setSelectedConnectionSummary(null);
   };
 
   const isLoading = yAxis.length == 0;
@@ -165,7 +166,9 @@ function ConnectivityGrid() {
             fontWeight: 600,
             lineHeight: '1.25rem',
             color: primaryPurple600,
-            padding: 0,
+            borderRadius: '0.25rem',
+            border: `0.0625rem solid ${primaryPurple600}`,
+            padding: '0.5rem',
 
             '&:hover': {
               background: 'transparent',
@@ -173,7 +176,7 @@ function ConnectivityGrid() {
           }}
           onClick={handleReset}
         >
-          Reset grid
+          Reset All
         </Button>
 
         <Box

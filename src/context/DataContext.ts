@@ -36,7 +36,7 @@ export interface DataContext {
   setFilters: React.Dispatch<React.SetStateAction<Filters>>;
   selectedConnectionSummary: ConnectionSummary | null;
   setSelectedConnectionSummary: (
-    summary: Omit<ConnectionSummary, 'filteredKnowledgeStatements'>,
+    summary: Omit<ConnectionSummary, 'filteredKnowledgeStatements'> | null,
   ) => void;
   phenotypesColorMap: Record<string, PhenotypeDetail>;
 }
