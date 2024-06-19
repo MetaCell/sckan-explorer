@@ -1,5 +1,11 @@
 import React, { FC, useCallback, useMemo } from 'react';
-import { Box, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  IconButton,
+  Typography,
+} from '@mui/material';
 import { vars } from '../../theme/variables';
 import CollapsibleList from './CollapsibleList';
 import HeatMap from 'react-heatmap-grid';
@@ -12,6 +18,7 @@ import {
 } from '../../services/heatmapService.ts';
 import { OTHER_PHENOTYPE_LABEL } from '../../settings.ts';
 import { useDataContext } from '../../context/DataContext.ts';
+import { PurplePlus, PurpleMinus } from '../icons/index.tsx';
 
 const { gray50, primaryPurple500, gray100A, gray500 } = vars;
 
@@ -101,6 +108,44 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     [yAxis, setYAxis],
   );
 
+  const handleExpandAll = useCallback(() => {
+    const updateList = (list: HierarchicalItem[]): HierarchicalItem[] => {
+      return list?.map((listItem) => {
+        if (listItem.children) {
+          return {
+            ...listItem,
+            expanded: true,
+            children: updateList(listItem.children),
+          };
+        } else if (listItem.expanded === false || listItem.expanded === true) {
+          return { ...listItem, expanded: true };
+        }
+        return listItem;
+      });
+    };
+    const updatedList = updateList(yAxis);
+    setYAxis(updatedList);
+  }, [yAxis, setYAxis]);
+
+  const handleCompressAll = useCallback(() => {
+    const updateList = (list: HierarchicalItem[]): HierarchicalItem[] => {
+      return list?.map((listItem) => {
+        if (listItem.children) {
+          return {
+            ...listItem,
+            expanded: false,
+            children: updateList(listItem.children),
+          };
+        } else if (listItem.expanded === false || listItem.expanded === true) {
+          return { ...listItem, expanded: true };
+        }
+        return listItem;
+      });
+    };
+    const updatedList = updateList(yAxis);
+    setYAxis(updatedList);
+  }, [yAxis, setYAxis]);
+
   const handleCellClick = (x: number, y: number) => {
     const ids = yAxisData.ids;
     if (onCellClick) {
@@ -171,6 +216,23 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
 
   return (
     <Box flex={1} my={3} display="inline-flex" flexDirection="column">
+      <ButtonGroup
+        variant="outlined"
+        sx={{
+          '& .MuiButtonBase-root': {
+            left: '1.6rem',
+            top: '2rem',
+            width: '6rem',
+            height: '2rem',
+            marginRight: '0.5rem',
+            borderRadius: '0.25rem',
+            border: `0.0625rem solid ${gray500}`,
+          },
+        }}
+      >
+        <Button onClick={() => handleExpandAll()}>Expand All</Button>
+        <Button onClick={() => handleCompressAll()}>Compress All</Button>
+      </ButtonGroup>
       <Box mb={1.5} pl="17.375rem">
         <Typography
           sx={{

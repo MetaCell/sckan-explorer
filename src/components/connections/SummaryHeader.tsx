@@ -5,17 +5,16 @@ import {
   Divider,
   Typography,
   Stack,
-  Link,
 } from '@mui/material';
 import { vars } from '../../theme/variables';
 import IconButton from '@mui/material/IconButton';
-import { ArrowDown, ArrowRight, ArrowUp, HelpCircle } from '../icons';
+import { CloseArrows, ArrowRight, ArrowLeft, HelpCircle } from '../icons';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import { SummaryType, KsRecord } from '../common/Types';
 import { useDataContext } from '../../context/DataContext.ts';
 import { generateCsvService } from '../../services/csvService.ts';
 
-const { gray100, gray600A, gray500 } = vars;
+const { gray100, gray600A, gray500, primaryPurple600 } = vars;
 
 type SummaryHeaderProps = {
   showDetails: SummaryType;
@@ -94,11 +93,21 @@ const SummaryHeader = ({
               '& .MuiButtonBase-root': {
                 width: '2rem',
                 height: '2rem',
+                borderRadius: '0.25rem',
+                border: `0.0625rem solid ${primaryPurple600}`,
               },
             }}
           >
-            <IconButton onClick={handleDownClick}>
-              <ArrowUp />
+            <IconButton onClick={() => setShowDetails(SummaryType.Summary)}>
+              <CloseArrows />
+            </IconButton>
+            <IconButton
+              sx={{
+                marginLeft: '.25rem',
+              }}
+              onClick={handleDownClick}
+            >
+              <ArrowLeft />
             </IconButton>
             <IconButton
               sx={{
@@ -106,24 +115,16 @@ const SummaryHeader = ({
               }}
               onClick={handleUpClick}
             >
-              <ArrowDown />
+              <ArrowRight />
             </IconButton>
           </ButtonGroup>
         )}
 
         <Breadcrumbs separator={<ArrowRight />} aria-label="breadcrumb">
           {showDetails === SummaryType.DetailedSummary ? (
-            <Link
-              underline="hover"
-              onClick={() => setShowDetails(SummaryType.Summary)}
-            >
-              Summary
-            </Link>
+            <Typography>{connectionId}</Typography>
           ) : (
             <Typography>Summary</Typography>
-          )}
-          {showDetails === SummaryType.DetailedSummary && (
-            <Typography>{connectionId}</Typography>
           )}
         </Breadcrumbs>
       </Stack>
