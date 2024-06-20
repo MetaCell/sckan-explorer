@@ -81,7 +81,7 @@ const SummaryDetails = ({
       icon: undefined,
     },
     {
-      label: 'PhenoType',
+      label: 'Phenotype',
       value: connectionDetails?.phenotype || '-',
       icon: undefined,
     },
@@ -132,9 +132,7 @@ const SummaryDetails = ({
             Knowledge statement
           </Typography>
           <Typography variant="body1" color={gray500}>
-            {connectionDetails?.statement_preview ||
-              connectionDetails?.knowledge_statement ||
-              '-'}
+            {connectionDetails?.knowledge_statement || '-'}
           </Typography>
           {phenotype && <CommonChip label={phenotype} variant="outlined" />}
           <CommonAccordion

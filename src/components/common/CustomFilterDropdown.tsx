@@ -378,6 +378,7 @@ export default function CustomEntitiesDropdown({
               >
                 <TextField
                   fullWidth
+                  autoFocus={true}
                   type="text"
                   value={searchValue}
                   onChange={handleInputChange}
@@ -512,9 +513,9 @@ export default function CustomEntitiesDropdown({
                                 ? option?.label.slice(0, 100) + '...'
                                 : option?.label}
                             </Typography>
-                            <Typography whiteSpace="nowrap" variant="body2">
+                            {/* <Typography whiteSpace="nowrap" variant="body2">
                               {option?.id}
-                            </Typography>
+                            </Typography> */}
                           </li>
                         ))}
                       </ul>
@@ -522,7 +523,16 @@ export default function CustomEntitiesDropdown({
                   </Box>
                 </>
               ) : (
-                <> "no result"</>
+                <Typography
+                  sx={{
+                    width: 1,
+                    height: 1,
+                    padding: '1rem',
+                    fontWeight: 500,
+                  }}
+                >
+                  No results found
+                </Typography>
               )}
             </Box>
           </Box>

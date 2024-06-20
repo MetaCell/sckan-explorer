@@ -52,7 +52,7 @@ export const ArrowRight = () => (
     >
       <path
         d="M6 12L10 8L6 4"
-        stroke="#C7CBD1"
+        stroke="#8300BF"
         stroke-width="1.66667"
         stroke-linecap="round"
         stroke-linejoin="round"
@@ -60,6 +60,87 @@ export const ArrowRight = () => (
     </svg>
   </SvgIcon>
 );
+
+export const ArrowLeft = () => (
+  <SvgIcon viewBox="0 0 16 16">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M 10 12 L 6 8 L 10 4"
+        stroke="#8300BF"
+        stroke-width="1.66667"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </SvgIcon>
+);
+
+export const CloseArrows = () => (
+  <SvgIcon viewBox="0 0 16 16">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M 4 12 L 8 8 L 4 4 L 4 4 M 12 12 L 8 8 L 12 4"
+        stroke="#8300BF"
+        stroke-width="1.66667"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </SvgIcon>
+);
+
+export const PurplePlus = () => (
+  <SvgIcon viewBox="0 0 16 16">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M 4 8 L 8 8 L 8 12 L 8 4 M 12 8 L 8 8 L 12 8"
+        stroke="#8300BF"
+        stroke-width="1.66667"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </SvgIcon>
+);
+
+export const PurpleMinus = () => (
+  <SvgIcon viewBox="0 0 16 16">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M 5 8 L 11 8 L 8 8 L 5 8"
+        stroke="#8300BF"
+        stroke-width="1.66667"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </SvgIcon>
+);
+
 export const ArrowOutward = () => (
   <SvgIcon viewBox="0 0 20 20">
     <svg
