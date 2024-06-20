@@ -13,12 +13,9 @@ import { useDataContext } from '../context/DataContext.ts';
 import {
   calculateSecondaryConnections,
   convertViaToString,
-  filterConnectionsMap,
-  filterYAxis,
   getAllPhenotypes,
   getAllViasFromConnections,
   getDestinations,
-  getEmptyColumns,
   getNerveFilters,
   getSecondaryHeatmapData,
   getXAxisForHeatmap,
@@ -26,6 +23,9 @@ import {
 import {
   getYAxis,
   getKnowledgeStatementMap,
+  filterYAxis,
+  getEmptyColumns,
+  filterConnectionsMap,
 } from '../services/heatmapService.ts';
 import SummaryHeader from './connections/SummaryHeader';
 import SummaryInstructions from './connections/SummaryInstructions.tsx';
