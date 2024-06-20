@@ -4,7 +4,7 @@ import { Box, Divider, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { vars } from '../theme/variables.ts';
 import { Detail } from './summaryPage/Detail.tsx';
 import { Section, SubSection } from './summaryPage/Section.tsx';
-import { Notes } from './summaryPage/Notes.tsx';
+// import { Notes } from './summaryPage/Notes.tsx';
 import { TabPanel } from './summaryPage/TabPanel.tsx';
 import InfoTab from './summaryPage/InfoTab.tsx';
 import Loader from './common/Loader.tsx';
@@ -222,18 +222,24 @@ const SummaryPage = () => {
       />,
     );
     return results;
-  }
+  };
 
   const getSubcategories = (section: any) => {
-    const categories = [ ... new Set(section.map((item: any) => {
-      return item?.category
-    }))];
+    const categories = [
+      ...new Set(
+        section.map((item: any) => {
+          return item?.category;
+        }),
+      ),
+    ];
     const results = categories.map((category: any) => {
-      const filteredItems = section.filter((item: any) => item.category === category);
+      const filteredItems = section.filter(
+        (item: any) => item.category === category,
+      );
       return (
         <SubSection title={category}>
           {getDataPerSection(filteredItems)}
-          <Divider sx={{  borderColor: gray500 }} />
+          <Divider sx={{ borderColor: gray500 }} />
         </SubSection>
       );
     });
@@ -309,7 +315,9 @@ const SummaryPage = () => {
             {getSubcategories(data[FILES.SPECIES])}
           </Section>
           <Section title="Count of Neuron Population by Locational Phenotype">
-            {getDataPerSection(getDataByFilter(data[FILES.PHENOTYPE], 'Location'))}
+            {getDataPerSection(
+              getDataByFilter(data[FILES.PHENOTYPE], 'Location'),
+            )}
             <Divider sx={{ borderColor: gray500 }} />
           </Section>
           <Section title="Count of Neuron Populations by Model">

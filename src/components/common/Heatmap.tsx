@@ -1,10 +1,5 @@
 import React, { FC, useCallback, useMemo } from 'react';
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  Typography,
-} from '@mui/material';
+import { Box, Button, ButtonGroup, Typography } from '@mui/material';
 import { vars } from '../../theme/variables';
 import CollapsibleList from './CollapsibleList';
 import HeatMap from 'react-heatmap-grid';
