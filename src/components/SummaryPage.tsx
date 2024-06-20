@@ -307,21 +307,17 @@ const SummaryPage = () => {
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
-          <Section title="Count of Neuron Populations">
-            {getDataPerSection(data[FILES.CATEGORY])}
-            <Divider sx={{ borderColor: gray500 }} />
-          </Section>
-          <Section title="Count of Neuron Populations by Category">
-            {getSubcategories(data[FILES.SPECIES])}
-          </Section>
           <Section title="Count of Neuron Population by Locational Phenotype">
             {getDataPerSection(
               getDataByFilter(data[FILES.PHENOTYPE], 'Location'),
             )}
             <Divider sx={{ borderColor: gray500 }} />
           </Section>
+          <Section title="Count of Neuron Populations by Category">
+            {getSubcategories(data[FILES.SPECIES])}
+          </Section>
           <Section title="Count of Neuron Populations by Model">
-            {getDataPerSection(data[FILES.CATEGORY])}
+            {getSubcategories(data[FILES.POPULATION])}
             <Divider sx={{ borderColor: gray500 }} />
           </Section>
         </TabPanel>

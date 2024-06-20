@@ -531,7 +531,7 @@ export default function CustomEntitiesDropdown({
                     fontWeight: 500,
                   }}
                 >
-                  Term not found
+                  No results found
                 </Typography>
               )}
             </Box>
