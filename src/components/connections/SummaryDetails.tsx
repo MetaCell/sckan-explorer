@@ -168,6 +168,16 @@ const SummaryDetails = ({
                               label={row}
                               variant="outlined"
                               className="link"
+                              style={
+                                row.includes('http')
+                                  ? { cursor: 'pointer' }
+                                  : {}
+                              }
+                              onClick={() => {
+                                if (row.includes('http')) {
+                                  window.open(row, '_blank');
+                                }
+                              }}
                               icon={
                                 <ArrowOutwardRoundedIcon fontSize="small" />
                               }
