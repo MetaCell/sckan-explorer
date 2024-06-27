@@ -1,5 +1,5 @@
 import { BaseEntity, HierarchicalNode, Organ } from '../models/explorer.ts';
-import { Binding, JsonData } from '../models/json.ts';
+import { Binding, JsonData, OrderJson } from '../models/json.ts';
 import {
   HIERARCHY_ID_PATH_DELIMITER,
   OTHER_X_AXIS_ID,
@@ -33,7 +33,10 @@ const UNK = {
 
 export const ROOTS = [CNS, PNS, UNK];
 
-export const getHierarchicalNodes = (jsonData: JsonData) => {
+export const getHierarchicalNodes = (
+  jsonData: JsonData,
+  orderJson: OrderJson,
+) => {
   const { results } = jsonData;
 
   // Initialize root nodes
@@ -153,11 +156,24 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
           const nodeA = hierarchicalNodes[a];
           const nodeB = hierarchicalNodes[b];
 
-          // First, compare based on whether they have children
-          if (nodeA.children.size > 0 && nodeB.children.size === 0) return -1;
-          if (nodeA.children.size === 0 && nodeB.children.size > 0) return 1;
+          // Check if the current node's id exists in orderJson
+          const order = orderJson[getNodeIdFromPath(node.id)];
 
-          // If both have children or both don't have children, use natural sort
+          if (order) {
+            const indexA = order.indexOf(getNodeIdFromPath(nodeA.id));
+            const indexB = order.indexOf(getNodeIdFromPath(nodeB.id));
+
+            // Nodes not in the order array are placed at the end
+            const posA = indexA !== -1 ? indexA : Number.MAX_SAFE_INTEGER;
+            const posB = indexB !== -1 ? indexB : Number.MAX_SAFE_INTEGER;
+
+            // Sort based on the defined order first
+            if (posA !== posB) {
+              return posA - posB;
+            }
+          }
+
+          // Fallback to natural sort
           return naturalSort(nodeA.name, nodeB.name);
         }),
       );
@@ -223,4 +239,9 @@ export const getOrgans = (jsonData: JsonData): Record<string, Organ> => {
 
 const naturalSort = (a: string, b: string) => {
   return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+};
+
+const getNodeIdFromPath = (fullPath: string): string => {
+  const parts = fullPath.split(HIERARCHY_ID_PATH_DELIMITER);
+  return parts[parts.length - 1];
 };

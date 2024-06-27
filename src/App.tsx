@@ -20,6 +20,7 @@ import {
   fetchJSON,
   fetchKnowledgeStatements,
   fetchMajorNerves,
+  fetchOrderJson,
 } from './services/fetchService.ts';
 import { getUniqueMajorNerves } from './services/filterValuesService.ts';
 import {
@@ -62,25 +63,25 @@ const App = () => {
   }, [LayoutComponent, dispatch]);
 
   useEffect(() => {
-    fetchJSON()
-      .then((data) => {
-        setHierarchicalNodes(getHierarchicalNodes(data));
-        setOrgans(getOrgans(data));
-      })
-      .catch((error) => {
-        // TODO: We should give feedback to the user
-        console.error('Failed to fetch JSON data:', error);
-      });
+    const fetchData = async () => {
+      try {
+        const [jsonData, orderData, majorNervesData] = await Promise.all([
+          fetchJSON(),
+          fetchOrderJson(),
+          fetchMajorNerves(),
+        ]);
 
-    fetchMajorNerves()
-      .then((data) => {
-        setMajorNerves(getUniqueMajorNerves(data));
-      })
-      .catch((error) => {
+        setHierarchicalNodes(getHierarchicalNodes(jsonData, orderData));
+        setOrgans(getOrgans(jsonData));
+        setMajorNerves(getUniqueMajorNerves(majorNervesData));
+      } catch (error) {
         // TODO: We should give feedback to the user
-        console.error('Failed to fetch major nerves data:', error);
+        console.error('Failed to fetch data:', error);
         setMajorNerves(undefined);
-      });
+      }
+    };
+
+    fetchData();
   }, []);
 
   useEffect(() => {
