@@ -152,24 +152,35 @@ export const getHierarchicalNodes = (
   Object.values(hierarchicalNodes).forEach((node) => {
     if (node.children) {
       node.children = new Set(
-        Array.from(node.children).sort((a, b) => {
-          const nodeA = hierarchicalNodes[a];
-          const nodeB = hierarchicalNodes[b];
+        Array.from(node.children).sort((nodeAPath, nodeBPath) => {
+          const nodeA = hierarchicalNodes[nodeAPath];
+          const nodeB = hierarchicalNodes[nodeBPath];
+
+          // First, compare based on whether they have children
+          if (nodeA.children.size > 0 && nodeB.children.size === 0) return -1;
+          if (nodeA.children.size === 0 && nodeB.children.size > 0) return 1;
 
           // Check if the current node's id exists in orderJson
           const order = orderJson[getNodeIdFromPath(node.id)];
-
           if (order) {
-            const indexA = order.indexOf(getNodeIdFromPath(nodeA.id));
-            const indexB = order.indexOf(getNodeIdFromPath(nodeB.id));
+            const idA = getNodeIdFromPath(nodeAPath);
+            const idB = getNodeIdFromPath(nodeBPath);
+            const indexA = order.indexOf(idA);
+            const indexB = order.indexOf(idB);
 
-            // Nodes not in the order array are placed at the end
-            const posA = indexA !== -1 ? indexA : Number.MAX_SAFE_INTEGER;
-            const posB = indexB !== -1 ? indexB : Number.MAX_SAFE_INTEGER;
+            // Both nodes are in the order array
+            if (indexA !== -1 && indexB !== -1) {
+              return indexA - indexB;
+            }
 
-            // Sort based on the defined order first
-            if (posA !== posB) {
-              return posA - posB;
+            // Only nodeA is in the order array
+            if (indexA !== -1) {
+              return -1;
+            }
+
+            // Only nodeB is in the order array
+            if (indexB !== -1) {
+              return 1;
             }
           }
 
