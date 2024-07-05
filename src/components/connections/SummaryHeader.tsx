@@ -97,31 +97,6 @@ const SummaryHeader = ({
             <Button onClick={() => setShowDetails(SummaryType.Summary)}>
               Back to Summary
             </Button>
-            <Button
-              sx={{
-                width: '4rem !important',
-                marginLeft: '.25rem',
-              }}
-              onClick={handleDownClick}
-            >
-              Previous
-            </Button>
-            <Typography
-              variant="subtitle1"
-              color={gray500}
-              style={{ width: '8rem' }}
-            >
-              Connection {connectionPage} of {totalUniqueKS}
-            </Typography>
-            <Button
-              sx={{
-                width: '4rem !important',
-                marginLeft: '.25rem',
-              }}
-              onClick={handleUpClick}
-            >
-              Next
-            </Button>
           </ButtonGroup>
         )}
 
@@ -142,7 +117,45 @@ const SummaryHeader = ({
         }}
       >
         {showDetails === SummaryType.DetailedSummary ? (
-          <></>
+          <ButtonGroup
+            variant="outlined"
+            sx={{
+              '& .MuiButtonBase-root': {
+                width: '4rem',
+                height: '2rem',
+                borderRadius: '0.25rem',
+                border: `0.0625rem solid ${primaryPurple600}`,
+                color: primaryPurple600,
+                marginRight: '1rem',
+              },
+            }}
+          >
+            <Button
+              sx={{
+                width: '5rem !important',
+                marginLeft: '.25rem',
+              }}
+              onClick={handleDownClick}
+            >
+              Previous
+            </Button>
+            <Typography
+              variant="subtitle1"
+              color={gray500}
+              style={{ width: '12rem' }}
+            >
+              Displaying connection {connectionPage} of {totalUniqueKS}
+            </Typography>
+            <Button
+              sx={{
+                width: '5rem !important',
+                marginLeft: '.25rem',
+              }}
+              onClick={handleUpClick}
+            >
+              Next
+            </Button>
+          </ButtonGroup>
         ) : (
           <>
             <Box
