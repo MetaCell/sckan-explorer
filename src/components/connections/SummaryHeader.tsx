@@ -91,38 +91,49 @@ const SummaryHeader = ({
             variant="outlined"
             sx={{
               '& .MuiButtonBase-root': {
-                width: '2rem',
+                width: '7.8rem',
                 height: '2rem',
                 borderRadius: '0.25rem',
                 border: `0.0625rem solid ${primaryPurple600}`,
+                color: primaryPurple600,
+                marginRight: '1rem',
               },
             }}
           >
-            <IconButton onClick={() => setShowDetails(SummaryType.Summary)}>
-              <CloseArrows />
-            </IconButton>
-            <IconButton
+            <Button onClick={() => setShowDetails(SummaryType.Summary)}>
+              Back to Summary
+            </Button>
+            <Button
               sx={{
+                width: '4rem !important',
                 marginLeft: '.25rem',
               }}
               onClick={handleDownClick}
             >
-              <ArrowLeft />
-            </IconButton>
-            <IconButton
+              Previous
+            </Button>
+            <Typography
+              variant="subtitle1"
+              color={gray500}
+              style={{ width: '8rem' }}
+            >
+              Connection {connectionPage} of {totalUniqueKS}
+            </Typography>
+            <Button
               sx={{
+                width: '4rem !important',
                 marginLeft: '.25rem',
               }}
               onClick={handleUpClick}
             >
-              <ArrowRight />
-            </IconButton>
+              Next
+            </Button>
           </ButtonGroup>
         )}
 
         <Breadcrumbs separator={<ArrowRight />} aria-label="breadcrumb">
           {showDetails === SummaryType.DetailedSummary ? (
-            <Typography>{connectionId}</Typography>
+            <></>
           ) : (
             <Typography>Summary</Typography>
           )}
@@ -137,12 +148,7 @@ const SummaryHeader = ({
         }}
       >
         {showDetails === SummaryType.DetailedSummary ? (
-          <>
-            <Typography variant="subtitle1" color={gray500}>
-              Displaying connection {connectionPage} of {totalUniqueKS}
-            </Typography>
-            <HelpCircle />
-          </>
+          <></>
         ) : (
           <>
             <Box

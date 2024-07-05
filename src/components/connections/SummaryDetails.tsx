@@ -61,6 +61,11 @@ const SummaryDetails = ({
   // Details shown in the dropdown - from composer
   const detailsObject = [
     {
+      label: 'Name',
+      value: connectionDetails?.id || '-',
+      icon: undefined,
+    },
+    {
       label: 'Laterality',
       value: connectionDetails?.laterality || '-',
       icon: undefined,
