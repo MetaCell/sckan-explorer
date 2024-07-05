@@ -8,7 +8,7 @@ import {
   HierarchicalItem,
   HeatmapMatrixInformation,
   Option,
-  KsMapType,
+  KsRecord,
   LabelIdPair,
 } from '../components/common/Types.ts';
 import { Filters } from '../context/DataContext.ts';
@@ -57,6 +57,7 @@ export function calculateConnections(
 
   const knowledgeStatements = filterKnowledgeStatements(
     allKnowledgeStatements,
+    hierarchicalNodes,
     filters,
   );
   const organs = filterOrgans(allOrgans, filters.EndOrgan);
@@ -207,13 +208,27 @@ export function filterOrgans(
 
 export function filterKnowledgeStatements(
   knowledgeStatements: Record<string, KnowledgeStatement>,
+  hierarchicalNodes: Record<string, HierarchicalNode>,
   filters: Filters,
 ): Record<string, KnowledgeStatement> {
   const phenotypeIds = filters.Phenotype.map((option) => option.id);
-  const apiNATOMYIds = filters.apiNATOMY.map((option) => option.id);
-  const speciesIds = filters.Species.flatMap((option) => option.id);
-  const viaIds = filters.Via.flatMap((option) => option.id);
-  const originIds = filters.Origin.flatMap((option) => option.id);
+  const apiNATOMYIds =
+    (filters as Filters).apiNATOMY?.map((option) => option.id) || [];
+  const speciesIds = filters.Species?.flatMap((option) => option.id) || [];
+
+  const viaIds =
+    filters.Via?.flatMap((option) =>
+      isLeaf(option.id, hierarchicalNodes)
+        ? option.id
+        : getLeafDescendants(option.id, hierarchicalNodes),
+    ) || [];
+
+  const originIds =
+    filters.Origin?.flatMap((option) =>
+      isLeaf(option.id, hierarchicalNodes)
+        ? option.id
+        : getLeafDescendants(option.id, hierarchicalNodes),
+    ) || [];
 
   return Object.entries(knowledgeStatements).reduce(
     (filtered, [id, ks]) => {
@@ -223,15 +238,15 @@ export function filterKnowledgeStatements(
         !apiNATOMYIds.length || apiNATOMYIds.includes(ks.apinatomy);
       const speciesMatch =
         !speciesIds.length ||
-        ks.species.some((species) => speciesIds.includes(species.id));
+        ks.species?.some((species) => speciesIds.includes(species.id));
       const viaMatch =
         !viaIds.length ||
         ks.vias
-          .flatMap((via) => via.anatomical_entities)
+          ?.flatMap((via) => via.anatomical_entities)
           .some((via) => viaIds.includes(via.id));
       const originMatch =
         !originIds.length ||
-        ks.origins.some((origin) => originIds.includes(origin.id));
+        ks.origins?.some((origin) => originIds.includes(origin.id));
 
       if (
         phenotypeMatch &&
@@ -248,18 +263,41 @@ export function filterKnowledgeStatements(
   );
 }
 
-export function getHierarchyFromId(
-  id: string,
+const isLeaf = (
+  nodeId: string,
   hierarchicalNodes: Record<string, HierarchicalNode>,
-): HierarchicalNode {
-  return hierarchicalNodes[id];
-}
+): boolean => {
+  return (
+    !hierarchicalNodes[nodeId]?.children ||
+    hierarchicalNodes[nodeId].children.size === 0
+  );
+};
+
+const getLeafDescendants = (
+  nodeId: string,
+  hierarchicalNodes: Record<string, HierarchicalNode>,
+): string[] => {
+  const descendants: string[] = [];
+
+  const getDescendants = (currentId: string) => {
+    const node = hierarchicalNodes[currentId];
+    if (node.children && node.children.size > 0) {
+      node.children.forEach((childId) => getDescendants(childId));
+    } else {
+      const descendantID = currentId.split('#').pop() || currentId;
+      descendants.push(descendantID);
+    }
+  };
+
+  getDescendants(nodeId);
+  return descendants;
+};
 
 export function getKnowledgeStatementMap(
   ksIds: string[],
   knowledgeStatements: Record<string, KnowledgeStatement>,
-): KsMapType {
-  const ksMap: KsMapType = {};
+): KsRecord {
+  const ksMap: KsRecord = {};
   ksIds.forEach((id: string) => {
     const ks = knowledgeStatements[id];
     if (ks) {
@@ -313,4 +351,74 @@ export const generateYLabelsAndIds = (
     }
   });
   return { labels, ids };
+};
+
+type ConnectionsMap<T> = Map<string, T[]>;
+
+export const filterYAxis = <T extends object>(
+  items: HierarchicalItem[],
+  connectionsMap: ConnectionsMap<T>,
+): HierarchicalItem[] => {
+  return items
+    .map((item) => {
+      const row = connectionsMap.get(item.id);
+      const hasConnections =
+        row && row.some((connections) => Object.keys(connections).length > 0);
+
+      if (item.children) {
+        const filteredChildren = filterYAxis(item.children, connectionsMap);
+        return filteredChildren.length > 0 || hasConnections
+          ? { ...item, children: filteredChildren }
+          : null;
+      }
+
+      return hasConnections ? item : null;
+    })
+    .filter((item): item is HierarchicalItem => item !== null);
+};
+
+// Determine columns with data
+export const getEmptyColumns = <T extends object>(
+  filteredYAxis: HierarchicalItem[],
+  connectionsMap: ConnectionsMap<T>,
+): Set<number> => {
+  const columnsWithData = new Set<number>();
+  filteredYAxis.forEach((item) => {
+    const row = connectionsMap.get(item.id);
+    if (row) {
+      row.forEach((connections, index) => {
+        if (Object.keys(connections).length > 0) {
+          columnsWithData.add(index);
+        }
+      });
+    }
+  });
+  return columnsWithData;
+};
+
+// Recursive function to filter connections map
+export const filterConnectionsMap = <T>(
+  items: HierarchicalItem[],
+  map: ConnectionsMap<T>,
+  columnsWithData: Set<number>,
+): ConnectionsMap<T> => {
+  const filteredMap = new Map<string, T[]>();
+  items.forEach((item) => {
+    const row = map.get(item.id);
+    if (row) {
+      const filteredRow = row.filter((_, index) => columnsWithData.has(index));
+      filteredMap.set(item.id, filteredRow);
+    }
+    if (item.children) {
+      const childMap = filterConnectionsMap(
+        item.children,
+        map,
+        columnsWithData,
+      );
+      childMap.forEach((value, key) => {
+        filteredMap.set(key, value);
+      });
+    }
+  });
+  return filteredMap;
 };

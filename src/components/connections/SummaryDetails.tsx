@@ -6,8 +6,9 @@ import PopulationDisplay from './PopulationDisplay.tsx';
 import CommonAccordion from '../common/Accordion.tsx';
 import CommonChip from '../common/CommonChip.tsx';
 import { ArrowOutward } from '../icons/index.tsx';
-import { KsMapType } from '../common/Types.ts';
+import { KsRecord } from '../common/Types.ts';
 import { getConnectionDetails } from '../../services/summaryHeatmapService.ts';
+import { generateCsvService } from '../../services/csvService.ts';
 
 const { gray500, gray700, gray800 } = vars;
 
@@ -43,7 +44,7 @@ const RowStack = ({
 );
 
 type SummaryDetailsProps = {
-  knowledgeStatementsMap: KsMapType;
+  knowledgeStatementsMap: KsRecord;
   connectionPage: number;
 };
 
@@ -80,7 +81,7 @@ const SummaryDetails = ({
       icon: undefined,
     },
     {
-      label: 'PhenoType',
+      label: 'Phenotype',
       value: connectionDetails?.phenotype || '-',
       icon: undefined,
     },
@@ -90,6 +91,16 @@ const SummaryDetails = ({
       icon: undefined,
     },
   ];
+
+  const generateCSV = () => {
+    const blob = generateCsvService(knowledgeStatementsMap);
+    const objUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', objUrl);
+    link.setAttribute('download', 'connections.csv');
+    document.body.appendChild(link);
+    link.click();
+  };
 
   return (
     <Stack spacing="1.5rem">
@@ -104,10 +115,16 @@ const SummaryDetails = ({
             Details
           </Typography>
           <Stack direction="row" alignItems="center" spacing=".5rem">
-            <Button variant="outlined" startIcon={<ArrowOutward />}>
+            <Button
+              variant="outlined"
+              startIcon={<ArrowOutward />}
+              disabled={true}
+            >
               View on SPARC Portal
             </Button>
-            <Button variant="contained">Download (.pdf)</Button>
+            <Button variant="contained" onClick={generateCSV}>
+              Download (.csv)
+            </Button>
           </Stack>
         </Stack>
         <Stack mt="1.75rem" spacing=".5rem">
@@ -115,9 +132,7 @@ const SummaryDetails = ({
             Knowledge statement
           </Typography>
           <Typography variant="body1" color={gray500}>
-            {connectionDetails?.statement_preview ||
-              connectionDetails?.knowledge_statement ||
-              '-'}
+            {connectionDetails?.knowledge_statement || '-'}
           </Typography>
           {phenotype && <CommonChip label={phenotype} variant="outlined" />}
           <CommonAccordion
@@ -153,6 +168,16 @@ const SummaryDetails = ({
                               label={row}
                               variant="outlined"
                               className="link"
+                              style={
+                                row.includes('http')
+                                  ? { cursor: 'pointer' }
+                                  : {}
+                              }
+                              onClick={() => {
+                                if (row.includes('http')) {
+                                  window.open(row, '_blank');
+                                }
+                              }}
                               icon={
                                 <ArrowOutwardRoundedIcon fontSize="small" />
                               }

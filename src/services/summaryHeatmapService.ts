@@ -1,8 +1,8 @@
 import chroma from 'chroma-js';
 import {
   HierarchicalItem,
-  PhenotypeKsIdMap,
-  KsMapType,
+  KsPerPhenotype,
+  KsRecord,
 } from '../components/common/Types.ts';
 import { ConnectionSummary, SummaryFilters } from '../context/DataContext.ts';
 import {
@@ -29,7 +29,7 @@ export function convertViaToString(via: string[]): string {
   return via[0];
 }
 
-export function getAllViasFromConnections(connections: KsMapType): {
+export function getAllViasFromConnections(connections: KsRecord): {
   [key: string]: string;
 } {
   const vias: { [key: string]: string } = {};
@@ -46,21 +46,15 @@ export function getAllViasFromConnections(connections: KsMapType): {
   return vias;
 }
 
-export function getAllPhenotypes(
-  connections: Map<string, PhenotypeKsIdMap[]>,
-): string[] {
+export function getAllPhenotypes(connections: KsRecord): string[] {
   const phenotypeNames: Set<string> = new Set();
 
-  connections.forEach((phenotypeKsIdMaps) => {
-    phenotypeKsIdMaps.forEach((phenotypeKsIdMap) => {
-      Object.keys(phenotypeKsIdMap).forEach((phenotype) => {
-        if (phenotype) {
-          phenotypeNames.add(phenotype);
-        } else {
-          phenotypeNames.add(OTHER_PHENOTYPE_LABEL);
-        }
-      });
-    });
+  Object.values(connections).forEach((ks) => {
+    if (ks.phenotype) {
+      phenotypeNames.add(ks.phenotype);
+    } else {
+      phenotypeNames.add(OTHER_PHENOTYPE_LABEL);
+    }
   });
 
   return Array.from(phenotypeNames).sort();
@@ -113,9 +107,9 @@ export function summaryFilterKnowledgeStatements(
 // else just store the data for that level
 export function getSecondaryHeatmapData(
   yAxis: HierarchicalItem[],
-  connections: Map<string, PhenotypeKsIdMap[]>,
+  connections: Map<string, KsPerPhenotype[]>,
 ) {
-  const newData: PhenotypeKsIdMap[][] = [];
+  const newData: KsPerPhenotype[][] = [];
 
   function addDataForItem(item: HierarchicalItem) {
     const itemData = connections.get(item.id);
@@ -158,8 +152,9 @@ export function calculateSecondaryConnections(
   allKnowledgeStatements: Record<string, KnowledgeStatement>,
   summaryFilters: SummaryFilters,
   hierarchyNode: HierarchicalNode,
-): Map<string, PhenotypeKsIdMap[]> {
+): Map<string, KsPerPhenotype[]> {
   // Apply filters to organs and knowledge statements
+
   const knowledgeStatements = summaryFilterKnowledgeStatements(
     allKnowledgeStatements,
     summaryFilters,
@@ -174,16 +169,16 @@ export function calculateSecondaryConnections(
   );
 
   // Memoization map to store computed results for nodes
-  const memo = new Map<string, PhenotypeKsIdMap[]>();
+  const memo = new Map<string, KsPerPhenotype[]>();
 
   // Function to compute node connections with memoization
-  function computeNodeConnections(nodeId: string): PhenotypeKsIdMap[] {
+  function computeNodeConnections(nodeId: string): KsPerPhenotype[] {
     if (memo.has(nodeId)) {
       return memo.get(nodeId)!;
     }
 
     const node = hierarchicalNodes[nodeId];
-    const result: PhenotypeKsIdMap[] = Object.values(endorgans).map(() => ({}));
+    const result: KsPerPhenotype[] = Object.values(endorgans).map(() => ({}));
 
     if (node.children && node.children.size > 0) {
       node.children.forEach((childId) => {
@@ -268,7 +263,7 @@ export const getDestinations = (
 };
 
 export const getConnectionDetails = (
-  uniqueKS: KsMapType,
+  uniqueKS: KsRecord,
   connectionPage: number,
 ): KnowledgeStatement => {
   return uniqueKS !== undefined

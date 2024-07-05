@@ -21,11 +21,7 @@ import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { vars } from '../../theme/variables';
-
-type OptionDetail = {
-  title: string; // What to display as the title/label for the property.
-  value: string; // The actual value/content for the property.
-};
+import { Option } from './Types.ts';
 
 const {
   gray100,
@@ -38,13 +34,6 @@ const {
   primaryPurple300,
   gray50,
 } = vars;
-
-export type Option = {
-  id: string;
-  label: string;
-  group: string;
-  content: OptionDetail[];
-};
 
 const transition = {
   transition: 'all ease-in-out .3s',
@@ -389,6 +378,7 @@ export default function CustomEntitiesDropdown({
               >
                 <TextField
                   fullWidth
+                  autoFocus={true}
                   type="text"
                   value={searchValue}
                   onChange={handleInputChange}
@@ -523,9 +513,9 @@ export default function CustomEntitiesDropdown({
                                 ? option?.label.slice(0, 100) + '...'
                                 : option?.label}
                             </Typography>
-                            <Typography whiteSpace="nowrap" variant="body2">
+                            {/* <Typography whiteSpace="nowrap" variant="body2">
                               {option?.id}
-                            </Typography>
+                            </Typography> */}
                           </li>
                         ))}
                       </ul>
@@ -533,7 +523,16 @@ export default function CustomEntitiesDropdown({
                   </Box>
                 </>
               ) : (
-                <> "no result"</>
+                <Typography
+                  sx={{
+                    width: 1,
+                    height: 1,
+                    padding: '1rem',
+                    fontWeight: 500,
+                  }}
+                >
+                  No results found
+                </Typography>
               )}
             </Box>
           </Box>

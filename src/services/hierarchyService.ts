@@ -1,8 +1,10 @@
 import { BaseEntity, HierarchicalNode, Organ } from '../models/explorer.ts';
-import { Binding, JsonData } from '../models/json.ts';
-import { OTHER_X_AXIS_ID, OTHER_X_AXIS_LABEL } from '../settings.ts';
-
-const PATH_DELIMITER = '#';
+import { Binding, JsonData, OrderJson } from '../models/json.ts';
+import {
+  HIERARCHY_ID_PATH_DELIMITER,
+  OTHER_X_AXIS_ID,
+  OTHER_X_AXIS_LABEL,
+} from '../settings.ts';
 
 interface RootNode {
   name: string;
@@ -19,7 +21,7 @@ const CNS = {
 
 const PNS = {
   name: 'Peripheral nervous system',
-  id: 'http://purl.obolibrary.org/obo/UBERON_0000010 ',
+  id: 'http://purl.obolibrary.org/obo/UBERON_0000010',
   isAncestor: (a_l1_name: string) => a_l1_name !== 'brain' && a_l1_name !== '',
 } as RootNode;
 
@@ -31,7 +33,10 @@ const UNK = {
 
 export const ROOTS = [CNS, PNS, UNK];
 
-export const getHierarchicalNodes = (jsonData: JsonData) => {
+export const getHierarchicalNodes = (
+  jsonData: JsonData,
+  orderJson: OrderJson,
+) => {
   const { results } = jsonData;
 
   // Initialize root nodes
@@ -60,7 +65,7 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
       const levelName = entry[`A_L${level}`]?.value;
 
       if (levelId && levelName) {
-        currentPath += `${PATH_DELIMITER}${levelId}`; // Append current level ID to path to create a unique path identifier
+        currentPath += `${HIERARCHY_ID_PATH_DELIMITER}${levelId}`; // Append current level ID to path to create a unique path identifier
 
         // Get or create the hierarchical node
         if (!hierarchicalNodes[currentPath]) {
@@ -83,7 +88,8 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
 
     // Process the leaf node given by A_ID column
     if (entry.A_ID && entry.A) {
-      const leafNodeId = currentPath + `${PATH_DELIMITER}${entry.A_ID.value}`;
+      const leafNodeId =
+        currentPath + `${HIERARCHY_ID_PATH_DELIMITER}${entry.A_ID.value}`;
       const leafNodeName = entry.A.value;
 
       // Get or create the leaf node
@@ -146,15 +152,39 @@ export const getHierarchicalNodes = (jsonData: JsonData) => {
   Object.values(hierarchicalNodes).forEach((node) => {
     if (node.children) {
       node.children = new Set(
-        Array.from(node.children).sort((a, b) => {
-          const nodeA = hierarchicalNodes[a];
-          const nodeB = hierarchicalNodes[b];
+        Array.from(node.children).sort((nodeAPath, nodeBPath) => {
+          const nodeA = hierarchicalNodes[nodeAPath];
+          const nodeB = hierarchicalNodes[nodeBPath];
 
           // First, compare based on whether they have children
           if (nodeA.children.size > 0 && nodeB.children.size === 0) return -1;
           if (nodeA.children.size === 0 && nodeB.children.size > 0) return 1;
 
-          // If both have children or both don't have children, use natural sort
+          // Check if the current node's id exists in orderJson
+          const order = orderJson[getNodeIdFromPath(node.id)];
+          if (order) {
+            const idA = getNodeIdFromPath(nodeAPath);
+            const idB = getNodeIdFromPath(nodeBPath);
+            const indexA = order.indexOf(idA);
+            const indexB = order.indexOf(idB);
+
+            // Both nodes are in the order array
+            if (indexA !== -1 && indexB !== -1) {
+              return indexA - indexB;
+            }
+
+            // Only nodeA is in the order array
+            if (indexA !== -1) {
+              return -1;
+            }
+
+            // Only nodeB is in the order array
+            if (indexB !== -1) {
+              return 1;
+            }
+          }
+
+          // Fallback to natural sort
           return naturalSort(nodeA.name, nodeB.name);
         }),
       );
@@ -220,4 +250,9 @@ export const getOrgans = (jsonData: JsonData): Record<string, Organ> => {
 
 const naturalSort = (a: string, b: string) => {
   return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+};
+
+const getNodeIdFromPath = (fullPath: string): string => {
+  const parts = fullPath.split(HIERARCHY_ID_PATH_DELIMITER);
+  return parts[parts.length - 1];
 };

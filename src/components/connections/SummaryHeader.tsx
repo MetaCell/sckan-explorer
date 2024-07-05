@@ -5,20 +5,21 @@ import {
   Divider,
   Typography,
   Stack,
-  Link,
 } from '@mui/material';
 import { vars } from '../../theme/variables';
 import IconButton from '@mui/material/IconButton';
-import { ArrowDown, ArrowRight, ArrowUp, HelpCircle } from '../icons';
+import { CloseArrows, ArrowRight, ArrowLeft, HelpCircle } from '../icons';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
-import { SummaryType, KsMapType } from '../common/Types';
+import { SummaryType, KsRecord } from '../common/Types';
+import { useDataContext } from '../../context/DataContext.ts';
+import { generateCsvService } from '../../services/csvService.ts';
 
-const { gray100, gray600A, gray500 } = vars;
+const { gray100, gray600A, gray500, primaryPurple600 } = vars;
 
 type SummaryHeaderProps = {
   showDetails: SummaryType;
   setShowDetails: (showDetails: SummaryType) => void;
-  knowledgeStatementsMap: KsMapType;
+  knowledgeStatementsMap: KsRecord;
   connectionPage: number;
   setConnectionPage: (connectionPage: number) => void;
   totalConnectionCount: number;
@@ -33,6 +34,8 @@ const SummaryHeader = ({
   totalConnectionCount,
 }: SummaryHeaderProps) => {
   const totalUniqueKS = Object.keys(knowledgeStatementsMap).length;
+
+  const { selectedConnectionSummary } = useDataContext();
 
   function getConnectionId() {
     return Object.keys(knowledgeStatementsMap)[connectionPage - 1] || '';
@@ -49,6 +52,17 @@ const SummaryHeader = ({
     if (connectionPage > 1) {
       setConnectionPage(connectionPage - 1);
     }
+  };
+
+  const generateCSV = () => {
+    // @ts-expect-error - TS doesn't know that selectedConnectionSummary exists
+    const blob = generateCsvService(selectedConnectionSummary['connections']);
+    const objUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', objUrl);
+    link.setAttribute('download', 'connections.csv');
+    document.body.appendChild(link);
+    link.click();
   };
 
   if (showDetails === SummaryType.Instruction) {
@@ -79,11 +93,13 @@ const SummaryHeader = ({
               '& .MuiButtonBase-root': {
                 width: '2rem',
                 height: '2rem',
+                borderRadius: '0.25rem',
+                border: `0.0625rem solid ${primaryPurple600}`,
               },
             }}
           >
-            <IconButton onClick={handleUpClick}>
-              <ArrowUp />
+            <IconButton onClick={() => setShowDetails(SummaryType.Summary)}>
+              <CloseArrows />
             </IconButton>
             <IconButton
               sx={{
@@ -91,24 +107,24 @@ const SummaryHeader = ({
               }}
               onClick={handleDownClick}
             >
-              <ArrowDown />
+              <ArrowLeft />
+            </IconButton>
+            <IconButton
+              sx={{
+                marginLeft: '.25rem',
+              }}
+              onClick={handleUpClick}
+            >
+              <ArrowRight />
             </IconButton>
           </ButtonGroup>
         )}
 
         <Breadcrumbs separator={<ArrowRight />} aria-label="breadcrumb">
           {showDetails === SummaryType.DetailedSummary ? (
-            <Link
-              underline="hover"
-              onClick={() => setShowDetails(SummaryType.Summary)}
-            >
-              Summary
-            </Link>
+            <Typography>{connectionId}</Typography>
           ) : (
             <Typography>Summary</Typography>
-          )}
-          {showDetails === SummaryType.DetailedSummary && (
-            <Typography>{connectionId}</Typography>
           )}
         </Breadcrumbs>
       </Stack>
@@ -144,7 +160,7 @@ const SummaryHeader = ({
                   color: gray600A,
                 }}
               >
-                {totalConnectionCount} connections
+                {totalConnectionCount} populations
               </Typography>
 
               <Divider
@@ -155,7 +171,9 @@ const SummaryHeader = ({
                 }}
               />
 
-              <Button variant="contained">Download results (.csv)</Button>
+              <Button variant="contained" onClick={generateCSV}>
+                Download results (.csv)
+              </Button>
             </Box>
           </>
         )}

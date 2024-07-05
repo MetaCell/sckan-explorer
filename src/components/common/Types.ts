@@ -13,9 +13,9 @@ export type Option = {
 
 export type LabelIdPair = { labels: string[]; ids: string[] };
 
-export type KsMapType = Record<string, KnowledgeStatement>;
+export type KsRecord = Record<string, KnowledgeStatement>;
 
-export type PhenotypeKsIdMap = {
+export type KsPerPhenotype = {
   [phenotype: string]: {
     ksIds: string[];
   };

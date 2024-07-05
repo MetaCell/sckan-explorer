@@ -2,34 +2,41 @@ import {
   COMPOSER_API_URL,
   SCKAN_JSON_URL,
   SCKAN_MAJOR_NERVES_JSON_URL,
+  SCKAN_ORDER_JSON_URL,
 } from '../settings.ts';
 import { KnowledgeStatement } from '../models/explorer.ts';
 import { mapApiResponseToKnowledgeStatements } from './mappers.ts';
+import { JsonData, NerveResponse, OrderJson } from '../models/json.ts';
 
 const KNOWLEDGE_STATEMENTS_BATCH_SIZE = 100;
 
-export const fetchJSON = async () => {
+const fetchData = async <T>(url: string): Promise<T> => {
   try {
-    const response = await fetch(SCKAN_JSON_URL);
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`${response.statusText}`);
     }
     return await response.json();
   } catch (error) {
-    throw new Error(`Error fetching json data: ${error}`);
+    throw new Error(`Error fetching data from ${url}: ${error}`);
   }
 };
 
-export const fetchMajorNerves = async () => {
+export const fetchJSON = async (): Promise<JsonData> => {
+  return await fetchData<JsonData>(SCKAN_JSON_URL);
+};
+
+export const fetchOrderJson = async (): Promise<OrderJson> => {
   try {
-    const response = await fetch(SCKAN_MAJOR_NERVES_JSON_URL);
-    if (!response.ok) {
-      throw new Error(`${response.statusText}`);
-    }
-    return await response.json();
+    return await fetchData<OrderJson>(SCKAN_ORDER_JSON_URL);
   } catch (error) {
-    throw new Error(`Error fetching major nerves data: ${error}`);
+    console.warn('Failed to fetch order JSON:', error);
+    return {};
   }
+};
+
+export const fetchMajorNerves = async (): Promise<NerveResponse> => {
+  return await fetchData<NerveResponse>(SCKAN_MAJOR_NERVES_JSON_URL);
 };
 
 export const fetchKnowledgeStatements = async (neuronIds: string[]) => {

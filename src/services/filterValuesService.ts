@@ -1,6 +1,7 @@
 import {
   AnatomicalEntity,
   BaseEntity,
+  HierarchicalNode,
   KnowledgeStatement,
   Organ,
 } from '../models/explorer';
@@ -41,16 +42,21 @@ const getUniqueEntities = (entities: BaseEntity[]): Option[] => {
 
 export const getUniqueOrigins = (
   knowledgeStatements: Record<string, KnowledgeStatement>,
+  hierarchicalNodes: Record<string, HierarchicalNode>,
 ): Option[] => {
   let origins: AnatomicalEntity[] = [];
   Object.values(knowledgeStatements).forEach((ks) => {
     origins = origins.concat(ks.origins);
   });
-  return getUniqueEntities(origins);
+
+  const nonLeafNames = getNonLeafNames(hierarchicalNodes);
+
+  return getUniqueEntities([...origins, ...nonLeafNames]);
 };
 
 export const getUniqueVias = (
   knowledgeStatements: Record<string, KnowledgeStatement>,
+  hierarchicalNodes: Record<string, HierarchicalNode>,
 ): Option[] => {
   let vias: AnatomicalEntity[] = [];
   Object.values(knowledgeStatements).forEach((ks) => {
@@ -59,7 +65,10 @@ export const getUniqueVias = (
     );
     vias = vias.concat(anatomical_entities);
   });
-  return getUniqueEntities(vias);
+
+  const nonLeafNames = getNonLeafNames(hierarchicalNodes);
+
+  return getUniqueEntities([...vias, ...nonLeafNames]);
 };
 
 export const getUniqueSpecies = (
@@ -122,4 +131,15 @@ export const getUniqueMajorNerves = (jsonData: NerveResponse) => {
   });
 
   return nerves;
+};
+
+const getNonLeafNames = (
+  hierarchicalNodes: Record<string, HierarchicalNode>,
+): BaseEntity[] => {
+  return Object.values(hierarchicalNodes)
+    .filter((node) => node.children && node.children.size > 0)
+    .map((node) => ({
+      id: node.id,
+      name: node.name,
+    }));
 };

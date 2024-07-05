@@ -13,7 +13,7 @@ export default {
     children: [
       {
         type: 'row',
-        weight: 62,
+        weight: 55,
         children: [
           {
             type: 'tabset',
@@ -26,7 +26,7 @@ export default {
       },
       {
         type: 'row',
-        weight: 38,
+        weight: 45,
         children: [
           {
             type: 'tabset',

@@ -39,6 +39,10 @@ export interface JsonData {
   results: Result;
 }
 
+export interface OrderJson {
+  [nodeId: string]: string[];
+}
+
 interface NerveData {
   type: string;
   value: string;

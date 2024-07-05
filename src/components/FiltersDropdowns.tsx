@@ -60,11 +60,17 @@ const filterConfig: FilterConfig[] = [
 ];
 
 const FiltersDropdowns: React.FC = () => {
-  const { filters, setFilters, knowledgeStatements, organs } = useDataContext();
+  const {
+    filters,
+    setFilters,
+    knowledgeStatements,
+    hierarchicalNodes,
+    organs,
+  } = useDataContext();
 
   const originsOptions = useMemo(
-    () => getUniqueOrigins(knowledgeStatements),
-    [knowledgeStatements],
+    () => getUniqueOrigins(knowledgeStatements, hierarchicalNodes),
+    [knowledgeStatements, hierarchicalNodes],
   );
   const speciesOptions = useMemo(
     () => getUniqueSpecies(knowledgeStatements),
@@ -79,8 +85,8 @@ const FiltersDropdowns: React.FC = () => {
     [knowledgeStatements],
   );
   const viasOptions = useMemo(
-    () => getUniqueVias(knowledgeStatements),
-    [knowledgeStatements],
+    () => getUniqueVias(knowledgeStatements, hierarchicalNodes),
+    [knowledgeStatements, hierarchicalNodes],
   );
   const organsOptions = useMemo(() => getUniqueOrgans(organs), [organs]);
 
@@ -94,14 +100,23 @@ const FiltersDropdowns: React.FC = () => {
     }));
   };
 
-  const searchFunctions = {
-    Origin: (value: string) => searchOrigins(value, originsOptions),
-    EndOrgan: (value: string) => searchEndOrgans(value, organsOptions),
-    Species: (value: string) => searchSpecies(value, speciesOptions),
-    Phenotype: (value: string) => searchPhenotypes(value, phenotypesOptions),
-    apiNATOMY: (value: string) => searchApiNATOMY(value, apinatomiesOptions),
-    Via: (value: string) => searchVias(value, viasOptions),
-  };
+  const searchFunctions = useMemo(() => {
+    return {
+      Origin: (value: string) => searchOrigins(value, originsOptions),
+      EndOrgan: (value: string) => searchEndOrgans(value, organsOptions),
+      Species: (value: string) => searchSpecies(value, speciesOptions),
+      Phenotype: (value: string) => searchPhenotypes(value, phenotypesOptions),
+      apiNATOMY: (value: string) => searchApiNATOMY(value, apinatomiesOptions),
+      Via: (value: string) => searchVias(value, viasOptions),
+    };
+  }, [
+    apinatomiesOptions,
+    organsOptions,
+    originsOptions,
+    phenotypesOptions,
+    speciesOptions,
+    viasOptions,
+  ]);
 
   return (
     <Box display="flex" gap={1} flexWrap="wrap">

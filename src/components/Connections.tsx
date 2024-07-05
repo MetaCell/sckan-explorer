@@ -4,9 +4,10 @@ import { ArrowRightIcon } from './icons';
 import { vars } from '../theme/variables';
 import {
   HierarchicalItem,
-  PhenotypeKsIdMap,
+  KsPerPhenotype,
   SummaryType,
-  KsMapType,
+  KsRecord,
+  Option,
 } from './common/Types';
 import { useDataContext } from '../context/DataContext.ts';
 import {
@@ -22,6 +23,9 @@ import {
 import {
   getYAxis,
   getKnowledgeStatementMap,
+  filterYAxis,
+  getEmptyColumns,
+  filterConnectionsMap,
 } from '../services/heatmapService.ts';
 import SummaryHeader from './connections/SummaryHeader';
 import SummaryInstructions from './connections/SummaryInstructions.tsx';
@@ -50,60 +54,88 @@ const styles = {
 };
 
 function Connections() {
-  const [showConnectionDetails, setShowConnectionDetails] =
-    useState<SummaryType>(SummaryType.Instruction);
-  const [connectionsMap, setConnectionsMap] = useState<
-    Map<string, PhenotypeKsIdMap[]>
-  >(new Map());
-  const [connectionPage, setConnectionPage] = useState(1); // represents the page number / index of the connections - if (x,y) has 4 connections, then connectionPage will be 1, 2, 3, 4
-  const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
-  const [selectedCell, setSelectedCell] = useState<{
-    x: number;
-    y: number;
-  } | null>(null); // useful for coordinates
-  const [knowledgeStatementsMap, setKnowledgeStatementsMap] =
-    useState<KsMapType>({});
-  const [xAxis, setXAxis] = useState<string[]>([]);
-
   const {
     selectedConnectionSummary,
     majorNerves,
     hierarchicalNodes,
     knowledgeStatements,
-    summaryFilters,
+    filters,
   } = useDataContext();
+
+  const [showConnectionDetails, setShowConnectionDetails] =
+    useState<SummaryType>(SummaryType.Instruction);
+  const [connectionsMap, setConnectionsMap] = useState<
+    Map<string, KsPerPhenotype[]>
+  >(new Map());
+  const [filteredConnectionsMap, setFilteredConnectionsMap] = useState<
+    Map<string, KsPerPhenotype[]>
+  >(new Map());
+  const [connectionPage, setConnectionPage] = useState(1); // represents the page number / index of the connections - if (x,y) has 4 connections, then connectionPage will be 1, 2, 3, 4
+  const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
+  const [xAxis, setXAxis] = useState<string[]>([]);
+  const [filteredYAxis, setFilteredYAxis] = useState<HierarchicalItem[]>([]);
+  const [filteredXAxis, setFilteredXAxis] = useState<string[]>([]);
+  const [selectedCell, setSelectedCell] = useState<{
+    x: number;
+    y: number;
+  } | null>(null); // useful for coordinates
+  const [knowledgeStatementsMap, setKnowledgeStatementsMap] =
+    useState<KsRecord>({});
+  const [nerveFilters, setNerveFilters] = useState<Option[]>([]);
+  const [phenotypeFilters, setPhenotypeFilters] = useState<Option[]>([]);
+
+  const summaryFilters = useMemo(
+    () => ({
+      ...filters,
+      Nerve: nerveFilters,
+      Phenotype: phenotypeFilters,
+    }),
+    [filters, nerveFilters, phenotypeFilters],
+  );
 
   useEffect(() => {
     // By default on the first render, show the instruction/summary
     if (selectedConnectionSummary) {
       setShowConnectionDetails(SummaryType.Summary);
+    } else {
+      setShowConnectionDetails(SummaryType.Instruction);
     }
   }, [selectedConnectionSummary]);
 
   // Values from the selected connection - In the SummaryType.summary
   const viasConnection = getAllViasFromConnections(
-    selectedConnectionSummary?.connections || ({} as KsMapType),
+    selectedConnectionSummary?.filteredKnowledgeStatements || ({} as KsRecord),
   );
   const viasStatement = convertViaToString(Object.values(viasConnection));
   const totalConnectionCount = Object.keys(
-    selectedConnectionSummary?.connections || ({} as KsMapType),
+    selectedConnectionSummary?.filteredKnowledgeStatements || ({} as KsRecord),
   ).length;
-  const nerves = getNerveFilters(viasConnection, majorNerves);
+
+  const availableNerves = getNerveFilters(viasConnection, majorNerves);
+  const availablePhenotypes = useMemo(
+    () =>
+      selectedConnectionSummary
+        ? getAllPhenotypes(
+            selectedConnectionSummary.filteredKnowledgeStatements,
+          )
+        : [],
+    [selectedConnectionSummary],
+  );
 
   useEffect(() => {
     // calculate the connectionsMap for the secondary heatmap
     if (
       selectedConnectionSummary &&
-      selectedConnectionSummary.hierarchy &&
+      selectedConnectionSummary.hierarchicalNode &&
       hierarchicalNodes
     ) {
       const destinations = getDestinations(selectedConnectionSummary);
       const connections = calculateSecondaryConnections(
         hierarchicalNodes,
         destinations,
-        knowledgeStatements,
+        selectedConnectionSummary.filteredKnowledgeStatements,
         summaryFilters,
-        selectedConnectionSummary.hierarchy,
+        selectedConnectionSummary.hierarchicalNode,
       );
       setConnectionsMap(connections);
     }
@@ -113,11 +145,6 @@ function Connections() {
     summaryFilters,
     knowledgeStatements,
   ]);
-
-  const selectedPhenotypes = useMemo(
-    () => getAllPhenotypes(connectionsMap),
-    [connectionsMap],
-  );
 
   useEffect(() => {
     // set the xAxis for the heatmap
@@ -133,8 +160,8 @@ function Connections() {
     // set the yAxis for the heatmap
     if (selectedConnectionSummary && hierarchicalNodes) {
       const hierarchyNode = {
-        [selectedConnectionSummary.hierarchy.id]:
-          selectedConnectionSummary.hierarchy,
+        [selectedConnectionSummary.hierarchicalNode.id]:
+          selectedConnectionSummary.hierarchicalNode,
       };
       const yHierarchicalItem = getYAxis(hierarchicalNodes, hierarchyNode);
       setYAxis(yHierarchicalItem);
@@ -144,7 +171,7 @@ function Connections() {
   const handleCellClick = (x: number, y: number, yId: string): void => {
     // when the heatmap cell is clicked
     setSelectedCell({ x, y });
-    const row = connectionsMap.get(yId);
+    const row = filteredConnectionsMap.get(yId);
     if (row) {
       setConnectionPage(1);
       const ksIds = Object.values(row[x]).reduce((acc, phenotypeData) => {
@@ -153,7 +180,9 @@ function Connections() {
 
       if (
         selectedConnectionSummary &&
-        Object.keys(selectedConnectionSummary.connections).length !== 0
+        Object.keys(selectedConnectionSummary.filteredKnowledgeStatements)
+          .length !== 0 &&
+        ksIds.length > 0
       ) {
         setShowConnectionDetails(SummaryType.DetailedSummary);
         const ksMap = getKnowledgeStatementMap(ksIds, knowledgeStatements);
@@ -162,10 +191,33 @@ function Connections() {
     }
   };
 
-  const heatmapData = useMemo(() => {
-    return getSecondaryHeatmapData(yAxis, connectionsMap);
-  }, [yAxis, connectionsMap]);
+  useEffect(() => {
+    // Filter yAxis
+    const filteredYAxis = filterYAxis(yAxis, connectionsMap);
 
+    // Determine columns with data
+    const columnsWithData = getEmptyColumns(filteredYAxis, connectionsMap);
+
+    // Filter connections map
+    const filteredConnectionsMap = filterConnectionsMap(
+      filteredYAxis,
+      connectionsMap,
+      columnsWithData,
+    );
+
+    // Filter xAxis
+    const filteredXAxis = xAxis.filter((_, index) =>
+      columnsWithData.has(index),
+    );
+
+    setFilteredYAxis(filteredYAxis);
+    setFilteredXAxis(filteredXAxis);
+    setFilteredConnectionsMap(filteredConnectionsMap);
+  }, [yAxis, xAxis, connectionsMap]);
+
+  const heatmapData = useMemo(() => {
+    return getSecondaryHeatmapData(filteredYAxis, filteredConnectionsMap);
+  }, [filteredYAxis, filteredConnectionsMap]);
   return (
     <Box display="flex" flexDirection="column" minHeight={1}>
       <SummaryHeader
@@ -196,7 +248,7 @@ function Connections() {
                   Connection origin
                 </Typography>
                 <TextField
-                  value={selectedConnectionSummary?.origin || ''}
+                  value={selectedConnectionSummary?.hierarchicalNode.name || ''}
                   fullWidth
                 />
               </Box>
@@ -255,13 +307,17 @@ function Connections() {
               </Typography>
             </Box>
             <SummaryFiltersDropdown
-              nerves={nerves}
-              phenotypes={selectedPhenotypes}
+              nerves={availableNerves}
+              nerveFilters={nerveFilters}
+              setNerveFilters={setNerveFilters}
+              phenotypes={availablePhenotypes}
+              phenotypeFilters={phenotypeFilters}
+              setPhenotypeFilters={setPhenotypeFilters}
             />
             <HeatmapGrid
-              yAxis={yAxis}
+              yAxis={filteredYAxis}
               setYAxis={setYAxis}
-              xAxis={xAxis}
+              xAxis={filteredXAxis}
               onCellClick={handleCellClick}
               selectedCell={selectedCell}
               secondaryHeatmapData={heatmapData}
@@ -270,7 +326,7 @@ function Connections() {
             />
           </Box>
 
-          <PhenotypeLegend phenotypes={selectedPhenotypes} />
+          <PhenotypeLegend phenotypes={availablePhenotypes} />
         </>
       )}
     </Box>
