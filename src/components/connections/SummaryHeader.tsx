@@ -7,8 +7,7 @@ import {
   Stack,
 } from '@mui/material';
 import { vars } from '../../theme/variables';
-import IconButton from '@mui/material/IconButton';
-import { CloseArrows, ArrowRight, ArrowLeft, HelpCircle } from '../icons';
+import { ArrowRight } from '../icons';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import { SummaryType, KsRecord } from '../common/Types';
 import { useDataContext } from '../../context/DataContext.ts';
@@ -36,11 +35,6 @@ const SummaryHeader = ({
   const totalUniqueKS = Object.keys(knowledgeStatementsMap).length;
 
   const { selectedConnectionSummary } = useDataContext();
-
-  function getConnectionId() {
-    return Object.keys(knowledgeStatementsMap)[connectionPage - 1] || '';
-  }
-  const connectionId = getConnectionId();
 
   const handleUpClick = () => {
     if (connectionPage < totalUniqueKS) {
@@ -91,38 +85,49 @@ const SummaryHeader = ({
             variant="outlined"
             sx={{
               '& .MuiButtonBase-root': {
-                width: '2rem',
+                width: '7.8rem',
                 height: '2rem',
                 borderRadius: '0.25rem',
                 border: `0.0625rem solid ${primaryPurple600}`,
+                color: primaryPurple600,
+                marginRight: '1rem',
               },
             }}
           >
-            <IconButton onClick={() => setShowDetails(SummaryType.Summary)}>
-              <CloseArrows />
-            </IconButton>
-            <IconButton
+            <Button onClick={() => setShowDetails(SummaryType.Summary)}>
+              Back to Summary
+            </Button>
+            <Button
               sx={{
+                width: '4rem !important',
                 marginLeft: '.25rem',
               }}
               onClick={handleDownClick}
             >
-              <ArrowLeft />
-            </IconButton>
-            <IconButton
+              Previous
+            </Button>
+            <Typography
+              variant="subtitle1"
+              color={gray500}
+              style={{ width: '8rem' }}
+            >
+              Connection {connectionPage} of {totalUniqueKS}
+            </Typography>
+            <Button
               sx={{
+                width: '4rem !important',
                 marginLeft: '.25rem',
               }}
               onClick={handleUpClick}
             >
-              <ArrowRight />
-            </IconButton>
+              Next
+            </Button>
           </ButtonGroup>
         )}
 
         <Breadcrumbs separator={<ArrowRight />} aria-label="breadcrumb">
           {showDetails === SummaryType.DetailedSummary ? (
-            <Typography>{connectionId}</Typography>
+            <></>
           ) : (
             <Typography>Summary</Typography>
           )}
@@ -137,12 +142,7 @@ const SummaryHeader = ({
         }}
       >
         {showDetails === SummaryType.DetailedSummary ? (
-          <>
-            <Typography variant="subtitle1" color={gray500}>
-              Displaying connection {connectionPage} of {totalUniqueKS}
-            </Typography>
-            <HelpCircle />
-          </>
+          <></>
         ) : (
           <>
             <Box

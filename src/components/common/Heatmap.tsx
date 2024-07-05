@@ -13,7 +13,7 @@ import {
 import { OTHER_PHENOTYPE_LABEL } from '../../settings.ts';
 import { useDataContext } from '../../context/DataContext.ts';
 
-const { gray50, primaryPurple500, gray100A, gray500 } = vars;
+const { gray50, primaryPurple500, gray100A, gray500, primaryPurple600 } = vars;
 
 interface HeatmapGridProps {
   xAxis: string[];
@@ -219,12 +219,13 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
             height: '2rem',
             marginRight: '0.5rem',
             borderRadius: '0.25rem',
-            border: `0.0625rem solid ${gray500}`,
+            border: `0.0625rem solid ${primaryPurple600}`,
+            color: primaryPurple600,
           },
         }}
       >
-        <Button onClick={() => handleExpandAll()}>Expand All</Button>
-        <Button onClick={() => handleCompressAll()}>Compress All</Button>
+        <Button onClick={() => handleExpandAll()}>Open All</Button>
+        <Button onClick={() => handleCompressAll()}>Close All</Button>
       </ButtonGroup>
       <Box mb={1.5} pl="17.375rem">
         <Typography
