@@ -6,6 +6,7 @@ export const SCKAN_ORDER_JSON_URL =
 export const SCKAN_MAJOR_NERVES_JSON_URL =
   'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/major-nerves.json';
 
+export const COMPOSER_API_URL = import.meta.env.VITE_COMPOSER_API_URL;
 export const SCKAN_DATABASE_SUMMARY_URL_LATEST =
   'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/sckan-stats/sckan-version-2024-03-04/';
 
@@ -25,10 +26,6 @@ export const DATABASE_FILES = {
   [FILES.SPECIES]: 'stats-phenotype-value-count.json',
   [FILES.CATEGORY]: 'stats-population-category-count.json',
 };
-
-// TODO: To change to the env variable when the deployment gets integrated with other sckan projects @dario
-export const COMPOSER_API_URL = 'https://composer.scicrunch.io/api';
-//export const COMPOSER_API_URL = import.meta.env.VITE_COMPOSER_API_URL
 
 export const OTHER_X_AXIS_ID = 'OTHER_X';
 export const OTHER_X_AXIS_LABEL = 'Other';
