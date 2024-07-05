@@ -215,7 +215,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
           '& .MuiButtonBase-root': {
             left: '1.6rem',
             top: '2rem',
-            width: '6rem',
+            width: '4.5rem',
             height: '2rem',
             marginRight: '0.5rem',
             borderRadius: '0.25rem',
@@ -224,6 +224,15 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
           },
         }}
       >
+        <Typography
+          variant="subtitle1"
+          color={gray500}
+          style={{
+            marginTop: '2rem',
+          }}
+        >
+          Tree hierarchy:
+        </Typography>
         <Button onClick={() => handleExpandAll()}>Open All</Button>
         <Button onClick={() => handleCompressAll()}>Close All</Button>
       </ButtonGroup>
