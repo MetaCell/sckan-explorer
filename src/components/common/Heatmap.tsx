@@ -219,7 +219,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
             height: '2rem',
             marginRight: '0.5rem',
             borderRadius: '0.25rem',
-            border: `0.0625rem solid ${gray500}`,
+            border: `0.0625rem solid ${primaryPurple600}`,
             color: primaryPurple600,
           },
         }}

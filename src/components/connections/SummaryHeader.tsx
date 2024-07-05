@@ -7,8 +7,7 @@ import {
   Stack,
 } from '@mui/material';
 import { vars } from '../../theme/variables';
-import IconButton from '@mui/material/IconButton';
-import { CloseArrows, ArrowRight, ArrowLeft, HelpCircle } from '../icons';
+import { ArrowRight } from '../icons';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import { SummaryType, KsRecord } from '../common/Types';
 import { useDataContext } from '../../context/DataContext.ts';
@@ -36,11 +35,6 @@ const SummaryHeader = ({
   const totalUniqueKS = Object.keys(knowledgeStatementsMap).length;
 
   const { selectedConnectionSummary } = useDataContext();
-
-  function getConnectionId() {
-    return Object.keys(knowledgeStatementsMap)[connectionPage - 1] || '';
-  }
-  const connectionId = getConnectionId();
 
   const handleUpClick = () => {
     if (connectionPage < totalUniqueKS) {
