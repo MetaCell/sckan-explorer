@@ -1,5 +1,8 @@
 export const SCKAN_JSON_URL =
   'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/a-b-via-c-2.json';
+
+export const SCKAN_ORDER_JSON_URL =
+  'https://raw.githubusercontent.com/MetaCell/sckan-explorer/feature/order/public/order.json';
 export const SCKAN_MAJOR_NERVES_JSON_URL =
   'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/major-nerves.json';
 
