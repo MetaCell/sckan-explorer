@@ -43,11 +43,25 @@ export const DataContextProvider = ({
 
   const phenotypesColorMap = useMemo(() => {
     const colors = generatePhenotypeColors(phenotypes.length);
+    const phenotypesList = [
+      'sympathetic pre-ganglionic',
+      'other',
+      'parasympathetic',
+      'parasympathetic post-ganglionic',
+      'sympathetic post-ganglionic',
+      'Post ganglionic phenotype',
+      'parasympathetic pre-ganglionic',
+      'enteric',
+    ];
+    const phenoColor: Record<string, string> = {};
+    phenotypesList.forEach((phenotype, index) => {
+      phenoColor[phenotype] = colors[index];
+    });
     const colorMap: Record<string, PhenotypeDetail> = {};
-    phenotypes.forEach((phenotype, index) => {
+    phenotypes.sort().forEach((phenotype, index) => {
       colorMap[phenotype] = {
         label: phenotype,
-        color: colors[index],
+        color: phenoColor[phenotype] || colors[index],
       };
     });
     return colorMap;
