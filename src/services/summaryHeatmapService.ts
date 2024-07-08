@@ -15,7 +15,16 @@ import { OTHER_PHENOTYPE_LABEL } from '../settings.ts';
 
 export const generatePhenotypeColors = (num: number) => {
   const scale = chroma
-    .scale(['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'brown'])
+    .scale([
+      'red',
+      'blue',
+      'green',
+      'yellow',
+      'purple',
+      'orange',
+      'brown',
+      'cyan',
+    ])
     .mode('lch')
     .colors(num);
   return scale;
