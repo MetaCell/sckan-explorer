@@ -13,7 +13,7 @@ interface RootNode {
 }
 
 interface PostProcessNode {
-  entry: any;
+  entry: object;
   currentParentId: string;
   leafNodeId: string;
 }

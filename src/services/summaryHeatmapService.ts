@@ -11,7 +11,11 @@ import {
   Organ,
   BaseEntity,
 } from '../models/explorer.ts';
-import { OTHER_PHENOTYPE_LABEL } from '../settings.ts';
+import {
+  OTHER_PHENOTYPE_LABEL,
+  DESTINATIONS_ORDER,
+  STRINGS_NUMBERS,
+} from '../settings.ts';
 
 export const generatePhenotypeColors = (num: number) => {
   const scale = chroma
@@ -248,9 +252,10 @@ export const getNormalizedValueForMinMax = (
 
 export function getXAxisForHeatmap(endorgan: Organ) {
   if (endorgan?.children) {
-    return Array.from(endorgan.children.values()).map(
+    const results = Array.from(endorgan.children.values()).map(
       (endOrgan) => endOrgan.name,
     );
+    return results;
   }
   return [];
 }
@@ -278,4 +283,66 @@ export const getConnectionDetails = (
   return uniqueKS !== undefined
     ? uniqueKS[Object.keys(uniqueKS)[connectionPage - 1]]
     : ({} as KnowledgeStatement);
+};
+
+export const reorderXAxis = (xAxis: string[]): string[] => {
+  const reorderedXAxis: string[] = [];
+  const anatomicallySorted: string[] = [];
+  // First sort by numbers
+  STRINGS_NUMBERS.forEach((order) => {
+    xAxis.forEach((destination) => {
+      if (
+        destination.toLowerCase().includes(order.toLowerCase()) &&
+        !reorderedXAxis.includes(destination)
+      ) {
+        reorderedXAxis.push(destination);
+      }
+    });
+  });
+
+  // Add the remaning destinations
+  xAxis.forEach((destination) => {
+    if (!reorderedXAxis.includes(destination)) {
+      reorderedXAxis.push(destination);
+    }
+  });
+
+  // Then sort anatomically
+  DESTINATIONS_ORDER.forEach((entity) => {
+    reorderedXAxis.forEach((destination) => {
+      if (
+        destination.toLowerCase().includes(entity.toLowerCase()) &&
+        !anatomicallySorted.includes(destination)
+      ) {
+        anatomicallySorted.push(destination);
+      }
+    });
+  });
+
+  // Add the remaning destinations
+  reorderedXAxis.forEach((destination) => {
+    if (!anatomicallySorted.includes(destination)) {
+      anatomicallySorted.push(destination);
+    }
+  });
+
+  return anatomicallySorted;
+};
+
+export const sortHeatmapData = (
+  originalDestinationsArray: string[],
+  reorderedDestinationsArray: string[],
+  data: KsPerPhenotype[][],
+): KsPerPhenotype[][] => {
+  const newData: KsPerPhenotype[][] = [];
+  data.forEach(() => {
+    newData.push(Array(originalDestinationsArray.length).fill({}));
+  });
+  originalDestinationsArray.forEach((originalPosition, index) => {
+    const newPosition = reorderedDestinationsArray.indexOf(originalPosition);
+    data.forEach((row, innerIndex) => {
+      newData[innerIndex][newPosition] = data[innerIndex][index];
+    });
+  });
+  return newData;
 };

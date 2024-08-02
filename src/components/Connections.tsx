@@ -19,6 +19,8 @@ import {
   getNerveFilters,
   getSecondaryHeatmapData,
   getXAxisForHeatmap,
+  reorderXAxis,
+  sortHeatmapData,
 } from '../services/summaryHeatmapService.ts';
 import {
   getYAxis,
@@ -75,6 +77,7 @@ function Connections() {
   const [xAxis, setXAxis] = useState<string[]>([]);
   const [filteredYAxis, setFilteredYAxis] = useState<HierarchicalItem[]>([]);
   const [filteredXAxis, setFilteredXAxis] = useState<string[]>([]);
+  const [reorderedAxis, setReorderedAxis] = useState<string[]>([]);
   const [selectedCell, setSelectedCell] = useState<{
     x: number;
     y: number;
@@ -174,7 +177,8 @@ function Connections() {
     const row = filteredConnectionsMap.get(yId);
     if (row) {
       setConnectionPage(1);
-      const ksIds = Object.values(row[x]).reduce((acc, phenotypeData) => {
+      const newX = filteredXAxis.indexOf(reorderedAxis[x]);
+      const ksIds = Object.values(row[newX]).reduce((acc, phenotypeData) => {
         return acc.concat(phenotypeData.ksIds);
       }, [] as string[]);
 
@@ -212,12 +216,16 @@ function Connections() {
 
     setFilteredYAxis(filteredYAxis);
     setFilteredXAxis(filteredXAxis);
+    setReorderedAxis(reorderXAxis([...filteredXAxis].sort()));
     setFilteredConnectionsMap(filteredConnectionsMap);
   }, [yAxis, xAxis, connectionsMap]);
 
   const heatmapData = useMemo(() => {
     return getSecondaryHeatmapData(filteredYAxis, filteredConnectionsMap);
   }, [filteredYAxis, filteredConnectionsMap]);
+
+  const sortedData = sortHeatmapData(filteredXAxis, reorderedAxis, heatmapData);
+
   return (
     <Box display="flex" flexDirection="column" minHeight={1}>
       <SummaryHeader
@@ -317,10 +325,10 @@ function Connections() {
             <HeatmapGrid
               yAxis={filteredYAxis}
               setYAxis={setYAxis}
-              xAxis={filteredXAxis}
+              xAxis={reorderedAxis}
               onCellClick={handleCellClick}
               selectedCell={selectedCell}
-              secondaryHeatmapData={heatmapData}
+              secondaryHeatmapData={sortedData}
               xAxisLabel={'Project to'}
               yAxisLabel={'Somas in'}
             />
