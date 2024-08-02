@@ -340,7 +340,7 @@ export const sortHeatmapData = (
   });
   originalDestinationsArray.forEach((originalPosition, index) => {
     const newPosition = reorderedDestinationsArray.indexOf(originalPosition);
-    data.forEach((row, innerIndex) => {
+    data.forEach((_row, innerIndex) => {
       newData[innerIndex][newPosition] = data[innerIndex][index];
     });
   });

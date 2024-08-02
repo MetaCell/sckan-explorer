@@ -13,7 +13,7 @@ interface RootNode {
 }
 
 interface PostProcessNode {
-  entry: object;
+  entry: Binding;
   currentParentId: string;
   leafNodeId: string;
 }
@@ -167,13 +167,13 @@ export const getHierarchicalNodes = (
   });
 
   postProcessingNodes.forEach((node) => {
-    const entry = node.entry;
+    const entry: Binding = node.entry;
     const currentParentId = node.currentParentId;
     const leafNodeId = node.leafNodeId;
     const neuronId = entry.Neuron_ID?.value;
     let targetOrganIRI = entry.Target_Organ_IRI?.value;
     let endOrganIRI = entry.B_ID?.value;
-    const leafNodeName = entry.A.value;
+    const leafNodeName = entry?.A?.value || '';
     let leafNode = hierarchicalNodes[leafNodeId];
     if (!leafNode) {
       leafNode = {
