@@ -4,7 +4,6 @@ import { Box, Divider, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { vars } from '../theme/variables.ts';
 import { Detail } from './summaryPage/Detail.tsx';
 import { Section, SubSection } from './summaryPage/Section.tsx';
-// import { Notes } from './summaryPage/Notes.tsx';
 import { TabPanel } from './summaryPage/TabPanel.tsx';
 import InfoTab from './summaryPage/InfoTab.tsx';
 import Loader from './common/Loader.tsx';

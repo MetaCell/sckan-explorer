@@ -35,27 +35,27 @@ const filterConfig: FilterConfig[] = [
   {
     id: 'EndOrgan',
     placeholder: 'End organ',
-    searchPlaceholder: 'Search End organ',
+    searchPlaceholder: 'Search end organ',
   },
   {
     id: 'Species',
     placeholder: 'Species',
-    searchPlaceholder: 'Search Species',
+    searchPlaceholder: 'Search species',
   },
   {
     id: 'Phenotype',
     placeholder: 'Phenotype',
-    searchPlaceholder: 'Search Phenotype',
+    searchPlaceholder: 'Search phenotype',
   },
   {
     id: 'apiNATOMY',
-    placeholder: 'ApiNATOMY',
-    searchPlaceholder: 'Search ApiNATOMY',
+    placeholder: 'Connectivity Model',
+    searchPlaceholder: 'Search connectivity models',
   },
   {
     id: 'Via',
     placeholder: 'Via',
-    searchPlaceholder: 'Search Via',
+    searchPlaceholder: 'Search via',
   },
 ];
 

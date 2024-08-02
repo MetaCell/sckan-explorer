@@ -41,3 +41,39 @@ export const FIXED_FOUR_PHENOTYPE_COLORS_ARRAY = [
 ];
 
 export const HIERARCHY_ID_PATH_DELIMITER = '#';
+
+export const DESTINATIONS_ORDER = [
+  'cervical spinal cord',
+  'thoracic spinal cord',
+  'lumbar spinal cord',
+  'sacral spinal cord',
+  'cervical ganglion',
+  'lumbar ganglion',
+  'thoracic ganglion ',
+  'pelvic ganglion',
+  'ovary',
+  'nerve plexus of descending colon',
+];
+
+export const STRINGS_NUMBERS = [
+  'first',
+  'second',
+  'third',
+  'fourth',
+  'fifth',
+  'sixth',
+  'seventh',
+  'eighth',
+  'ninth',
+  'tenth',
+  'eleventh',
+  'twelfth',
+  'thirteenth',
+  'fourteenth',
+  'fifteenth',
+  'sixteenth',
+  'seventeenth',
+  'eighteenth',
+  'nineteenth',
+  'twentieth',
+];
