@@ -49,7 +49,7 @@ export const DESTINATIONS_ORDER = [
   'sacral spinal cord',
   'cervical ganglion',
   'lumbar ganglion',
-  'thoracic ganglion ',
+  'thoracic ganglion',
   'pelvic ganglion',
   'ovary',
   'nerve plexus of descending colon',
