@@ -8,7 +8,7 @@ import { KnowledgeStatement } from '../models/explorer.ts';
 import { mapApiResponseToKnowledgeStatements } from './mappers.ts';
 import { JsonData, NerveResponse, OrderJson } from '../models/json.ts';
 
-const KNOWLEDGE_STATEMENTS_BATCH_SIZE = 100;
+const KNOWLEDGE_STATEMENTS_BATCH_SIZE = 50;
 
 const fetchData = async <T>(url: string): Promise<T> => {
   try {
@@ -53,13 +53,22 @@ export const fetchKnowledgeStatements = async (neuronIds: string[]) => {
 
   // Process each batch
   const fetchBatch = async (batch: string[]) => {
-    const url = `${COMPOSER_API_URL}/composer/knowledge-statement/?population_uris=${batch.join(',')}`;
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    let results: KnowledgeStatement[] = [];
+    let url = `${COMPOSER_API_URL}/composer/knowledge-statement/?population_uris=${batch.join(',')}`;
+
+    while (url) {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      results = results.concat(mapApiResponseToKnowledgeStatements(data));
+
+      // Check if there is a next page
+      url = data.next || null;
     }
-    const data = await response.json();
-    return mapApiResponseToKnowledgeStatements(data);
+
+    return results;
   };
 
   try {
