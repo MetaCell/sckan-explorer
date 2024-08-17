@@ -224,7 +224,13 @@ function Connections() {
     return getSecondaryHeatmapData(filteredYAxis, filteredConnectionsMap);
   }, [filteredYAxis, filteredConnectionsMap]);
 
-  const sortedData = sortHeatmapData(filteredXAxis, reorderedAxis, heatmapData);
+  const sortedResults = sortHeatmapData(
+    filteredXAxis,
+    reorderedAxis,
+    heatmapData,
+  );
+  const sortedData = sortedResults.data;
+  const connectionsCounter = sortedResults.total;
 
   return (
     <Box display="flex" flexDirection="column" minHeight={1}>
@@ -273,9 +279,9 @@ function Connections() {
             </Box>
 
             <Box>
-              <Typography sx={styles.heading}>Amount of connections</Typography>
+              <Typography sx={styles.heading}>Number of connections</Typography>
               <Chip
-                label={totalConnectionCount + ' connections'}
+                label={connectionsCounter + ' connections'}
                 variant="outlined"
                 color="primary"
               />

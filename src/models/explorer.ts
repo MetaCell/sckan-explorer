@@ -1,3 +1,4 @@
+import { KsPerPhenotype } from '../components/common/Types';
 import { TypeB60Enum, TypeC11Enum } from './composer';
 
 export interface BaseEntity {
@@ -296,4 +297,9 @@ export interface HierarchicalNode {
    * @memberof HierarchicalNode
    */
   destinationDetails?: Record<string, string[]>;
+}
+
+export interface SortedResults {
+  data: KsPerPhenotype[][];
+  total: number;
 }

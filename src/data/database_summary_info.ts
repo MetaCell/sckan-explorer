@@ -16,4 +16,10 @@ export const sckanInfoText = {
     ],
     note: "So, a connectivity statement of the form 'A to B via Nerve C' denotes the connection of a neuron population originating at Region A and projecting to Region(s) B via Nerve(s) C. Please note that the neuron populations modeled in SCKAN are theoretical in that they do not correspond to identified cell types. In cases where a population projects to multiple targets, we do not differentiate whether this is via axon collaterals or distinct cell types.",
   },
+  versions: {
+    title: 'Versions',
+    bulletPoints: ['Composer Version: 3.1.0', 'SCKAN VersionInfo: 2024-04-27'],
+    // SCKAN version is retrieved manually from the ttl files inside the composer pod, since the ingestion has been run there
+    // the file to look for is phenotype-indicators.ttl
+  },
 };

@@ -10,6 +10,7 @@ import {
   KnowledgeStatement,
   Organ,
   BaseEntity,
+  SortedResults,
 } from '../models/explorer.ts';
 import {
   OTHER_PHENOTYPE_LABEL,
@@ -333,10 +334,16 @@ export const sortHeatmapData = (
   originalDestinationsArray: string[],
   reorderedDestinationsArray: string[],
   data: KsPerPhenotype[][],
-): KsPerPhenotype[][] => {
+): SortedResults => {
   const newData: KsPerPhenotype[][] = [];
-  data.forEach(() => {
+  let counter = 0;
+  data.forEach((item) => {
     newData.push(Array(originalDestinationsArray.length).fill({}));
+    item.forEach((phenotype) => {
+      Object.keys(phenotype).forEach((key) => {
+        counter += phenotype[key].ksIds.length;
+      });
+    });
   });
   originalDestinationsArray.forEach((originalPosition, index) => {
     const newPosition = reorderedDestinationsArray.indexOf(originalPosition);
@@ -344,5 +351,8 @@ export const sortHeatmapData = (
       newData[innerIndex][newPosition] = data[innerIndex][index];
     });
   });
-  return newData;
+  return {
+    data: newData,
+    total: counter,
+  };
 };
