@@ -55,6 +55,22 @@ const InfoTab = () => (
         {sckanInfoText.connectivityStats.note}
       </Typography>
     </Stack>
+    <Stack spacing=".75rem">
+      <Typography variant="h2">{sckanInfoText.versions.title}</Typography>
+      <ul
+        style={{
+          paddingLeft: '1.5rem',
+          fontSize: '.875rem',
+          fontWeight: 400,
+          lineHeight: '1.25rem',
+          color: gray600,
+        }}
+      >
+        {sckanInfoText.versions.bulletPoints.map((bulletPoint, index) => (
+          <li key={index}>{bulletPoint}</li>
+        ))}
+      </ul>
+    </Stack>
   </Stack>
 );
 
