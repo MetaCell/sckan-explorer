@@ -99,13 +99,14 @@ export function calculateConnections(
     } else if (node.connectionDetails) {
       Object.keys(node.connectionDetails).forEach((targetOrganIRI) => {
         const index = organIndexMap[targetOrganIRI];
-        node.connectionDetails = node.connectionDetails || {}; // Keeps linter happy
         if (index !== undefined && targetOrganIRI in organs) {
-          const knowledgeStatementIds = node.connectionDetails[targetOrganIRI];
-          knowledgeStatementIds.forEach((ksId) => {
-            if (ksId in knowledgeStatements) {
-              result[index].push(ksId);
-            }
+          const subOrgans = node.connectionDetails![targetOrganIRI];
+          Object.keys(subOrgans).forEach((subOrgan) => {
+            subOrgans[subOrgan].forEach((ksId) => {
+              if (ksId in knowledgeStatements) {
+                result[index].push(ksId);
+              }
+            });
           });
         }
       });

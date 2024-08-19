@@ -286,17 +286,11 @@ export interface HierarchicalNode {
    */
   children: Set<string>;
   /**
-   * The connection details of the node targetOrgan -> KnowledgeStatementsId
-   * @type {Record<string, string[]>}
+   * The connection details of the node TargetOrgan -> Destination -> KnowledgeStatementsId
+   * @type {Record<string, Record<string, string[]>>}
    * @memberof HierarchicalNode
    */
-  connectionDetails?: Record<string, string[]>;
-  /**
-   * The sub end organs of the node
-   * @type {Record<string, string[]>}
-   * @memberof HierarchicalNode
-   */
-  destinationDetails?: Record<string, string[]>;
+  connectionDetails?: Record<string, Record<string, string[]>>;
 }
 
 export interface SortedResults {

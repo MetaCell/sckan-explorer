@@ -154,12 +154,6 @@ export function getSecondaryHeatmapData(
   return newData;
 }
 
-// NOTE: the following function is similar to /services/heatmapService.ts - calculateConnections
-// output type - Map<string, PhenotypeKsIdMap[]>
-// ***** Recursive function - computeNodeConnections *****
-// logic to note below - node.destinationDetails
-// If node.destinationDetails is present, store the phenotypes and knowledge statement ids for each end organ in the result array
-// If node.children is present, recursively call the function on each child node and merge the results
 export function calculateSecondaryConnections(
   hierarchicalNodes: Record<string, HierarchicalNode>,
   endorgans: Record<string, Organ>,
@@ -208,24 +202,27 @@ export function calculateSecondaryConnections(
           });
         });
       });
-    } else if (node.destinationDetails) {
+    } else if (node.connectionDetails) {
       // Add the sub end organs to the connection details
-      Object.keys(node.destinationDetails).forEach((endOrganIRI) => {
+      Object.keys(node.connectionDetails).forEach((endOrganIRI) => {
+        const subOrgans = node.connectionDetails![endOrganIRI];
         const index = organIndexMap[endOrganIRI];
-        node.destinationDetails = node.destinationDetails || {}; // Keeps linter happy
-        if (index !== undefined) {
-          const knowledgeStatementIds = Array.from(
-            node.destinationDetails[endOrganIRI],
-          ).filter((ksId) => ksId in knowledgeStatements);
 
-          knowledgeStatementIds.forEach((ksId) => {
-            const phenotype = knowledgeStatements[ksId].phenotype
-              ? knowledgeStatements[ksId].phenotype
-              : OTHER_PHENOTYPE_LABEL;
-            if (!result[index][phenotype]) {
-              result[index][phenotype] = { ksIds: [] };
-            }
-            result[index][phenotype].ksIds.push(ksId);
+        if (index !== undefined) {
+          Object.keys(subOrgans).forEach((subOrgan) => {
+            const knowledgeStatementIds = subOrgans[subOrgan].filter(
+              (ksId) => ksId in knowledgeStatements,
+            );
+
+            knowledgeStatementIds.forEach((ksId) => {
+              const phenotype = knowledgeStatements[ksId].phenotype
+                ? knowledgeStatements[ksId].phenotype
+                : OTHER_PHENOTYPE_LABEL;
+              if (!result[index][phenotype]) {
+                result[index][phenotype] = { ksIds: [] };
+              }
+              result[index][phenotype].ksIds.push(ksId);
+            });
           });
         }
       });
