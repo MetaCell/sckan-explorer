@@ -109,14 +109,12 @@ export const getHierarchicalNodes = (
           uri: '',
           children: new Set<string>(),
           connectionDetails: {},
-          destinationDetails: {},
         };
         hierarchicalNodes[leafNodeId] = leafNode;
       }
 
       // Update or initialize connection details
       leafNode.connectionDetails = leafNode.connectionDetails || {};
-      leafNode.destinationDetails = leafNode.destinationDetails || {};
 
       const neuronId = entry.Neuron_ID?.value;
       let targetOrganIRI = entry.Target_Organ_IRI?.value;
@@ -145,15 +143,16 @@ export const getHierarchicalNodes = (
 
           // Ensure connectionDetails for this targetOrganIRI is initialized
           if (!leafNode.connectionDetails[targetOrganIRI]) {
-            leafNode.connectionDetails[targetOrganIRI] = []; // Initialize as an empty set
+            leafNode.connectionDetails[targetOrganIRI] = {}; // Initialize as an empty record
           }
-          if (!leafNode.destinationDetails[endOrganIRI]) {
-            leafNode.destinationDetails[endOrganIRI] = []; // Initialize as an empty array
+          if (!leafNode.connectionDetails[targetOrganIRI][endOrganIRI]) {
+            leafNode.connectionDetails[targetOrganIRI][endOrganIRI] = []; // Initialize as an empty array
           }
 
-          // Add the KnowledgeStatement to the array for this target organ
-          leafNode.connectionDetails[targetOrganIRI].push(neuronId);
-          leafNode.destinationDetails[endOrganIRI].push(neuronId);
+          // Add the KnowledgeStatement to the array for this target organ and sub-organ
+          leafNode.connectionDetails[targetOrganIRI][endOrganIRI].push(
+            neuronId,
+          );
         } else {
           if (!neuronId) {
             console.error(`Error: Neuron_ID not found for entry`);
@@ -182,14 +181,12 @@ export const getHierarchicalNodes = (
         uri: '',
         children: new Set<string>(),
         connectionDetails: {},
-        destinationDetails: {},
       };
       hierarchicalNodes[leafNodeId] = leafNode;
     }
 
     // Update or initialize connection details
     leafNode.connectionDetails = leafNode.connectionDetails || {};
-    leafNode.destinationDetails = leafNode.destinationDetails || {};
 
     if (neuronId) {
       if (!targetOrganIRI) {
@@ -209,15 +206,14 @@ export const getHierarchicalNodes = (
 
       // Ensure connectionDetails for this targetOrganIRI is initialized
       if (!leafNode.connectionDetails[targetOrganIRI]) {
-        leafNode.connectionDetails[targetOrganIRI] = []; // Initialize as an empty set
+        leafNode.connectionDetails[targetOrganIRI] = {}; // Initialize as an empty record
       }
-      if (!leafNode.destinationDetails[endOrganIRI]) {
-        leafNode.destinationDetails[endOrganIRI] = []; // Initialize as an empty array
+      if (!leafNode.connectionDetails[targetOrganIRI][endOrganIRI]) {
+        leafNode.connectionDetails[targetOrganIRI][endOrganIRI] = []; // Initialize as an empty array
       }
 
-      // Add the KnowledgeStatement to the array for this target organ
-      leafNode.connectionDetails[targetOrganIRI].push(neuronId);
-      leafNode.destinationDetails[endOrganIRI].push(neuronId);
+      // Add the KnowledgeStatement to the array for this target organ and sub-organ
+      leafNode.connectionDetails[targetOrganIRI][endOrganIRI].push(neuronId);
     } else {
       if (!neuronId) {
         console.error(`Error: Neuron_ID not found for entry`);

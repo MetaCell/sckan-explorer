@@ -91,8 +91,10 @@ const App = () => {
       // Loop through each node's connectionDetails and add all ids to the neuronIDsSet
       Object.values(hierarchicalNodes).forEach((node) => {
         if (node.connectionDetails) {
-          Object.values(node.connectionDetails).forEach((ksIds) => {
-            ksIds.forEach((id) => neuronIDsSet.add(id));
+          Object.values(node.connectionDetails).forEach((subOrgans) => {
+            Object.values(subOrgans).forEach((ksIds) => {
+              ksIds.forEach((id) => neuronIDsSet.add(id));
+            });
           });
         }
       });
