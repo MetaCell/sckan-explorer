@@ -11,7 +11,7 @@ import {
   getHeatmapData,
   getKnowledgeStatementMap,
   filterConnectionsMap,
-  getEmptyColumns,
+  getNonEmptyColumns,
   filterYAxis,
 } from '../services/heatmapService.ts';
 import FiltersDropdowns from './FiltersDropdowns.tsx';
@@ -87,7 +87,7 @@ function ConnectivityGrid() {
     if (connectionsMap.size > 0 && yAxis.length > 0) {
       // Apply filtering logic
       const filteredYAxis = filterYAxis<Array<string>>(yAxis, connectionsMap);
-      const columnsWithData = getEmptyColumns(filteredYAxis, connectionsMap);
+      const columnsWithData = getNonEmptyColumns(filteredYAxis, connectionsMap);
       const filteredConnectionsMap = filterConnectionsMap(
         filteredYAxis,
         connectionsMap,

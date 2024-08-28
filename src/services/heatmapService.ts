@@ -379,7 +379,7 @@ export const filterYAxis = <T extends object>(
 };
 
 // Determine columns with data
-export const getEmptyColumns = <T extends object>(
+export const getNonEmptyColumns = <T extends object>(
   filteredYAxis: HierarchicalItem[],
   connectionsMap: ConnectionsMap<T>,
 ): Set<number> => {

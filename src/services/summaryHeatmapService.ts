@@ -156,7 +156,7 @@ export function getSecondaryHeatmapData(
 
 export function calculateSecondaryConnections(
   hierarchicalNodes: Record<string, HierarchicalNode>,
-  endorgans: Record<string, Organ>,
+  destinationsRecord: Record<string, Organ>,
   allKnowledgeStatements: Record<string, KnowledgeStatement>,
   summaryFilters: SummaryFilters,
   hierarchyNode: HierarchicalNode,
@@ -168,13 +168,12 @@ export function calculateSecondaryConnections(
     summaryFilters,
   );
 
-  const organIndexMap = Object.values(endorgans).reduce<Record<string, number>>(
-    (map, organ, index) => {
-      map[organ.id] = index;
-      return map;
-    },
-    {},
-  );
+  const organIndexMap = Object.values(destinationsRecord).reduce<
+    Record<string, number>
+  >((map, organ, index) => {
+    map[organ.id] = index;
+    return map;
+  }, {});
 
   // Memoization map to store computed results for nodes
   const memo = new Map<string, KsPerPhenotype[]>();
@@ -186,7 +185,9 @@ export function calculateSecondaryConnections(
     }
 
     const node = hierarchicalNodes[nodeId];
-    const result: KsPerPhenotype[] = Object.values(endorgans).map(() => ({}));
+    const result: KsPerPhenotype[] = Object.values(destinationsRecord).map(
+      () => ({}),
+    );
 
     if (node.children && node.children.size > 0) {
       node.children.forEach((childId) => {
@@ -206,25 +207,24 @@ export function calculateSecondaryConnections(
       // Add the sub end organs to the connection details
       Object.keys(node.connectionDetails).forEach((endOrganIRI) => {
         const subOrgans = node.connectionDetails![endOrganIRI];
-        const index = organIndexMap[endOrganIRI];
+        if (subOrgans === undefined) return;
 
-        if (index !== undefined) {
-          Object.keys(subOrgans).forEach((subOrgan) => {
-            const knowledgeStatementIds = subOrgans[subOrgan].filter(
-              (ksId) => ksId in knowledgeStatements,
-            );
+        Object.keys(subOrgans).forEach((subOrgan) => {
+          const index = organIndexMap[subOrgan];
+          if (index === undefined) return;
 
-            knowledgeStatementIds.forEach((ksId) => {
-              const phenotype = knowledgeStatements[ksId].phenotype
-                ? knowledgeStatements[ksId].phenotype
-                : OTHER_PHENOTYPE_LABEL;
-              if (!result[index][phenotype]) {
-                result[index][phenotype] = { ksIds: [] };
-              }
-              result[index][phenotype].ksIds.push(ksId);
-            });
+          const knowledgeStatementIds = subOrgans[subOrgan].filter(
+            (ksId) => ksId in knowledgeStatements,
+          );
+
+          knowledgeStatementIds.forEach((ksId) => {
+            const phenotype = knowledgeStatements[ksId].phenotype || OTHER_PHENOTYPE_LABEL;
+            if (!result[index][phenotype]) {
+              result[index][phenotype] = { ksIds: [] };
+            }
+            result[index][phenotype].ksIds.push(ksId);
           });
-        }
+        });
       });
     }
 

@@ -26,7 +26,7 @@ import {
   getYAxis,
   getKnowledgeStatementMap,
   filterYAxis,
-  getEmptyColumns,
+  getNonEmptyColumns,
   filterConnectionsMap,
 } from '../services/heatmapService.ts';
 import SummaryHeader from './connections/SummaryHeader';
@@ -200,7 +200,7 @@ function Connections() {
     const filteredYAxis = filterYAxis(yAxis, connectionsMap);
 
     // Determine columns with data
-    const columnsWithData = getEmptyColumns(filteredYAxis, connectionsMap);
+    const columnsWithData = getNonEmptyColumns(filteredYAxis, connectionsMap);
 
     // Filter connections map
     const filteredConnectionsMap = filterConnectionsMap(
