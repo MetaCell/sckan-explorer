@@ -94,9 +94,7 @@ export function mapApiResponseToKnowledgeStatements(
         type: via.type as TypeB60Enum,
       };
     }),
-    forwardConnections: ks.forward_connection.map(
-      (fc) => fc.reference_uri || '',
-    ),
+    forwardConnections: ks.forward_connection,
     provenances: ks.provenances?.map((p) => p.uri || ''),
     knowledge_statement: ks.knowledge_statement || '',
     journey: ks.journey || [],

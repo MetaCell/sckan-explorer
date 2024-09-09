@@ -150,3 +150,81 @@ export const generateCsvService = (data: csvData) => {
   const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8,' });
   return blob;
 };
+
+
+export const generateJourneyCsvService = (data: csvData, targetOrgan: string) => {
+  const headers = [
+    'ID',
+    'Knowledge Statement',
+    'Species',
+    'Sex',
+    'Origins (Names)',
+    'Origins (IDs)',
+    'Destinations (Names)',
+    'Destinations (IDs)',
+    'Journey',
+    'Phenotype',
+    'Laterality',
+    'Forward Connections',
+    'Synapses on',
+    'Target Organ',
+    'Provenances'
+  ];
+
+  const rows = [headers];
+
+  Object.values(data).forEach((entry) => {
+    entry.journey.forEach((journey) => {
+      const row = [
+        entry.id,
+        entry.knowledge_statement,
+        entry.species.map(s => s.name).join('; '),
+        entry.sex.name,
+        [...new Set(entry.origins.map(o => o.name))].join('; '),
+        [...new Set(entry.origins.map(o => o.id))].join('; '),
+        [...new Set(entry.destinations.flatMap(d => d.anatomical_entities.map(ae => ae.name)))].join('; '),
+        [...new Set(entry.destinations.flatMap(d => d.anatomical_entities.map(ae => ae.id)))].join('; '),
+        journey,
+        entry.phenotype,
+        entry.laterality,
+        entry.forwardConnections.map(fc => fc.reference_uri).join('; '),
+        _getCommonSynapsesOn(entry),
+        targetOrgan,
+        entry.provenances.join('; ')
+      ];
+      rows.push(row);
+    });
+  });
+
+  let csvData = '';
+  rows.forEach((row) => {
+    const formattedRow = row
+      .map(String)
+      .map((v) => v.replaceAll('"', '""'))
+      .map((v) => `"${v}"`)
+      .join(',');
+    csvData += formattedRow + '\n';
+  });
+
+  const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8,' });
+  return blob;
+};
+
+
+const _getCommonSynapsesOn = (entry: KnowledgeStatement) => {
+  const destinationUris = new Set(entry.destinations.flatMap(d => d.anatomical_entities.map(ae => ae.ontology_uri)));
+  const forwardConnectionUris = new Set(entry.forwardConnections.flatMap(fc => 
+    fc.origins.map(origin => 
+      origin.simple_entity?.ontology_uri || origin.region_layer?.ontology_uri
+    )
+  ).filter(uri => uri !== undefined));
+
+  const commonUris = [...destinationUris].filter(uri => forwardConnectionUris.has(uri));
+  
+  const commonNames = entry.destinations
+    .flatMap(d => d.anatomical_entities)
+    .filter(ae => commonUris.includes(ae.ontology_uri))
+    .map(ae => ae.name);
+  
+  return [...new Set(commonNames)].join('; ');
+};

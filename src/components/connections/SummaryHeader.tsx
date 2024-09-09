@@ -11,7 +11,7 @@ import { ArrowRight } from '../icons';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import { SummaryType, KsRecord } from '../common/Types';
 import { useDataContext } from '../../context/DataContext.ts';
-import { generateCsvService } from '../../services/csvService.ts';
+import { generateJourneyCsvService } from '../../services/csvService.ts';
 
 const { gray100, gray600A, gray500, primaryPurple600 } = vars;
 
@@ -50,7 +50,7 @@ const SummaryHeader = ({
 
   const generateCSV = () => {
     // @ts-expect-error - TS doesn't know that selectedConnectionSummary exists
-    const blob = generateCsvService(selectedConnectionSummary['connections']);
+    const blob = generateJourneyCsvService(selectedConnectionSummary['connections'], selectedConnectionSummary?.endOrgan?.name);
     const objUrl = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', objUrl);
