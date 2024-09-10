@@ -152,19 +152,37 @@ export const generateCsvService = (data: csvData) => {
   return blob;
 };
 
-
-export const generateJourneyCsvService = (data: csvData, targetOrgan: string, filters: Filters) => {
+export const generateJourneyCsvService = (
+  data: csvData,
+  targetOrgan: string,
+  filters: Filters,
+) => {
   const metadata = [
     ['SCKAN Version', SCKAN_VERSION],
     ['Composer Version', COMPOSER_VERSION],
     ['Date and Time', new Date().toISOString()],
-    ['Search parameter - origin', filters.Origin.map(o => o.label).join(', ')],
-    ['Search parameter - end organ', filters.EndOrgan.map(o => o.label).join(', ')],
-    ['Search parameter - species', filters.Species.map(s => s.label).join(', ')],
-    ['Search parameter - phenotype', filters.Phenotype.map(p => p.label).join(', ')],
-    ['Search parameter - connectivity models', filters.apiNATOMY.map(a => a.label).join(', ')],
-    ['Search parameter - via', filters.Via.map(v => v.label).join(', ')],
-    ['', ''],  // Empty row for separation
+    [
+      'Search parameter - origin',
+      filters.Origin.map((o) => o.label).join(', '),
+    ],
+    [
+      'Search parameter - end organ',
+      filters.EndOrgan.map((o) => o.label).join(', '),
+    ],
+    [
+      'Search parameter - species',
+      filters.Species.map((s) => s.label).join(', '),
+    ],
+    [
+      'Search parameter - phenotype',
+      filters.Phenotype.map((p) => p.label).join(', '),
+    ],
+    [
+      'Search parameter - connectivity models',
+      filters.apiNATOMY.map((a) => a.label).join(', '),
+    ],
+    ['Search parameter - via', filters.Via.map((v) => v.label).join(', ')],
+    ['', ''], // Empty row for separation
   ];
 
   const headers = [
@@ -182,7 +200,7 @@ export const generateJourneyCsvService = (data: csvData, targetOrgan: string, fi
     'Forward Connections',
     'Synapses on',
     'Target Organ',
-    'Provenances'
+    'Provenances',
   ];
 
   const rows = [...metadata, headers];
@@ -192,19 +210,31 @@ export const generateJourneyCsvService = (data: csvData, targetOrgan: string, fi
       const row = [
         entry.id,
         entry.knowledge_statement,
-        entry.species.map(s => s.name).join('; '),
+        entry.species.map((s) => s.name).join('; '),
         entry.sex.name,
-        [...new Set(entry.origins.map(o => o.name))].join('; '),
-        [...new Set(entry.origins.map(o => o.id))].join('; '),
-        [...new Set(entry.destinations.flatMap(d => d.anatomical_entities.map(ae => ae.name)))].join('; '),
-        [...new Set(entry.destinations.flatMap(d => d.anatomical_entities.map(ae => ae.id)))].join('; '),
+        [...new Set(entry.origins.map((o) => o.name))].join('; '),
+        [...new Set(entry.origins.map((o) => o.id))].join('; '),
+        [
+          ...new Set(
+            entry.destinations.flatMap((d) =>
+              d.anatomical_entities.map((ae) => ae.name),
+            ),
+          ),
+        ].join('; '),
+        [
+          ...new Set(
+            entry.destinations.flatMap((d) =>
+              d.anatomical_entities.map((ae) => ae.id),
+            ),
+          ),
+        ].join('; '),
         journey,
         entry.phenotype,
         entry.laterality,
-        entry.forwardConnections.map(fc => fc.reference_uri).join('; '),
+        entry.forwardConnections.map((fc) => fc.reference_uri).join('; '),
         _getCommonSynapsesOn(entry),
         targetOrgan,
-        entry.provenances.join('; ')
+        entry.provenances.join('; '),
       ];
       rows.push(row);
     });
@@ -224,21 +254,32 @@ export const generateJourneyCsvService = (data: csvData, targetOrgan: string, fi
   return blob;
 };
 
-
 const _getCommonSynapsesOn = (entry: KnowledgeStatement) => {
-  const destinationUris = new Set(entry.destinations.flatMap(d => d.anatomical_entities.map(ae => ae.ontology_uri)));
-  const forwardConnectionUris = new Set(entry.forwardConnections.flatMap(fc => 
-    fc.origins.map(origin => 
-      origin.simple_entity?.ontology_uri || origin.region_layer?.ontology_uri
-    )
-  ).filter(uri => uri !== undefined));
+  const destinationUris = new Set(
+    entry.destinations.flatMap((d) =>
+      d.anatomical_entities.map((ae) => ae.ontology_uri),
+    ),
+  );
+  const forwardConnectionUris = new Set(
+    entry.forwardConnections
+      .flatMap((fc) =>
+        fc.origins.map(
+          (origin) =>
+            origin.simple_entity?.ontology_uri ||
+            origin.region_layer?.ontology_uri,
+        ),
+      )
+      .filter((uri) => uri !== undefined),
+  );
 
-  const commonUris = [...destinationUris].filter(uri => forwardConnectionUris.has(uri));
-  
+  const commonUris = [...destinationUris].filter((uri) =>
+    forwardConnectionUris.has(uri),
+  );
+
   const commonNames = entry.destinations
-    .flatMap(d => d.anatomical_entities)
-    .filter(ae => commonUris.includes(ae.ontology_uri))
-    .map(ae => ae.name);
-  
+    .flatMap((d) => d.anatomical_entities)
+    .filter((ae) => commonUris.includes(ae.ontology_uri))
+    .map((ae) => ae.name);
+
   return [...new Set(commonNames)].join('; ');
 };
