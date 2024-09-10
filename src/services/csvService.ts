@@ -1,9 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { KnowledgeStatement } from '../models/explorer';
+import { Filters } from '../context/DataContext';
+import { SCKAN_VERSION, COMPOSER_VERSION } from '../settings';
 
 type csvData = {
-  // declar a type where we have knowledge statements objects linked to a key, similar to a Map
   [key: string]: KnowledgeStatement;
 };
 
@@ -152,7 +153,20 @@ export const generateCsvService = (data: csvData) => {
 };
 
 
-export const generateJourneyCsvService = (data: csvData, targetOrgan: string) => {
+export const generateJourneyCsvService = (data: csvData, targetOrgan: string, filters: Filters) => {
+  const metadata = [
+    ['SCKAN Version', SCKAN_VERSION],
+    ['Composer Version', COMPOSER_VERSION],
+    ['Date and Time', new Date().toISOString()],
+    ['Search parameter - origin', filters.Origin.map(o => o.label).join(', ')],
+    ['Search parameter - end organ', filters.EndOrgan.map(o => o.label).join(', ')],
+    ['Search parameter - species', filters.Species.map(s => s.label).join(', ')],
+    ['Search parameter - phenotype', filters.Phenotype.map(p => p.label).join(', ')],
+    ['Search parameter - connectivity models', filters.apiNATOMY.map(a => a.label).join(', ')],
+    ['Search parameter - via', filters.Via.map(v => v.label).join(', ')],
+    ['', ''],  // Empty row for separation
+  ];
+
   const headers = [
     'ID',
     'Knowledge Statement',
@@ -171,7 +185,7 @@ export const generateJourneyCsvService = (data: csvData, targetOrgan: string) =>
     'Provenances'
   ];
 
-  const rows = [headers];
+  const rows = [...metadata, headers];
 
   Object.values(data).forEach((entry) => {
     entry.journey.forEach((journey) => {

@@ -34,7 +34,7 @@ const SummaryHeader = ({
 }: SummaryHeaderProps) => {
   const totalUniqueKS = Object.keys(knowledgeStatementsMap).length;
 
-  const { selectedConnectionSummary } = useDataContext();
+  const { selectedConnectionSummary, filters } = useDataContext();
 
   const handleUpClick = () => {
     if (connectionPage < totalUniqueKS) {
@@ -50,7 +50,8 @@ const SummaryHeader = ({
 
   const generateCSV = () => {
     // @ts-expect-error - TS doesn't know that selectedConnectionSummary exists
-    const blob = generateJourneyCsvService(selectedConnectionSummary['connections'], selectedConnectionSummary?.endOrgan?.name);
+    const blob = generateJourneyCsvService(selectedConnectionSummary['connections'], 
+      selectedConnectionSummary?.endOrgan?.name, filters);
     const objUrl = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', objUrl);
