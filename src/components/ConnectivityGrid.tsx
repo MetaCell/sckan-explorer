@@ -138,6 +138,7 @@ function ConnectivityGrid() {
       Phenotype: [],
       apiNATOMY: [],
       Via: [],
+      Entities: [],
     });
     setSelectedCell(null);
     setSelectedConnectionSummary(null);

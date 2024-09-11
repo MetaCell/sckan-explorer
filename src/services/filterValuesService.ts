@@ -9,6 +9,10 @@ import { Option } from '../components/common/Types.ts';
 import { NerveResponse } from '../models/json.ts';
 import { SYNONYMS_TITLE } from '../settings.ts';
 
+const sortEntities = (entities: AnatomicalEntity[]): AnatomicalEntity[] => {
+  return entities.sort((a, b) => a.name.localeCompare(b.name));
+};
+
 export const mapEntityToOption = (entities: BaseEntity[]): Option[] =>
   entities.map((entity) => {
     const option: Option = {
@@ -49,9 +53,10 @@ export const getUniqueOrigins = (
     origins = origins.concat(ks.origins);
   });
 
+  const sortedOrigins: AnatomicalEntity[] = sortEntities(origins);
   const nonLeafNames = getNonLeafNames(hierarchicalNodes);
 
-  return getUniqueEntities([...origins, ...nonLeafNames]);
+  return getUniqueEntities([...sortedOrigins, ...nonLeafNames]);
 };
 
 export const getUniqueVias = (
@@ -66,9 +71,31 @@ export const getUniqueVias = (
     vias = vias.concat(anatomical_entities);
   });
 
+  const sortedVias: AnatomicalEntity[] = sortEntities(vias);
   const nonLeafNames = getNonLeafNames(hierarchicalNodes);
 
-  return getUniqueEntities([...vias, ...nonLeafNames]);
+  return getUniqueEntities([...sortedVias, ...nonLeafNames]);
+};
+
+export const getUniqueAllEntities = (
+  knowledgeStatements: Record<string, KnowledgeStatement>,
+  hierarchicalNodes: Record<string, HierarchicalNode>,
+): Option[] => {
+  let allEntities: AnatomicalEntity[] = [];
+  Object.values(knowledgeStatements).forEach((ks) => {
+    allEntities = allEntities.concat(ks.origins);
+    allEntities = allEntities.concat(
+      ks.vias.flatMap((via) => via.anatomical_entities),
+    );
+    allEntities = allEntities.concat(
+      ks.destinations.flatMap((via) => via.anatomical_entities),
+    );
+  });
+
+  const sortedEntities: AnatomicalEntity[] = sortEntities(allEntities);
+  const nonLeafNames = getNonLeafNames(hierarchicalNodes);
+
+  return getUniqueEntities([...sortedEntities, ...nonLeafNames]);
 };
 
 export const getUniqueSpecies = (
