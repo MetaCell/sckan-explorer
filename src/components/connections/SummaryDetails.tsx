@@ -81,7 +81,7 @@ const SummaryDetails = ({
       icon: undefined,
     },
     {
-      label: 'Provenances',
+      label: 'References',
       value: connectionDetails?.provenances || [],
       icon: undefined,
     },
@@ -134,7 +134,7 @@ const SummaryDetails = ({
         </Stack>
         <Stack mt="1.75rem" spacing=".5rem">
           <Typography variant="subtitle2" color={gray700} lineHeight={1.25}>
-            Knowledge statement
+            Connection summary
           </Typography>
           <Typography variant="body1" color={gray500}>
             {connectionDetails?.knowledge_statement || '-'}
