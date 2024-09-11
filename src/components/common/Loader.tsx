@@ -9,8 +9,10 @@ const Loader = () => {
       alignItems="center"
       height="100vh"
       width="100vw"
+      flexDirection={'column'}
     >
-      <CircularProgress />
+      <CircularProgress id="circular_loader" size={60} />
+      <div id="loader_text">Loading data...</div>
     </Box>
   );
 };
