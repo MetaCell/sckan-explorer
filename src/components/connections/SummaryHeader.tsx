@@ -11,9 +11,13 @@ import { ArrowRight } from '../icons';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import { SummaryType, KsRecord } from '../common/Types';
 import { useDataContext } from '../../context/DataContext.ts';
-import { generateCsvService } from '../../services/csvService.ts';
+import { generatePDFService } from '../../services/pdfService.ts';
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+import { TDocumentDefinitions } from 'pdfmake/interfaces';
 
 const { gray100, gray600A, gray500, primaryPurple600 } = vars;
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 type SummaryHeaderProps = {
   showDetails: SummaryType;
@@ -22,6 +26,7 @@ type SummaryHeaderProps = {
   connectionPage: number;
   setConnectionPage: (connectionPage: number) => void;
   totalConnectionCount: number;
+  connectionsCounter: number;
 };
 
 const SummaryHeader = ({
@@ -31,6 +36,7 @@ const SummaryHeader = ({
   connectionPage,
   setConnectionPage,
   totalConnectionCount,
+  connectionsCounter
 }: SummaryHeaderProps) => {
   const totalUniqueKS = Object.keys(knowledgeStatementsMap).length;
 
@@ -48,15 +54,32 @@ const SummaryHeader = ({
     }
   };
 
-  const generateCSV = () => {
-    // @ts-expect-error - TS doesn't know that selectedConnectionSummary exists
-    const blob = generateCsvService(selectedConnectionSummary['connections']);
-    const objUrl = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', objUrl);
-    link.setAttribute('download', 'connections.csv');
-    document.body.appendChild(link);
-    link.click();
+  pdfMake.fonts = {
+    Roboto: {
+      normal: 'Roboto-Regular.ttf',
+      bold: 'Roboto-Medium.ttf',
+      italics: 'Roboto-Italic.ttf',
+      bolditalics: 'Roboto-MediumItalic.ttf'
+    }
+  };
+
+
+  const generatePDF = () => {
+    const pdfContent = generatePDFService(
+      selectedConnectionSummary?.hierarchicalNode.name,
+      selectedConnectionSummary?.connections || {} as KsRecord,
+      connectionsCounter,
+      selectedConnectionSummary?.endOrgan?.name,
+      selectedConnectionSummary?.filteredKnowledgeStatements || {} as KsRecord
+    );
+    let docDefinition: TDocumentDefinitions = {
+      pageSize: 'A4',
+      content: pdfContent,
+      defaultStyle: {
+        font: 'Roboto'
+      }
+    };
+    pdfMake.createPdf(docDefinition).download();
   };
 
   if (showDetails === SummaryType.Instruction) {
@@ -184,8 +207,8 @@ const SummaryHeader = ({
                 }}
               />
 
-              <Button variant="contained" onClick={generateCSV}>
-                Download results (.csv)
+                <Button variant="contained" onClick={generatePDF}>
+                  Download results (.pdf)
               </Button>
             </Box>
           </>
