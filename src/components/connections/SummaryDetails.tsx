@@ -53,7 +53,6 @@ const SummaryDetails = ({
   knowledgeStatementsMap,
   connectionPage,
 }: SummaryDetailsProps) => {
-
   const { selectedConnectionSummary, filters } = useDataContext();
 
   const connectionDetails = getConnectionDetails(
@@ -103,7 +102,7 @@ const SummaryDetails = ({
 
   const generateCSV = () => {
     const blob = generateJourneyCsvService(
-      {[connectionDetails.id]: knowledgeStatementsMap[connectionDetails.id]},
+      { [connectionDetails.id]: knowledgeStatementsMap[connectionDetails.id] },
       selectedConnectionSummary?.endOrgan?.name ?? '',
       filters,
     );
