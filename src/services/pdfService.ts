@@ -85,6 +85,14 @@ export const getPDFContent = (pdfRequirement: pdfRequirementType): PDFMAKEConten
 	];
 	connectionDetails.map((detail) => {
 		for (const [key, value] of Object.entries(detail)) {
+			if (key === 'knowledgeStatement') {
+				connectionDetailsContent.push({
+					text: `${value}`,
+					style: 'paragraph',
+					margin: [0, 10, 0, 0]
+				});
+				continue;
+			}
 			connectionDetailsContent.push({
 				text: [
 					{ text: `${key}`, bold: true },
@@ -140,7 +148,7 @@ export const generatePDFService = (
 		const ks = filteredKnowledgeStatements[ksid];
 		return {
 			'knowledgeStatement': ks.knowledge_statement || '-',
-			'connectionId': ks.id || '-',
+			'Connection Id': ks.id || '-',
 			'species': ks.species.map((specie) => specie.name).join(", ") || '-',
 			'sex': ks.sex.name || '-',
 			'phenotype': ks.phenotype || '-',
