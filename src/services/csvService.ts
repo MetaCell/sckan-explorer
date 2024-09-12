@@ -153,35 +153,35 @@ export const generateCsvService = (data: csvData) => {
 };
 
 export const generateJourneyCsvService = (
-  data: csvData,
+  data: KsRecord,
   targetOrgan: string,
   filters: Filters,
 ) => {
   const metadata = [
-    ['SCKAN Version', SCKAN_VERSION],
-    ['Composer Version', COMPOSER_VERSION],
-    ['Date and Time', new Date().toISOString()],
+    ['# SCKAN Version', SCKAN_VERSION],
+    ['# Composer Version', COMPOSER_VERSION],
+    ['# Date and Time', new Date().toISOString()],
     [
-      'Search parameter - origin',
+      '# Search parameter - origin',
       filters.Origin.map((o) => o.label).join(', '),
     ],
     [
-      'Search parameter - end organ',
+      '# Search parameter - end organ',
       filters.EndOrgan.map((o) => o.label).join(', '),
     ],
     [
-      'Search parameter - species',
+      '# Search parameter - species',
       filters.Species.map((s) => s.label).join(', '),
     ],
     [
-      'Search parameter - phenotype',
+      '# Search parameter - phenotype',
       filters.Phenotype.map((p) => p.label).join(', '),
     ],
     [
-      'Search parameter - connectivity models',
+      '# Search parameter - connectivity models',
       filters.apiNATOMY.map((a) => a.label).join(', '),
     ],
-    ['Search parameter - via', filters.Via.map((v) => v.label).join(', ')],
+    ['# Search parameter - via', filters.Via.map((v) => v.label).join(', ')],
     ['', ''], // Empty row for separation
   ];
 

@@ -49,10 +49,9 @@ const SummaryHeader = ({
   };
 
   const generateCSV = () => {
-    // @ts-expect-error - TS doesn't know that selectedConnectionSummary exists
     const blob = generateJourneyCsvService(
-      selectedConnectionSummary['connections'],
-      selectedConnectionSummary?.endOrgan?.name,
+      selectedConnectionSummary?.['connections'],
+      selectedConnectionSummary?.endOrgan?.name ?? '',
       filters,
     );
     const objUrl = URL.createObjectURL(blob);
