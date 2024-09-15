@@ -231,6 +231,13 @@ export function filterKnowledgeStatements(
         : getLeafDescendants(option.id, hierarchicalNodes),
     ) || [];
 
+  const entityIds =
+    filters.Entities?.flatMap((option) =>
+      isLeaf(option.id, hierarchicalNodes)
+        ? option.id
+        : getLeafDescendants(option.id, hierarchicalNodes),
+    ) || [];
+
   return Object.entries(knowledgeStatements).reduce(
     (filtered, [id, ks]) => {
       const phenotypeMatch =
@@ -248,13 +255,23 @@ export function filterKnowledgeStatements(
       const originMatch =
         !originIds.length ||
         ks.origins?.some((origin) => originIds.includes(origin.id));
+      const entityMatch =
+        !entityIds.length ||
+        ks.destinations
+          ?.flatMap((destination) => destination.anatomical_entities)
+          .some((entity) => entityIds.includes(entity.id)) ||
+        ks.vias
+          ?.flatMap((via) => via.anatomical_entities)
+          .some((entity) => entityIds.includes(entity.id)) ||
+        ks.origins?.some((origin) => entityIds.includes(origin.id));
 
       if (
         phenotypeMatch &&
         apiNATOMYMatch &&
         speciesMatch &&
         viaMatch &&
-        originMatch
+        originMatch &&
+        entityMatch
       ) {
         filtered[id] = ks;
       }

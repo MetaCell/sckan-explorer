@@ -14,6 +14,7 @@ export interface Filters {
   Phenotype: Option[];
   apiNATOMY: Option[];
   Via: Option[];
+  Entities: Option[];
 }
 
 export interface SummaryFilters extends Filters {
@@ -49,6 +50,7 @@ export const DataContext = createContext<DataContext>({
     Phenotype: [],
     apiNATOMY: [],
     Via: [],
+    Entities: [],
   },
   majorNerves: new Set<string>(),
   organs: {},
