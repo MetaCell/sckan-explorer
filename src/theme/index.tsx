@@ -9,7 +9,6 @@ const {
   gray800,
   white,
   baseContainerBg,
-  primaryPurple300,
   primaryPurple700,
   gray600,
   gray700,
@@ -26,6 +25,7 @@ const {
   gray300,
   primaryPurple500,
   primaryPurple200,
+  primaryPurple300,
   primaryPurple25,
   primaryPurple100,
   gray950,
@@ -390,6 +390,7 @@ const theme = createTheme({
           padding: '0.5rem 0.75rem',
           borderRadius: '0.25rem',
           gap: '0.25rem',
+          textAlign: 'left',
         },
         contained: {
           boxShadow: 'none',
