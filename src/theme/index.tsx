@@ -25,6 +25,7 @@ const {
   gray300,
   primaryPurple500,
   primaryPurple200,
+  primaryPurple300,
   primaryPurple25,
   primaryPurple100,
   gray950,
@@ -600,7 +601,7 @@ const theme = createTheme({
           },
           '&.Mui-focused': {
             '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: primaryPurple700,
+              borderColor: primaryPurple300,
             },
           },
         },
