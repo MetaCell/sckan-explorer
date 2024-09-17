@@ -77,3 +77,6 @@ export const STRINGS_NUMBERS = [
   'nineteenth',
   'twentieth',
 ];
+
+export const SCKAN_VERSION = '1.0.0';
+export const COMPOSER_VERSION = '1.0.0';
