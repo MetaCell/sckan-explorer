@@ -9,7 +9,6 @@ const {
   gray800,
   white,
   baseContainerBg,
-  primaryPurple300,
   primaryPurple700,
   gray600,
   gray700,
@@ -390,6 +389,7 @@ const theme = createTheme({
           padding: '0.5rem 0.75rem',
           borderRadius: '0.25rem',
           gap: '0.25rem',
+          textAlign: 'left',
         },
         contained: {
           boxShadow: 'none',
@@ -600,7 +600,7 @@ const theme = createTheme({
           },
           '&.Mui-focused': {
             '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: primaryPurple300,
+              borderColor: primaryPurple700,
             },
           },
         },
