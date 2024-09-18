@@ -12,8 +12,8 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import { SummaryType, KsRecord } from '../common/Types';
 import { useDataContext } from '../../context/DataContext.ts';
 import { generatePDFService } from '../../services/pdfService.ts';
-import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
 
 const { gray100, gray600A, gray500, primaryPurple600 } = vars;
@@ -36,11 +36,10 @@ const SummaryHeader = ({
   connectionPage,
   setConnectionPage,
   totalConnectionCount,
-  connectionsCounter
+  connectionsCounter,
 }: SummaryHeaderProps) => {
   const totalUniqueKS = Object.keys(knowledgeStatementsMap).length;
-
-  const { selectedConnectionSummary } = useDataContext();
+  const { selectedConnectionSummary, majorNerves } = useDataContext();
 
   const handleUpClick = () => {
     if (connectionPage < totalUniqueKS) {
@@ -59,25 +58,26 @@ const SummaryHeader = ({
       normal: 'Roboto-Regular.ttf',
       bold: 'Roboto-Medium.ttf',
       italics: 'Roboto-Italic.ttf',
-      bolditalics: 'Roboto-MediumItalic.ttf'
-    }
+      bolditalics: 'Roboto-MediumItalic.ttf',
+    },
   };
-
 
   const generatePDF = () => {
     const pdfContent = generatePDFService(
       selectedConnectionSummary?.hierarchicalNode.name,
-      selectedConnectionSummary?.connections || {} as KsRecord,
+      selectedConnectionSummary?.connections || ({} as KsRecord),
       connectionsCounter,
       selectedConnectionSummary?.endOrgan?.name,
-      selectedConnectionSummary?.filteredKnowledgeStatements || {} as KsRecord
+      selectedConnectionSummary?.filteredKnowledgeStatements ||
+        ({} as KsRecord),
+      majorNerves,
     );
-    let docDefinition: TDocumentDefinitions = {
+    const docDefinition: TDocumentDefinitions = {
       pageSize: 'A4',
       content: pdfContent,
       defaultStyle: {
-        font: 'Roboto'
-      }
+        font: 'Roboto',
+      },
     };
     pdfMake.createPdf(docDefinition).download();
   };
@@ -207,8 +207,8 @@ const SummaryHeader = ({
                 }}
               />
 
-                <Button variant="contained" onClick={generatePDF}>
-                  Download results (.pdf)
+              <Button variant="contained" onClick={generatePDF}>
+                Download results (.pdf)
               </Button>
             </Box>
           </>

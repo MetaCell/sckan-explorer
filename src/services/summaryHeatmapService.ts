@@ -218,7 +218,8 @@ export function calculateSecondaryConnections(
           );
 
           knowledgeStatementIds.forEach((ksId) => {
-            const phenotype = knowledgeStatements[ksId].phenotype || OTHER_PHENOTYPE_LABEL;
+            const phenotype =
+              knowledgeStatements[ksId].phenotype || OTHER_PHENOTYPE_LABEL;
             if (!result[index][phenotype]) {
               result[index][phenotype] = { ksIds: [] };
             }
