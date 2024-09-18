@@ -142,16 +142,18 @@ export const getPDFContent = (
       });
     });
     if (connectionDetail.length !== 0) {
-      return connectionDetail.join(', ');
+      return Array.from(new Set(connectionDetail)).join(', ');
     }
     emptyColumns.push(index);
     return null;
   });
   // remove the columns with the null values - to make the pdf more readable.
-  const filteredViasRow = viasRow.filter((v) => v !== null);
-  const filteredColumns = columns.filter(
-    (_, index) => !emptyColumns.includes(index),
-  );
+  const filteredViasRow =
+    columns.length > 6 ? viasRow.filter((v) => v !== null) : viasRow;
+  const filteredColumns =
+    columns.length > 6
+      ? columns.filter((_, index) => !emptyColumns.includes(index))
+      : columns;
 
   const connectivityMatrixHeader = ['Structure', ...filteredColumns];
   const connectivityMatrixContent: PDFMAKEContent = [
@@ -167,6 +169,8 @@ export const getPDFContent = (
       table: {
         body: [connectivityMatrixHeader, [row, ...filteredViasRow]],
       },
+      fontSize:
+        filteredColumns.length > 13 ? 6 : filteredColumns.length > 6 ? 8 : 10,
     },
   ];
 
