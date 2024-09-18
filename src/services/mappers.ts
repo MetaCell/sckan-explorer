@@ -3,7 +3,7 @@ import {
   TypeB60Enum,
   TypeC11Enum,
 } from '../models/composer.ts';
-import { Sex } from '../models/explorer.ts';
+import { Sex, type KnowledgeStatement } from '../models/explorer.ts';
 import { EntitiesJourneyType } from '../models/explorer.ts';
 
 export interface ComposerResponse {
@@ -40,7 +40,7 @@ interface KnowledgeStatementAPI {
   apinatomy_model: string | null;
   phenotype_id: number | null;
   phenotype: { name: string; ontology_uri: string };
-  forward_connection: Array<{ reference_uri: string }>;
+  forward_connection: Array<KnowledgeStatement>;
   reference_uri: string;
   provenances: Array<{
     id: number;
@@ -96,9 +96,7 @@ export function mapApiResponseToKnowledgeStatements(
         type: via.type as TypeB60Enum,
       };
     }),
-    forwardConnections: ks.forward_connection.map(
-      (fc) => fc.reference_uri || '',
-    ),
+    forwardConnections: ks.forward_connection,
     provenances: ks.provenances?.map((p) => p.uri || ''),
     knowledge_statement: ks.knowledge_statement || '',
     journey: ks.journey || [],

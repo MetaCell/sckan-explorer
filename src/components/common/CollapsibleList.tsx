@@ -28,6 +28,7 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
       sx={{
         paddingLeft: '0.75rem',
         position: 'relative',
+        textAlign: 'left',
 
         '&:before': {
           content: '""',
@@ -89,7 +90,7 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
                   color: gray700,
                   borderColor: 'transparent',
                   '&:hover': {
-                    background: gray25,
+                    background: gray100,
                     color: gray700,
                     boxShadow: 'none',
                     borderColor: 'transparent',

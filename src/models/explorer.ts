@@ -203,10 +203,10 @@ export interface KnowledgeStatement {
 
   /**
    *
-   * @type {Array<string>}
+   * @type {Array<KnowledgeStatement>}
    * @memberof KnowledgeStatement
    */
-  forwardConnections: string[];
+  forwardConnections: KnowledgeStatement[];
 
   /**
    *

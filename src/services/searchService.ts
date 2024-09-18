@@ -80,3 +80,10 @@ const searchAnatomicalEntities = (
     return labelMatch || synonymMatch;
   });
 };
+
+export const searchEntities = (
+  searchValue: string,
+  options: Option[],
+): Option[] => {
+  return searchAnatomicalEntities(searchValue, options);
+};

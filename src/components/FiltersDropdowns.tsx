@@ -10,6 +10,7 @@ import {
   getUniquePhenotypes,
   getUniqueSpecies,
   getUniqueVias,
+  getUniqueAllEntities,
 } from '../services/filterValuesService.ts';
 import {
   searchApiNATOMY,
@@ -18,6 +19,7 @@ import {
   searchPhenotypes,
   searchSpecies,
   searchVias,
+  searchEntities,
 } from '../services/searchService.ts';
 
 interface FilterConfig {
@@ -57,6 +59,11 @@ const filterConfig: FilterConfig[] = [
     placeholder: 'Via',
     searchPlaceholder: 'Search via',
   },
+  {
+    id: 'Entities',
+    placeholder: 'All Entities',
+    searchPlaceholder: 'Search by entity',
+  },
 ];
 
 const FiltersDropdowns: React.FC = () => {
@@ -90,6 +97,11 @@ const FiltersDropdowns: React.FC = () => {
   );
   const organsOptions = useMemo(() => getUniqueOrgans(organs), [organs]);
 
+  const entitiesOptions = useMemo(
+    () => getUniqueAllEntities(knowledgeStatements, hierarchicalNodes),
+    [knowledgeStatements, hierarchicalNodes],
+  );
+
   const handleSelect = (
     filterKey: keyof typeof filters,
     selectedOptions: Option[],
@@ -108,6 +120,7 @@ const FiltersDropdowns: React.FC = () => {
       Phenotype: (value: string) => searchPhenotypes(value, phenotypesOptions),
       apiNATOMY: (value: string) => searchApiNATOMY(value, apinatomiesOptions),
       Via: (value: string) => searchVias(value, viasOptions),
+      Entities: (value: string) => searchEntities(value, entitiesOptions),
     };
   }, [
     apinatomiesOptions,
@@ -116,6 +129,7 @@ const FiltersDropdowns: React.FC = () => {
     phenotypesOptions,
     speciesOptions,
     viasOptions,
+    entitiesOptions,
   ]);
 
   return (

@@ -8,7 +8,8 @@ import CommonChip from '../common/CommonChip.tsx';
 import { ArrowOutward } from '../icons/index.tsx';
 import { KsRecord } from '../common/Types.ts';
 import { getConnectionDetails } from '../../services/summaryHeatmapService.ts';
-import { generateCsvService } from '../../services/csvService.ts';
+import { generateJourneyCsvService } from '../../services/csvService.ts';
+import { useDataContext } from '../../context/DataContext.ts';
 
 const { gray500, gray700, gray800 } = vars;
 
@@ -52,6 +53,8 @@ const SummaryDetails = ({
   knowledgeStatementsMap,
   connectionPage,
 }: SummaryDetailsProps) => {
+  const { selectedConnectionSummary, filters } = useDataContext();
+
   const connectionDetails = getConnectionDetails(
     knowledgeStatementsMap,
     connectionPage,
@@ -81,7 +84,7 @@ const SummaryDetails = ({
       icon: undefined,
     },
     {
-      label: 'Provenances',
+      label: 'References',
       value: connectionDetails?.provenances || [],
       icon: undefined,
     },
@@ -98,7 +101,11 @@ const SummaryDetails = ({
   ];
 
   const generateCSV = () => {
-    const blob = generateCsvService(knowledgeStatementsMap);
+    const blob = generateJourneyCsvService(
+      { [connectionDetails.id]: knowledgeStatementsMap[connectionDetails.id] },
+      selectedConnectionSummary?.endOrgan?.name ?? '',
+      filters,
+    );
     const objUrl = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', objUrl);
@@ -134,7 +141,7 @@ const SummaryDetails = ({
         </Stack>
         <Stack mt="1.75rem" spacing=".5rem">
           <Typography variant="subtitle2" color={gray700} lineHeight={1.25}>
-            Knowledge statement
+            Connection summary
           </Typography>
           <Typography variant="body1" color={gray500}>
             {connectionDetails?.knowledge_statement || '-'}

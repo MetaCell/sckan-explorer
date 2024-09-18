@@ -11,6 +11,7 @@ import { ArrowRight } from '../icons';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import { SummaryType, KsRecord } from '../common/Types';
 import { useDataContext } from '../../context/DataContext.ts';
+import { generateJourneyCsvService } from '../../services/csvService.ts';
 import { generatePDFService } from '../../services/pdfService.ts';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
@@ -39,7 +40,7 @@ const SummaryHeader = ({
   connectionsCounter,
 }: SummaryHeaderProps) => {
   const totalUniqueKS = Object.keys(knowledgeStatementsMap).length;
-  const { selectedConnectionSummary, majorNerves } = useDataContext();
+  const { selectedConnectionSummary, majorNerves, filters } = useDataContext();
 
   const handleUpClick = () => {
     if (connectionPage < totalUniqueKS) {
@@ -53,6 +54,19 @@ const SummaryHeader = ({
     }
   };
 
+  const generateCSV = () => {
+    const blob = generateJourneyCsvService(
+      selectedConnectionSummary?.['connections'],
+      selectedConnectionSummary?.endOrgan?.name ?? '',
+      filters,
+    );
+    const objUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', objUrl);
+    link.setAttribute('download', 'connections.csv');
+    document.body.appendChild(link);
+    link.click();
+  };
   pdfMake.fonts = {
     Roboto: {
       normal: 'Roboto-Regular.ttf',
@@ -69,7 +83,7 @@ const SummaryHeader = ({
       connectionsCounter,
       selectedConnectionSummary?.endOrgan?.name,
       selectedConnectionSummary?.filteredKnowledgeStatements ||
-        ({} as KsRecord),
+      ({} as KsRecord),
       majorNerves,
     );
     const docDefinition: TDocumentDefinitions = {
@@ -81,6 +95,7 @@ const SummaryHeader = ({
     };
     pdfMake.createPdf(docDefinition).download();
   };
+
 
   if (showDetails === SummaryType.Instruction) {
     return <></>;

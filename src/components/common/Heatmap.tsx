@@ -2,7 +2,7 @@ import React, { FC, useCallback, useMemo } from 'react';
 import { Box, Button, ButtonGroup, Typography } from '@mui/material';
 import { vars } from '../../theme/variables';
 import CollapsibleList from './CollapsibleList';
-import HeatMap from 'react-heatmap-grid';
+import HeatMap from 'react-heatmap-fork';
 import HeatmapTooltip, { HeatmapTooltipRow } from './HeatmapTooltip';
 import { HierarchicalItem, KsPerPhenotype } from './Types.ts';
 import { getNormalizedValueForMinMax } from '../../services/summaryHeatmapService.ts';

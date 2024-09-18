@@ -2,7 +2,7 @@ export const SCKAN_JSON_URL =
   'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/a-b-via-c-2.json';
 
 export const SCKAN_ORDER_JSON_URL =
-  'https://raw.githubusercontent.com/MetaCell/sckan-explorer/feature/order/public/order.json';
+  'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/sckanner-data/order.json';
 export const SCKAN_MAJOR_NERVES_JSON_URL =
   'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/major-nerves.json';
 
@@ -77,3 +77,6 @@ export const STRINGS_NUMBERS = [
   'nineteenth',
   'twentieth',
 ];
+
+export const SCKAN_VERSION = '1.0.0';
+export const COMPOSER_VERSION = '1.0.0';

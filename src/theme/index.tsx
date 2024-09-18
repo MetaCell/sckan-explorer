@@ -9,7 +9,6 @@ const {
   gray800,
   white,
   baseContainerBg,
-  primaryPurple300,
   primaryPurple700,
   gray600,
   gray700,
@@ -26,6 +25,7 @@ const {
   gray300,
   primaryPurple500,
   primaryPurple200,
+  primaryPurple300,
   primaryPurple25,
   primaryPurple100,
   gray950,
@@ -130,6 +130,27 @@ const theme = createTheme({
           overflow: hidden;
           padding: 1rem;
           border-radius: 1rem 1rem 0 0;
+        }
+        #circular_loader {
+          margin-bottom: 2rem;
+        }
+        #loader_text {
+          font-size: 1rem;
+          font-family: ${primaryFont};
+          color: ${gray600};
+        }
+        #x-labels-list {
+          position: sticky;
+          top: 0;
+          background: ${white};
+        }
+        #x-label {
+          background: ${gray100};
+          margin-top: 0.1rem;
+        }
+        #y-label-empty {
+            background-image: linear-gradient(${gray400}, ${gray100});
+            background: ${white};
         }
         .MuiContainer:has(> .database-summary) {
           padding: 0;
@@ -369,6 +390,7 @@ const theme = createTheme({
           padding: '0.5rem 0.75rem',
           borderRadius: '0.25rem',
           gap: '0.25rem',
+          textAlign: 'left',
         },
         contained: {
           boxShadow: 'none',

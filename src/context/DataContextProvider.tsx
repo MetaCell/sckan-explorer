@@ -29,6 +29,7 @@ export const DataContextProvider = ({
     Phenotype: [],
     apiNATOMY: [],
     Via: [],
+    Entities: [],
   });
 
   const [selectedConnectionSummary, setSelectedConnectionSummary] =
