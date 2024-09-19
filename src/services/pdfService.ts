@@ -36,7 +36,6 @@ type ConnectionDetailType = {
   References: string;
 };
 
-
 export const getPDFContent = (
   pdfRequirement: pdfRequirementType,
 ): PDFMAKEContent => {
@@ -156,7 +155,9 @@ export const getPDFContent = (
   });
   // remove the columns with the null values - to make the pdf more readable.
   const filteredViasRow =
-    columns.length > COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS ? viasRow.filter((v) => v !== null) : viasRow;
+    columns.length > COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS
+      ? viasRow.filter((v) => v !== null)
+      : viasRow;
   const filteredColumns =
     columns.length > COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS
       ? columns.filter((_, index) => !emptyColumns.includes(index))

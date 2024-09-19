@@ -48,7 +48,6 @@ type SummaryHeaderProps = {
   connectionsCounter: number;
 };
 
-
 const SummaryHeader = ({
   showDetails,
   setShowDetails,
