@@ -14,7 +14,6 @@ import { useDataContext } from '../../context/DataContext.ts';
 import { generatePDFService } from '../../services/pdfService.ts';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
-import { TDocumentDefinitions } from 'pdfmake/interfaces';
 import {
   AsapFontBold,
   AsapFontBoldItalic,
@@ -30,6 +29,15 @@ window.pdfMake.vfs['Asap-Bold.ttf'] = AsapFontBold;
 window.pdfMake.vfs['Asap-Italic.ttf'] = AsapFontItalic;
 window.pdfMake.vfs['Asap-BoldItalic.ttf'] = AsapFontBoldItalic;
 
+pdfMake.fonts = {
+  Asap: {
+    normal: 'Asap-Regular.ttf',
+    bold: 'Asap-Bold.ttf',
+    italics: 'Asap-Italic.ttf',
+    bolditalics: 'Asap-BoldItalic.ttf',
+  },
+};
+
 type SummaryHeaderProps = {
   showDetails: SummaryType;
   setShowDetails: (showDetails: SummaryType) => void;
@@ -39,6 +47,7 @@ type SummaryHeaderProps = {
   totalConnectionCount: number;
   connectionsCounter: number;
 };
+
 
 const SummaryHeader = ({
   showDetails,
@@ -64,17 +73,8 @@ const SummaryHeader = ({
     }
   };
 
-  pdfMake.fonts = {
-    Asap: {
-      normal: 'Asap-Regular.ttf',
-      bold: 'Asap-Bold.ttf',
-      italics: 'Asap-Italic.ttf',
-      bolditalics: 'Asap-BoldItalic.ttf',
-    },
-  };
-
   const generatePDF = () => {
-    const pdfContent = generatePDFService(
+    const pdfDefinition = generatePDFService(
       selectedConnectionSummary?.hierarchicalNode.name,
       selectedConnectionSummary?.connections || ({} as KsRecord),
       connectionsCounter,
@@ -83,14 +83,7 @@ const SummaryHeader = ({
         ({} as KsRecord),
       majorNerves,
     );
-    const docDefinition: TDocumentDefinitions = {
-      pageSize: 'A4',
-      content: pdfContent,
-      defaultStyle: {
-        font: 'Asap',
-      },
-    };
-    pdfMake.createPdf(docDefinition).download();
+    pdfMake.createPdf(pdfDefinition).download();
   };
 
   if (showDetails === SummaryType.Instruction) {

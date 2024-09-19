@@ -4,6 +4,9 @@ import { Content as PDFMAKEContent } from 'pdfmake/interfaces';
 import { KsRecord } from '../components/common/Types';
 import { TypeB60Enum } from '../models/composer';
 import { EntitiesJourneyType } from '../models/explorer';
+import { TDocumentDefinitions } from 'pdfmake/interfaces';
+
+const COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS = 6;
 
 type pdfRequirementType = {
   connectionOrigin: string;
@@ -33,6 +36,7 @@ type ConnectionDetailType = {
   References: string;
 };
 
+
 export const getPDFContent = (
   pdfRequirement: pdfRequirementType,
 ): PDFMAKEContent => {
@@ -50,6 +54,7 @@ export const getPDFContent = (
     entitiesJourney,
     connectionDetails,
   } = pdfRequirement;
+  // SECTION 1 - Result summary
   const resultSummary: PDFMAKEContent = [
     {
       text: `Query result summary for: ${connectionOrigin} -> ${endorgan}`,
@@ -91,6 +96,7 @@ export const getPDFContent = (
     }
   }
 
+  // SECTION 2 - Connection details
   const connectionDetailsContent: PDFMAKEContent = [
     {
       text: 'Connection details:',
@@ -108,6 +114,7 @@ export const getPDFContent = (
       margin: [0, 15, 0, 0],
     },
   ];
+
   connectionDetails.map((detail) => {
     for (const [key, value] of Object.entries(detail)) {
       if (key === 'Knowledge Statement') {
@@ -126,7 +133,7 @@ export const getPDFContent = (
     connectionDetailsContent.push({ text: '', margin: [0, 20, 0, 0] });
   });
 
-  // Connectivity Matrix - tables
+  // SECTION 3 - Connectivity Matrix - tables
   const row = connectionOrigin;
   const columns = uniqueDestinations.split(', ');
 
@@ -149,9 +156,9 @@ export const getPDFContent = (
   });
   // remove the columns with the null values - to make the pdf more readable.
   const filteredViasRow =
-    columns.length > 6 ? viasRow.filter((v) => v !== null) : viasRow;
+    columns.length > COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS ? viasRow.filter((v) => v !== null) : viasRow;
   const filteredColumns =
-    columns.length > 6
+    columns.length > COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS
       ? columns.filter((_, index) => !emptyColumns.includes(index))
       : columns;
 
@@ -260,7 +267,7 @@ export const generatePDFService = (
       })
     : [];
 
-  return getPDFContent({
+  const pdfContent = getPDFContent({
     connectionOrigin,
     numOfConnections,
     uniqueOrigins,
@@ -274,4 +281,14 @@ export const generatePDFService = (
     entitiesJourney,
     connectionDetails,
   });
+
+  const docDefinition: TDocumentDefinitions = {
+    pageSize: 'A4',
+    content: pdfContent,
+    defaultStyle: {
+      font: 'Asap',
+    },
+  };
+
+  return docDefinition;
 };
