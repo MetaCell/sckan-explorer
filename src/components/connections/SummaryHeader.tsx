@@ -15,15 +15,20 @@ import { generatePDFService } from '../../services/pdfService.ts';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
-import { AsapFontBold, AsapFontBoldItalic, AsapFontItalic, AsapFontRegular } from '../../theme/AsapFontBase64.ts'
+import {
+  AsapFontBold,
+  AsapFontBoldItalic,
+  AsapFontItalic,
+  AsapFontRegular,
+} from '../../theme/AsapFontBase64.ts';
 
 const { gray100, gray600A, gray500, primaryPurple600 } = vars;
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-window.pdfMake.vfs["Asap-Regular.ttf"] = AsapFontRegular;
-window.pdfMake.vfs["Asap-Bold.ttf"] = AsapFontBold;
-window.pdfMake.vfs["Asap-Italic.ttf"] = AsapFontItalic;
-window.pdfMake.vfs["Asap-BoldItalic.ttf"] = AsapFontBoldItalic;
+window.pdfMake.vfs['Asap-Regular.ttf'] = AsapFontRegular;
+window.pdfMake.vfs['Asap-Bold.ttf'] = AsapFontBold;
+window.pdfMake.vfs['Asap-Italic.ttf'] = AsapFontItalic;
+window.pdfMake.vfs['Asap-BoldItalic.ttf'] = AsapFontBoldItalic;
 
 type SummaryHeaderProps = {
   showDetails: SummaryType;
