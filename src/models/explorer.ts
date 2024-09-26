@@ -151,6 +151,23 @@ export interface Sex {
   ontology_uri: string;
 }
 
+export type EntitiesNameWithId = {
+  label: string;
+  id: string;
+};
+
+export type EntitiesJourneyType = {
+  origins: string[];
+  vias: string[];
+  destinations: string[];
+};
+
+export type ComposerEntitiesJourneyType = {
+  origins: EntitiesNameWithId[];
+  vias: EntitiesNameWithId[];
+  destinations: EntitiesNameWithId[];
+};
+
 export interface KnowledgeStatement {
   /**
    *
@@ -222,6 +239,13 @@ export interface KnowledgeStatement {
    * @memberof KnowledgeStatement
    */
   journey: string[];
+
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof KnowledgeStatement
+   */
+  entities_journey: ComposerEntitiesJourneyType[];
 
   /**
    *

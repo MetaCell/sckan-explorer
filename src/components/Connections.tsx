@@ -241,6 +241,7 @@ function Connections() {
         connectionPage={connectionPage}
         setConnectionPage={setConnectionPage}
         totalConnectionCount={totalConnectionCount}
+        connectionsCounter={connectionsCounter}
       />
       {showConnectionDetails === SummaryType.Instruction && (
         <SummaryInstructions />

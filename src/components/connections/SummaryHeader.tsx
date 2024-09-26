@@ -11,9 +11,32 @@ import { ArrowRight } from '../icons';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import { SummaryType, KsRecord } from '../common/Types';
 import { useDataContext } from '../../context/DataContext.ts';
-import { generateJourneyCsvService } from '../../services/csvService.ts';
+import { generatePDFService } from '../../services/pdfService.ts';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
+import {
+  AsapFontBold,
+  AsapFontBoldItalic,
+  AsapFontItalic,
+  AsapFontRegular,
+} from '../../theme/AsapFontBase64.ts';
 
 const { gray100, gray600A, gray500, primaryPurple600 } = vars;
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
+
+window.pdfMake.vfs['Asap-Regular.ttf'] = AsapFontRegular;
+window.pdfMake.vfs['Asap-Bold.ttf'] = AsapFontBold;
+window.pdfMake.vfs['Asap-Italic.ttf'] = AsapFontItalic;
+window.pdfMake.vfs['Asap-BoldItalic.ttf'] = AsapFontBoldItalic;
+
+pdfMake.fonts = {
+  Asap: {
+    normal: 'Asap-Regular.ttf',
+    bold: 'Asap-Bold.ttf',
+    italics: 'Asap-Italic.ttf',
+    bolditalics: 'Asap-BoldItalic.ttf',
+  },
+};
 
 type SummaryHeaderProps = {
   showDetails: SummaryType;
@@ -22,6 +45,7 @@ type SummaryHeaderProps = {
   connectionPage: number;
   setConnectionPage: (connectionPage: number) => void;
   totalConnectionCount: number;
+  connectionsCounter: number;
 };
 
 const SummaryHeader = ({
@@ -31,10 +55,10 @@ const SummaryHeader = ({
   connectionPage,
   setConnectionPage,
   totalConnectionCount,
+  connectionsCounter,
 }: SummaryHeaderProps) => {
   const totalUniqueKS = Object.keys(knowledgeStatementsMap).length;
-
-  const { selectedConnectionSummary, filters } = useDataContext();
+  const { selectedConnectionSummary, majorNerves } = useDataContext();
 
   const handleUpClick = () => {
     if (connectionPage < totalUniqueKS) {
@@ -48,18 +72,17 @@ const SummaryHeader = ({
     }
   };
 
-  const generateCSV = () => {
-    const blob = generateJourneyCsvService(
-      selectedConnectionSummary?.['connections'],
-      selectedConnectionSummary?.endOrgan?.name ?? '',
-      filters,
+  const generatePDF = () => {
+    const pdfDefinition = generatePDFService(
+      selectedConnectionSummary?.hierarchicalNode.name,
+      selectedConnectionSummary?.connections || ({} as KsRecord),
+      connectionsCounter,
+      selectedConnectionSummary?.endOrgan?.name,
+      selectedConnectionSummary?.filteredKnowledgeStatements ||
+        ({} as KsRecord),
+      majorNerves,
     );
-    const objUrl = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', objUrl);
-    link.setAttribute('download', 'connections.csv');
-    document.body.appendChild(link);
-    link.click();
+    pdfMake.createPdf(pdfDefinition).download();
   };
 
   if (showDetails === SummaryType.Instruction) {
@@ -187,8 +210,8 @@ const SummaryHeader = ({
                 }}
               />
 
-              <Button variant="contained" onClick={generateCSV}>
-                Download results (.csv)
+              <Button variant="contained" onClick={generatePDF}>
+                Download results (.pdf)
               </Button>
             </Box>
           </>
