@@ -187,7 +187,7 @@ export const generateJourneyCsvService = (
 
   const headers = [
     'ID',
-    'Knowledge Statement',
+    'Connection summary',
     'Species',
     'Sex',
     'Origins (Names)',

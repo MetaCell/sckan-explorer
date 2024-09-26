@@ -38,54 +38,58 @@ const HeatmapTooltip: FC<HeatmapTooltipProps> = ({
 }) => {
   const hasRows = rows && rows.length > 0;
 
-  return (
-    <Tooltip
-      arrow
-      placement="right"
-      title={
-        <Box minWidth={140}>
-          <Typography
-            sx={{
-              ...commonHeadingStyles,
-              marginBottom: '0.125rem',
-            }}
-          >{`${y} -> ${x}`}</Typography>
-          <Box display="flex" flexDirection="column" gap={'0.25rem'}>
-            {hasRows ? (
-              rows.map((row, index) => (
-                <Box
-                  key={index}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="space-between"
-                >
-                  <Box gap="0.375rem" display="flex" alignItems="center">
-                    <Box
-                      sx={{
-                        width: '1.4794rem',
-                        height: '1rem',
-                        background: row.color || 'transparent',
-                      }}
-                    />
-                    <Typography sx={commonTextStyles}>
-                      {row.name || ''}
-                    </Typography>
+  if (connections === 0) {
+    return <></>;
+  } else {
+    return (
+      <Tooltip
+        arrow
+        placement="right"
+        title={
+          <Box minWidth={140}>
+            <Typography
+              sx={{
+                ...commonHeadingStyles,
+                marginBottom: '0.125rem',
+              }}
+            >{`${y} -> ${x}`}</Typography>
+            <Box display="flex" flexDirection="column" gap={'0.25rem'}>
+              {hasRows ? (
+                rows.map((row, index) => (
+                  <Box
+                    key={index}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                  >
+                    <Box gap="0.375rem" display="flex" alignItems="center">
+                      <Box
+                        sx={{
+                          width: '1.4794rem',
+                          height: '1rem',
+                          background: row.color || 'transparent',
+                        }}
+                      />
+                      <Typography sx={commonTextStyles}>
+                        {row.name || ''}
+                      </Typography>
+                    </Box>
+                    <Typography sx={commonTextStyles}>{row.count}</Typography>
                   </Box>
-                  <Typography sx={commonTextStyles}>{row.count}</Typography>
-                </Box>
-              ))
-            ) : (
-              <Typography sx={{ ...commonTextStyles, marginTop: '0.125rem' }}>
-                {`${connections} connections`}
-              </Typography>
-            )}
+                ))
+              ) : (
+                <Typography sx={{ ...commonTextStyles, marginTop: '0.125rem' }}>
+                  {`${connections} connections`}
+                </Typography>
+              )}
+            </Box>
           </Box>
-        </Box>
-      }
-    >
-      <Box sx={{ opacity: 0 }}>{x}</Box>
-    </Tooltip>
-  );
+        }
+      >
+        <Box sx={{ opacity: 0 }}>{x}</Box>
+      </Tooltip>
+    );
+  }
 };
 
 export default HeatmapTooltip;
