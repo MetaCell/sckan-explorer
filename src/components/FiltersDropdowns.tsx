@@ -61,7 +61,7 @@ const filterConfig: FilterConfig[] = [
   },
   {
     id: 'Entities',
-    placeholder: 'All Entities',
+    placeholder: 'Anatomical structures',
     searchPlaceholder: 'Search by entity',
   },
 ];
