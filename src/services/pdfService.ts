@@ -36,6 +36,18 @@ type ConnectionDetailType = {
   References: string;
 };
 
+
+const convertEntitiesJourneyType = (entitiesJourney: ComposerEntitiesJourneyType[]) => {
+  const convertedEntitiesJourney: EntitiesJourneyType[] = [];
+  for (const entityJourney of entitiesJourney) {
+    const origins = entityJourney.origins.length ? entityJourney.origins.map((origin) => origin.label) : [];
+    const vias = entityJourney.vias.length ? entityJourney.vias.map((via) => via.label) : [];
+    const destinations = entityJourney.destinations.length ? entityJourney.destinations.map((destination) => destination.label) : [];
+    convertedEntitiesJourney.push({ origins, vias, destinations });
+  }
+  return convertedEntitiesJourney;
+}
+
 export const getPDFContent = (
   pdfRequirement: pdfRequirementType,
 ): PDFMAKEContent => {
@@ -263,7 +275,7 @@ export const generatePDFService = (
           References:
             ks.provenances.map((provenance) => provenance).join(', ') || '-',
         };
-        entitiesJourney.push(ks.entities_journey);
+      entitiesJourney.push(convertEntitiesJourneyType(ks.entities_journey));
         return details;
       })
     : [];

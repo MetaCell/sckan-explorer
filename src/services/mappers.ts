@@ -4,7 +4,7 @@ import {
   TypeC11Enum,
 } from '../models/composer.ts';
 import { Sex, type KnowledgeStatement } from '../models/explorer.ts';
-import { EntitiesJourneyType } from '../models/explorer.ts';
+import { ComposerEntitiesJourneyType } from '../models/explorer.ts';
 
 export interface ComposerResponse {
   count: number;
@@ -49,7 +49,7 @@ interface KnowledgeStatementAPI {
   }>;
   knowledge_statement: string;
   journey: string[];
-  entities_journey: EntitiesJourneyType;
+  entities_journey: ComposerEntitiesJourneyType;
   laterality: string;
   projection: string;
   circuit_type: string;
