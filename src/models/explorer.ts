@@ -154,7 +154,7 @@ export interface Sex {
 export type EntitiesNameWithId = {
   label: string;
   id: string;
-}
+};
 
 export type EntitiesJourneyType = {
   origins: string[];
