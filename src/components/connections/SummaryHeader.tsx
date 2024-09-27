@@ -13,7 +13,6 @@ import { SummaryType, KsRecord } from '../common/Types';
 import { useDataContext } from '../../context/DataContext.ts';
 import { generatePDFService } from '../../services/pdfService.ts';
 import pdfMake from 'pdfmake/build/pdfmake';
-import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 
 import {
   AsapFontBold,
@@ -23,7 +22,7 @@ import {
 } from '../../theme/AsapFontBase64.ts';
 
 const { gray100, gray600A, gray500, primaryPurple600 } = vars;
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+pdfMake.vfs = {};
 
 window.pdfMake.vfs['Asap-Regular.ttf'] = AsapFontRegular;
 window.pdfMake.vfs['Asap-Bold.ttf'] = AsapFontBold;
