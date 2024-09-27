@@ -49,7 +49,7 @@ interface KnowledgeStatementAPI {
   }>;
   knowledge_statement: string;
   journey: string[];
-  entities_journey: ComposerEntitiesJourneyType;
+  entities_journey: ComposerEntitiesJourneyType[];
   laterality: string;
   projection: string;
   circuit_type: string;

@@ -13,7 +13,8 @@ import { SummaryType, KsRecord } from '../common/Types';
 import { useDataContext } from '../../context/DataContext.ts';
 import { generatePDFService } from '../../services/pdfService.ts';
 import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
+import * as pdfFonts from 'pdfmake/build/vfs_fonts';
+
 import {
   AsapFontBold,
   AsapFontBoldItalic,
