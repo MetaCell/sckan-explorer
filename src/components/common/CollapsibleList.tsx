@@ -42,6 +42,9 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
 
         '& .MuiButton-root': {
           position: 'relative',
+          border: '0.0625rem solid transparent',
+          borderColor: gray200,
+          lineHeight: '0.825rem',
           '&:hover:before': {
             content: '""',
             height: '100%',
