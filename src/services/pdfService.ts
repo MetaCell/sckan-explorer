@@ -24,16 +24,16 @@ type pdfRequirementType = {
 };
 
 type ConnectionDetailType = {
-  'Knowledge Statement': string;
-  'Connection Id': string;
-  Species: string;
-  Sex: string;
-  Phenotype: string;
-  Projection: string;
-  'Connectivity Model': string;
-  Laterality: string;
-  'Circuit Type': string;
-  References: string;
+  'Knowledge Statement'?: string;
+  'Connection Id'?: string;
+  Species?: string;
+  Sex?: string;
+  Phenotype?: string;
+  Projection?: string;
+  'Connectivity Model'?: string;
+  Laterality?: string;
+  'Circuit Type'?: string;
+  References?: string;
 };
 
 const convertEntitiesJourneyType = (
@@ -282,6 +282,11 @@ export const generatePDFService = (
           References:
             ks.provenances.map((provenance) => provenance).join(', ') || '-',
         };
+        Object.keys(details).forEach((key) => {
+          if (details[key] === '-') {
+            delete details[key];
+          }
+        });
         entitiesJourney.push(convertEntitiesJourneyType(ks.entities_journey));
         return details;
       })
