@@ -5,6 +5,7 @@ import { KsRecord } from '../components/common/Types';
 import { TypeB60Enum } from '../models/composer';
 import { EntitiesJourneyType } from '../models/explorer';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
+import { STRINGS_NUMBERS, DESTINATIONS_ORDER } from '../settings';
 
 const COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS = 6;
 
@@ -151,38 +152,86 @@ export const getPDFContent = (
     connectionDetailsContent.push({ text: '', margin: [0, 20, 0, 0] });
   });
 
-  // SECTION 3 - Connectivity Matrix - tables
-  const row = connectionOrigin;
-  const columns = uniqueDestinations.split(', ');
-
-  // second row - is for the vias between the origin and the respective target organs
-  const emptyColumns = [];
-  const viasRow = columns.map((column, index) => {
-    const connectionDetail = entitiesJourney.flatMap((entity) => {
-      return entity.flatMap((ent) => {
-        if (ent.destinations.includes(column)) {
-          return ent.vias;
+  const sortEntitiesList = (entitiesList: string[]) => {
+    const reorderedList: string[] = [];
+    // first sort the entities based on the STRINGS_NUMBERS order
+    const sortedEntities = entitiesList.sort((a, b) => {
+      const aIndex = STRINGS_NUMBERS.indexOf(a.split(' ')[0].toLowerCase());
+      const bIndex = STRINGS_NUMBERS.indexOf(b.split(' ')[0].toLowerCase());
+      return aIndex - bIndex;
+    });
+    DESTINATIONS_ORDER.forEach((entity) => {
+      sortedEntities.forEach((destination) => {
+        if (
+          destination.toLowerCase().includes(entity.toLowerCase()) &&
+          !reorderedList.includes(destination)
+        ) {
+          reorderedList.push(destination);
         }
-        return [];
       });
     });
-    if (connectionDetail.length !== 0) {
-      return Array.from(new Set(connectionDetail)).join(', ');
-    }
-    emptyColumns.push(index);
-    return null;
-  });
-  // remove the columns with the null values - to make the pdf more readable.
-  const filteredViasRow =
-    columns.length > COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS
-      ? viasRow.filter((v) => v !== null)
-      : viasRow;
-  const filteredColumns =
-    columns.length > COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS
-      ? columns.filter((_, index) => !emptyColumns.includes(index))
-      : columns;
+    // Add the remaning destinations
+    sortedEntities.forEach((destination) => {
+      if (!reorderedList.includes(destination)) {
+        reorderedList.push(destination);
+      }
+    });
+    return reorderedList;
+  };
 
-  const connectivityMatrixHeader = ['Structure', ...filteredColumns];
+  // SECTION 3 - Connectivity Matrix - tables
+  const rows = sortEntitiesList(uniqueOrigins.split(', '));
+  const columns = sortEntitiesList(uniqueDestinations.split(', '));
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const matrix = rows.map((row) => {
+    return columns.map((column) => {
+      return entitiesJourney.flatMap((entity) => {
+        return entity.flatMap((ent) => {
+          if (ent.origins.includes(row) && ent.destinations.includes(column)) {
+            return ent.vias;
+          }
+          return '';
+        });
+      });
+    });
+  });
+  // add the rows as first row in the matrix and columns as the first column
+  const columnsHeader = ['Structure', ...columns];
+  const rowsHeader = [...rows];
+  // add columnsHeader and rowsHeder to the matrix
+  const connectivityMatrix = matrix.map((row, index) => {
+    return [rowsHeader[index], ...row];
+  });
+  connectivityMatrix.unshift(columnsHeader);
+
+  // second row - is for the vias between the origin and the respective target organs
+  // const emptyColumns = [];
+  // const viasRow = columns.map((column, index) => {
+  //   const connectionDetail = entitiesJourney.flatMap((entity) => {
+  //     return entity.flatMap((ent) => {
+  //       if (ent.destinations.includes(column)) {
+  //         return ent.vias;
+  //       }
+  //       return [];
+  //     });
+  //   });
+  //   if (connectionDetail.length !== 0) {
+  //     return Array.from(new Set(connectionDetail)).join(', ');
+  //   }
+  //   emptyColumns.push(index);
+  //   return null;
+  // });
+  // // remove the columns with the null values - to make the pdf more readable.
+  // const filteredViasRow =
+  //   columns.length > COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS
+  //     ? viasRow.filter((v) => v !== null)
+  //     : viasRow;
+  // const filteredColumns =
+  //   columns.length > COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS
+  //     ? columns.filter((_, index) => !emptyColumns.includes(index))
+  //     : columns;
+
+  // const connectivityMatrixHeader = ['Structure', ...filteredColumns];
   const connectivityMatrixContent: PDFMAKEContent = [
     {
       text: 'Connectivity Matrix',
@@ -194,7 +243,7 @@ export const getPDFContent = (
     {
       style: 'tableExample',
       table: {
-        body: [connectivityMatrixHeader, [row, ...filteredViasRow]],
+        body: connectivityMatrix,
       },
       fontSize:
         filteredColumns.length > 13 ? 6 : filteredColumns.length > 6 ? 8 : 10,
@@ -308,7 +357,7 @@ export const generatePDFService = (
   });
 
   const docDefinition: TDocumentDefinitions = {
-    pageSize: 'A4',
+    pageSize: 'A2',
     content: pdfContent,
     defaultStyle: {
       font: 'Asap',
