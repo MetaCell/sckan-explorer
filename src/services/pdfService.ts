@@ -7,7 +7,7 @@ import { EntitiesJourneyType } from '../models/explorer';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
 import { STRINGS_NUMBERS, DESTINATIONS_ORDER } from '../settings';
 
-const COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS = 6;
+// const COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS = 6;
 
 type pdfRequirementType = {
   connectionOrigin: string;
@@ -226,10 +226,10 @@ export const getPDFContent = (
   //   columns.length > COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS
   //     ? viasRow.filter((v) => v !== null)
   //     : viasRow;
-  // const filteredColumns =
-  //   columns.length > COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS
-  //     ? columns.filter((_, index) => !emptyColumns.includes(index))
-  //     : columns;
+  const filteredColumns =
+    columns.length > COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS
+      ? columns.filter((_, index) => !emptyColumns.includes(index))
+      : columns;
 
   // const connectivityMatrixHeader = ['Structure', ...filteredColumns];
   const connectivityMatrixContent: PDFMAKEContent = [
