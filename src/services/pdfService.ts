@@ -7,7 +7,7 @@ import { EntitiesJourneyType } from '../models/explorer';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
 import { STRINGS_NUMBERS, DESTINATIONS_ORDER } from '../settings';
 
-// const COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS = 6;
+const COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS = 6;
 
 type pdfRequirementType = {
   connectionOrigin: string;
@@ -205,7 +205,7 @@ export const getPDFContent = (
   connectivityMatrix.unshift(columnsHeader);
 
   // second row - is for the vias between the origin and the respective target organs
-  // const emptyColumns = [];
+  const emptyColumns = [];
   // const viasRow = columns.map((column, index) => {
   //   const connectionDetail = entitiesJourney.flatMap((entity) => {
   //     return entity.flatMap((ent) => {
