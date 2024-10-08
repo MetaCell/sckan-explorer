@@ -196,7 +196,7 @@ export const getPDFContent = (
     });
   });
   // add the rows as first row in the matrix and columns as the first column
-  const columnsHeader = ['Structure', ...columns];
+  const columnsHeader = ['', ...columns];
   const rowsHeader = [...rows];
   // add columnsHeader and rowsHeder to the matrix
   const connectivityMatrix = matrix.map((row, index) => {
@@ -357,7 +357,7 @@ export const generatePDFService = (
   });
 
   const docDefinition: TDocumentDefinitions = {
-    pageSize: 'A2',
+    pageSize: 'A0',
     content: pdfContent,
     defaultStyle: {
       font: 'Asap',
