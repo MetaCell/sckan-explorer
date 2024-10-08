@@ -206,26 +206,6 @@ export const getPDFContent = (
 
   // second row - is for the vias between the origin and the respective target organs
   const emptyColumns = [];
-  // const viasRow = columns.map((column, index) => {
-  //   const connectionDetail = entitiesJourney.flatMap((entity) => {
-  //     return entity.flatMap((ent) => {
-  //       if (ent.destinations.includes(column)) {
-  //         return ent.vias;
-  //       }
-  //       return [];
-  //     });
-  //   });
-  //   if (connectionDetail.length !== 0) {
-  //     return Array.from(new Set(connectionDetail)).join(', ');
-  //   }
-  //   emptyColumns.push(index);
-  //   return null;
-  // });
-  // // remove the columns with the null values - to make the pdf more readable.
-  // const filteredViasRow =
-  //   columns.length > COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS
-  //     ? viasRow.filter((v) => v !== null)
-  //     : viasRow;
   const filteredColumns =
     columns.length > COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS
       ? columns.filter((_, index) => !emptyColumns.includes(index))
