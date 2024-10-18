@@ -13,14 +13,7 @@ import {
 import { OTHER_PHENOTYPE_LABEL } from '../../settings.ts';
 import { useDataContext } from '../../context/DataContext.ts';
 
-const {
-  gray50,
-  primaryPurple500,
-  gray100A,
-  gray500,
-  primaryPurple600,
-  gray100,
-} = vars;
+const { gray50, primaryPurple500, gray100A, gray500, primaryPurple600 } = vars;
 
 interface HeatmapGridProps {
   xAxis: string[];
