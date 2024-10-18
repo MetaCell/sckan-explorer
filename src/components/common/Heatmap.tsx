@@ -13,7 +13,14 @@ import {
 import { OTHER_PHENOTYPE_LABEL } from '../../settings.ts';
 import { useDataContext } from '../../context/DataContext.ts';
 
-const { gray50, primaryPurple500, gray100A, gray500, primaryPurple600 } = vars;
+const {
+  gray50,
+  primaryPurple500,
+  gray100A,
+  gray500,
+  primaryPurple600,
+  gray100,
+} = vars;
 
 interface HeatmapGridProps {
   xAxis: string[];
@@ -401,7 +408,14 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                         ? gray100A
                         : 'rgba(255, 255, 255, 0.2)',
                   };
-                  if (secondary) {
+                  if (yAxisData.expanded[_y]) {
+                    return {
+                      ...commonStyles,
+                      borderWidth: isSelectedCell ? '0.125rem' : '0.0625rem',
+                      borderColor: isSelectedCell ? '#8300BF' : gray500,
+                      background: gray100A,
+                    };
+                  } else if (secondary) {
                     // to show another heatmap, can be changed when data is added
                     return {
                       ...commonStyles,
