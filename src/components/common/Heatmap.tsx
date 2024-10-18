@@ -13,7 +13,14 @@ import {
 import { OTHER_PHENOTYPE_LABEL } from '../../settings.ts';
 import { useDataContext } from '../../context/DataContext.ts';
 
-const { gray50, primaryPurple500, gray100A, gray500, primaryPurple600 } = vars;
+const {
+  gray50,
+  primaryPurple500,
+  gray100A,
+  gray200,
+  gray500,
+  primaryPurple600,
+} = vars;
 
 interface HeatmapGridProps {
   xAxis: string[];
@@ -140,6 +147,9 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
   }, [yAxis, setYAxis]);
 
   const handleCellClick = (x: number, y: number) => {
+    if (yAxisData.expanded[y]) {
+      return;
+    }
     const ids = yAxisData.ids;
     if (onCellClick) {
       onCellClick(x, y, ids[y]);
@@ -317,7 +327,8 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                   alignItems: 'center',
                   fontSize: '0.875rem',
                   fontWeight: '500',
-                  marginLeft: '0.25rem',
+                  marginLeft: '0.125rem',
+                  marginRight: '0.125rem',
                   padding: '0.875rem 0',
                   position: 'relative',
                   borderRadius: '0.25rem',
@@ -404,8 +415,9 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                   if (yAxisData.expanded[_y]) {
                     return {
                       ...commonStyles,
+                      cursor: 'not-allowed',
                       borderWidth: isSelectedCell ? '0.125rem' : '0.0625rem',
-                      borderColor: isSelectedCell ? '#8300BF' : gray500,
+                      borderColor: isSelectedCell ? '#8300BF' : gray100A,
                       background: gray100A,
                     };
                   } else if (secondary) {
@@ -439,6 +451,9 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                 cellRender={(value: number, xLabel: string, yLabel: string) => {
                   const xIndex = xLabelToIndex[xLabel];
                   const yIndex = yLabelToIndex[yLabel];
+                  if (yAxisData.expanded[yIndex]) {
+                    return <></>;
+                  }
                   return (
                     <HeatmapTooltip
                       x={xLabel}
