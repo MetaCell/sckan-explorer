@@ -91,7 +91,10 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         selectedItem: HierarchicalItem,
       ): HierarchicalItem[] => {
         return list?.map((listItem) => {
-          if (listItem.label === selectedItem.label) {
+          if (
+            listItem.label === selectedItem.label &&
+            listItem.children.length > 0
+          ) {
             return { ...listItem, expanded: !listItem.expanded };
           } else if (listItem.children) {
             return {
@@ -111,14 +114,12 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
   const handleExpandAll = useCallback(() => {
     const updateList = (list: HierarchicalItem[]): HierarchicalItem[] => {
       return list?.map((listItem) => {
-        if (listItem.children) {
+        if (listItem.children && listItem.children.length > 0) {
           return {
             ...listItem,
             expanded: true,
             children: updateList(listItem.children),
           };
-        } else if (listItem.expanded === false || listItem.expanded === true) {
-          return { ...listItem, expanded: true };
         }
         return listItem;
       });
