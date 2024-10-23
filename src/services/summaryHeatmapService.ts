@@ -26,9 +26,11 @@ export const generatePhenotypeColors = (num: number) => {
       'green',
       'yellow',
       'purple',
-      'orange',
+      'gray',
       'brown',
       'cyan',
+      'magenta',
+      'pink',
     ])
     .mode('lch')
     .colors(num);

@@ -143,7 +143,15 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
                   }}
                 >
                   {option.label}{' '}
-                  {option.expanded ? <MinusIcon /> : <PlusIcon />}
+                  {option.children.length > 0 ? (
+                    option.expanded ? (
+                      <MinusIcon />
+                    ) : (
+                      <PlusIcon />
+                    )
+                  ) : (
+                    <></>
+                  )}
                 </Button>
                 {renderOptions(option.children, option.expanded, optionIndex)}
               </>
@@ -189,7 +197,16 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
               },
             }}
           >
-            {item.label} {item.expanded ? <MinusIcon /> : <PlusIcon />}
+            {item.label}{' '}
+            {item.children.length > 0 ? (
+              item.expanded ? (
+                <MinusIcon />
+              ) : (
+                <PlusIcon />
+              )
+            ) : (
+              <></>
+            )}
           </Button>
           {renderOptions(item.children, item.expanded)}
         </Box>

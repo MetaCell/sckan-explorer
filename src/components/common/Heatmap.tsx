@@ -84,7 +84,10 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         selectedItem: HierarchicalItem,
       ): HierarchicalItem[] => {
         return list?.map((listItem) => {
-          if (listItem.label === selectedItem.label) {
+          if (
+            listItem.label === selectedItem.label &&
+            listItem.children.length > 0
+          ) {
             return { ...listItem, expanded: !listItem.expanded };
           } else if (listItem.children) {
             return {
@@ -104,14 +107,12 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
   const handleExpandAll = useCallback(() => {
     const updateList = (list: HierarchicalItem[]): HierarchicalItem[] => {
       return list?.map((listItem) => {
-        if (listItem.children) {
+        if (listItem.children && listItem.children.length > 0) {
           return {
             ...listItem,
             expanded: true,
             children: updateList(listItem.children),
           };
-        } else if (listItem.expanded === false || listItem.expanded === true) {
-          return { ...listItem, expanded: true };
         }
         return listItem;
       });
@@ -140,6 +141,9 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
   }, [yAxis, setYAxis]);
 
   const handleCellClick = (x: number, y: number) => {
+    if (yAxisData.expanded[y]) {
+      return;
+    }
     const ids = yAxisData.ids;
     if (onCellClick) {
       onCellClick(x, y, ids[y]);
@@ -317,7 +321,8 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                   alignItems: 'center',
                   fontSize: '0.875rem',
                   fontWeight: '500',
-                  marginLeft: '0.25rem',
+                  marginLeft: '0.125rem',
+                  marginRight: '0.125rem',
                   padding: '0.875rem 0',
                   position: 'relative',
                   borderRadius: '0.25rem',
@@ -401,7 +406,15 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                         ? gray100A
                         : 'rgba(255, 255, 255, 0.2)',
                   };
-                  if (secondary) {
+                  if (yAxisData.expanded[_y]) {
+                    return {
+                      ...commonStyles,
+                      cursor: 'not-allowed',
+                      borderWidth: isSelectedCell ? '0.125rem' : '0.0625rem',
+                      borderColor: isSelectedCell ? '#8300BF' : gray100A,
+                      background: gray100A,
+                    };
+                  } else if (secondary) {
                     // to show another heatmap, can be changed when data is added
                     return {
                       ...commonStyles,
@@ -432,6 +445,9 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                 cellRender={(value: number, xLabel: string, yLabel: string) => {
                   const xIndex = xLabelToIndex[xLabel];
                   const yIndex = yLabelToIndex[yLabel];
+                  if (yAxisData.expanded[yIndex]) {
+                    return <></>;
+                  }
                   return (
                     <HeatmapTooltip
                       x={xLabel}
