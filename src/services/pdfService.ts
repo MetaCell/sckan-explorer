@@ -182,7 +182,7 @@ export const getPDFContent = (
   // SECTION 3 - Connectivity Matrix - tables
   const rows = sortEntitiesList(uniqueOrigins.split(', '));
   const columns = sortEntitiesList(uniqueDestinations.split(', '));
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const matrix = rows.map((row) => {
     return columns.map((column) => {
       return entitiesJourney.flatMap((entity) => {
