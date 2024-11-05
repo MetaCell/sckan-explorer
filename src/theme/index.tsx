@@ -146,7 +146,7 @@ const theme = createTheme({
         }
         #x-label {
           background: ${gray100};
-          margin-top: 0.1rem;
+          margin: 0 0.12rem 0.1rem 0.12rem !important;
         }
         #y-label-empty {
             background-image: linear-gradient(${gray400}, ${gray100});
