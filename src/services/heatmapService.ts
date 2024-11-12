@@ -358,17 +358,20 @@ export const generateYLabelsAndIds = (
 ): LabelIdPair => {
   let labels: string[] = [];
   let ids: string[] = [];
+  let expanded: boolean[] = [];
   list?.forEach((item) => {
     const fullLabel = prefix ? `${prefix} - ${item.label}` : item.label;
     labels.push(fullLabel);
     ids.push(item.id);
+    expanded.push(item.expanded);
     if (item.expanded && item.children.length > 0) {
       const children = generateYLabelsAndIds(item.children, fullLabel);
       labels = labels.concat(children.labels);
       ids = ids.concat(children.ids);
+      expanded = expanded.concat(children.expanded);
     }
   });
-  return { labels, ids };
+  return { labels, ids, expanded };
 };
 
 type ConnectionsMap<T> = Map<string, T[]>;
