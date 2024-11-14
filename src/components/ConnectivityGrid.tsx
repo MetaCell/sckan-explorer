@@ -26,6 +26,7 @@ const {
   gray100,
   primaryPurple600,
   gray400,
+  gray600A,
 } = vars;
 
 function ConnectivityGrid() {
@@ -146,6 +147,8 @@ function ConnectivityGrid() {
 
   const isLoading = yAxis.length == 0;
 
+  const totalPopulationCount = 253; // TODO: calculate
+
   return isLoading ? (
     <Loader />
   ) : (
@@ -157,9 +160,19 @@ function ConnectivityGrid() {
       display="flex"
       flexDirection="column"
     >
-      <Box pb={2.5}>
+      <Box display="flex" justifyContent="space-between" pb={2.5}>
         <Typography variant="h6" sx={{ fontWeight: 400 }}>
           Connection Origin to End Organ
+        </Typography>
+        <Typography
+          sx={{
+            fontSize: '0.875rem',
+            fontWeight: 500,
+            lineHeight: '1.25rem',
+            color: gray600A,
+          }}
+        >
+          {totalPopulationCount} populations
         </Typography>
       </Box>
 
