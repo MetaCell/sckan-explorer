@@ -443,7 +443,6 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                 cellRender={(value: number, xLabel: string, yLabel: string) => {
                   const xIndex = xLabelToIndex[xLabel];
                   const yIndex = yLabelToIndex[yLabel];
-
                   return (
                     <HeatmapTooltip
                       x={xLabel}
