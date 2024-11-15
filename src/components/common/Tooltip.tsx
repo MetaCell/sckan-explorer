@@ -1,4 +1,4 @@
-import { FC, ReactElement } from 'react';
+import { FC } from 'react';
 import { vars } from '../../theme/variables';
 import { Box, Tooltip as MaterialTooltip, Typography } from '@mui/material';
 import { type TooltipProps as MaterialTooltipProps } from '@mui/material';
@@ -17,7 +17,7 @@ const commonHeadingStyles = {
   color: gray300,
 };
 
-export const commonTextStyles = {
+const commonTextStyles = {
   fontSize: '0.75rem',
   fontWeight: 600,
   lineHeight: '1.125rem',
