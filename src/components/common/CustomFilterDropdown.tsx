@@ -509,17 +509,12 @@ export default function CustomEntitiesDropdown({
                               checked={isOptionSelected(option)}
                             />
                             <Typography
-                              sx={{
-                                width: 1,
-                                height: 1,
-                                padding: '0.625rem',
-                              }}
+                              sx={{ width: 1, height: 1, padding: '0.625rem' }}
                             >
                               {option?.label?.length > 100
                                 ? option?.label.slice(0, 100) + '...'
                                 : option?.label}
                             </Typography>
-
                             {/* <Typography whiteSpace="nowrap" variant="body2">
                               {option?.id}
                             </Typography> */}
