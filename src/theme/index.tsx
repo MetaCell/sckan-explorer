@@ -131,11 +131,15 @@ const theme = createTheme({
           padding: 1rem;
           border-radius: 1rem 1rem 0 0;
         }
-        #circular_loader {
-          margin-bottom: 2rem;
+        #loader_logo {
+          user-select: none;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          pointer-events: none;
         }
         #loader_text {
-          font-size: 1rem;
+          font-size: 0.85rem;
           font-family: ${primaryFont};
           color: ${gray600};
         }

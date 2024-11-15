@@ -1,7 +1,15 @@
-import { Box, CircularProgress } from '@mui/material';
-import React from 'react';
+import { Box, LinearProgress } from '@mui/material';
+import { vars } from '../../theme/variables';
+import MinimalLogo from '../assets/svg/logo-minimal.svg';
 
-const Loader = () => {
+interface LoaderProps {
+  progress: number;
+  text?: string;
+}
+
+const Loader: React.FC<LoaderProps> = ({ progress, text }) => {
+  const { primaryPurple600, gray100 } = vars;
+
   return (
     <Box
       display="flex"
@@ -11,8 +19,25 @@ const Loader = () => {
       width="100vw"
       flexDirection={'column'}
     >
-      <CircularProgress id="circular_loader" size={60} />
-      <div id="loader_text">Loading data...</div>
+      <img id="loader_logo" src={MinimalLogo} width="49.45px" />
+      <LinearProgress
+        variant="determinate"
+        value={progress}
+        color="inherit"
+        sx={{
+          borderRadius: 4,
+          width: '240px',
+          height: '8px',
+          marginTop: '1.5rem',
+          marginBottom: '1rem',
+          '& .MuiLinearProgress-bar': {
+            backgroundColor: primaryPurple600,
+          },
+          color: gray100,
+          backgroundColor: gray100,
+        }}
+      />
+      {text ? <div id="loader_text">{text}</div> : null}
     </Box>
   );
 };
