@@ -4,7 +4,6 @@ import {
   ClickAwayListener,
   InputAdornment,
   Popper,
-  Tooltip,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import {
@@ -22,6 +21,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { vars } from '../../theme/variables';
 import { Option } from './Types.ts';
+import Tooltip from './Tooltip.tsx';
 
 const {
   gray100,
@@ -256,7 +256,7 @@ export default function CustomEntitiesDropdown({
               <Box gap={0} display="flex" flexWrap="wrap" alignItems="center">
                 {updatedSelectedOptions?.map((item: Option) => {
                   return (
-                    <Tooltip title={item?.label} placement="top" arrow>
+                    <Tooltip body={item?.label} placement="top" arrow>
                       <Chip
                         key={item?.id}
                         sx={styles.chip}
@@ -493,30 +493,44 @@ export default function CustomEntitiesDropdown({
                       </ListSubheader>
                       <ul>
                         {autocompleteOptions.map((option: Option) => (
-                          <li
-                            key={option.id}
-                            onClick={() => handleOptionSelection(option)}
-                            className={
-                              isOptionSelected(option) ? 'selected' : ''
-                            }
+                          <Tooltip
+                            body={option.label}
+                            heading="label"
+                            arrow
+                            placement="right"
                           >
-                            <Checkbox
-                              disableRipple
-                              icon={<UncheckedItemIcon fontSize="small" />}
-                              checkedIcon={<CheckedItemIcon fontSize="small" />}
-                              checked={isOptionSelected(option)}
-                            />
-                            <Typography
-                              sx={{ width: 1, height: 1, padding: '0.625rem' }}
+                            <li
+                              key={option.id}
+                              onClick={() => handleOptionSelection(option)}
+                              className={
+                                isOptionSelected(option) ? 'selected' : ''
+                              }
                             >
-                              {option?.label?.length > 100
-                                ? option?.label.slice(0, 100) + '...'
-                                : option?.label}
-                            </Typography>
-                            {/* <Typography whiteSpace="nowrap" variant="body2">
+                              <Checkbox
+                                disableRipple
+                                icon={<UncheckedItemIcon fontSize="small" />}
+                                checkedIcon={
+                                  <CheckedItemIcon fontSize="small" />
+                                }
+                                checked={isOptionSelected(option)}
+                              />
+                              <Typography
+                                sx={{
+                                  width: 1,
+                                  height: 1,
+                                  padding: '0.625rem',
+                                }}
+                              >
+                                {option?.label?.length > 100
+                                  ? option?.label.slice(0, 100) + '...'
+                                  : option?.label}
+                              </Typography>
+
+                              {/* <Typography whiteSpace="nowrap" variant="body2">
                               {option?.id}
                             </Typography> */}
-                          </li>
+                            </li>
+                          </Tooltip>
                         ))}
                       </ul>
                     </Box>
