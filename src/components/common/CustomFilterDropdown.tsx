@@ -251,7 +251,9 @@ export default function CustomEntitiesDropdown({
             ref={dropdownButtonRef}
           >
             {selectedOptions.length === 0 ? (
-              <Typography sx={styles.placeholder}>{placeholder}</Typography>
+              <Tooltip body={placeholder} arrow placement="top">
+                <Typography sx={styles.placeholder}>{placeholder}</Typography>
+              </Tooltip>
             ) : (
               <Box gap={0} display="flex" flexWrap="wrap" alignItems="center">
                 {updatedSelectedOptions?.map((item: Option) => {
@@ -493,44 +495,35 @@ export default function CustomEntitiesDropdown({
                       </ListSubheader>
                       <ul>
                         {autocompleteOptions.map((option: Option) => (
-                          <Tooltip
-                            body={option.label}
-                            heading="label"
-                            arrow
-                            placement="right"
+                          <li
+                            key={option.id}
+                            onClick={() => handleOptionSelection(option)}
+                            className={
+                              isOptionSelected(option) ? 'selected' : ''
+                            }
                           >
-                            <li
-                              key={option.id}
-                              onClick={() => handleOptionSelection(option)}
-                              className={
-                                isOptionSelected(option) ? 'selected' : ''
-                              }
+                            <Checkbox
+                              disableRipple
+                              icon={<UncheckedItemIcon fontSize="small" />}
+                              checkedIcon={<CheckedItemIcon fontSize="small" />}
+                              checked={isOptionSelected(option)}
+                            />
+                            <Typography
+                              sx={{
+                                width: 1,
+                                height: 1,
+                                padding: '0.625rem',
+                              }}
                             >
-                              <Checkbox
-                                disableRipple
-                                icon={<UncheckedItemIcon fontSize="small" />}
-                                checkedIcon={
-                                  <CheckedItemIcon fontSize="small" />
-                                }
-                                checked={isOptionSelected(option)}
-                              />
-                              <Typography
-                                sx={{
-                                  width: 1,
-                                  height: 1,
-                                  padding: '0.625rem',
-                                }}
-                              >
-                                {option?.label?.length > 100
-                                  ? option?.label.slice(0, 100) + '...'
-                                  : option?.label}
-                              </Typography>
+                              {option?.label?.length > 100
+                                ? option?.label.slice(0, 100) + '...'
+                                : option?.label}
+                            </Typography>
 
-                              {/* <Typography whiteSpace="nowrap" variant="body2">
+                            {/* <Typography whiteSpace="nowrap" variant="body2">
                               {option?.id}
                             </Typography> */}
-                            </li>
-                          </Tooltip>
+                          </li>
                         ))}
                       </ul>
                     </Box>
