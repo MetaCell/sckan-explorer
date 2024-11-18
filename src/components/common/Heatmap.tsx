@@ -410,9 +410,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                     return {
                       ...commonStyles,
                       cursor: 'not-allowed',
-                      borderWidth: isSelectedCell ? '0.125rem' : '0.0625rem',
-                      borderColor: isSelectedCell ? '#8300BF' : gray100A,
-                      background: gray100A,
+                      opacity: 0,
                     };
                   } else if (secondary) {
                     // to show another heatmap, can be changed when data is added
@@ -445,9 +443,6 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                 cellRender={(value: number, xLabel: string, yLabel: string) => {
                   const xIndex = xLabelToIndex[xLabel];
                   const yIndex = yLabelToIndex[yLabel];
-                  if (yAxisData.expanded[yIndex]) {
-                    return <></>;
-                  }
                   return (
                     <HeatmapTooltip
                       x={xLabel}
@@ -456,6 +451,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                       rows={
                         secondary ? getTooltipRows(xIndex, yIndex) : undefined
                       }
+                      yExpanded={yAxisData.expanded[yIndex]}
                     />
                   );
                 }}

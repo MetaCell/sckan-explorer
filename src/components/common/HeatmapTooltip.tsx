@@ -14,6 +14,7 @@ interface HeatmapTooltipProps {
   y: string;
   connections: number;
   rows?: HeatmapTooltipRow[];
+  yExpanded: boolean;
 }
 
 const commonHeadingStyles = {
@@ -35,7 +36,23 @@ const HeatmapTooltip: FC<HeatmapTooltipProps> = ({
   y,
   connections,
   rows,
+  yExpanded,
 }) => {
+  if (yExpanded) {
+    return (
+      <Tooltip
+        placement="right"
+        title={
+          <Typography sx={commonTextStyles}>
+            Explore connections in expanded child elements
+          </Typography>
+        }
+      >
+        <Box sx={{ opacity: 0 }}></Box>
+      </Tooltip>
+    );
+  }
+
   const hasRows = rows && rows.length > 0;
 
   if (connections === 0) {
