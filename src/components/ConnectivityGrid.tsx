@@ -13,6 +13,7 @@ import {
   filterConnectionsMap,
   getNonEmptyColumns,
   filterYAxis,
+  filterKnowledgeStatements,
 } from '../services/heatmapService.ts';
 import FiltersDropdowns from './FiltersDropdowns.tsx';
 import { HierarchicalItem } from './common/Types.ts';
@@ -147,7 +148,14 @@ function ConnectivityGrid() {
 
   const isLoading = yAxis.length == 0;
 
-  const totalPopulationCount = 253; // TODO: calculate
+  const totalPopulationCount = useMemo(() => {
+    const filteredStatements = filterKnowledgeStatements(
+      knowledgeStatements,
+      hierarchicalNodes,
+      filters,
+    );
+    return Object.keys(filteredStatements).length;
+  }, [knowledgeStatements, hierarchicalNodes, filters]);
 
   return isLoading ? (
     <Loader />
