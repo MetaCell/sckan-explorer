@@ -6,7 +6,7 @@ import { Detail } from './summaryPage/Detail.tsx';
 import { Section, SubSection } from './summaryPage/Section.tsx';
 import { TabPanel } from './summaryPage/TabPanel.tsx';
 import InfoTab from './summaryPage/InfoTab.tsx';
-import Loader from './common/Loader.tsx';
+import LoaderSpinner from './common/LoaderSpinner.tsx';
 import {
   SCKAN_DATABASE_SUMMARY_URL_LATEST,
   SCKAN_DATABASE_SUMMARY_URL_PREVIOUS,
@@ -252,7 +252,7 @@ const SummaryPage = () => {
   if (!loaded)
     return (
       <Box display="flex" justifyContent="center" alignItems="center" width={1}>
-        <Loader />
+        <LoaderSpinner />
       </Box>
     );
   return (
