@@ -3,3 +3,4 @@ cloud-harness
 libraries
 *.pyc
 deployment/helm
+skaffold.yaml

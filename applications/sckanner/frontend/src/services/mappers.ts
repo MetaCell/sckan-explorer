@@ -58,9 +58,9 @@ interface KnowledgeStatementAPI {
 }
 
 export function mapApiResponseToKnowledgeStatements(
-  composerResponse: ComposerResponse,
+  composerResponse: KnowledgeStatementAPI[],
 ) {
-  return composerResponse.results.map((ks) => ({
+  return composerResponse.map((ks) => ({
     id: String(ks.reference_uri),
     phenotype: ks.phenotype?.name || '',
     apinatomy: ks.apinatomy_model || '',

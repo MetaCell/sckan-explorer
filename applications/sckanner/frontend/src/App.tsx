@@ -100,7 +100,7 @@ const App = () => {
       });
 
 
-      fetchKnowledgeStatements(Array.from(neuronIDsSet))
+      fetchKnowledgeStatements()
         .then((statements) => {
           // Convert array to a map by ID for easy access
           const ksMap = statements.reduce<Record<string, KnowledgeStatement>>(
