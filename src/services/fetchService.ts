@@ -1,5 +1,6 @@
 import {
   COMPOSER_API_URL,
+  KNOWLEDGE_STATEMENTS_BATCH_SIZE,
   SCKAN_JSON_URL,
   SCKAN_MAJOR_NERVES_JSON_URL,
   SCKAN_ORDER_JSON_URL,
@@ -8,7 +9,6 @@ import { KnowledgeStatement } from '../models/explorer.ts';
 import { mapApiResponseToKnowledgeStatements } from './mappers.ts';
 import { JsonData, NerveResponse, OrderJson } from '../models/json.ts';
 
-const KNOWLEDGE_STATEMENTS_BATCH_SIZE = 50;
 
 const fetchData = async <T>(url: string): Promise<T> => {
   try {

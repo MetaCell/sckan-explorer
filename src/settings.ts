@@ -80,3 +80,4 @@ export const STRINGS_NUMBERS = [
 
 export const SCKAN_VERSION = '1.0.0';
 export const COMPOSER_VERSION = '1.0.0';
+export const KNOWLEDGE_STATEMENTS_BATCH_SIZE = 15;
