@@ -1,0 +1,23 @@
+harness:
+  database: {auto: true, type: postgres}
+  dependencies:
+    build: [cloudharness-frontend-build, cloudharness-django]
+    hard: [common, accounts, events]
+  deployment: {auto: true, port: 8080}
+  livenessProbe: {path: /api/live}
+  readinessProbe: {path: /api/ready}
+  secured: true
+  service: {auto: true, port: 8080}
+  subdomain: sckanner
+  test:
+    api:
+      autotest: true
+      checks: [all]
+      enabled: true
+  uri_role_mapping:
+  - require-any-role: true
+    roles: ['sckanner:sckanner-administrator', 'sckanner:sckanner-manager',
+      'sckanner:sckanner-user']
+    uri: /*
+  use_services:
+  - {name: common}

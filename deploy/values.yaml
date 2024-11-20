@@ -1,8 +1,0 @@
-harness:
-  subdomain: sckan-explorer
-  secured: false
-  sentry: false
-  port: 80
-  service:
-    port: 8000
-    auto: true

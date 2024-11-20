@@ -1,0 +1,83 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "sckanner API",
+    "version": "0.1.0",
+    "description": ""
+  },
+  "paths": {
+    "/api/ping": {
+      "get": {
+        "operationId": "sckanner_api_ping",
+        "summary": "Ping",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response",
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "test"
+        ]
+      }
+    },
+    "/api/live": {
+      "get": {
+        "operationId": "sckanner_api_live",
+        "summary": "Live",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "test"
+        ]
+      }
+    },
+    "/api/ready": {
+      "get": {
+        "operationId": "sckanner_api_ready",
+        "summary": "Ready",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "test"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {}
+  },
+  "servers": []
+}

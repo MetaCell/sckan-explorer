@@ -1,0 +1,6 @@
+harness:
+    users:
+    - username: sckanner
+      email: sckanner@testuser.com
+      clientRoles: []
+      realmRoles: []
