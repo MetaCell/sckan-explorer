@@ -11,6 +11,7 @@ COPY frontend/yarn.lock .
 RUN yarn install --timeout 60000
 
 COPY frontend .
+RUN /bin/sh replace_env_vars.sh './src/settings.ts'
 RUN yarn build
 
 #####

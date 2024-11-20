@@ -2,3 +2,4 @@ cloud-harness
 .vscode
 libraries
 *.pyc
+deployment/helm
