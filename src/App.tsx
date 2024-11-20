@@ -160,12 +160,14 @@ const App = () => {
                       />
                     ) : (
                       <DataContextProvider
-                        majorNerves={majorNerves}
+                        majorNerves={
+                          majorNerves ? majorNerves : new Set<string>()
+                        }
                         hierarchicalNodes={hierarchicalNodes}
                         organs={organs}
                         knowledgeStatements={knowledgeStatements}
                       >
-                        <LayoutComponent />
+                        {LayoutComponent && <LayoutComponent />}
                       </DataContextProvider>
                     )
                   }

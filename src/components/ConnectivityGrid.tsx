@@ -17,7 +17,7 @@ import {
 import FiltersDropdowns from './FiltersDropdowns.tsx';
 import { HierarchicalItem } from './common/Types.ts';
 import { Organ } from '../models/explorer.ts';
-import Loader from './common/Loader.tsx';
+import LoaderSpinner from './common/LoaderSpinner.tsx';
 
 const {
   gray500,
@@ -147,7 +147,7 @@ function ConnectivityGrid() {
   const isLoading = yAxis.length == 0;
 
   return isLoading ? (
-    <Loader />
+    <LoaderSpinner />
   ) : (
     <Box
       minHeight="100%"
