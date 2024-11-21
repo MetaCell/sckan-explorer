@@ -14,3 +14,6 @@ harness:
     roles: ['sckanner:sckanner-administrator', 'sckanner:sckanner-manager',
       'sckanner:sckanner-user']
     uri: /*
+composer:
+  cronjob:
+    schedule: "0 3 * * *"  # Runs at 3:00 AM every day
