@@ -1,3 +1,5 @@
+mainapp: sckanner
+
 harness:
   # -- If specified, an ingress will be created at [subdomain].[.Values.domain]
   subdomain:

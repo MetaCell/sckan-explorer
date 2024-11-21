@@ -8,7 +8,7 @@ harness:
   readinessProbe: {path: /api/ready}
   secured: true
   service: {auto: true, port: 8080}
-  subdomain: sckanner
+  subdomain: www
   uri_role_mapping:
   - require-any-role: true
     roles: ['sckanner:sckanner-administrator', 'sckanner:sckanner-manager',
