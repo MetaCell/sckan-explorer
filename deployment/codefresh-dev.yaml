@@ -127,6 +127,28 @@ steps:
     type: parallel
     stage: build
     steps:
+      accounts:
+        type: build
+        stage: build
+        dockerfile: Dockerfile
+        registry: '${{CODEFRESH_REGISTRY}}'
+        buildkit: true
+        build_arguments:
+        - DOMAIN=${{DOMAIN}}
+        - NOCACHE=${{CF_BUILD_ID}}
+        - VITE_API_URL=${{CF_BUILD_ID}}
+        - REGISTRY=${{REGISTRY}}/cloudharness/
+        image_name: cloudharness/accounts
+        title: Accounts
+        working_directory: ./cloud-harness/applications/accounts
+        tag: '${{ACCOUNTS_TAG}}'
+        when:
+          condition:
+            any:
+              buildDoesNotExist: includes('${{ACCOUNTS_TAG_EXISTS}}', '{{ACCOUNTS_TAG_EXISTS}}')
+                == true
+              forceNoCache: includes('${{ACCOUNTS_TAG_FORCE_BUILD}}', '{{ACCOUNTS_TAG_FORCE_BUILD}}')
+                == false
       sckanner:
         type: build
         stage: build
@@ -200,6 +222,14 @@ steps:
         type: push
         title: Cloudharness django
         candidate: '${{REGISTRY}}/cloudharness/cloudharness-django:${{CLOUDHARNESS_DJANGO_TAG}}'
+        tags:
+        - '${{DEPLOYMENT_PUBLISH_TAG}}'
+        registry: '${{REGISTRY_PUBLISH_URL}}'
+      publish_accounts:
+        stage: publish
+        type: push
+        title: Accounts
+        candidate: '${{REGISTRY}}/cloudharness/accounts:${{ACCOUNTS_TAG}}'
         tags:
         - '${{DEPLOYMENT_PUBLISH_TAG}}'
         registry: '${{REGISTRY_PUBLISH_URL}}'

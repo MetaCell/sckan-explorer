@@ -2,6 +2,7 @@ harness:
   database: {auto: true, type: postgres}
   dependencies:
     build: [cloudharness-frontend-build, cloudharness-django]
+    hard: [accounts, events]
   deployment: {auto: true, port: 8080}
   livenessProbe: {path: /api/live}
   readinessProbe: {path: /api/ready}
