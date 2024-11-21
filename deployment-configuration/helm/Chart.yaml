@@ -1,8 +1,0 @@
-apiVersion: v1
-appVersion: 2.4.0
-description: CloudHarness Helm Chart
-maintainers:
-- {email: filippo@metacell.us, name: Filippo Ledda}
-- {email: zoran@metacell.us, name: Zoran Sinnema}
-name: cloudharness
-version: 0.0.1
