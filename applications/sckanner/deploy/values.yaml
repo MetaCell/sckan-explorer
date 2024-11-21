@@ -2,7 +2,6 @@ harness:
   database: {auto: true, type: postgres}
   dependencies:
     build: [cloudharness-frontend-build, cloudharness-django]
-    hard: [common]
   deployment: {auto: true, port: 8080}
   livenessProbe: {path: /api/live}
   readinessProbe: {path: /api/ready}
@@ -14,5 +13,3 @@ harness:
     roles: ['sckanner:sckanner-administrator', 'sckanner:sckanner-manager',
       'sckanner:sckanner-user']
     uri: /*
-  use_services:
-  - {name: common}
