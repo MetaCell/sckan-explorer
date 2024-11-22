@@ -119,12 +119,27 @@ const App = () => {
     }
   }, [hierarchicalNodes]);
 
-  const isLoading =
-    LayoutComponent === undefined ||
-    Object.keys(hierarchicalNodes).length === 0 ||
-    majorNerves === undefined ||
-    Object.keys(organs).length == 0 ||
-    Object.keys(knowledgeStatements).length == 0;
+  const loadingLabels = [
+    'Layout',
+    'Nodes',
+    'Nerves',
+    'Organs',
+    'Knowledge Statements',
+  ];
+  const loadingConditions = [
+    LayoutComponent === undefined,
+    Object.keys(hierarchicalNodes).length === 0,
+    majorNerves === undefined,
+    Object.keys(organs).length == 0,
+    Object.keys(knowledgeStatements).length == 0,
+  ];
+
+  const isLoading = loadingConditions.some(Boolean);
+  const loadingProgress =
+    (loadingConditions.filter((c) => !c).length / loadingConditions.length) *
+    100;
+  const loadingInfo =
+    loadingLabels[loadingConditions.findIndex((c) => c)] ?? '';
 
   return (
     <>
@@ -140,15 +155,20 @@ const App = () => {
                   path="/"
                   element={
                     isLoading ? (
-                      <Loader />
+                      <Loader
+                        progress={loadingProgress}
+                        text={`Loading ${loadingInfo}...`}
+                      />
                     ) : (
                       <DataContextProvider
-                        majorNerves={majorNerves}
+                        majorNerves={
+                          majorNerves ? majorNerves : new Set<string>()
+                        }
                         hierarchicalNodes={hierarchicalNodes}
                         organs={organs}
                         knowledgeStatements={knowledgeStatements}
                       >
-                        <LayoutComponent />
+                        {LayoutComponent && <LayoutComponent />}
                       </DataContextProvider>
                     )
                   }

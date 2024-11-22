@@ -11,7 +11,11 @@ export type Option = {
   content: OptionDetail[];
 };
 
-export type LabelIdPair = { labels: string[]; ids: string[] };
+export type LabelIdPair = {
+  labels: string[];
+  ids: string[];
+  expanded: boolean[];
+};
 
 export type KsRecord = Record<string, KnowledgeStatement>;
 

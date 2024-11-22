@@ -1,5 +1,11 @@
-import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
-import { DataContext, Filters, ConnectionSummary } from './DataContext.ts';
+import {
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { DataContext, Filters, ConnectionSummary } from './DataContext';
 import {
   HierarchicalNode,
   KnowledgeStatement,
@@ -68,27 +74,48 @@ export const DataContextProvider = ({
     return colorMap;
   }, [phenotypes]);
 
-  const updateSelectedConnectionSummary = (
-    summary:
-      | Omit<ConnectionSummary, 'filteredKnowledgeStatements'>
-      | ConnectionSummary
-      | null,
-    filters: Filters,
-    hierarchicalNodes: Record<string, HierarchicalNode>,
-  ) => {
-    if (summary) {
-      const filteredKnowledgeStatements = filterKnowledgeStatements(
-        summary.connections,
-        hierarchicalNodes,
-        filters,
-      );
-      return {
-        ...summary,
-        filteredKnowledgeStatements,
-      };
-    }
-    return null;
-  };
+  const updateSelectedConnectionSummary = useCallback(
+    (
+      summary:
+        | Omit<ConnectionSummary, 'filteredKnowledgeStatements'>
+        | ConnectionSummary
+        | null,
+      filters: Filters,
+      hierarchicalNodes: Record<string, HierarchicalNode>,
+    ) => {
+      if (summary) {
+        let filteredKnowledgeStatements = filterKnowledgeStatements(
+          summary.connections,
+          hierarchicalNodes,
+          filters,
+        );
+
+        filteredKnowledgeStatements = Object.fromEntries(
+          Object.entries(filteredKnowledgeStatements).map(
+            ([key, statement]) => [
+              key,
+              {
+                ...statement,
+                vias: statement.vias.map((via) => ({
+                  ...via,
+                  anatomical_entities: via.anatomical_entities.filter(
+                    (entity) => majorNerves.has(entity.id),
+                  ),
+                })),
+              },
+            ],
+          ),
+        );
+
+        return {
+          ...summary,
+          filteredKnowledgeStatements,
+        };
+      }
+      return null;
+    },
+    [majorNerves],
+  );
 
   const handleSetSelectedConnectionSummary = (
     summary: Omit<ConnectionSummary, 'filteredKnowledgeStatements'> | null,
@@ -105,7 +132,7 @@ export const DataContextProvider = ({
     setSelectedConnectionSummary((prevSummary) =>
       updateSelectedConnectionSummary(prevSummary, filters, hierarchicalNodes),
     );
-  }, [filters, hierarchicalNodes]);
+  }, [filters, hierarchicalNodes, updateSelectedConnectionSummary]);
 
   const dataContextValue = {
     filters,

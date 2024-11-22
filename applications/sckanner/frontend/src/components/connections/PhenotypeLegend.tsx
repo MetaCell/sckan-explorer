@@ -30,9 +30,10 @@ const PhenotypeLegend = ({ phenotypes }: { phenotypes: string[] }) => {
             fontWeight: 500,
             lineHeight: '1.125rem',
             color: '#818898',
+            paddingRight: '1.5rem',
           }}
         >
-          Phenotype
+          Phenotype:
         </Typography>
 
         <Box

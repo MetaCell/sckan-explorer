@@ -131,11 +131,15 @@ const theme = createTheme({
           padding: 1rem;
           border-radius: 1rem 1rem 0 0;
         }
-        #circular_loader {
-          margin-bottom: 2rem;
+        #loader_logo {
+          user-select: none;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          pointer-events: none;
         }
         #loader_text {
-          font-size: 1rem;
+          font-size: 0.85rem;
           font-family: ${primaryFont};
           color: ${gray600};
         }
@@ -146,7 +150,7 @@ const theme = createTheme({
         }
         #x-label {
           background: ${gray100};
-          margin-top: 0.1rem;
+          margin: 0 0.12rem 0.1rem 0.12rem !important;
         }
         #y-label-empty {
             background-image: linear-gradient(${gray400}, ${gray100});

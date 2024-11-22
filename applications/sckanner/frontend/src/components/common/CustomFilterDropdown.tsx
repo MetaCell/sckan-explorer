@@ -4,7 +4,6 @@ import {
   ClickAwayListener,
   InputAdornment,
   Popper,
-  Tooltip,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import {
@@ -22,6 +21,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { vars } from '../../theme/variables.ts';
 import { Option } from './Types.ts';
+import Tooltip from './Tooltip.tsx';
 
 const {
   gray100,
@@ -251,12 +251,14 @@ export default function CustomEntitiesDropdown({
             ref={dropdownButtonRef}
           >
             {selectedOptions.length === 0 ? (
-              <Typography sx={styles.placeholder}>{placeholder}</Typography>
+              <Tooltip body={placeholder} arrow placement="top">
+                <Typography sx={styles.placeholder}>{placeholder}</Typography>
+              </Tooltip>
             ) : (
               <Box gap={0} display="flex" flexWrap="wrap" alignItems="center">
                 {updatedSelectedOptions?.map((item: Option) => {
                   return (
-                    <Tooltip title={item?.label} placement="top" arrow>
+                    <Tooltip body={item?.label} placement="top" arrow>
                       <Chip
                         key={item?.id}
                         sx={styles.chip}
