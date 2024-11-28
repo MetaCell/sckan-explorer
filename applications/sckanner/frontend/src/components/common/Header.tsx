@@ -10,6 +10,7 @@ import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import Logo from '../assets/svg/Logo.svg';
 import AboutScannerLogo from '../assets/svg/actions.svg';
+import BetaLogo from '../assets/svg/beta.svg';
 import MenuIcon from '@mui/icons-material/Menu';
 import About from './About';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -141,6 +142,9 @@ function Header() {
             <Box sx={{ flexGrow: 0 }}>
               <IconButton sx={{ p: 0 }} onClick={() => setOpen(!open)}>
                 <img src={AboutScannerLogo} />
+              </IconButton>
+              <IconButton sx={{ p: 0 }}>
+                <img src={BetaLogo} />
               </IconButton>
             </Box>
           </Toolbar>

@@ -35,7 +35,7 @@ const DetailsUI: FC<DetailsItemProps> = ({
 
 const AboutContent = [
   {
-    heading: 'About SCKAN Explorer',
+    heading: 'About SCKANNER',
     description:
       'A key component of the SPARC Program is SCKAN. It is a semantic store housing a comprehensive knowledge base of autonomic nervous system (ANS) and peripheral nervous system (PNS) nerve to end organ connectivity. Connectivity information is derived from SPARC experts, SPARC data, literature and textbooks. SCKAN supports reasoning and offers powerful query and visualization capabilities.',
     buttonText: 'Learn more about SCKAN',
@@ -64,9 +64,7 @@ const About: FC<ModalProps> = ({ open, handleClose }) => {
       aria-labelledby="customized-dialog-title"
       open={open}
     >
-      <DialogTitle id="customized-dialog-title">
-        About SCKAN Explorer
-      </DialogTitle>
+      <DialogTitle id="customized-dialog-title">About SCKANNER</DialogTitle>
       <IconButton
         aria-label="close"
         onClick={handleClose}

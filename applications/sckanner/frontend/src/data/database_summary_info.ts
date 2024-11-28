@@ -16,6 +16,25 @@ export const sckanInfoText = {
     ],
     note: "So, a connectivity statement of the form 'A to B via Nerve C' denotes the connection of a neuron population originating at Region A and projecting to Region(s) B via Nerve(s) C. Please note that the neuron populations modeled in SCKAN are theoretical in that they do not correspond to identified cell types. In cases where a population projects to multiple targets, we do not differentiate whether this is via axon collaterals or distinct cell types.",
   },
+  speciesAndSex: {
+    title: 'Species and Sex specificities in SCKAN',
+    content:
+      "SCKAN models the species and sex of the animal in which the connection was observed. All connections in SCKAN are based on evidence from literature sources and are observed in mammals. Below is a summary of SCKAN's policies on species and sex specificities: ",
+    speciesSection: {
+      title: 'Species',
+      bulletPoints: [
+        'Unspecified Species: If no species is specified, the connection has been observed in at least one mammal, but the specific species is considered unknown.',
+        'Specified Species: If a species (e.g., rats) is specified, the connection has been observed in that species. However, this does not rule out the possibility of the connection existing in other mammals. Example: A connection observed in rats might also exist in humans, pending further research supported by published literature.',
+      ],
+    },
+    sexSection: {
+      title: 'Sex',
+      bulletPoints: [
+        'Unspecified Sex: If no sex is specied, the connection is assumed to exist in both males and females.',
+        'Specified Sex: If sex (e.g., male rats) is specified, the connection has only been observed in that sex, indicating a potential sex-specific difference. Example: A connection specified for male rats means it has not been observed in female rats.',
+      ],
+    },
+  },
   versions: {
     title: 'Versions',
     bulletPoints: ['Composer Version: 3.1.0', 'SCKAN VersionInfo: 2024-04-27'],
