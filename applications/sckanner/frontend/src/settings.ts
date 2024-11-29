@@ -77,6 +77,6 @@ export const STRINGS_NUMBERS = [
   'twentieth',
 ];
 
-export const SCKAN_VERSION = '1.0.0';
-export const COMPOSER_VERSION = '1.0.0';
+export const COMPOSER_VERSION = '3.1.0';
+export const NEURONDM_VERSION = '2024-04-27';
 export const KNOWLEDGE_STATEMENTS_BATCH_SIZE = 15;

@@ -6,6 +6,7 @@ import { TypeB60Enum } from '../models/composer';
 import { EntitiesJourneyType } from '../models/explorer';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
 import { STRINGS_NUMBERS, DESTINATIONS_ORDER } from '../settings';
+import { COMPOSER_VERSION, NEURONDM_VERSION } from '../settings';
 
 const COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS = 6;
 
@@ -80,6 +81,28 @@ export const getPDFContent = (
       style: 'header',
       bold: true,
       fontSize: 18,
+    },
+    {
+      text: 'Versions:',
+      style: 'subheader',
+      bold: true,
+      margin: [0, 20, 0, 0],
+      fontSize: 16,
+    },
+    {
+      text: `Composer Version: ${COMPOSER_VERSION}`,
+      style: 'paragraph',
+      margin: [0, 10, 0, 0],
+    },
+    {
+      text: `SCKAN Version: ${NEURONDM_VERSION}`,
+      style: 'paragraph',
+      margin: [0, 10, 0, 0],
+    },
+    {
+      text: 'Date: ' + new Date().toISOString(),
+      style: 'paragraph',
+      margin: [0, 10, 0, 0],
     },
     {
       text: 'Results summary:',
