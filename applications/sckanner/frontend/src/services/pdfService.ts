@@ -315,7 +315,7 @@ export const generatePDFService = (
   const structureTraversed = Array.from(new Set(vias.flat(2))).join(', ');
   const uniqueSpecies = Array.from(new Set(species.flat(2))).join(', ');
   const sexes = Array.from(new Set(sex)).join(', ');
-  const connectionTypes = phenotypes.join(', ');
+  const connectionTypes = Array.from(new Set(phenotypes)).join(', ');
   const entitiesJourney = [];
 
   const connectionDetails = filteredKnowledgeStatements
