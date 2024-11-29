@@ -1,3 +1,5 @@
+import { COMPOSER_VERSION, NEURONDM_VERSION } from '../settings';
+
 export const sckanInfoText = {
   summary: {
     title: 'What is SCKAN database summary?',
@@ -37,7 +39,10 @@ export const sckanInfoText = {
   },
   versions: {
     title: 'Versions',
-    bulletPoints: ['Composer Version: 3.1.0', 'SCKAN VersionInfo: 2024-04-27'],
+    bulletPoints: [
+      'Composer Version: ' + COMPOSER_VERSION,
+      'SCKAN VersionInfo: ' + NEURONDM_VERSION,
+    ],
     // SCKAN version is retrieved manually from the ttl files inside the composer pod, since the ingestion has been run there
     // the file to look for is phenotype-indicators.ttl
   },

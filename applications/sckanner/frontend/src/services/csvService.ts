@@ -2,7 +2,7 @@
 // @ts-nocheck
 import { KnowledgeStatement } from '../models/explorer';
 import { Filters } from '../context/DataContext';
-import { SCKAN_VERSION, COMPOSER_VERSION } from '../settings';
+import { NEURONDM_VERSION, COMPOSER_VERSION } from '../settings';
 
 type csvData = {
   [key: string]: KnowledgeStatement;
@@ -158,7 +158,7 @@ export const generateJourneyCsvService = (
   filters: Filters,
 ) => {
   const metadata = [
-    ['# SCKAN Version', SCKAN_VERSION],
+    ['# SCKAN Version', NEURONDM_VERSION],
     ['# Composer Version', COMPOSER_VERSION],
     ['# Date and Time', new Date().toISOString()],
     [
