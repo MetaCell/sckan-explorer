@@ -158,7 +158,7 @@ export const generateJourneyCsvService = (
   filters: Filters,
 ) => {
   const metadata = [
-    ['# NEURONDM Version', NEURONDM_VERSION],
+    ['# SCKAN Version', NEURONDM_VERSION],
     ['# Composer Version', COMPOSER_VERSION],
     ['# Date and Time', new Date().toISOString()],
     [
