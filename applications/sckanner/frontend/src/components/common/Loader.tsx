@@ -1,6 +1,7 @@
 import { Box, LinearProgress } from '@mui/material';
 import { vars } from '../../theme/variables';
-import MinimalLogo from '../assets/svg/logo-minimal.svg';
+// import MinimalLogo from '../assets/svg/logo-minimal.svg';
+import MinimalLogo from '../assets/gif/loader_logo.gif';
 
 interface LoaderProps {
   progress: number;
@@ -19,7 +20,7 @@ const Loader: React.FC<LoaderProps> = ({ progress, text }) => {
       width="100vw"
       flexDirection={'column'}
     >
-      <img id="loader_logo" src={MinimalLogo} width="49.45px" />
+      <img id="loader_logo" src={MinimalLogo} width="10%" />
       <LinearProgress
         variant="determinate"
         value={progress}

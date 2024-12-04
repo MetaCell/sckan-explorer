@@ -7,6 +7,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import CloseIcon from '@mui/icons-material/Close';
 import { FC } from 'react';
+import { NEURONDM_VERSION, COMPOSER_VERSION } from '../../settings';
 
 interface ModalProps {
   open: boolean;
@@ -15,21 +16,31 @@ interface ModalProps {
 
 interface DetailsItemProps {
   heading: string;
-  description: string;
-  buttonText: string;
+  description: string | undefined;
+  buttonText: string | undefined;
+  buttonURL: string | undefined;
 }
 
 const DetailsUI: FC<DetailsItemProps> = ({
   heading,
   description = '',
   buttonText = '',
+  buttonURL = '',
 }) => (
   <Box>
     <Typography gutterBottom variant="h6">
       {heading}
     </Typography>
     {description && <Typography gutterBottom>{description}</Typography>}
-    {buttonText && <Typography variant="button">{buttonText}</Typography>}
+    {buttonText && (
+      <Typography
+        variant="button"
+        style={{ cursor: 'pointer' }}
+        onClick={() => window.open(buttonURL, '_blank')?.focus()}
+      >
+        {buttonText}
+      </Typography>
+    )}
   </Box>
 );
 
@@ -39,11 +50,12 @@ const AboutContent = [
     description:
       'A key component of the SPARC Program is SCKAN. It is a semantic store housing a comprehensive knowledge base of autonomic nervous system (ANS) and peripheral nervous system (PNS) nerve to end organ connectivity. Connectivity information is derived from SPARC experts, SPARC data, literature and textbooks. SCKAN supports reasoning and offers powerful query and visualization capabilities.',
     buttonText: 'Learn more about SCKAN',
+    buttonURL:
+      'https://sparc.science/tools-and-resources/6eg3VpJbwQR4B84CjrvmyD',
   },
   {
     heading: 'Owner',
     description: 'SPARC Knowledge Core (K-CORE)',
-    buttonText: 'Learn more about SCKAN',
   },
   {
     heading: 'Funding Program',
@@ -53,7 +65,19 @@ const AboutContent = [
   {
     heading: 'Contact',
     buttonText: 'kcore@sparc.science',
-    description: '',
+    buttonURL: 'mailto:kcore@sparc.science',
+  },
+  {
+    heading: 'SCKANNER Version',
+    description: '1.0.0-beta',
+  },
+  {
+    heading: 'Composer version',
+    description: COMPOSER_VERSION,
+  },
+  {
+    heading: 'SCKAN Release',
+    description: NEURONDM_VERSION,
   },
 ];
 
@@ -83,6 +107,7 @@ const About: FC<ModalProps> = ({ open, handleClose }) => {
             heading={content?.heading}
             description={content?.description}
             buttonText={content?.buttonText}
+            buttonURL={content?.buttonURL}
           />
         ))}
         <Box className="MuiBoxMetacell-footer">
