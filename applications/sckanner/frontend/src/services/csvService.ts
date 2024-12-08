@@ -158,8 +158,9 @@ export const generateJourneyCsvService = (
   filters: Filters,
 ) => {
   const metadata = [
-    ['# SCKAN Version', NEURONDM_VERSION],
-    ['# Composer Version', COMPOSER_VERSION],
+    ['# SCKANNER Version 1.0.0-beta'],
+    ['# Composer Version ', COMPOSER_VERSION],
+    ['# SCKAN Version ', NEURONDM_VERSION],
     ['# Date and Time', new Date().toISOString()],
     [
       '# Search parameter - origin',

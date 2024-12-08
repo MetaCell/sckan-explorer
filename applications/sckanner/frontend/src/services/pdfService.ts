@@ -90,6 +90,11 @@ export const getPDFContent = (
       fontSize: 16,
     },
     {
+      text: `SCKANNER Version: 1.0.0-beta`,
+      style: 'paragraph',
+      margin: [0, 10, 0, 0],
+    },
+    {
       text: `Composer Version: ${COMPOSER_VERSION}`,
       style: 'paragraph',
       margin: [0, 10, 0, 0],

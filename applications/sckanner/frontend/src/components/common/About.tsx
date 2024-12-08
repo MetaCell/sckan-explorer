@@ -72,11 +72,11 @@ const AboutContent = [
     description: '1.0.0-beta',
   },
   {
-    heading: 'Composer version',
+    heading: 'Composer Version',
     description: COMPOSER_VERSION,
   },
   {
-    heading: 'SCKAN Release',
+    heading: 'SCKAN Version',
     description: NEURONDM_VERSION,
   },
 ];
