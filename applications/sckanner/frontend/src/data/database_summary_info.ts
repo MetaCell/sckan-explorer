@@ -40,8 +40,9 @@ export const sckanInfoText = {
   versions: {
     title: 'Versions',
     bulletPoints: [
+      'SCKANNER Version: 1.0.0-beta',
       'Composer Version: ' + COMPOSER_VERSION,
-      'SCKAN VersionInfo: ' + NEURONDM_VERSION,
+      'SCKAN Version: ' + NEURONDM_VERSION,
     ],
     // SCKAN version is retrieved manually from the ttl files inside the composer pod, since the ingestion has been run there
     // the file to look for is phenotype-indicators.ttl
