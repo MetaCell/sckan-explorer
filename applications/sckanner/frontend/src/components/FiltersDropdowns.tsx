@@ -26,6 +26,7 @@ interface FilterConfig {
   id: keyof Filters;
   placeholder: string;
   searchPlaceholder: string;
+  tooltip?: string;
 }
 
 const filterConfig: FilterConfig[] = [
@@ -33,16 +34,19 @@ const filterConfig: FilterConfig[] = [
     id: 'Origin',
     placeholder: 'Origin',
     searchPlaceholder: 'Search origin',
+    tooltip: 'Location of the cell body',
   },
   {
     id: 'EndOrgan',
     placeholder: 'End organ',
     searchPlaceholder: 'Search end organ',
+    tooltip: 'Where axons terminate',
   },
   {
     id: 'Species',
     placeholder: 'Species',
     searchPlaceholder: 'Search species',
+    tooltip: 'Species specificity as identified in literature',
   },
   {
     id: 'Phenotype',
@@ -53,16 +57,20 @@ const filterConfig: FilterConfig[] = [
     id: 'apiNATOMY',
     placeholder: 'Connectivity Model',
     searchPlaceholder: 'Search connectivity models',
+    tooltip: 'Expert contributed circuitry models',
   },
   {
     id: 'Via',
     placeholder: 'Via',
     searchPlaceholder: 'Search via',
+    tooltip:
+      "Nerves or regions through which axons travel, but don't terminate",
   },
   {
     id: 'Entities',
     placeholder: 'Anatomical structures',
     searchPlaceholder: 'Search by entity',
+    tooltip: 'Includes origins, end organs, and vias',
   },
 ];
 
@@ -139,6 +147,7 @@ const FiltersDropdowns: React.FC = () => {
           key={filter.id}
           id={filter.id}
           placeholder={filter.placeholder}
+          tooltip={filter.tooltip}
           searchPlaceholder={filter.searchPlaceholder}
           selectedOptions={filters[filter.id]}
           onSearch={(searchValue: string) =>

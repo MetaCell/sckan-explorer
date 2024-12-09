@@ -165,6 +165,7 @@ const styles = {
 interface EntitiesProps {
   id?: string;
   placeholder: string;
+  tooltip?: string;
   searchPlaceholder?: string;
   onSearch: (searchValue: string) => Option[];
   selectedOptions: Option[];
@@ -173,6 +174,7 @@ interface EntitiesProps {
 
 export default function CustomEntitiesDropdown({
   placeholder,
+  tooltip,
   searchPlaceholder,
   onSearch,
   id,
@@ -251,25 +253,27 @@ export default function CustomEntitiesDropdown({
             ref={dropdownButtonRef}
           >
             {selectedOptions.length === 0 ? (
-              <Tooltip body={placeholder} arrow placement="top">
+              tooltip ? (
+                <Tooltip body={tooltip} arrow placement="top">
+                  <Typography sx={styles.placeholder}>{placeholder}</Typography>
+                </Tooltip>
+              ) : (
                 <Typography sx={styles.placeholder}>{placeholder}</Typography>
-              </Tooltip>
+              )
             ) : (
               <Box gap={0} display="flex" flexWrap="wrap" alignItems="center">
                 {updatedSelectedOptions?.map((item: Option) => {
                   return (
-                    <Tooltip body={item?.label} placement="top" arrow>
-                      <Chip
-                        key={item?.id}
-                        sx={styles.chip}
-                        variant={'outlined'}
-                        onClick={(e) => {
-                          handleClick();
-                          e.stopPropagation();
-                        }}
-                        label={`${item?.label}`}
-                      />
-                    </Tooltip>
+                    <Chip
+                      key={item?.id}
+                      sx={styles.chip}
+                      variant={'outlined'}
+                      onClick={(e) => {
+                        handleClick();
+                        e.stopPropagation();
+                      }}
+                      label={`${item?.label}`}
+                    />
                   );
                 })}
                 {selectedOptions?.length > 1 && (
