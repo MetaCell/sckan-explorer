@@ -74,6 +74,7 @@ export const getPDFContent = (
     entitiesJourney,
     connectionDetails,
   } = pdfRequirement;
+  const distinctNeuronPopulations = connectionDetails.length;
   // SECTION 1 - Result summary
   const resultSummary: PDFMAKEContent = [
     {
@@ -117,7 +118,7 @@ export const getPDFContent = (
       fontSize: 16,
     },
     {
-      text: `This information comes from ${numOfConnections} connections. `,
+      text: `This information comes from ${numOfConnections} connections extracted from ${distinctNeuronPopulations} distinct neuron populations. `,
       style: 'paragraph',
       margin: [0, 15, 0, 0],
     },
@@ -146,7 +147,7 @@ export const getPDFContent = (
   // SECTION 2 - Connection details
   const connectionDetailsContent: PDFMAKEContent = [
     {
-      text: 'Connection details:',
+      text: 'Connection details for each distinct neuron population:',
       style: 'subheader',
       bold: true,
       margin: [0, 30, 0, 0],
