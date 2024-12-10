@@ -242,12 +242,42 @@ export const getPDFContent = (
       margin: [0, 30, 0, 10],
     },
     {
-      style: 'tableExample',
-      table: {
-        body: connectivityMatrix,
-      },
-      fontSize:
-        filteredColumns.length > 13 ? 6 : filteredColumns.length > 6 ? 8 : 10,
+      text: 'End organ → ',
+      style: 'subheader',
+      bold: true,
+      margin: [80, 10, 0, 15],
+    },
+    {
+      columns: [
+        {
+          stack: [
+            {
+              text: 'Origin',
+              style: 'subheader',
+              bold: true,
+              margin: [0, 30, 10, 0],
+              width: 40
+            },
+            {
+              text: '↓',
+              style: 'subheader',
+              alignment: 'center',
+              bold: true,
+              margin: [0, 10, 10, 0],
+              width: 40
+            }
+          ],
+          width: 50
+        },
+        {
+          style: 'tableExample',
+          table: {
+            body: connectivityMatrix,
+          },
+          fontSize:
+            filteredColumns.length > 13 ? 6 : filteredColumns.length > 6 ? 8 : 10,
+        },
+      ],
     },
   ];
 
