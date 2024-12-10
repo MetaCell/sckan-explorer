@@ -26,7 +26,7 @@ type pdfRequirementType = {
 };
 
 type ConnectionDetailType = {
-  'Knowledge Statement'?: string;
+  'Statement Preview'?: string;
   'Connection Id'?: string;
   Species?: string;
   Sex?: string;
@@ -164,14 +164,6 @@ export const getPDFContent = (
 
   connectionDetails.map((detail) => {
     for (const [key, value] of Object.entries(detail)) {
-      if (key === 'Knowledge Statement') {
-        connectionDetailsContent.push({
-          text: `${value}`,
-          style: 'paragraph',
-          margin: [0, 10, 0, 0],
-        });
-        continue;
-      }
       connectionDetailsContent.push({
         text: [{ text: `${key}`, bold: true }, { text: `: ${value}` }],
         margin: [0, 10, 0, 0],
@@ -327,7 +319,7 @@ export const generatePDFService = (
     ? Object.keys(filteredKnowledgeStatements).map((ksid) => {
         const ks = filteredKnowledgeStatements[ksid];
         const details: ConnectionDetailType = {
-          'Knowledge Statement': ks.knowledge_statement || '-',
+          'Statement Preview': ks.statement_preview || '-',
           'Connection Id': ks.id || '-',
           Species: ks.species.map((specie) => specie.name).join(', ') || '-',
           Sex: ks.sex.name || '-',
