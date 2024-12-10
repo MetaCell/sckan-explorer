@@ -26,7 +26,7 @@ type pdfRequirementType = {
 };
 
 type ConnectionDetailType = {
-  'Knowledge Statement'?: string;
+  'Statement Preview'?: string;
   'Connection Id'?: string;
   Species?: string;
   Sex?: string;
@@ -74,6 +74,7 @@ export const getPDFContent = (
     entitiesJourney,
     connectionDetails,
   } = pdfRequirement;
+  const distinctNeuronPopulations = connectionDetails.length;
   // SECTION 1 - Result summary
   const resultSummary: PDFMAKEContent = [
     {
@@ -117,7 +118,7 @@ export const getPDFContent = (
       fontSize: 16,
     },
     {
-      text: `This information comes from ${numOfConnections} connections. `,
+      text: `This information comes from ${numOfConnections} connections extracted from ${distinctNeuronPopulations} distinct neuron populations. `,
       style: 'paragraph',
       margin: [0, 15, 0, 0],
     },
@@ -146,7 +147,7 @@ export const getPDFContent = (
   // SECTION 2 - Connection details
   const connectionDetailsContent: PDFMAKEContent = [
     {
-      text: 'Connection details:',
+      text: 'Connection details for each distinct neuron population:',
       style: 'subheader',
       bold: true,
       margin: [0, 30, 0, 0],
@@ -164,14 +165,6 @@ export const getPDFContent = (
 
   connectionDetails.map((detail) => {
     for (const [key, value] of Object.entries(detail)) {
-      if (key === 'Knowledge Statement') {
-        connectionDetailsContent.push({
-          text: `${value}`,
-          style: 'paragraph',
-          margin: [0, 10, 0, 0],
-        });
-        continue;
-      }
       connectionDetailsContent.push({
         text: [{ text: `${key}`, bold: true }, { text: `: ${value}` }],
         margin: [0, 10, 0, 0],
@@ -249,12 +242,42 @@ export const getPDFContent = (
       margin: [0, 30, 0, 10],
     },
     {
-      style: 'tableExample',
-      table: {
-        body: connectivityMatrix,
-      },
-      fontSize:
-        filteredColumns.length > 13 ? 6 : filteredColumns.length > 6 ? 8 : 10,
+      text: 'End organ → ',
+      style: 'subheader',
+      bold: true,
+      margin: [80, 10, 0, 15],
+    },
+    {
+      columns: [
+        {
+          stack: [
+            {
+              text: 'Origin',
+              style: 'subheader',
+              bold: true,
+              margin: [0, 30, 10, 0],
+              width: 40
+            },
+            {
+              text: '↓',
+              style: 'subheader',
+              alignment: 'center',
+              bold: true,
+              margin: [0, 10, 10, 0],
+              width: 40
+            }
+          ],
+          width: 50
+        },
+        {
+          style: 'tableExample',
+          table: {
+            body: connectivityMatrix,
+          },
+          fontSize:
+            filteredColumns.length > 13 ? 6 : filteredColumns.length > 6 ? 8 : 10,
+        },
+      ],
     },
   ];
 
@@ -327,7 +350,7 @@ export const generatePDFService = (
     ? Object.keys(filteredKnowledgeStatements).map((ksid) => {
         const ks = filteredKnowledgeStatements[ksid];
         const details: ConnectionDetailType = {
-          'Knowledge Statement': ks.knowledge_statement || '-',
+          'Statement Preview': ks.statement_preview || '-',
           'Connection Id': ks.id || '-',
           Species: ks.species.map((specie) => specie.name).join(', ') || '-',
           Sex: ks.sex.name || '-',

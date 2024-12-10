@@ -144,7 +144,7 @@ const SummaryDetails = ({
             Connection summary
           </Typography>
           <Typography variant="body1" color={gray500}>
-            {connectionDetails?.knowledge_statement || '-'}
+            {connectionDetails?.statement_preview || '-'}
           </Typography>
           {phenotype && <CommonChip label={phenotype} variant="outlined" />}
           <CommonAccordion
