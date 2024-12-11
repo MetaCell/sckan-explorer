@@ -9,6 +9,7 @@ import { STRINGS_NUMBERS, DESTINATIONS_ORDER } from '../settings';
 import { COMPOSER_VERSION, NEURONDM_VERSION } from '../settings';
 
 const COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS = 6;
+const MAX_NUMBER_OF_COLUMNS_IN_CONNECTIVITY_MATRIX_TABLE = 30;
 
 type pdfRequirementType = {
   connectionOrigin: string;
@@ -232,7 +233,34 @@ export const getPDFContent = (
       ? columns.filter((_, index) => !emptyColumns.includes(index))
       : columns;
 
-  // const connectivityMatrixHeader = ['Structure', ...filteredColumns];
+  const commonFirstColumn = connectivityMatrix.map((row) => row[0]);
+
+  const splitMatrixIntoPages = (
+    innerMatrix: number[][],
+    maxColumns: number,
+  ) => {
+    const pages = [];
+    for (let i = 0; i < innerMatrix[0].length; i += maxColumns) {
+      const page = innerMatrix.map((row) => row.slice(i, i + maxColumns));
+      pages.push(page);
+    }
+
+    // add the rowHeaer to rest of the pages
+    pages.forEach((page, index) => {
+      if (index > 0) {
+        page.forEach((row, rowIndex) => {
+          row.unshift(commonFirstColumn[rowIndex]);
+        });
+      }
+    });
+    return pages;
+  };
+
+  const connectivityMatrixPages = splitMatrixIntoPages(
+    connectivityMatrix,
+    MAX_NUMBER_OF_COLUMNS_IN_CONNECTIVITY_MATRIX_TABLE,
+  );
+
   const connectivityMatrixContent: PDFMAKEContent = [
     {
       text: 'Connectivity Matrix',
@@ -241,13 +269,29 @@ export const getPDFContent = (
       fontSize: 18,
       margin: [0, 30, 0, 10],
     },
-    {
-      text: 'End organ → ',
+  ];
+
+  const numberOfConnectivityMatrixPages = connectivityMatrixPages.length;
+
+  connectivityMatrixPages.forEach((cmPage, index) => {
+    const marginTopForPageCountText = index > 0 ? 80 : 20;
+    if (numberOfConnectivityMatrixPages > 1) {
+      connectivityMatrixContent.push({
+        text: `Page ${index + 1}/${numberOfConnectivityMatrixPages} of the connectivity matrix`,
+        style: 'subheader',
+        bold: true,
+        fontSize: 13,
+        margin: [0, marginTopForPageCountText, 0, 15],
+      });
+    }
+    connectivityMatrixContent.push({
+      text: `End organ → `,
       style: 'subheader',
       bold: true,
       margin: [80, 10, 0, 15],
-    },
-    {
+    });
+
+    connectivityMatrixContent.push({
       columns: [
         {
           stack: [
@@ -256,7 +300,7 @@ export const getPDFContent = (
               style: 'subheader',
               bold: true,
               margin: [0, 30, 10, 0],
-              width: 40
+              width: 40,
             },
             {
               text: '↓',
@@ -264,22 +308,22 @@ export const getPDFContent = (
               alignment: 'center',
               bold: true,
               margin: [0, 10, 10, 0],
-              width: 40
-            }
+              width: 40,
+            },
           ],
-          width: 50
+          width: 50,
         },
         {
           style: 'tableExample',
           table: {
-            body: connectivityMatrix,
+            body: cmPage,
           },
           fontSize:
-            filteredColumns.length > 13 ? 6 : filteredColumns.length > 6 ? 8 : 10,
+            cmPage[index].length > 13 ? 6 : cmPage[index].length > 6 ? 8 : 10,
         },
       ],
-    },
-  ];
+    });
+  });
 
   const pdfContent = resultSummary
     .concat(connectionDetailsContent)
@@ -360,7 +404,10 @@ export const generatePDFService = (
           Laterality: ks.laterality || '-',
           'Circuit Type': ks.circuit_type || '-',
           References:
-            ks.provenances.map((provenance) => provenance).join(', ') || '-',
+            ks.provenances
+              .filter((uri) => uri !== ks.id)
+              .map((provenance) => provenance)
+              .join(', ') || '-',
         };
         Object.keys(details).forEach((key) => {
           if (details[key] === '-') {
