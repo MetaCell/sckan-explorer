@@ -64,7 +64,7 @@ const SummaryDetails = ({
   // Details shown in the dropdown - from composer
   const detailsObject = [
     {
-      label: 'Name',
+      label: 'Connection Id',
       value: connectionDetails?.id || '-',
       icon: undefined,
     },
@@ -85,7 +85,10 @@ const SummaryDetails = ({
     },
     {
       label: 'References',
-      value: connectionDetails?.provenances || [],
+      value:
+        connectionDetails?.provenances.filter(
+          (uri) => uri !== connectionDetails?.id,
+        ) || [],
       icon: undefined,
     },
     {
