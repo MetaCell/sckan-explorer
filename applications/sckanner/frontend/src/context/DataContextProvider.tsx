@@ -52,7 +52,7 @@ export const DataContextProvider = ({
     const colors = generatePhenotypeColors(phenotypes.length);
     const phenotypesList = [
       'sympathetic pre-ganglionic',
-      'other',
+      'not specified',
       'parasympathetic',
       'parasympathetic post-ganglionic',
       'sympathetic post-ganglionic',
