@@ -24,7 +24,7 @@ export const generatePhenotypeColors = (num: number) => {
       'red',
       'blue',
       'green',
-      'yellow',
+      'orange',
       'purple',
       'gray',
       'brown',
