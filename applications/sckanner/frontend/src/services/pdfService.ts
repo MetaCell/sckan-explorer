@@ -404,7 +404,10 @@ export const generatePDFService = (
           Laterality: ks.laterality || '-',
           'Circuit Type': ks.circuit_type || '-',
           References:
-            ks.provenances.map((provenance) => provenance).join(', ') || '-',
+            ks.provenances
+              .filter((uri) => uri !== ks.id)
+              .map((provenance) => provenance)
+              .join(', ') || '-',
         };
         Object.keys(details).forEach((key) => {
           if (details[key] === '-') {
