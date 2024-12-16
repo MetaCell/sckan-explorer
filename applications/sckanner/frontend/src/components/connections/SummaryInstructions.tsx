@@ -104,6 +104,22 @@ const SummaryInstructions = () => {
               marginBottom: '3rem',
             }}
           ></p>
+          <a
+            href="https://docs.sparc.science/docs/sckanner"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <p
+              style={{
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontFamily: 'Asap, sans-serif',
+              }}
+            >
+              {' '}
+              Click here to check more information about SCKANNER.
+            </p>
+          </a>
         </Typography>
       </Box>
     </Box>

@@ -8,7 +8,6 @@ import { TDocumentDefinitions } from 'pdfmake/interfaces';
 import { STRINGS_NUMBERS, DESTINATIONS_ORDER } from '../settings';
 import { COMPOSER_VERSION, NEURONDM_VERSION } from '../settings';
 
-const COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS = 6;
 const MAX_NUMBER_OF_COLUMNS_IN_CONNECTIVITY_MATRIX_TABLE = 30;
 
 type pdfRequirementType = {
@@ -226,13 +225,6 @@ export const getPDFContent = (
   });
   connectivityMatrix.unshift(columnsHeader);
 
-  // second row - is for the vias between the origin and the respective target organs
-  const emptyColumns = [];
-  const filteredColumns =
-    columns.length > COLUMN_COUNT_AFTER_TO_REMOVE_NULL_VALUES_IN_COLUMNS
-      ? columns.filter((_, index) => !emptyColumns.includes(index))
-      : columns;
-
   const commonFirstColumn = connectivityMatrix.map((row) => row[0]);
 
   const splitMatrixIntoPages = (
@@ -268,6 +260,13 @@ export const getPDFContent = (
       bold: true,
       fontSize: 18,
       margin: [0, 30, 0, 10],
+    },
+    {
+      text: 'The connectivity matrix shows the route between the origin and destination end organ/destination.',
+      style: 'subheader',
+      bold: true,
+      margin: [0, 0, 0, 10],
+      fontSize: 14,
     },
   ];
 
