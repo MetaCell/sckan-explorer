@@ -118,12 +118,14 @@ export const getUniqueOrgans = (organs: Record<string, Organ>): Option[] => {
 };
 
 function mapNameToOption(items: Set<string>) {
-  return Array.from(items).map((item) => ({
-    id: item,
-    label: item,
-    group: '',
-    content: [],
-  }));
+  return Array.from(items)
+    .sort()
+    .map((item) => ({
+      id: item,
+      label: item.toLowerCase(),
+      group: '',
+      content: [],
+    }));
 }
 
 export const getUniqueApinatomies = (
@@ -145,6 +147,9 @@ export const getUniquePhenotypes = (
   Object.values(knowledgeStatements).forEach((ks) => {
     if (ks.phenotype) {
       phenotypes.add(ks.phenotype);
+    }
+    if (ks.circuit_type !== '') {
+      phenotypes.add(ks.circuit_type);
     }
   });
   return mapNameToOption(phenotypes);
