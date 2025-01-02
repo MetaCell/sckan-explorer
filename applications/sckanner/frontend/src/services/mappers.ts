@@ -104,7 +104,7 @@ export function mapApiResponseToKnowledgeStatements(
     laterality: ks.laterality || '',
     projection: ks.projection || '',
     circuit_type: ks.circuit_type || '',
-    sex: ks.sex || [],
+    sex: ks.sex || {},
     statement_preview: ks.statement_preview || '',
   }));
 }

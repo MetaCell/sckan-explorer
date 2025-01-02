@@ -3,6 +3,7 @@
 import { KnowledgeStatement } from '../models/explorer';
 import { Filters } from '../context/DataContext';
 import { NEURONDM_VERSION, COMPOSER_VERSION } from '../settings';
+import { KsRecord } from '../components/common/Types';
 
 type csvData = {
   [key: string]: KnowledgeStatement;
@@ -218,8 +219,8 @@ export const generateJourneyCsvService = (
         entry.knowledge_statement,
         entry.species.map((s) => s.name).join('; '),
         entry.species.map((s) => s.id).join('; '),
-        entry.sex.name,
-        entry.sex.id,
+        entry.sex.name || '',
+        entry.sex.id || '',
         [...new Set(entry.origins.map((o) => o.name))].join('; '),
         [...new Set(entry.origins.map((o) => o.id))].join('; '),
         [
