@@ -220,7 +220,7 @@ export const generateJourneyCsvService = (
         entry.species.map((s) => s.name).join('; '),
         entry.species.map((s) => s.id).join('; '),
         entry.sex.name || '',
-        entry.sex.id || '',
+        entry.sex.ontology_uri || '',
         [...new Set(entry.origins.map((o) => o.name))].join('; '),
         [...new Set(entry.origins.map((o) => o.id))].join('; '),
         [
