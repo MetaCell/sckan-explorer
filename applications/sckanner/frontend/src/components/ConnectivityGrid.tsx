@@ -1,5 +1,5 @@
 import { Box, Button, Typography } from '@mui/material';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import { vars } from '../theme/variables.ts';
 import HeatmapGrid from './common/Heatmap.tsx';
 import { useDataContext } from '../context/DataContext.ts';
@@ -19,6 +19,7 @@ import FiltersDropdowns from './FiltersDropdowns.tsx';
 import { HierarchicalItem } from './common/Types.ts';
 import { Organ } from '../models/explorer.ts';
 import LoaderSpinner from './common/LoaderSpinner.tsx';
+import html2canvas from "html2canvas"
 
 const {
   gray500,
@@ -39,27 +40,31 @@ function ConnectivityGrid() {
     setFilters,
     setSelectedConnectionSummary,
   } = useDataContext();
-
+  
   const [xAxisOrgans, setXAxisOrgans] = useState<Organ[]>([]);
   const [filteredXOrgans, setFilteredXOrgans] = useState<Organ[]>([]);
   const [initialYAxis, setInitialYAxis] = useState<HierarchicalItem[]>([]);
-
+  
   const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
   const [filteredYAxis, setFilteredYAxis] = useState<HierarchicalItem[]>([]);
   // Maps YaxisId -> KnowledgeStatementIds for each Organ
   const [connectionsMap, setConnectionsMap] = useState<
     Map<string, Array<string>[]>
   >(new Map());
-
+  
   const [filteredConnectionsMap, setFilteredConnectionsMap] = useState<
     Map<string, Array<string>[]>
   >(new Map());
-
+  
   const [selectedCell, setSelectedCell] = useState<{
     x: number;
     y: number;
   } | null>(null);
-
+  const [screenshotStatus, setScreenshotStatus] = useState("")
+  const [isCapturing, setIsCapturing] = useState(false)
+  
+  const gridRef = useRef<HTMLDivElement>(null)
+  
   useEffect(() => {
     const connections = calculateConnections(
       hierarchicalNodes,
@@ -69,22 +74,22 @@ function ConnectivityGrid() {
     );
     setConnectionsMap(connections);
   }, [hierarchicalNodes, organs, knowledgeStatements, filters]);
-
+  
   const { min, max } = useMemo(() => {
     return getMinMaxConnections(connectionsMap);
   }, [connectionsMap]);
-
+  
   useEffect(() => {
     const organList = getXAxisOrgans(organs);
     setXAxisOrgans(organList);
   }, [organs]);
-
+  
   useEffect(() => {
     const yAxis = getYAxis(hierarchicalNodes);
     setYAxis(yAxis);
     setInitialYAxis(yAxis);
   }, [hierarchicalNodes]);
-
+  
   useEffect(() => {
     if (connectionsMap.size > 0 && yAxis.length > 0) {
       // Apply filtering logic
@@ -98,13 +103,13 @@ function ConnectivityGrid() {
       const filteredOrgans = xAxisOrgans.filter((_, index) =>
         columnsWithData.has(index),
       );
-
+      
       setFilteredYAxis(filteredYAxis);
       setFilteredXOrgans(filteredOrgans);
       setFilteredConnectionsMap(filteredConnectionsMap);
     }
   }, [yAxis, connectionsMap, xAxisOrgans]);
-
+  
   const { heatmapData, detailedHeatmapData } = useMemo(() => {
     const heatmapData = getHeatmapData(filteredYAxis, filteredConnectionsMap);
     return {
@@ -112,7 +117,7 @@ function ConnectivityGrid() {
       detailedHeatmapData: heatmapData.detailedHeatmap,
     };
   }, [filteredYAxis, filteredConnectionsMap]);
-
+  
   const handleClick = (x: number, y: number, yId: string): void => {
     // When the primary heatmap cell is clicked - this sets the react-context state for Connections in SummaryType.summary
     setSelectedCell({ x, y });
@@ -122,7 +127,7 @@ function ConnectivityGrid() {
       const nodeData = detailedHeatmapData[y];
       const hierarchicalNode = hierarchicalNodes[nodeData.id];
       const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
-
+      
       setSelectedConnectionSummary({
         connections: ksMap,
         endOrgan: endOrgan,
@@ -130,7 +135,7 @@ function ConnectivityGrid() {
       });
     }
   };
-
+  
   const handleReset = () => {
     setYAxis(initialYAxis);
     setFilters({
@@ -145,9 +150,9 @@ function ConnectivityGrid() {
     setSelectedCell(null);
     setSelectedConnectionSummary(null);
   };
-
+  
   const isLoading = yAxis.length == 0;
-
+  
   const totalPopulationCount = useMemo(() => {
     const filteredStatements = filterKnowledgeStatements(
       knowledgeStatements,
@@ -156,11 +161,103 @@ function ConnectivityGrid() {
     );
     return Object.keys(filteredStatements).length;
   }, [knowledgeStatements, hierarchicalNodes, filters]);
-
+  
+  
+  const captureScreenshot = useCallback(async () => {
+    setIsCapturing(true)
+    setScreenshotStatus("Preparing to capture...")
+    
+    const flexLayoutTabs = document.getElementsByClassName("flexlayout__tab")
+    if (flexLayoutTabs.length > 0) {
+      const targetElement = flexLayoutTabs[0] as HTMLElement
+      
+      if (targetElement.scrollTop === 0) {
+        // If already at the top, proceed with capture
+        await captureGrid()
+      } else {
+        // If not at the top, scroll first
+        return new Promise<void>((resolve) => {
+          const handleScrollEnd = () => {
+            targetElement.removeEventListener("scrollend", handleScrollEnd)
+            setScreenshotStatus("Scrolled to top of flexlayout__tab")
+            resolve()
+          }
+          
+          targetElement.addEventListener("scrollend", handleScrollEnd, { once: true })
+          
+          targetElement.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          })
+        }).then(captureGrid)
+      }
+    } else {
+      setScreenshotStatus("Error: flexlayout__tab not found")
+      setIsCapturing(false)
+    }
+  }, [])
+  
+  const captureGrid = async () => {
+    if (!gridRef.current) {
+      setScreenshotStatus("Error: Grid element not found")
+      setIsCapturing(false)
+      return
+    }
+    // Store original styles
+    const originalStyles = {
+      position: gridRef.current.style.position,
+      transform: gridRef.current.style.transform,
+      width: gridRef.current.style.width,
+      height: gridRef.current.style.height,
+      background: gridRef.current.style.background,
+    }
+    
+    // Modify element for screenshot
+    gridRef.current.style.position = "relative"
+    gridRef.current.style.transform = "none"
+    gridRef.current.style.width = "auto"
+    gridRef.current.style.height = "auto"
+    gridRef.current.style.background = "#ffffff"
+    
+    // Force layout recalculation
+    gridRef.current.offsetHeight
+    
+    setScreenshotStatus("Capturing...")
+    
+    // Take screenshot
+    const canvas = await html2canvas(gridRef.current, {
+      backgroundColor: "#ffffff",
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      foreignObjectRendering: true,
+      scrollX: 0,
+      scrollY: -window.scrollY,
+      width: gridRef.current.scrollWidth,
+      height: gridRef.current.scrollHeight,
+    })
+    
+    // Restore original styles
+    Object.entries(originalStyles).forEach(([key, value]) => {
+      gridRef.current!.style[key as any] = value
+    })
+    
+    // Create download
+    const link = document.createElement("a")
+    link.download = "connectivity-grid-screenshot.png"
+    link.href = canvas.toDataURL("image/png", 1.0)
+    link.click()
+    
+    setScreenshotStatus("Screenshot saved")
+    setIsCapturing(false)
+  }
+  
   return isLoading ? (
     <LoaderSpinner />
   ) : (
     <Box
+      ref={gridRef}
+      id="connectivity-grid"
       minHeight="100%"
       p={3}
       pb={0}
@@ -183,9 +280,9 @@ function ConnectivityGrid() {
           {totalPopulationCount} populations
         </Typography>
       </Box>
-
+      
       <FiltersDropdowns />
-
+      
       <HeatmapGrid
         yAxis={filteredYAxis}
         setYAxis={setYAxis}
@@ -196,7 +293,7 @@ function ConnectivityGrid() {
         onCellClick={handleClick}
         selectedCell={selectedCell}
       />
-
+      
       <Box
         py={1.5}
         borderTop={`0.0625rem solid ${gray100}`}
@@ -218,7 +315,7 @@ function ConnectivityGrid() {
             borderRadius: '0.25rem',
             border: `0.0625rem solid ${primaryPurple600}`,
             padding: '0.5rem',
-
+            
             '&:hover': {
               background: 'transparent',
             },
@@ -227,7 +324,36 @@ function ConnectivityGrid() {
         >
           Reset All
         </Button>
-
+        <Button
+          variant="text"
+          sx={{
+            fontSize: "0.875rem",
+            fontWeight: 600,
+            lineHeight: "1.25rem",
+            color: primaryPurple600,
+            borderRadius: "0.25rem",
+            border: `0.0625rem solid ${primaryPurple600}`,
+            padding: "0.5rem",
+            
+            "&:hover": {
+              background: "transparent",
+            },
+          }}
+          onClick={captureScreenshot}
+        >
+          Capture Screenshot
+        </Button>
+        {screenshotStatus && (
+          <Typography
+            sx={{
+              fontSize: "0.875rem",
+              color: screenshotStatus.includes("Error") ? "red" : "green",
+              marginLeft: "1rem",
+            }}
+          >
+            {screenshotStatus}
+          </Typography>
+        )}
         <Box
           sx={{
             display: 'flex',
@@ -250,7 +376,7 @@ function ConnectivityGrid() {
           >
             Connections
           </Typography>
-
+          
           <Box
             sx={{
               display: 'flex',
@@ -268,7 +394,7 @@ function ConnectivityGrid() {
             >
               {min}
             </Typography>
-
+            
             <Box
               sx={{
                 display: 'flex',
@@ -286,7 +412,7 @@ function ConnectivityGrid() {
                 />
               ))}
             </Box>
-
+            
             <Typography
               sx={{
                 fontSize: '0.75rem',
