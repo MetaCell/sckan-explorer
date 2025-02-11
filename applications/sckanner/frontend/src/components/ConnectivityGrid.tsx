@@ -162,7 +162,14 @@ function ConnectivityGrid() {
     return Object.keys(filteredStatements).length;
   }, [knowledgeStatements, hierarchicalNodes, filters]);
   
-  
+  /**
+   * Initiates the screenshot capture process for the connectivity grid.
+   * This function handles scrolling the flexlayout__tab to the top if necessary
+   * before calling the actual capture function.
+   *
+   * @returns {Promise<void>} A promise that resolves when the screenshot is captured
+   */
+ 
   const captureScreenshot = useCallback(async () => {
     setIsCapturing(true)
     setScreenshotStatus("Preparing to capture...")
@@ -185,6 +192,7 @@ function ConnectivityGrid() {
           
           targetElement.addEventListener("scrollend", handleScrollEnd, { once: true })
           
+          // Scroll to the top of the element
           targetElement.scrollTo({
             top: 0,
             behavior: "smooth",
@@ -197,6 +205,12 @@ function ConnectivityGrid() {
     }
   }, [])
   
+  
+  /**
+   * Captures a screenshot of the connectivity grid and saves it as a PNG file.
+   * This function modifies the grid's styles temporarily to ensure proper capture,
+   * then restores the original styles after the screenshot is taken.
+   */
   const captureGrid = async () => {
     if (!gridRef.current) {
       setScreenshotStatus("Error: Grid element not found")
@@ -219,7 +233,7 @@ function ConnectivityGrid() {
     gridRef.current.style.height = "auto"
     gridRef.current.style.background = "#ffffff"
     
-    // Force layout recalculation
+    // Force layout recalculation to ensure styles are applied
     gridRef.current.offsetHeight
     
     setScreenshotStatus("Capturing...")
@@ -227,12 +241,8 @@ function ConnectivityGrid() {
     // Take screenshot
     const canvas = await html2canvas(gridRef.current, {
       backgroundColor: "#ffffff",
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
+      scale: 2, // Increase resolution
       foreignObjectRendering: true,
-      scrollX: 0,
-      scrollY: -window.scrollY,
       width: gridRef.current.scrollWidth,
       height: gridRef.current.scrollHeight,
     })
