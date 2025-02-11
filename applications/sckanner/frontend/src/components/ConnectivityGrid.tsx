@@ -184,19 +184,19 @@ function ConnectivityGrid() {
       } else {
         // If not at the top, scroll first
         return new Promise<void>((resolve) => {
-          const handleScrollEnd = () => {
-            targetElement.removeEventListener("scrollend", handleScrollEnd)
-            setScreenshotStatus("Scrolled to top of flexlayout__tab")
-            resolve()
-          }
-          
-          targetElement.addEventListener("scrollend", handleScrollEnd, { once: true })
-          
           // Scroll to the top of the element
           targetElement.scrollTo({
             top: 0,
             behavior: "smooth",
           })
+          const handleScrollEnd = () => {
+            targetElement.removeEventListener("scrollend", handleScrollEnd)
+            setScreenshotStatus("Scrolled to top of flexlayout__tab")
+            resolve()
+          }
+
+          targetElement.addEventListener("scrollend", handleScrollEnd, { once: true })
+
         }).then(captureGrid)
       }
     } else {
