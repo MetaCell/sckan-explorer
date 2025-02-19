@@ -3,6 +3,7 @@
 import { KnowledgeStatement } from '../models/explorer';
 import { Filters } from '../context/DataContext';
 import { NEURONDM_VERSION, COMPOSER_VERSION } from '../settings';
+import { KsRecord } from '../components/common/Types';
 
 type csvData = {
   [key: string]: KnowledgeStatement;
@@ -187,32 +188,39 @@ export const generateJourneyCsvService = (
   ];
 
   const headers = [
+    'Connectivity Result',
     'ID',
-    'Connection summary',
+    'Connection summary/Knowledge Statement',
     'Species',
+    'Species ID',
     'Sex',
-    'Origins (Names)',
-    'Origins (IDs)',
-    'Destinations (Names)',
-    'Destinations (IDs)',
+    'Sex ID',
+    'Origin',
+    'Origin ID',
+    'Destination',
+    'Destination IDs',
     'Journey',
+    'Via ID',
     'Phenotype',
     'Laterality',
-    'Forward Connections',
-    'Synapses on',
-    'Target Organ',
+    'Forward Connection(s)',
+    'Synapses on (between first population and second)',
+    'TARGET Organ (final organ after forward connections)',
     'Provenances',
   ];
 
   const rows = [...metadata, headers];
 
   Object.values(data).forEach((entry) => {
-    entry.journey.forEach((journey) => {
+    entry.journey.forEach((journey, index) => {
       const row = [
+        index + 1,
         entry.id,
         entry.knowledge_statement,
         entry.species.map((s) => s.name).join('; '),
-        entry.sex.name,
+        entry.species.map((s) => s.id).join('; '),
+        entry.sex.name || '',
+        entry.sex.ontology_uri || '',
         [...new Set(entry.origins.map((o) => o.name))].join('; '),
         [...new Set(entry.origins.map((o) => o.id))].join('; '),
         [
@@ -230,6 +238,13 @@ export const generateJourneyCsvService = (
           ),
         ].join('; '),
         journey,
+        [
+          ...new Set(
+            entry.vias.flatMap((via) =>
+              via.anatomical_entities.map((ae) => ae.id),
+            ),
+          ),
+        ].join('; '),
         entry.phenotype,
         entry.laterality,
         entry.forwardConnections.map((fc) => fc.reference_uri).join('; '),

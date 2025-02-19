@@ -270,7 +270,7 @@ export interface KnowledgeStatement {
 
   /**
    *
-   * @type {Array<string>}
+   * @type {Sex}
    * @memberof KnowledgeStatement
    */
   sex: Sex;
