@@ -101,7 +101,7 @@ const SummaryInstructions = () => {
             style={{
               fontSize: '0.875rem',
               fontFamily: 'Asap, sans-serif',
-              marginBottom: '3rem',
+              marginBottom: '2rem',
             }}
           ></p>
           <a
@@ -113,11 +113,12 @@ const SummaryInstructions = () => {
               style={{
                 cursor: 'pointer',
                 fontSize: '0.875rem',
+                fontWeight: 600,
                 fontFamily: 'Asap, sans-serif',
               }}
             >
               {' '}
-              Click here to check more information about SCKANNER.
+              Click here for additional documentation and tutorials.
             </p>
           </a>
         </Typography>
