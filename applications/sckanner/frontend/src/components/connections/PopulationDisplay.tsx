@@ -101,13 +101,11 @@ const PopulationDisplay = ({
         </Tabs>
       </Stack>
       <CustomTabPanel value={value} index={0}>
-        <Box sx={{ height: '50rem', width: '100%', background: '#EDEFF2' }}>
           <GraphDiagram
             origins={origins}
             vias={viaDetails}
             destinations={destinationDetails}
           />
-        </Box>
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
         <ConnectionsTableView tableData={tableData} />

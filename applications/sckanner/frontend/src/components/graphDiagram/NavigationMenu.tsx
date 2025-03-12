@@ -1,18 +1,21 @@
-import { Stack, Divider } from '@mui/material';
+import {Stack, Divider, Tooltip} from '@mui/material';
 import FitScreenOutlinedIcon from '@mui/icons-material/FitScreenOutlined';
 import ZoomInOutlinedIcon from '@mui/icons-material/ZoomInOutlined';
 import ZoomOutOutlinedIcon from '@mui/icons-material/ZoomOutOutlined';
 import IconButton from '@mui/material/IconButton';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
+import {CameraswitchOutlined, RestartAltOutlined} from "@mui/icons-material";
 
 const ZOOM_CHANGE = 25;
 
 interface NavigationMenuProps {
   engine: DiagramEngine;
+  toggleRankdir: () => void;
+  resetGraph: () => void;
 }
 
 const NavigationMenu = (props: NavigationMenuProps) => {
-  const { engine } = props;
+  const { engine, toggleRankdir, resetGraph } = props;
 
   const zoomOut = () => {
     const zoomLevel = engine.getModel().getZoomLevel();
@@ -30,45 +33,54 @@ const NavigationMenu = (props: NavigationMenuProps) => {
       direction="row"
       spacing="1rem"
       sx={{
-        borderRadius: '1.75rem',
-        border: '1px solid #F2F4F7',
-        background: '#FFF',
-        width: 'fit-content',
-        boxShadow:
-          '0px 4px 6px -2px rgba(16, 24, 40, 0.03), 0px 12px 16px -4px rgba(16, 24, 40, 0.08)',
-        padding: '0.75rem 1.25rem',
-        position: 'absolute',
-        top: 8,
-        right: 8,
-        zIndex: 10,
-
-        '& .MuiSvgIcon-root': {
-          color: '#475467',
+        p: '1.5rem .5rem',
+        "& .MuiSvgIcon-root": {
+          color: "#6C707A",
         },
-
-        '& .MuiDivider-root': {
-          borderColor: '#EAECF0',
+        
+        "& .MuiDivider-root": {
+          borderColor: "#EAECF0",
           borderWidth: 0.5,
+          height: '1.5rem'
         },
-        '& .MuiButtonBase-root': {
+        "& .MuiButtonBase-root": {
           padding: 0,
-
-          '&:hover': {
-            backgroundColor: 'transparent',
-          },
+          
+          '&.Mui-disabled': {
+            "& .MuiSvgIcon-root": {
+              color: '#caced1',
+            },
+          }
         },
       }}
     >
-      <IconButton onClick={() => engine.zoomToFit()}>
-        <FitScreenOutlinedIcon />
-      </IconButton>
+      <Tooltip arrow title='Autoscale'>
+        <IconButton onClick={() => engine.zoomToFit()}>
+          <FitScreenOutlinedIcon/>
+        </IconButton>
+      </Tooltip>
       <Divider />
-      <IconButton onClick={() => zoomIn()}>
-        <ZoomInOutlinedIcon />
-      </IconButton>
-      <IconButton>
-        <ZoomOutOutlinedIcon onClick={() => zoomOut()} />
-      </IconButton>
+      <Tooltip arrow title='Zoom in'>
+        <IconButton onClick={() => zoomIn()}>
+          <ZoomInOutlinedIcon/>
+        </IconButton>
+      </Tooltip>
+      <Tooltip arrow title='Zoom Out'>
+        <IconButton>
+          <ZoomOutOutlinedIcon onClick={() => zoomOut()}/>
+        </IconButton>
+      </Tooltip>
+      <Divider />
+      <Tooltip arrow title='Switch orientation'>
+        <IconButton onClick={toggleRankdir}>
+          <CameraswitchOutlined />
+        </IconButton>
+      </Tooltip>
+      <Tooltip arrow title='Reset to default visualisation'>
+        <IconButton onClick={resetGraph}>
+          <RestartAltOutlined />
+        </IconButton>
+      </Tooltip>
     </Stack>
   ) : null;
 };

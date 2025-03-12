@@ -23,6 +23,7 @@
     "@projectstorm/react-diagrams": "^7.0.3",
     "@types/pdfmake": "^0.2.9",
     "chroma-js": "^2.4.2",
+    "dagre": "^0.8.5",
     "pdfmake": "^0.2.12",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "@types/chroma-js": "^2.4.4",
+    "@types/dagre": "^0.7.52",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
