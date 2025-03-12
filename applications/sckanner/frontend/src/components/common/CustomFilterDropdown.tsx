@@ -348,9 +348,9 @@ export default function CustomEntitiesDropdown({
                   flexWrap: 'wrap',
                   '& .MuiSvgIcon-root': {
                     fontSize: '1rem',
-                    marginRight: '0 !important',
                     width: '1.2rem',
                     height: '1.2rem',
+                    color: gray600,
                   },
                   '& .MuiOutlinedInput-input': {
                     padding: 0,
@@ -392,7 +392,18 @@ export default function CustomEntitiesDropdown({
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <SearchIcon sx={{ fontSize: '1rem', color: gray600 }} />
+                        <SearchIcon sx={{ marginRight: "0 !important", }} />
+                      </InputAdornment>
+                    ),
+                    endAdornment: searchValue && (
+                      <InputAdornment position="end">
+                        <ClearOutlinedIcon
+                          sx={{
+                            marginRight: ".75rem !important",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => setSearchValue('')}
+                        />
                       </InputAdornment>
                     ),
                   }}
