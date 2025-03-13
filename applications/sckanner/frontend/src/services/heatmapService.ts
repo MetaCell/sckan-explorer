@@ -12,6 +12,7 @@ import {
   LabelIdPair,
 } from '../components/common/Types.ts';
 import { Filters } from '../context/DataContext.ts';
+import { extractEndOrganFiltersFromEntities } from './summaryHeatmapService.ts';
 
 export function getYAxis(
   hierarchicalNodes: Record<string, HierarchicalNode>,
@@ -59,6 +60,7 @@ export function calculateConnections(
     allKnowledgeStatements,
     hierarchicalNodes,
     filters,
+    allOrgans,
   );
   const organs = filterOrgans(allOrgans, filters.EndOrgan);
 
@@ -211,6 +213,7 @@ export function filterKnowledgeStatements(
   knowledgeStatements: Record<string, KnowledgeStatement>,
   hierarchicalNodes: Record<string, HierarchicalNode>,
   filters: Filters,
+  organs?: Record<string, Organ>,
 ): Record<string, KnowledgeStatement> {
   const phenotypeIds = filters.Phenotype.map((option) => option.id);
   const apiNATOMYIds =
@@ -231,8 +234,9 @@ export function filterKnowledgeStatements(
         : getLeafDescendants(option.id, hierarchicalNodes),
     ) || [];
 
+  const newFilters = extractEndOrganFiltersFromEntities(filters, organs);
   const entityIds =
-    filters.Entities?.flatMap((option) =>
+    newFilters.Entities?.flatMap((option) =>
       isLeaf(option.id, hierarchicalNodes)
         ? option.id
         : getLeafDescendants(option.id, hierarchicalNodes),

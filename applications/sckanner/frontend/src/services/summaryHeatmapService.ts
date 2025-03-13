@@ -4,7 +4,7 @@ import {
   KsPerPhenotype,
   KsRecord,
 } from '../components/common/Types.ts';
-import { ConnectionSummary, SummaryFilters } from '../context/DataContext.ts';
+import { ConnectionSummary, Filters, SummaryFilters } from '../context/DataContext.ts';
 import {
   HierarchicalNode,
   KnowledgeStatement,
@@ -355,4 +355,31 @@ export const sortHeatmapData = (
     data: newData,
     total: counter,
   };
+};
+
+export const extractEndOrganFiltersFromEntities = (
+  filters = {} as Filters,
+  organs = {} as Record<string, Organ>,
+) => {
+  const updatedFilters = {
+    ...filters,
+    EndOrgan: filters.EndOrgan ? [...filters.EndOrgan] : [],
+  };
+  const endOrganIds = new Set(Object.keys(organs));
+  const remainingEntities = [];
+
+  if (filters.Entities && filters.Entities.length > 0) {
+    for (const entity of filters.Entities) {
+      if (endOrganIds.has(entity.id)) {
+        if (!updatedFilters.EndOrgan.some((e) => e.id === entity.id)) {
+          updatedFilters.EndOrgan.push(entity);
+        }
+      } else {
+        remainingEntities.push(entity);
+      }
+    }
+    updatedFilters.Entities = remainingEntities;
+  }
+
+  return updatedFilters;
 };

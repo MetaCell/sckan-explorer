@@ -153,9 +153,10 @@ function ConnectivityGrid() {
       knowledgeStatements,
       hierarchicalNodes,
       filters,
+      organs,
     );
     return Object.keys(filteredStatements).length;
-  }, [knowledgeStatements, hierarchicalNodes, filters]);
+  }, [knowledgeStatements, hierarchicalNodes, filters, organs]);
 
   return isLoading ? (
     <LoaderSpinner />
