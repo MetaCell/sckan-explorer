@@ -80,6 +80,7 @@ export const getUniqueVias = (
 export const getUniqueAllEntities = (
   knowledgeStatements: Record<string, KnowledgeStatement>,
   hierarchicalNodes: Record<string, HierarchicalNode>,
+  organs: Record<string, Organ>,
 ): Option[] => {
   let allEntities: AnatomicalEntity[] = [];
   Object.values(knowledgeStatements).forEach((ks) => {
@@ -92,6 +93,14 @@ export const getUniqueAllEntities = (
     );
   });
 
+  const endOrganOptions: AnatomicalEntity[] = Object.values(organs).map(
+    (organ) => ({
+      id: organ.id,
+      name: organ.name,
+      synonyms: '',
+    }),
+  );
+  allEntities = allEntities.concat(endOrganOptions);
   const sortedEntities: AnatomicalEntity[] = sortEntities(allEntities);
   const nonLeafNames = getNonLeafNames(hierarchicalNodes);
 
