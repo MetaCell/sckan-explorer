@@ -76,6 +76,7 @@ button:focus-visible {
   height: 100%;
   width: 100%;
   position: relative;
+  background: #EDEFF2;
 }
 
 .outPort {
