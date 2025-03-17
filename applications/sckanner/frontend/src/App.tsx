@@ -12,7 +12,7 @@ import theme from './theme/index.tsx';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Header from './components/common/Header.tsx';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import SummaryPage from './components/SummaryPage.tsx';
 import Loader from './components/common/Loader.tsx';
 import { DataContextProvider } from './context/DataContextProvider.tsx';
@@ -32,6 +32,9 @@ import {
   getHierarchicalNodes,
   getOrgans,
 } from './services/hierarchyService.ts';
+import ReactGA from 'react-ga4';
+
+ReactGA.initialize(process.env.REACT_APP_GA4_ID || "");
 
 const App = () => {
   const store = useStore();
@@ -46,8 +49,7 @@ const App = () => {
   const [majorNerves, setMajorNerves] = useState<Set<string>>();
   const [knowledgeStatements, setKnowledgeStatements] = useState<
     Record<string, KnowledgeStatement>
-  >({});
-
+    >({});
   useEffect(() => {
     if (LayoutComponent === undefined) {
       const myManager = getLayoutManagerInstance();
@@ -146,6 +148,7 @@ const App = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
+          <LocationTracker />
           <Box>
             <Header />
             <Box className="MuiContainer">
@@ -180,6 +183,20 @@ const App = () => {
       </ThemeProvider>
     </>
   );
+};
+
+const LocationTracker = () => {
+  const location = useLocation();
+  if (!process.env.REACT_APP_GA4_ID) {
+    console.warn('Google Analytics ID not set');
+    return null;
+  }
+
+  useEffect(() => {
+    ReactGA.send({ hitType: "pageview", page: location.pathname });
+  }, [location]);
+
+  return null;
 };
 
 export default App;
