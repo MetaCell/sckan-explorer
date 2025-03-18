@@ -34,7 +34,7 @@ import {
 } from './services/hierarchyService.ts';
 import ReactGA from 'react-ga4';
 
-ReactGA.initialize(process.env.REACT_APP_GA4_ID || "");
+ReactGA.initialize(import.meta.env.VITE_REACT_APP_GA4_ID || "");
 
 const App = () => {
   const store = useStore();
@@ -187,7 +187,7 @@ const App = () => {
 
 const LocationTracker = () => {
   const location = useLocation();
-  if (!process.env.REACT_APP_GA4_ID) {
+  if (!import.meta.env.VITE_REACT_APP_GA4_ID) {
     console.warn('Google Analytics ID not set');
     return null;
   }
