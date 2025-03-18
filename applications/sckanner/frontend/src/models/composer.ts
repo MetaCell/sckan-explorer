@@ -1,3 +1,4 @@
+import { BasePositionModelOptions } from "@projectstorm/react-diagrams";
 export enum NodeTypes {
   Origin = 'Origin',
   Via = 'Via',
@@ -18,6 +19,14 @@ export const TypeC11Enum = {
 } as const;
 
 export type TypeC11Enum = (typeof TypeC11Enum)[keyof typeof TypeC11Enum];
+
+export interface CustomNodeOptions extends BasePositionModelOptions {
+  forward_connection: any[];
+  to?: Array<{ name: string; type: string }>;
+  from?: Array<{ name: string; type: string }>;
+  anatomicalType?: string;
+  uri?: string;
+}
 
 export interface AnatomicalEntity {
   /**
