@@ -132,6 +132,8 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
   }, [engine]);
   
   const initializeGraph = () => {
+    const model = new DiagramModel();
+    
     const { nodes, links } = processData({
       origins,
       vias,
@@ -141,7 +143,6 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
 
     layoutNodes(nodes, links);
     
-    const model = new DiagramModel();
     model.addAll(...nodes, ...links);
     
     engine.setModel(model);
@@ -156,7 +157,12 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
     setRankdir("TB");
     initializeGraph()
   }
-
+  
+  // This effect runs once to set up the engine
+  useEffect(() => {
+    engine.getNodeFactories().registerFactory(new CustomNodeFactory());
+  }, [engine]);
+  
   // This effect runs whenever origins, vias, or destinations change
   useEffect(() => {
     initializeGraph()
@@ -205,9 +211,9 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
         toggleRankdir={toggleRankdir}
         resetGraph={resetGraph}
       />
-      <Box ref={containerRef} className={'graphContainer'}>
+      <div ref={containerRef} className={'graphContainer'}>
        <CanvasWidget className={'graphContainer'} engine={engine} />
-     </Box>
+     </div>
       <InfoMenu engine={engine} forwardConnection={true} />
    </Box>
   ) : null;
