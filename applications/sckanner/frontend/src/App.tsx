@@ -34,8 +34,6 @@ import {
 } from './services/hierarchyService.ts';
 import ReactGA from 'react-ga4';
 
-ReactGA.initialize(import.meta.env.VITE_REACT_APP_GA4_ID || "");
-
 const App = () => {
   const store = useStore();
   const dispatch = useDispatch();
@@ -148,7 +146,7 @@ const App = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
-          <LocationTracker />
+          <GoogleAnalyticsTracker />
           <Box>
             <Header />
             <Box className="MuiContainer">
@@ -185,15 +183,16 @@ const App = () => {
   );
 };
 
-const LocationTracker = () => {
+const GoogleAnalyticsTracker = () => {
   const location = useLocation();
-  if (!import.meta.env.VITE_REACT_APP_GA4_ID) {
-    console.warn('Google Analytics ID not set');
-    return null;
-  }
 
   useEffect(() => {
-    ReactGA.send({ hitType: "pageview", page: location.pathname });
+    if (import.meta.env.VITE_REACT_APP_GA4_ID) {
+      ReactGA.initialize(import.meta.env.VITE_REACT_APP_GA4_ID);
+      ReactGA.send({ hitType: "pageview", page: location.pathname });
+    } else {
+      console.warn('Google Analytics ID not set');
+    }
   }, [location]);
 
   return null;
