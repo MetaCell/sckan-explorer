@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useRef, useEffect } from 'react';
 import { PortWidget } from '@projectstorm/react-diagrams';
-import { Typography, Box } from '@mui/material';
+import { Typography, Box, Divider } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Chip from '@mui/material/Chip';
 import { CustomNodeModel } from '../models/CustomNodeModel.tsx';
@@ -12,7 +13,7 @@ import {
   OriginIcon,
   ViaIcon,
 } from '../../icons/index.tsx';
-import { NodeTypes } from '../../../models/composer.ts';
+import { NodeTypes, TypeC11Enum } from '../../../models/composer.ts';
 
 interface DestinationNodeProps {
   model: CustomNodeModel;
@@ -23,26 +24,55 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
   model,
   engine,
 }) => {
-  // State to toggle the color
   const [isActive, setIsActive] = useState(false);
   const [zIndex, setZIndex] = useState(0);
+  const innerRef = useRef(null);
+  const valueRef = useRef(isActive);
 
-  // Function to toggle the state
-  const toggleColor = () => {
-    setIsActive(!isActive);
-    setZIndex((prevZIndex) => prevZIndex + 1);
+  const toggleColor = (event: any) => {
+    if (event.shiftKey) {
+      setIsActive(!isActive);
+      setZIndex((prevZIndex) => prevZIndex + 1);
+    }
   };
 
   const inPort = model.getPort('in');
+  const outPort = model.getPort('out');
   const hasForwardConnections =
     model.getOptions()?.forward_connection?.length > 0;
 
+  // Determine if the node is an afferent terminal
+  const isAfferentTerminal =
+    model.getOptions().anatomicalType === TypeC11Enum.AfferentT;
+
+  const handleDoubleClick = () => {
+    valueRef.current = !valueRef.current;
+    setIsActive(valueRef.current);
+    setZIndex((prevZIndex) => prevZIndex + 1);
+  };
+
+  useEffect(() => {
+    let localRef: any = undefined;
+    if (innerRef !== null && innerRef.current !== null) {
+      localRef = innerRef.current;
+      // @ts-expect-error I am already checking the innerRef in the if clause
+      innerRef.current.addEventListener('dblclick', handleDoubleClick);
+    }
+    return () => {
+      localRef.removeEventListener('dblclick', handleDoubleClick);
+    };
+  }, []);
+
   return (
     <Box
+      ref={innerRef}
       style={{
+        position: 'relative',
         display: 'flex',
         width: '7rem',
         height: '7rem',
+        marginTop: '1rem',
+        marginLeft: '1rem',
         padding: '0',
         flexDirection: 'column',
         justifyContent: 'center',
@@ -91,10 +121,33 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
           />
         )}
       </Box>
+
+      {/* Centered Ports */}
       {inPort && (
-        <PortWidget className="inPortDestination" engine={engine} port={inPort}>
-          <div className="inPortDestination" />
-        </PortWidget>
+        <PortWidget
+          className="inPortDestination"
+          engine={engine}
+          port={inPort}
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}
+        />
+      )}
+      {outPort && (
+        <PortWidget
+          className="inPortAfferentTDestination"
+          engine={engine}
+          port={outPort}
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}
+        />
       )}
 
       {isActive && (
@@ -104,6 +157,7 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
             padding: '0.5rem',
             flexDirection: 'column',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: '0.25rem',
             borderRadius: '0.75rem',
             border: '0.0781rem solid rgba(108, 112, 122, 1)',
@@ -111,129 +165,18 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
             boxShadow:
               '0rem 0.125rem 0.25rem -0.125rem rgba(16, 24, 40, 0.06), 0rem 0.25rem 0.5rem -0.125rem rgba(16, 24, 40, 0.1)',
             position: 'absolute',
-            top: '-3vw',
-            left: '-2vw',
-            width: '18rem',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%) rotate(-45deg)',
             zIndex: isActive ? zIndex : 'auto',
-            transform: 'rotate(-45deg)',
+            width: '18rem',
           }}
         >
-          <Typography
-            sx={{
-              color: 'rgba(108, 112, 122, 1)',
-              textAlign: 'center',
-              lineHeight: '1.125rem',
-              fontSize: '0.75rem',
-              fontWeight: 400,
-            }}
-          >
-            From
-          </Typography>
-          <Box
-            sx={{
-              borderRadius: '0.625rem',
-              border: '0.0625rem solid rgba(155, 162, 176, 1)',
-              background: '#FFF',
-              width: '100%',
-            }}
-          >
-            {model.getOptions().from?.map(
-              (
-                item: {
-                  type: string;
-                  name: string;
-                },
-                index: number,
-              ) => (
-                <React.Fragment key={index}>
-                  <Stack
-                    padding="0.5rem"
-                    spacing={1}
-                    direction="row"
-                    alignItems="center"
-                    borderTop={
-                      index === 0
-                        ? 'none'
-                        : '0.0625rem solid rgba(155, 162, 176, 1)'
-                    }
-                  >
-                    {item.type === NodeTypes.Origin && (
-                      <OriginIcon
-                        fill="rgba(71, 84, 103, 1)"
-                        width={'1rem'}
-                        height={'1rem'}
-                      />
-                    )}
-                    {item.type === NodeTypes.Via && (
-                      <ViaIcon
-                        fill="rgba(71, 84, 103, 1)"
-                        width={'1rem'}
-                        height={'1rem'}
-                      />
-                    )}
-                    <Typography
-                      sx={{
-                        color: 'rgba(108, 112, 122, 1)',
-                        fontSize: '0.875rem',
-                        fontWeight: 400,
-                        lineHeight: '1.25rem',
-                      }}
-                    >
-                      {item.name}
-                    </Typography>
-                  </Stack>
-                </React.Fragment>
-              ),
-            )}
-          </Box>
-
-          <Stack
-            padding="0 0.5rem"
-            alignItems="center"
-            justifyContent="center"
-            textAlign="center"
-            spacing={0}
-          >
-            <Box
-              style={{
-                width: '0.0625rem',
-                height: '1rem',
-                marginBottom: '1rem',
-                backgroundColor: '#6C707A',
-              }}
-            />
-            <DestinationIcon fill="rgba(108, 112, 122, 1)" />
-            <Typography
-              sx={{
-                color: ' rgba(74, 76, 79, 1)',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                lineHeight: '1.25rem',
-                marginTop: '0.25rem',
-              }}
-            >
-              {model.name}
-            </Typography>
-            <Typography
-              sx={{
-                color: 'rgba(108, 112, 122, 1)',
-                fontSize: '0.75rem',
-                fontWeight: 400,
-                lineHeight: '1.125rem',
-                marginTop: '0.125rem',
-              }}
-            >
-              {model.externalId}
-            </Typography>
-            <Chip
-              label={model.getOptions().anatomicalType}
-              variant="outlined"
-              color="secondary"
-              sx={{
-                marginTop: '0.75rem',
-              }}
-            />
-          </Stack>
+          {isAfferentTerminal ? (
+            <AfferentTerminalDetails model={model} />
+          ) : (
+            <NonAfferentTerminalDetails model={model} />
+          )}
 
           <Box width={1} mt={2}>
             {hasForwardConnections && (
@@ -252,7 +195,7 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
               {model.getOptions().forward_connection?.map(
                 (
                   item: {
-                    id: string;
+                    id: any;
                     knowledge_statement: string;
                     type: string;
                   },
@@ -302,5 +245,231 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
         </Box>
       )}
     </Box>
+  );
+};
+
+const AfferentTerminalDetails: React.FC<{ model: CustomNodeModel }> = ({
+  model,
+}) => {
+  return (
+    <>
+      <Stack
+        padding="0 0.5rem"
+        alignItems="center"
+        justifyContent="center"
+        textAlign="center"
+        spacing={0}
+      >
+        <DestinationIcon fill="rgba(108, 112, 122, 1)" />
+        <Typography
+          sx={{
+            color: ' rgba(74, 76, 79, 1)',
+            fontSize: '0.875rem',
+            fontWeight: 500,
+            lineHeight: '1.25rem',
+            marginTop: '0.25rem',
+          }}
+        >
+          {model.name}
+        </Typography>
+        <Typography
+          sx={{
+            color: 'rgba(108, 112, 122, 1)',
+            fontSize: '0.75rem',
+            fontWeight: 400,
+            lineHeight: '1.125rem',
+            marginTop: '0.125rem',
+          }}
+        >
+          {model.getOptions()?.uri}
+        </Typography>
+        <Chip
+          label={'Afferent Terminal'}
+          variant="outlined"
+          color="secondary"
+          sx={{
+            marginTop: '0.75rem',
+          }}
+        />
+      </Stack>
+      <Typography
+        sx={{
+          color: ' #6C707A',
+          fontSize: '0.75rem',
+          fontWeight: 400,
+          lineHeight: '1.125rem',
+        }}
+      >
+        To
+      </Typography>
+      <Box
+        sx={{
+          borderRadius: '0.625rem',
+          border: '1px solid #9BA2B0',
+          background: '#FFF',
+          width: '100%',
+        }}
+      >
+        {model
+          .getOptions()
+          .to?.map((item: { type: string; name: string }, index: number) => (
+            <React.Fragment key={index}>
+              {index > 0 && <Divider />}
+              <Stack
+                padding=".5rem"
+                spacing={1}
+                direction="row"
+                alignItems="center"
+                borderTop={index !== 0 ? '1px solid #9BA2B0' : 0}
+              >
+                {item.type === NodeTypes.Via && (
+                  <ViaIcon fill="#6C707A" width={'1rem'} height={'1rem'} />
+                )}
+                {item.type === NodeTypes.Origin && (
+                  <OriginIcon fill="#6C707A" width={'1rem'} height={'1rem'} />
+                )}
+                <Typography
+                  sx={{
+                    color: '#6C707A',
+                    fontSize: '0.875rem',
+                    fontWeight: 400,
+                    lineHeight: '1.25rem',
+                  }}
+                >
+                  {item.name}
+                </Typography>
+              </Stack>
+            </React.Fragment>
+          ))}
+      </Box>
+    </>
+  );
+};
+
+const NonAfferentTerminalDetails: React.FC<{ model: CustomNodeModel }> = ({
+  model,
+}) => {
+  return (
+    <>
+      <Typography
+        sx={{
+          color: 'rgba(108, 112, 122, 1)',
+          textAlign: 'center',
+          lineHeight: '1.125rem',
+          fontSize: '0.75rem',
+          fontWeight: 400,
+        }}
+      >
+        From
+      </Typography>
+      <Box
+        sx={{
+          borderRadius: '0.625rem',
+          border: '0.0625rem solid rgba(155, 162, 176, 1)',
+          background: '#FFF',
+          width: '100%',
+        }}
+      >
+        {model.getOptions().from?.map(
+          (
+            item: {
+              type: string;
+              name: string;
+            },
+            index: number,
+          ) => (
+            <React.Fragment key={index}>
+              <Stack
+                padding="0.5rem"
+                spacing={1}
+                direction="row"
+                alignItems="center"
+                borderTop={
+                  index === 0
+                    ? 'none'
+                    : '0.0625rem solid rgba(155, 162, 176, 1)'
+                }
+              >
+                {item.type === NodeTypes.Origin && (
+                  <OriginIcon
+                    fill="rgba(71, 84, 103, 1)"
+                    width={'1rem'}
+                    height={'1rem'}
+                  />
+                )}
+                {item.type === NodeTypes.Via && (
+                  <ViaIcon
+                    fill="rgba(71, 84, 103, 1)"
+                    width={'1rem'}
+                    height={'1rem'}
+                  />
+                )}
+                <Typography
+                  sx={{
+                    color: 'rgba(108, 112, 122, 1)',
+                    fontSize: '0.875rem',
+                    fontWeight: 400,
+                    lineHeight: '1.25rem',
+                  }}
+                >
+                  {item.name}
+                </Typography>
+              </Stack>
+            </React.Fragment>
+          ),
+        )}
+      </Box>
+      <Stack
+        padding="0 0.5rem"
+        alignItems="center"
+        justifyContent="center"
+        textAlign="center"
+        spacing={0}
+      >
+        <Box
+          style={{
+            width: '0.0625rem',
+            height: '1rem',
+            marginBottom: '1rem',
+            backgroundColor: '#6C707A',
+          }}
+        />
+        <DestinationIcon fill="rgba(108, 112, 122, 1)" />
+        <Typography
+          sx={{
+            color: ' rgba(74, 76, 79, 1)',
+            fontSize: '0.875rem',
+            fontWeight: 500,
+            lineHeight: '1.25rem',
+            marginTop: '0.25rem',
+          }}
+        >
+          {model.name}
+        </Typography>
+        <Typography
+          sx={{
+            color: 'rgba(108, 112, 122, 1)',
+            fontSize: '0.75rem',
+            fontWeight: 400,
+            lineHeight: '1.125rem',
+            marginTop: '0.125rem',
+          }}
+        >
+          {model.getOptions()?.uri}
+        </Typography>
+        <Chip
+          label={
+            model.getOptions().anatomicalType === TypeC11Enum.AxonT
+              ? 'Axon Terminal'
+              : 'Not Specified'
+          }
+          variant="outlined"
+          color="secondary"
+          sx={{
+            marginTop: '0.75rem',
+          }}
+        />
+      </Stack>
+    </>
   );
 };
