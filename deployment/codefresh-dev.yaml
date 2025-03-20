@@ -186,14 +186,6 @@ steps:
       custom_value_files:
       - ./deployment/helm/values.yaml
       custom_values: []
-  approval:
-    type: pending-approval
-    stage: publish
-    title: Approve build
-    description: Approve build release and tagging
-    timeout:
-      duration: 168
-      finalState: denied
   publish:
     type: parallel
     stage: publish

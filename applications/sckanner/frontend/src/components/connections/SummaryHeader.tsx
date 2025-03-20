@@ -211,7 +211,7 @@ const SummaryHeader = ({
               />
 
               <Button variant="contained" onClick={generatePDF}>
-                Download results (.pdf)
+                Results Summary
               </Button>
             </Box>
           </>
