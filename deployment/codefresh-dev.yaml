@@ -158,6 +158,7 @@ steps:
         - REGISTRY=${{REGISTRY}}/cloudharness/
         - CLOUDHARNESS_FRONTEND_BUILD=${{REGISTRY}}/cloudharness/cloudharness-frontend-build:${{CLOUDHARNESS_FRONTEND_BUILD_TAG}}
         - CLOUDHARNESS_DJANGO=${{REGISTRY}}/cloudharness/cloudharness-django:${{CLOUDHARNESS_DJANGO_TAG}}
+        - VITE_REACT_APP_GA4_ID=${{VITE_REACT_APP_GA4_ID}}
         image_name: cloudharness/sckanner
         title: Sckanner
         working_directory: ./applications/sckanner
