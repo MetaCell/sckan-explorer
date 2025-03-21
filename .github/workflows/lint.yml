@@ -9,7 +9,7 @@ jobs:
       - uses: actions/setup-node@master
         with:
           node-version: 18.19
-      - working-directory: ./applications/frontend
+      - working-directory: ./applications/sckanner/frontend
         name: Install, Build and Test
         run: |
           yarn
