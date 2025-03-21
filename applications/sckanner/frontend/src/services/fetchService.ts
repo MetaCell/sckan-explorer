@@ -7,7 +7,6 @@ import { KnowledgeStatement } from '../models/explorer.ts';
 import { mapApiResponseToKnowledgeStatements } from './mappers.ts';
 import { JsonData, NerveResponse, OrderJson } from '../models/json.ts';
 
-
 const fetchData = async <T>(url: string): Promise<T> => {
   try {
     const response = await fetch(url);
@@ -44,9 +43,9 @@ export const fetchKnowledgeStatements = async () => {
   try {
     // Construct the request body or query params based on API requirements
     const response = await fetch(url, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
 

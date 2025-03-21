@@ -101,11 +101,11 @@ const PopulationDisplay = ({
         </Tabs>
       </Stack>
       <CustomTabPanel value={value} index={0}>
-          <GraphDiagram
-            origins={origins}
-            vias={viaDetails}
-            destinations={destinationDetails}
-          />
+        <GraphDiagram
+          origins={origins}
+          vias={viaDetails}
+          destinations={destinationDetails}
+        />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
         <ConnectionsTableView tableData={tableData} />

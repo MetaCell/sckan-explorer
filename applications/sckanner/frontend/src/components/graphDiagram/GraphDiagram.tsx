@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from 'react';
 import InfoMenu from './InfoMenu';
 import NavigationMenu from './NavigationMenu';

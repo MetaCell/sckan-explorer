@@ -1,10 +1,10 @@
-import {Stack, Divider, Tooltip} from '@mui/material';
+import { Stack, Divider, Tooltip } from '@mui/material';
 import FitScreenOutlinedIcon from '@mui/icons-material/FitScreenOutlined';
 import ZoomInOutlinedIcon from '@mui/icons-material/ZoomInOutlined';
 import ZoomOutOutlinedIcon from '@mui/icons-material/ZoomOutOutlined';
 import IconButton from '@mui/material/IconButton';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import {CameraswitchOutlined, RestartAltOutlined} from "@mui/icons-material";
+import { CameraswitchOutlined, RestartAltOutlined } from '@mui/icons-material';
 
 const ZOOM_CHANGE = 25;
 
@@ -34,49 +34,49 @@ const NavigationMenu = (props: NavigationMenuProps) => {
       spacing="1rem"
       sx={{
         p: '1.5rem .5rem',
-        "& .MuiSvgIcon-root": {
-          color: "#6C707A",
+        '& .MuiSvgIcon-root': {
+          color: '#6C707A',
         },
-        
-        "& .MuiDivider-root": {
-          borderColor: "#EAECF0",
+
+        '& .MuiDivider-root': {
+          borderColor: '#EAECF0',
           borderWidth: 0.5,
-          height: '1.5rem'
+          height: '1.5rem',
         },
-        "& .MuiButtonBase-root": {
+        '& .MuiButtonBase-root': {
           padding: 0,
-          
+
           '&.Mui-disabled': {
-            "& .MuiSvgIcon-root": {
+            '& .MuiSvgIcon-root': {
               color: '#caced1',
             },
-          }
+          },
         },
       }}
     >
-      <Tooltip arrow title='Autoscale'>
+      <Tooltip arrow title="Autoscale">
         <IconButton onClick={() => engine.zoomToFit()}>
-          <FitScreenOutlinedIcon/>
+          <FitScreenOutlinedIcon />
         </IconButton>
       </Tooltip>
       <Divider />
-      <Tooltip arrow title='Zoom in'>
+      <Tooltip arrow title="Zoom in">
         <IconButton onClick={() => zoomIn()}>
-          <ZoomInOutlinedIcon/>
+          <ZoomInOutlinedIcon />
         </IconButton>
       </Tooltip>
-      <Tooltip arrow title='Zoom Out'>
+      <Tooltip arrow title="Zoom Out">
         <IconButton>
-          <ZoomOutOutlinedIcon onClick={() => zoomOut()}/>
+          <ZoomOutOutlinedIcon onClick={() => zoomOut()} />
         </IconButton>
       </Tooltip>
       <Divider />
-      <Tooltip arrow title='Switch orientation'>
+      <Tooltip arrow title="Switch orientation">
         <IconButton onClick={toggleRankdir}>
           <CameraswitchOutlined />
         </IconButton>
       </Tooltip>
-      <Tooltip arrow title='Reset to default visualisation'>
+      <Tooltip arrow title="Reset to default visualisation">
         <IconButton onClick={resetGraph}>
           <RestartAltOutlined />
         </IconButton>
