@@ -96,7 +96,7 @@ export const getUniqueAllEntities = (
   const endOrganOptions: AnatomicalEntity[] = Object.values(organs).map(
     (organ) => ({
       id: organ.id,
-      name: organ.name,
+      name: organ.name + ' (End Organ)',
       synonyms: '',
     }),
   );
