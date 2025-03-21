@@ -15,3 +15,15 @@ jobs:
           yarn
           yarn run build
           yarn run test
+  unit_test-django:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - working-directory: ./applications/sckanner/backend
+        name: Install, Build and Test
+        run: |
+          pip install -r requirements.txt
+          python manage.py test
