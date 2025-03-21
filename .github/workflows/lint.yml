@@ -31,6 +31,7 @@ jobs:
         working-directory: ./applications/sckanner/backend
         run: |
           git clone -b 'v2.4.3' https://github.com/metacell/cloud-harness
+          cd cloud-harness && bash install.sh
       - name: Install cloud harness common
         working-directory: ./applications/sckanner/backend/cloud-harness/libraries/cloudharness-common
         run: |
