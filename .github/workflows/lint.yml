@@ -35,15 +35,11 @@ jobs:
       - name: Install cloud harness common
         working-directory: ./applications/sckanner/backend/cloud-harness/libraries/cloudharness-common
         run: |
-          pip list
           pip install -e .
-          pip list
       - name: Install cloud harness django
         working-directory: ./applications/sckanner/backend/cloud-harness/infrastructure/common-images/cloudharness-django/libraries/cloudharness-django
         run: |
-          pip list
           pip install -e .
-          pip list
       - working-directory: ./applications/sckanner/backend
         name: Run tests
         run: |
