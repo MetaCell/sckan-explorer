@@ -26,5 +26,5 @@ jobs:
         name: Backend testing
         run: |
           pip install -r requirements.txt
-          git clone https://github.com/metacell/cloud-harness && cd cloud-harness && git checkout v2.4.3 && bash install.sh && cd ..
+          git clone https://github.com/metacell/cloud-harness && cd cloud-harness && git checkout v2.4.3 && bash install.sh && pip install -e . && cd ..
           python manage.py test
