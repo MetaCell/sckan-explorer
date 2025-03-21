@@ -392,15 +392,15 @@ export default function CustomEntitiesDropdown({
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <SearchIcon sx={{ marginRight: "0 !important", }} />
+                        <SearchIcon sx={{ marginRight: '0 !important' }} />
                       </InputAdornment>
                     ),
                     endAdornment: searchValue && (
                       <InputAdornment position="end">
                         <ClearOutlinedIcon
                           sx={{
-                            marginRight: ".75rem !important",
-                            cursor: "pointer",
+                            marginRight: '.75rem !important',
+                            cursor: 'pointer',
                           }}
                           onClick={() => setSearchValue('')}
                         />

@@ -19,14 +19,14 @@ const InfoMenu = (props: InfoMenuProps) => {
       spacing="1rem"
       alignItems="center"
       sx={{
-        borderRadius: "1.75rem",
-        width: "fit-content",
-        padding: "1.25rem 0 .5rem 0",
-        
-        "& .MuiDivider-root": {
+        borderRadius: '1.75rem',
+        width: 'fit-content',
+        padding: '1.25rem 0 .5rem 0',
+
+        '& .MuiDivider-root': {
           width: '0.0313rem',
           height: '1.5rem',
-          background: '#D2D7DF'
+          background: '#D2D7DF',
         },
       }}
     >

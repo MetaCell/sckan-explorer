@@ -4,7 +4,11 @@ import {
   KsPerPhenotype,
   KsRecord,
 } from '../components/common/Types.ts';
-import { ConnectionSummary, Filters, SummaryFilters } from '../context/DataContext.ts';
+import {
+  ConnectionSummary,
+  Filters,
+  SummaryFilters,
+} from '../context/DataContext.ts';
 import {
   HierarchicalNode,
   KnowledgeStatement,

@@ -1,4 +1,5 @@
-import { BasePositionModelOptions } from "@projectstorm/react-diagrams";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { BasePositionModelOptions } from '@projectstorm/react-diagrams';
 export enum NodeTypes {
   Origin = 'Origin',
   Via = 'Via',

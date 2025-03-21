@@ -12,7 +12,12 @@ import theme from './theme/index.tsx';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Header from './components/common/Header.tsx';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from 'react-router-dom';
 import SummaryPage from './components/SummaryPage.tsx';
 import Loader from './components/common/Loader.tsx';
 import { DataContextProvider } from './context/DataContextProvider.tsx';
@@ -47,7 +52,7 @@ const App = () => {
   const [majorNerves, setMajorNerves] = useState<Set<string>>();
   const [knowledgeStatements, setKnowledgeStatements] = useState<
     Record<string, KnowledgeStatement>
-    >({});
+  >({});
   useEffect(() => {
     if (LayoutComponent === undefined) {
       const myManager = getLayoutManagerInstance();
@@ -98,7 +103,6 @@ const App = () => {
           });
         }
       });
-
 
       fetchKnowledgeStatements()
         .then((statements) => {
@@ -189,7 +193,7 @@ const GoogleAnalyticsTracker = () => {
   useEffect(() => {
     if (import.meta.env.VITE_REACT_APP_GA4_ID) {
       ReactGA.initialize(import.meta.env.VITE_REACT_APP_GA4_ID);
-      ReactGA.send({ hitType: "pageview", page: location.pathname });
+      ReactGA.send({ hitType: 'pageview', page: location.pathname });
     } else {
       console.warn('Google Analytics ID not set');
     }
