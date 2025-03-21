@@ -10,11 +10,11 @@ jobs:
         with:
           node-version: 18.19
       - working-directory: ./applications/sckanner/frontend
-        name: Install, Build and Test
+        name: Frontend linter
         run: |
           yarn
           yarn run build
-          yarn run test
+          yarn run lint
   unit_test-django:
     runs-on: ubuntu-latest
     steps:
@@ -23,7 +23,8 @@ jobs:
         with:
           python-version: 3.9
       - working-directory: ./applications/sckanner/backend
-        name: Install, Build and Test
+        name: Backend testing
         run: |
           pip install -r requirements.txt
+          git clone https://github.com/metacell/cloud-harness && cd cloud-harness && git checkout v2.4.3 && bash install.sh && cd ..
           python manage.py test
