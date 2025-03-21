@@ -82,14 +82,12 @@ export const DataContextProvider = ({
         | null,
       filters: Filters,
       hierarchicalNodes: Record<string, HierarchicalNode>,
-      organs: Record<string, Organ>,
     ) => {
       if (summary) {
         let filteredKnowledgeStatements = filterKnowledgeStatements(
           summary.connections,
           hierarchicalNodes,
           filters,
-          organs,
         );
 
         filteredKnowledgeStatements = Object.fromEntries(
@@ -126,7 +124,6 @@ export const DataContextProvider = ({
       summary,
       filters,
       hierarchicalNodes,
-      organs,
     );
     setSelectedConnectionSummary(updatedSummary);
   };
@@ -137,10 +134,9 @@ export const DataContextProvider = ({
         prevSummary,
         filters,
         hierarchicalNodes,
-        organs,
       ),
     );
-  }, [filters, hierarchicalNodes, organs, updateSelectedConnectionSummary]);
+  }, [filters, hierarchicalNodes, updateSelectedConnectionSummary]);
 
   const dataContextValue = {
     filters,

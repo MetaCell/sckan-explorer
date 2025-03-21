@@ -111,79 +111,14 @@ const FiltersDropdowns: React.FC = () => {
     [knowledgeStatements, hierarchicalNodes, organs],
   );
 
-  const handleEntitiesSelect = (
-    selectedOptions: Option[],
-    filterKey: FilterConfig['id'],
-    organValues: Organ[],
-  ) => {
-    // we take EndOrgans from Entities Dropdown and add them to the EndOrgan filter
-    const endOrganOptions = selectedOptions.filter((option) =>
-      organValues.some((organ) => organ.id === option.id),
-    );
-
-    setFilters((prevFilters) => {
-      const newEndOrgan = [
-        ...prevFilters.EndOrgan,
-        ...endOrganOptions.filter(
-          (option) =>
-            !prevFilters.EndOrgan.some(
-              (existingOption) => existingOption.id === option.id,
-            ),
-        ),
-      ].filter((option) =>
-        selectedOptions.some(
-          (selectedOption) => selectedOption.id === option.id,
-        ),
-      );
-
-      return {
-        ...prevFilters,
-        [filterKey]: selectedOptions,
-        EndOrgan: newEndOrgan,
-      };
-    });
-  };
-
-  const handleEndOrganSelect = (
-    selectedOptions: Option[],
-    filterKey: FilterConfig['id'],
-  ) => {
-    // We take the deselected options from EndOrgan and remove them from Entities too
-    const deselectedOptions = filters.EndOrgan.filter(
-      (option) =>
-        !selectedOptions.some(
-          (selectedOption) => selectedOption.id === option.id,
-        ),
-    );
-
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [filterKey]: selectedOptions,
-      Entities: prevFilters.Entities.filter(
-        (option) =>
-          !deselectedOptions.some(
-            (deselectedOption) => deselectedOption.id === option.id,
-          ),
-      ),
-    }));
-  };
-
   const handleSelect = (
     filterKey: keyof typeof filters,
     selectedOptions: Option[],
   ) => {
-    const organValues = Object.values(organs);
-
-    if (filterKey === 'Entities') {
-      handleEntitiesSelect(selectedOptions, filterKey, organValues);
-    } else if (filterKey === 'EndOrgan') {
-      handleEndOrganSelect(selectedOptions, filterKey);
-    } else {
       setFilters((prevFilters) => ({
         ...prevFilters,
         [filterKey]: selectedOptions,
       }));
-    }
   };
 
   const searchFunctions = useMemo(() => {

@@ -19,6 +19,7 @@ import FiltersDropdowns from './FiltersDropdowns.tsx';
 import { HierarchicalItem } from './common/Types.ts';
 import { Organ } from '../models/explorer.ts';
 import LoaderSpinner from './common/LoaderSpinner.tsx';
+import { extractEndOrganFiltersFromEntities } from '../services/summaryHeatmapService.ts';
 
 const {
   gray500,
@@ -40,6 +41,7 @@ function ConnectivityGrid() {
     setSelectedConnectionSummary,
   } = useDataContext();
 
+  const organizedFilters = useMemo(() => extractEndOrganFiltersFromEntities(filters, organs), [filters, organs]);
   const [xAxisOrgans, setXAxisOrgans] = useState<Organ[]>([]);
   const [filteredXOrgans, setFilteredXOrgans] = useState<Organ[]>([]);
   const [initialYAxis, setInitialYAxis] = useState<HierarchicalItem[]>([]);
@@ -65,10 +67,10 @@ function ConnectivityGrid() {
       hierarchicalNodes,
       organs,
       knowledgeStatements,
-      filters,
+      organizedFilters,
     );
     setConnectionsMap(connections);
-  }, [hierarchicalNodes, organs, knowledgeStatements, filters]);
+  }, [hierarchicalNodes, organs, knowledgeStatements, organizedFilters]);
 
   const { min, max } = useMemo(() => {
     return getMinMaxConnections(connectionsMap);
@@ -152,11 +154,10 @@ function ConnectivityGrid() {
     const filteredStatements = filterKnowledgeStatements(
       knowledgeStatements,
       hierarchicalNodes,
-      filters,
-      organs,
+      organizedFilters,
     );
     return Object.keys(filteredStatements).length;
-  }, [knowledgeStatements, hierarchicalNodes, filters, organs]);
+  }, [knowledgeStatements, hierarchicalNodes, organizedFilters]);
 
   return isLoading ? (
     <LoaderSpinner />
