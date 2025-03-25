@@ -82,8 +82,7 @@ const AboutContent = [
   {
     heading: 'SCKANNER documentation',
     buttonText: 'https://docs.sparc.science/docs/sckanner',
-    buttonURL:
-      'https://docs.sparc.science/docs/sckanner',
+    buttonURL: 'https://docs.sparc.science/docs/sckanner',
   },
 ];
 
