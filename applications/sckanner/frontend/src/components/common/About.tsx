@@ -79,6 +79,12 @@ const AboutContent = [
     heading: 'SCKAN Version',
     description: NEURONDM_VERSION,
   },
+  {
+    heading: 'SCKANNER documentation',
+    buttonText: 'https://docs.sparc.science/docs/sckanner',
+    buttonURL:
+      'https://docs.sparc.science/docs/sckanner',
+  },
 ];
 
 const About: FC<ModalProps> = ({ open, handleClose }) => {
