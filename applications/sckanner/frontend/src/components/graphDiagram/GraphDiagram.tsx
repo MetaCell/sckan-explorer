@@ -35,6 +35,16 @@ interface GraphDiagramProps {
   forward_connection?: ForwardConnection[] | undefined;
 }
 
+const checkXMargin = (entities: any) => {
+  let condition = false;
+  entities.forEach((entity: any) => {
+    if (entity.anatomical_entities.length > 1) {
+      condition = true;
+    }
+  });
+  return condition;
+};
+
 const GraphDiagram: React.FC<GraphDiagramProps> = ({
   origins,
   vias,
@@ -48,14 +58,24 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
   const [rankdir, setRankdir] = useState<string>('TB');
   let g = new dagre.graphlib.Graph();
 
+  const marginCondition =
+    origins?.length > 1 ? true : checkXMargin([...vias, ...destinations]);
+
   const layoutNodes = (nodes: CustomNodeModel[], links: DefaultLinkModel[]) => {
     g = new dagre.graphlib.Graph();
 
     g.setGraph({
       rankdir: rankdir,
-      ranksep: rankdir === 'TB' ? 150 : 100,
-      marginx: rankdir === 'TB' ? 150 : 100,
-      marginy: rankdir === 'TB' ? 100 : 150,
+      ranksep: rankdir === 'TB' ? 250 : 100,
+      marginx:
+        rankdir === 'TB'
+          ? marginCondition
+            ? 10
+            : 250
+          : marginCondition
+            ? 10
+            : 50,
+      marginy: rankdir === 'TB' ? 50 : marginCondition ? 10 : 250,
       edgesep: 50,
       nodesep: 150,
     });
@@ -93,7 +113,7 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
     g.setGraph({
       rankdir: newDir,
       ranksep: newDir === 'TB' ? 150 : 100,
-      marginx: newDir === 'TB' ? 150 : 100,
+      marginx: newDir === 'TB' ? 10 : 100,
       marginy: newDir === 'TB' ? 100 : 150,
       edgesep: 50,
       nodesep: 150,
