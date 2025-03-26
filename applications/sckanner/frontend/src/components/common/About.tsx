@@ -54,6 +54,11 @@ const AboutContent = [
       'https://sparc.science/tools-and-resources/6eg3VpJbwQR4B84CjrvmyD',
   },
   {
+    heading: '',
+    buttonText: 'Click here for additiaon documentation and tutorials',
+    buttonURL: 'https://docs.sparc.science/docs/sckanner',
+  },
+  {
     heading: 'Owner',
     description: 'SPARC Knowledge Core (K-CORE)',
   },
@@ -78,11 +83,6 @@ const AboutContent = [
   {
     heading: 'SCKAN Version',
     description: NEURONDM_VERSION,
-  },
-  {
-    heading: 'SCKANNER documentation',
-    buttonText: 'https://docs.sparc.science/docs/sckanner',
-    buttonURL: 'https://docs.sparc.science/docs/sckanner',
   },
 ];
 
