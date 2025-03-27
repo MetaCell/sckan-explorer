@@ -12,10 +12,11 @@ interface NavigationMenuProps {
   engine: DiagramEngine;
   toggleRankdir: () => void;
   resetGraph: () => void;
+  customZoomToFit: () => void;
 }
 
 const NavigationMenu = (props: NavigationMenuProps) => {
-  const { engine, toggleRankdir, resetGraph } = props;
+  const { engine, toggleRankdir, resetGraph, customZoomToFit } = props;
 
   const zoomOut = () => {
     const zoomLevel = engine.getModel().getZoomLevel();
@@ -55,7 +56,7 @@ const NavigationMenu = (props: NavigationMenuProps) => {
       }}
     >
       <Tooltip arrow title="Autoscale">
-        <IconButton onClick={() => engine.zoomToFit()}>
+        <IconButton onClick={customZoomToFit}>
           <FitScreenOutlinedIcon />
         </IconButton>
       </Tooltip>
