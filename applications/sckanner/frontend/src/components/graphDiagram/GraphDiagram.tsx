@@ -35,13 +35,29 @@ interface GraphDiagramProps {
   forward_connection?: ForwardConnection[] | undefined;
 }
 
-const checkXMargin = (entities: any) => {
+const checkXMargin = (
+  vias: ViaExplorerSerializerDetails[] | undefined,
+  destinations: DestinationExplorerSerializerDetails[] | undefined,
+) => {
   let condition = false;
-  entities.forEach((entity: any) => {
-    if (entity.anatomical_entities.length > 1) {
-      condition = true;
-    }
-  });
+
+  if (vias !== undefined) {
+    vias.forEach((via: ViaExplorerSerializerDetails) => {
+      if (via?.anatomical_entities.length > 1) {
+        condition = true;
+      }
+    });
+  }
+
+  if (!condition && destinations !== undefined) {
+    destinations.forEach(
+      (destination: DestinationExplorerSerializerDetails) => {
+        if (destination?.anatomical_entities.length > 1) {
+          condition = true;
+        }
+      },
+    );
+  }
   return condition;
 };
 
@@ -59,7 +75,9 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
   let g = new dagre.graphlib.Graph();
 
   const marginCondition =
-    origins?.length > 1 ? true : checkXMargin([...vias, ...destinations]);
+    origins !== undefined && origins?.length > 1
+      ? true
+      : checkXMargin(vias, destinations);
 
   const layoutNodes = (nodes: CustomNodeModel[], links: DefaultLinkModel[]) => {
     g = new dagre.graphlib.Graph();
@@ -211,35 +229,37 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
       };
     }
   }, [modelUpdated]);
-  
+
   const customZoomToFit = () => {
     const model = engine.getModel();
     const nodes = model.getNodes();
-    
+
     // Step 1: Force ports to report their positions
     nodes.forEach((node) => {
       Object.values(node.getPorts()).forEach((port) => {
         port.reportPosition();
       });
     });
-    
+
     // Step 2: Zoom to fit after ports are updated
     engine.repaintCanvas();
-    
+
     setTimeout(() => {
       engine.zoomToFit();
-      
+
       // Step 3: Wait a bit and then re-center the diagram
       setTimeout(() => {
-        const canvas = document.querySelector('.graphContainer') as HTMLDivElement;
+        const canvas = document.querySelector(
+          '.graphContainer',
+        ) as HTMLDivElement;
         if (!canvas) return;
-        
+
         // Compute bounding box again
         let minX = Infinity,
           minY = Infinity,
           maxX = -Infinity,
           maxY = -Infinity;
-        
+
         nodes.forEach((node) => {
           const { x, y } = node.getPosition();
           const width = 100;
@@ -249,24 +269,24 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
           maxX = Math.max(maxX, x + width);
           maxY = Math.max(maxY, y + height);
         });
-        
+
         const diagramWidth = maxX - minX;
         const diagramHeight = maxY - minY;
-        
+
         const canvasWidth = canvas.clientWidth;
         const canvasHeight = canvas.clientHeight;
-        
+
         const zoom = model.getZoomLevel() / 100;
-        
-        const offsetX = (canvasWidth / 2) - ((minX + diagramWidth / 2) * zoom);
-        const offsetY = (canvasHeight / 2) - ((minY + diagramHeight / 2) * zoom);
-        
+
+        const offsetX = canvasWidth / 2 - (minX + diagramWidth / 2) * zoom;
+        const offsetY = canvasHeight / 2 - (minY + diagramHeight / 2) * zoom;
+
         model.setOffset(offsetX, offsetY);
         engine.repaintCanvas();
       }, 100); // Give zoomToFit time to apply
     }, 50); // Wait for port updates
   };
-  
+
   useEffect(() => {
     if (modelUpdated && !modelFitted) {
       // TODO: for unknown reason at the moment if I call zoomToFit too early breaks the graph
