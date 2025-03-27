@@ -35,6 +35,32 @@ interface GraphDiagramProps {
   forward_connection?: ForwardConnection[] | undefined;
 }
 
+const checkXMargin = (
+  vias: ViaExplorerSerializerDetails[] | undefined,
+  destinations: DestinationExplorerSerializerDetails[] | undefined,
+) => {
+  let condition = false;
+
+  if (vias !== undefined) {
+    vias.forEach((via: ViaExplorerSerializerDetails) => {
+      if (via?.anatomical_entities.length > 1) {
+        condition = true;
+      }
+    });
+  }
+
+  if (!condition && destinations !== undefined) {
+    destinations.forEach(
+      (destination: DestinationExplorerSerializerDetails) => {
+        if (destination?.anatomical_entities.length > 1) {
+          condition = true;
+        }
+      },
+    );
+  }
+  return condition;
+};
+
 const GraphDiagram: React.FC<GraphDiagramProps> = ({
   origins,
   vias,
@@ -48,14 +74,26 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
   const [rankdir, setRankdir] = useState<string>('TB');
   let g = new dagre.graphlib.Graph();
 
+  const marginCondition =
+    origins !== undefined && origins?.length > 1
+      ? true
+      : checkXMargin(vias, destinations);
+
   const layoutNodes = (nodes: CustomNodeModel[], links: DefaultLinkModel[]) => {
     g = new dagre.graphlib.Graph();
 
     g.setGraph({
       rankdir: rankdir,
-      ranksep: rankdir === 'TB' ? 150 : 100,
-      marginx: rankdir === 'TB' ? 150 : 100,
-      marginy: rankdir === 'TB' ? 100 : 150,
+      ranksep: rankdir === 'TB' ? 250 : 100,
+      marginx:
+        rankdir === 'TB'
+          ? marginCondition
+            ? 10
+            : 250
+          : marginCondition
+            ? 10
+            : 50,
+      marginy: rankdir === 'TB' ? 50 : marginCondition ? 10 : 250,
       edgesep: 50,
       nodesep: 150,
     });
@@ -93,7 +131,7 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
     g.setGraph({
       rankdir: newDir,
       ranksep: newDir === 'TB' ? 150 : 100,
-      marginx: newDir === 'TB' ? 150 : 100,
+      marginx: newDir === 'TB' ? 10 : 100,
       marginy: newDir === 'TB' ? 100 : 150,
       edgesep: 50,
       nodesep: 150,
@@ -156,7 +194,6 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
   };
 
   const resetGraph = () => {
-    setRankdir('TB');
     initializeGraph();
   };
 
@@ -193,6 +230,63 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
     }
   }, [modelUpdated]);
 
+  const customZoomToFit = () => {
+    const model = engine.getModel();
+    const nodes = model.getNodes();
+
+    // Step 1: Force ports to report their positions
+    nodes.forEach((node) => {
+      Object.values(node.getPorts()).forEach((port) => {
+        port.reportPosition();
+      });
+    });
+
+    // Step 2: Zoom to fit after ports are updated
+    engine.repaintCanvas();
+
+    setTimeout(() => {
+      engine.zoomToFit();
+
+      // Step 3: Wait a bit and then re-center the diagram
+      setTimeout(() => {
+        const canvas = document.querySelector(
+          '.graphContainer',
+        ) as HTMLDivElement;
+        if (!canvas) return;
+
+        // Compute bounding box again
+        let minX = Infinity,
+          minY = Infinity,
+          maxX = -Infinity,
+          maxY = -Infinity;
+
+        nodes.forEach((node) => {
+          const { x, y } = node.getPosition();
+          const width = 100;
+          const height = 50;
+          minX = Math.min(minX, x);
+          minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x + width);
+          maxY = Math.max(maxY, y + height);
+        });
+
+        const diagramWidth = maxX - minX;
+        const diagramHeight = maxY - minY;
+
+        const canvasWidth = canvas.clientWidth;
+        const canvasHeight = canvas.clientHeight;
+
+        const zoom = model.getZoomLevel() / 100;
+
+        const offsetX = canvasWidth / 2 - (minX + diagramWidth / 2) * zoom;
+        const offsetY = canvasHeight / 2 - (minY + diagramHeight / 2) * zoom;
+
+        model.setOffset(offsetX, offsetY);
+        engine.repaintCanvas();
+      }, 100); // Give zoomToFit time to apply
+    }, 50); // Wait for port updates
+  };
+
   useEffect(() => {
     if (modelUpdated && !modelFitted) {
       // TODO: for unknown reason at the moment if I call zoomToFit too early breaks the graph
@@ -210,6 +304,7 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
         engine={engine}
         toggleRankdir={toggleRankdir}
         resetGraph={resetGraph}
+        customZoomToFit={customZoomToFit}
       />
       <div ref={containerRef} className={'graphContainer'}>
         <CanvasWidget className={'graphContainer'} engine={engine} />
