@@ -209,7 +209,7 @@ export function filterOrgans(
   );
 }
 
-export function extractOrganKeys(organs: Record<string, Organ>) {
+export function extractEndOrganKeys(organs: Record<string, Organ>) {
   const organKeys: string[] = [];
   Object.values(organs).forEach((organ) => {
     organKeys.push(organ.id); // Add the organ's own ID
@@ -256,7 +256,7 @@ export function filterKnowledgeStatements(
     ) || [];
 
   const organs = filterOrgans(allOrgans, filters.EndOrgan);
-  const organKeysSelectedFromFilters = extractOrganKeys(organs)
+  const organKeysSelectedFromFilters = extractEndOrganKeys(organs)
 
   return Object.entries(knowledgeStatements).reduce(
     (filtered, [id, ks]) => {
