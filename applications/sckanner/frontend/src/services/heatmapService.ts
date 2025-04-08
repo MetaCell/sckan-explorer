@@ -12,7 +12,7 @@ import {
   LabelIdPair,
 } from '../components/common/Types.ts';
 import { Filters } from '../context/DataContext.ts';
-import { extractEndOrganFiltersFromEntities } from './summaryHeatmapService.ts';
+
 
 export function getYAxis(
   hierarchicalNodes: Record<string, HierarchicalNode>,
@@ -209,12 +209,26 @@ export function filterOrgans(
   );
 }
 
+export function extractEndOrganKeys(organs: Record<string, Organ>) {
+  const organKeys: string[] = [];
+  Object.values(organs).forEach((organ) => {
+    organKeys.push(organ.id); // Add the organ's own ID
+    if (organ.children instanceof Map) {
+      organ.children.forEach((childOrgan) => {
+        organKeys.push(childOrgan.id); // Add each child's ID
+      });
+    }
+  });
+  return organKeys;
+}
+
 export function filterKnowledgeStatements(
   knowledgeStatements: Record<string, KnowledgeStatement>,
   hierarchicalNodes: Record<string, HierarchicalNode>,
   filters: Filters,
-  organs?: Record<string, Organ>,
+  allOrgans: Record<string, Organ>
 ): Record<string, KnowledgeStatement> {
+
   const phenotypeIds = filters.Phenotype.map((option) => option.id);
   const apiNATOMYIds =
     (filters as Filters).apiNATOMY?.map((option) => option.id) || [];
@@ -234,13 +248,15 @@ export function filterKnowledgeStatements(
         : getLeafDescendants(option.id, hierarchicalNodes),
     ) || [];
 
-  const newFilters = extractEndOrganFiltersFromEntities(filters, organs);
   const entityIds =
-    newFilters.Entities?.flatMap((option) =>
+    filters.Entities?.flatMap((option) =>
       isLeaf(option.id, hierarchicalNodes)
         ? option.id
         : getLeafDescendants(option.id, hierarchicalNodes),
     ) || [];
+
+  const organs = filterOrgans(allOrgans, filters.EndOrgan);
+  const organKeysSelectedFromFilters = extractEndOrganKeys(organs)
 
   return Object.entries(knowledgeStatements).reduce(
     (filtered, [id, ks]) => {
@@ -269,13 +285,20 @@ export function filterKnowledgeStatements(
           .some((entity) => entityIds.includes(entity.id)) ||
         ks.origins?.some((origin) => entityIds.includes(origin.id));
 
+      const organMatch = filters.EndOrgan.length > 0 ? (
+        ks.destinations
+          ?.flatMap((destination) => destination.anatomical_entities)
+          .some((destination) => organKeysSelectedFromFilters.includes(destination.id))
+      ) : true;
+
       if (
         phenotypeMatch &&
         apiNATOMYMatch &&
         speciesMatch &&
         viaMatch &&
         originMatch &&
-        entityMatch
+        entityMatch &&
+        organMatch
       ) {
         filtered[id] = ks;
       }
