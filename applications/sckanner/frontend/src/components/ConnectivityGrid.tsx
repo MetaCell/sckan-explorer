@@ -155,6 +155,7 @@ function ConnectivityGrid() {
       knowledgeStatements,
       hierarchicalNodes,
       organizedFilters,
+      organs
     );
     return Object.keys(filteredStatements).length;
   }, [knowledgeStatements, hierarchicalNodes, organizedFilters]);

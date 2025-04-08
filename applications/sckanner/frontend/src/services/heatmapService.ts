@@ -60,6 +60,7 @@ export function calculateConnections(
     allKnowledgeStatements,
     hierarchicalNodes,
     filters,
+    allOrgans,
   );
   const organs = filterOrgans(allOrgans, filters.EndOrgan);
 
@@ -208,10 +209,24 @@ export function filterOrgans(
   );
 }
 
+export function extractEndOrganKeys(organs: Record<string, Organ>) {
+  const organKeys: string[] = [];
+  Object.values(organs).forEach((organ) => {
+    organKeys.push(organ.id); // Add the organ's own ID
+    if (organ.children instanceof Map) {
+      organ.children.forEach((childOrgan) => {
+        organKeys.push(childOrgan.id); // Add each child's ID
+      });
+    }
+  });
+  return organKeys;
+}
+
 export function filterKnowledgeStatements(
   knowledgeStatements: Record<string, KnowledgeStatement>,
   hierarchicalNodes: Record<string, HierarchicalNode>,
   filters: Filters,
+  allOrgans: Record<string, Organ>
 ): Record<string, KnowledgeStatement> {
 
   const phenotypeIds = filters.Phenotype.map((option) => option.id);
@@ -240,6 +255,9 @@ export function filterKnowledgeStatements(
         : getLeafDescendants(option.id, hierarchicalNodes),
     ) || [];
 
+  const organs = filterOrgans(allOrgans, filters.EndOrgan);
+  const organKeysSelectedFromFilters = extractEndOrganKeys(organs)
+
   return Object.entries(knowledgeStatements).reduce(
     (filtered, [id, ks]) => {
       const phenotypeMatch =
@@ -267,13 +285,20 @@ export function filterKnowledgeStatements(
           .some((entity) => entityIds.includes(entity.id)) ||
         ks.origins?.some((origin) => entityIds.includes(origin.id));
 
+      const organMatch = filters.EndOrgan.length > 0 ? (
+        ks.destinations
+          ?.flatMap((destination) => destination.anatomical_entities)
+          .some((destination) => organKeysSelectedFromFilters.includes(destination.id))
+      ) : true;
+
       if (
         phenotypeMatch &&
         apiNATOMYMatch &&
         speciesMatch &&
         viaMatch &&
         originMatch &&
-        entityMatch
+        entityMatch &&
+        organMatch
       ) {
         filtered[id] = ks;
       }

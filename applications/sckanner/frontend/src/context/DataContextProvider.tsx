@@ -88,6 +88,7 @@ export const DataContextProvider = ({
           summary.connections,
           hierarchicalNodes,
           filters,
+          organs,
         );
 
         filteredKnowledgeStatements = Object.fromEntries(
