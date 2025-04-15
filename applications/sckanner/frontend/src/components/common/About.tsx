@@ -55,7 +55,7 @@ const AboutContent = [
   },
   {
     heading: '',
-    buttonText: 'Click here for additiaon documentation and tutorials',
+    buttonText: 'Click here for additional documentation and tutorials',
     buttonURL: 'https://docs.sparc.science/docs/sckanner',
   },
   {
