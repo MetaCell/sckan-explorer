@@ -21,7 +21,6 @@ import {
   searchVias,
   searchEntities,
 } from '../services/searchService.ts';
-import { Organ } from '../models/explorer.ts';
 
 interface FilterConfig {
   id: keyof Filters;
@@ -115,10 +114,10 @@ const FiltersDropdowns: React.FC = () => {
     filterKey: keyof typeof filters,
     selectedOptions: Option[],
   ) => {
-      setFilters((prevFilters) => ({
-        ...prevFilters,
-        [filterKey]: selectedOptions,
-      }));
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [filterKey]: selectedOptions,
+    }));
   };
 
   const searchFunctions = useMemo(() => {

@@ -41,7 +41,10 @@ function ConnectivityGrid() {
     setSelectedConnectionSummary,
   } = useDataContext();
 
-  const organizedFilters = useMemo(() => extractEndOrganFiltersFromEntities(filters, organs), [filters, organs]);
+  const organizedFilters = useMemo(
+    () => extractEndOrganFiltersFromEntities(filters, organs),
+    [filters, organs],
+  );
   const [xAxisOrgans, setXAxisOrgans] = useState<Organ[]>([]);
   const [filteredXOrgans, setFilteredXOrgans] = useState<Organ[]>([]);
   const [initialYAxis, setInitialYAxis] = useState<HierarchicalItem[]>([]);
@@ -155,7 +158,7 @@ function ConnectivityGrid() {
       knowledgeStatements,
       hierarchicalNodes,
       organizedFilters,
-      organs
+      organs,
     );
     return Object.keys(filteredStatements).length;
   }, [knowledgeStatements, hierarchicalNodes, organizedFilters]);
