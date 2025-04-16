@@ -26,7 +26,6 @@ const {
   white: white,
   gray25,
   gray100,
-  primaryPurple600,
   gray400,
   gray600A,
 } = vars;
