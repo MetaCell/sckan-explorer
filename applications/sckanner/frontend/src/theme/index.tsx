@@ -177,11 +177,11 @@ const theme = createTheme({
             border-bottom: none;
           }
           .flexlayout__tab_toolbar_button-min {
-            background: transparent url(${maximizeIcon}) no-repeat right;
+            background: transparent url(${maximizeIcon}) no-repeat right !important;
             cursor: pointer;
           }
           .flexlayout__tab_toolbar_button-max {
-            background: transparent url(${minimizeIcon}) no-repeat right;
+            background: transparent url(${minimizeIcon}) no-repeat right !important;
             cursor: pointer;
           }
           .flexlayout__tabset_tabbar_outer {

@@ -13,7 +13,6 @@ import {
 } from '../components/common/Types.ts';
 import { Filters } from '../context/DataContext.ts';
 
-
 export function getYAxis(
   hierarchicalNodes: Record<string, HierarchicalNode>,
   hierarchyNode?: Record<string, HierarchicalNode>,
@@ -226,9 +225,8 @@ export function filterKnowledgeStatements(
   knowledgeStatements: Record<string, KnowledgeStatement>,
   hierarchicalNodes: Record<string, HierarchicalNode>,
   filters: Filters,
-  allOrgans: Record<string, Organ>
+  allOrgans: Record<string, Organ>,
 ): Record<string, KnowledgeStatement> {
-
   const phenotypeIds = filters.Phenotype.map((option) => option.id);
   const apiNATOMYIds =
     (filters as Filters).apiNATOMY?.map((option) => option.id) || [];
@@ -256,7 +254,7 @@ export function filterKnowledgeStatements(
     ) || [];
 
   const organs = filterOrgans(allOrgans, filters.EndOrgan);
-  const organKeysSelectedFromFilters = extractEndOrganKeys(organs)
+  const organKeysSelectedFromFilters = extractEndOrganKeys(organs);
 
   return Object.entries(knowledgeStatements).reduce(
     (filtered, [id, ks]) => {
@@ -285,11 +283,14 @@ export function filterKnowledgeStatements(
           .some((entity) => entityIds.includes(entity.id)) ||
         ks.origins?.some((origin) => entityIds.includes(origin.id));
 
-      const organMatch = filters.EndOrgan.length > 0 ? (
-        ks.destinations
-          ?.flatMap((destination) => destination.anatomical_entities)
-          .some((destination) => organKeysSelectedFromFilters.includes(destination.id))
-      ) : true;
+      const organMatch =
+        filters.EndOrgan.length > 0
+          ? ks.destinations
+              ?.flatMap((destination) => destination.anatomical_entities)
+              .some((destination) =>
+                organKeysSelectedFromFilters.includes(destination.id),
+              )
+          : true;
 
       if (
         phenotypeMatch &&

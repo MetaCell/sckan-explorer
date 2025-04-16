@@ -115,7 +115,7 @@ export const DataContextProvider = ({
       }
       return null;
     },
-    [majorNerves],
+    [majorNerves, organs],
   );
 
   const handleSetSelectedConnectionSummary = (
@@ -131,11 +131,7 @@ export const DataContextProvider = ({
 
   useEffect(() => {
     setSelectedConnectionSummary((prevSummary) =>
-      updateSelectedConnectionSummary(
-        prevSummary,
-        filters,
-        hierarchicalNodes,
-      ),
+      updateSelectedConnectionSummary(prevSummary, filters, hierarchicalNodes),
     );
   }, [filters, hierarchicalNodes, updateSelectedConnectionSummary]);
 

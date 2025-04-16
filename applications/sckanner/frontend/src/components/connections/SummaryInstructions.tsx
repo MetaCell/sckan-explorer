@@ -28,6 +28,10 @@ const SummaryInstructions = () => {
             textAlign: 'left',
             marginLeft: '1rem',
             paddingTop: '1rem',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            height: '100%',
           }}
         >
           <h4>How to use the tool</h4>
@@ -104,23 +108,55 @@ const SummaryInstructions = () => {
               marginBottom: '2rem',
             }}
           ></p>
-          <a
-            href="https://docs.sparc.science/docs/sckanner"
-            target="_blank"
-            rel="noreferrer"
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              marginTop: 'auto', // Push the links to the bottom
+            }}
           >
-            <p
-              style={{
-                cursor: 'pointer',
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                fontFamily: 'Asap, sans-serif',
-              }}
+            <a
+              href="https://docs.sparc.science/docs/sckanner"
+              target="_blank"
+              rel="noreferrer"
             >
-              {' '}
-              Click here for additional documentation and tutorials.
-            </p>
-          </a>
+              <p
+                style={{
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  fontFamily: 'Asap, sans-serif',
+                  marginTop: 'auto',
+                  paddingBottom: '1rem',
+                }}
+              >
+                {' '}
+                Click here for additional documentation and tutorials.
+              </p>
+            </a>
+            <a
+              href="https://forms.gle/4YUjMa5Hx2KPzM8i6"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <p
+                style={{
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  fontFamily: 'Asap, sans-serif',
+                  marginTop: 'auto',
+                  paddingBottom: '1rem',
+                  paddingRight: '1rem',
+                }}
+              >
+                {' '}
+                Provide your feedback using this form.
+              </p>
+            </a>
+          </Box>
         </Typography>
       </Box>
     </Box>
