@@ -115,7 +115,7 @@ export const DataContextProvider = ({
       }
       return null;
     },
-    [majorNerves],
+    [majorNerves, organs],
   );
 
   const handleSetSelectedConnectionSummary = (
