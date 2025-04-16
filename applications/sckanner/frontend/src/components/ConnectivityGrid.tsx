@@ -174,36 +174,42 @@ function ConnectivityGrid() {
       display="flex"
       flexDirection="column"
     >
-      <Box display="flex" justifyContent="space-between" alignItems="center" pb={2.5}>
-        <Box sx={{
-          display: 'flex',
-          gap: 2,
-        }}>
-        <Typography variant="h6" sx={{ fontWeight: 400 }}>
-          Connection Origin to End Organ
-        </Typography>
-        <Divider flexItem sx={{borderWidth: '1px'}} />
-        <Typography
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        pb={2.5}
+      >
+        <Box
           sx={{
-            fontSize: '0.875rem',
-            fontWeight: 500,
-            lineHeight: '1.25rem',
-            color: gray600A,
+            display: 'flex',
+            gap: 2,
           }}
         >
-          {totalPopulationCount} populations
-        </Typography>
+          <Typography variant="h6" sx={{ fontWeight: 400 }}>
+            Connection Origin to End Organ
+          </Typography>
+          <Divider flexItem sx={{ borderWidth: '1px' }} />
+          <Typography
+            sx={{
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              lineHeight: '1.25rem',
+              color: gray600A,
+            }}
+          >
+            {totalPopulationCount} populations
+          </Typography>
         </Box>
-       
+
         <Button
-         variant="contained"
+          variant="contained"
           onClick={handleReset}
           disabled={Object.values(filters).every((arr) => arr.length === 0)}
         >
           Reset All
         </Button>
       </Box>
-      
 
       <FiltersDropdowns />
 
