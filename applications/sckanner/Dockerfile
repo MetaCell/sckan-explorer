@@ -15,6 +15,7 @@ COPY frontend/yarn.lock .
 RUN yarn install --timeout 60000
 
 COPY frontend .
+# TODO: these 2 run below should be removed and the issue should be fixed within the codebase
 RUN cp ./src/components/assets/svg/maximize_icon.png ./node_modules/@metacell/geppetto-meta-ui/flex-layout/images/maximize.png
 RUN cp ./src/components/assets/svg/minimize_icon.png ./node_modules/@metacell/geppetto-meta-ui/flex-layout/images/restore.png
 RUN yarn build

@@ -54,9 +54,14 @@ const AboutContent = [
       'https://sparc.science/tools-and-resources/6eg3VpJbwQR4B84CjrvmyD',
   },
   {
-    heading: '',
+    heading: 'Sckanner Documentation',
     buttonText: 'Click here for additional documentation and tutorials',
     buttonURL: 'https://docs.sparc.science/docs/sckanner',
+  },
+  {
+    heading: 'Feedback form',
+    buttonText: 'Provide your feedback using this form.',
+    buttonURL: 'https://forms.gle/4YUjMa5Hx2KPzM8i6',
   },
   {
     heading: 'Owner',
