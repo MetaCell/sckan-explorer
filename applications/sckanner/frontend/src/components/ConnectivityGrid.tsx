@@ -21,14 +21,7 @@ import { Organ } from '../models/explorer.ts';
 import LoaderSpinner from './common/LoaderSpinner.tsx';
 import { extractEndOrganFiltersFromEntities } from '../services/summaryHeatmapService.ts';
 
-const {
-  gray500,
-  white: white,
-  gray25,
-  gray100,
-  gray400,
-  gray600A,
-} = vars;
+const { gray500, white: white, gray25, gray100, gray400, gray600A } = vars;
 
 function ConnectivityGrid() {
   const {
