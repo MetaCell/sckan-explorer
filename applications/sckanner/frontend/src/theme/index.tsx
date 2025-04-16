@@ -406,6 +406,9 @@ const theme = createTheme({
             border: `1px solid ${primaryPurple600}`,
             background: primaryPurple600,
           },
+          '&.Mui-disabled': {
+            borderColor: gray200,
+          },
         },
         outlined: {
           border: `1px solid ${gray100}`,

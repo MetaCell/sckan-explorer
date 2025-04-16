@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Divider, Typography } from '@mui/material';
 import React, { useEffect, useMemo, useState } from 'react';
 import { vars } from '../theme/variables.ts';
 import HeatmapGrid from './common/Heatmap.tsx';
@@ -174,10 +174,15 @@ function ConnectivityGrid() {
       display="flex"
       flexDirection="column"
     >
-      <Box display="flex" justifyContent="space-between" pb={2.5}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" pb={2.5}>
+        <Box sx={{
+          display: 'flex',
+          gap: 2,
+        }}>
         <Typography variant="h6" sx={{ fontWeight: 400 }}>
           Connection Origin to End Organ
         </Typography>
+        <Divider flexItem sx={{borderWidth: '1px'}} />
         <Typography
           sx={{
             fontSize: '0.875rem',
@@ -188,7 +193,17 @@ function ConnectivityGrid() {
         >
           {totalPopulationCount} populations
         </Typography>
+        </Box>
+       
+        <Button
+         variant="contained"
+          onClick={handleReset}
+          disabled={Object.values(filters).every((arr) => arr.length === 0)}
+        >
+          Reset All
+        </Button>
       </Box>
+      
 
       <FiltersDropdowns />
 
@@ -209,31 +224,11 @@ function ConnectivityGrid() {
         width={1}
         display="flex"
         alignItems="center"
-        justifyContent="space-between"
+        justifyContent="flex-end"
         position="sticky"
         bottom={0}
         sx={{ background: white }}
       >
-        <Button
-          variant="text"
-          sx={{
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            lineHeight: '1.25rem',
-            color: primaryPurple600,
-            borderRadius: '0.25rem',
-            border: `0.0625rem solid ${primaryPurple600}`,
-            padding: '0.5rem',
-
-            '&:hover': {
-              background: 'transparent',
-            },
-          }}
-          onClick={handleReset}
-        >
-          Reset All
-        </Button>
-
         <Box
           sx={{
             display: 'flex',
