@@ -210,8 +210,8 @@ const SummaryHeader = ({
                 }}
               />
 
-              <Button variant="outlined" onClick={generatePDF}>
-                Download results (.csv)
+              <Button variant="contained" onClick={generatePDF}>
+                Results summary
               </Button>
             </Box>
           </>
