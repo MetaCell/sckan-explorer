@@ -288,7 +288,9 @@ export function filterKnowledgeStatements(
           ? ks.destinations
               ?.flatMap((destination) => destination.anatomical_entities)
               .some((destination) =>
-                organKeysSelectedFromFilters.includes(destination.id),
+                organKeysSelectedFromFilters.some((organKey) =>
+                  destination.id.includes(organKey),
+                ),
               )
           : true;
 
