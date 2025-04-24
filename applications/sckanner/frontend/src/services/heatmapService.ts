@@ -134,7 +134,9 @@ export function getHeatmapData(
   };
 
   function addDataForItem(item: HierarchicalItem) {
-    const itemConnections = connections.get(item.id);
+    const itemConnections = connections
+      ?.get(item.id)
+      ?.map((level) => [...new Set(level)]);
     if (itemConnections) {
       const itemConnectionsCount = itemConnections.map((arr) => arr.length);
       heatmapInformation.heatmapMatrix.push(itemConnectionsCount);

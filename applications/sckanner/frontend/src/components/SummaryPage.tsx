@@ -276,7 +276,7 @@ const SummaryPage = () => {
           Database summary
         </Typography>
         <Typography variant="body1" color={gray500}>
-          Last updated on Nov 29, 2024
+          Last updated on Apr 24, 2025
         </Typography>
       </Stack>
       <Box

@@ -96,7 +96,7 @@ const HeatmapTooltip: FC<HeatmapTooltipProps> = ({
                 ))
               ) : (
                 <Typography sx={{ ...commonTextStyles, marginTop: '0.125rem' }}>
-                  {`${connections} connections`}
+                  {`${connections} population(s)`}
                 </Typography>
               )}
             </Box>
