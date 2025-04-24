@@ -155,6 +155,10 @@ function ConnectivityGrid() {
     return Object.keys(filteredStatements).length;
   }, [knowledgeStatements, hierarchicalNodes, organizedFilters, organs]);
 
+  const checkIfAllFiltersAreEmpty = () => {
+    return Object.values(organizedFilters).every((arr) => arr.length === 0);
+  };
+
   return isLoading ? (
     <LoaderSpinner />
   ) : (
@@ -190,7 +194,9 @@ function ConnectivityGrid() {
               color: gray600A,
             }}
           >
-            {totalPopulationCount} populations
+            {checkIfAllFiltersAreEmpty()
+              ? `${totalPopulationCount} populations`
+              : `Filtered ${totalPopulationCount} populations`}
           </Typography>
         </Box>
 

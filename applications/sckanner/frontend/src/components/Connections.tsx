@@ -280,9 +280,12 @@ function Connections() {
             </Box>
 
             <Box>
-              <Typography sx={styles.heading}>Number of connections</Typography>
+              <Typography sx={styles.heading}>Selected populations</Typography>
               <Chip
-                label={connectionsCounter + ' connections'}
+                label={
+                  Object.keys(selectedConnectionSummary?.connections || {})
+                    .length + ' populations'
+                }
                 variant="outlined"
                 color="primary"
               />
