@@ -6,7 +6,7 @@ from typing import List, Dict, Any, Union
 from datetime import datetime
 
 from sckanner.models import DataSource
-from sckanner.services.ingestion.source.neurondm.helpers.logging_service import LoggerService
+from sckanner.services.ingestion.source.logging_service import LoggerService
 from sckanner.services.ingestion.source.neurondm.neurondm_ingestion_script import get_statements_from_neurondm
 from sckanner.services.ingestion.source.composer.composer_ingestion_script import get_statements_from_composer
 from sckanner.services.ingestion.db.update_connectivity_statements import update_connectivity_statements

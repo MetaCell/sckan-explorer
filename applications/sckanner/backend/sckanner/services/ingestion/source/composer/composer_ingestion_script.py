@@ -3,7 +3,7 @@ NOTE: this file is used to make the ingestion for the composer/SCKAN source.
 For now we use the knowledge_statements public endpoint to get the statements data. 
 """
 import logging
-from sckanner.services.ingestion.source.neurondm.helpers.logging_service import LoggerService, AXIOM_NOT_FOUND
+from sckanner.services.ingestion.source.logging_service import LoggerService, AXIOM_NOT_FOUND
 from typing import Optional, Literal
 from pydantic import BaseModel
 import requests
@@ -127,19 +127,15 @@ def get_statements_from_composer(logger_service_param=Optional[LoggerService], s
 		population_ids = extract_population_ids(raw_data)
 
 		# Step 3: Fetch detailed data for each population ID
-		# Limit the number of populations for development/testing
-		population_ids = population_ids[:DEV_POPULATION_LIMIT]
-		if stdout:
-			stdout.write(f"Fetching data for {len(population_ids)} population IDs...\n")
-		
-		# For small number of IDs, just make one request
-		detailed_data = fetch_paginated_data(population_ids, stdout)
+		detailed_data = []
+		for population_id in batched(population_ids, KNOWLEDGE_STATEMENTS_BATCH_SIZE):
+			detailed_data.extend(fetch_paginated_data(list(population_id)))
 
 		if stdout:
 			stdout.write(f"Ingestion process completed successfully! Total statements: {len(detailed_data)}\n")
 
 		return detailed_data
-		
+
 	except Exception as e:
 		log_error(f"Error fetching statements from {COMPOSER_KNOWLEDGE_STATEMENTS_URL}: {e}")
 		raise e
