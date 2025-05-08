@@ -145,6 +145,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 MEDIA_URL = "/media/"
 STATIC_URL = "/static/"
 
+# Add sckanner's static directory
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "sckanner/static"),
+]
+
 # KC Client & roles
 KC_CLIENT_NAME = PROJECT_NAME.lower()
 

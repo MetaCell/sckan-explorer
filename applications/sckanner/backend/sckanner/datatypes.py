@@ -2,8 +2,6 @@ from pydantic import BaseModel
 from typing import Dict, List
 from datetime import datetime
 
-from sckanner.models import DataSource
-
 
 # ------------ Data Types for Ingestion ------------
 class ConnectivityStatement(BaseModel):
@@ -12,7 +10,7 @@ class ConnectivityStatement(BaseModel):
 
 
 class DataSnapshot(BaseModel):
-	source: DataSource
+	source: int
 	datetime: datetime
 
 
