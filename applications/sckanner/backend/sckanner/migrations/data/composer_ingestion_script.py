@@ -3,13 +3,12 @@ NOTE: this file is used to make the ingestion for the composer/SCKAN source.
 For now we use the knowledge_statements public endpoint to get the statements data. 
 """
 import logging
-from sckanner.services.ingestion.source.logging_service import LoggerService, AXIOM_NOT_FOUND
+# from sckanner.services.ingestion.source.logging_service import LoggerService, AXIOM_NOT_FOUND
 from typing import Optional, Literal
 from pydantic import BaseModel
 import requests
 from itertools import batched
 
-logger_service: Optional[LoggerService] = None
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 RED_COLOR = "\033[91m"
@@ -62,9 +61,10 @@ class JsonData(BaseModel):
 # ------------ end of data structure definition ------------
 
 DEV_POPULATION_LIMIT = 3
-# KNOWLEDGE_STATEMENTS_BATCH_SIZE = 50
-KNOWLEDGE_STATEMENTS_BATCH_SIZE = 3
-COMPOSER_KNOWLEDGE_STATEMENTS_URL = "https://composer.sckan.dev.metacell.us/api/knowledge-statements"
+KNOWLEDGE_STATEMENTS_BATCH_SIZE = 50
+COMPOSER_KNOWLEDGE_STATEMENTS_URL = "https://composer.sckan.stage.metacell.us/api/composer/knowledge-statement/"
+# COMPOSER_KNOWLEDGE_STATEMENTS_URL = "https://composer.scicrunch.io/api/composer/knowledge-statement/"
+
 
 def log_error(message):
     logger.error(f"{RED_COLOR}{message}{RESET_COLOR}")
@@ -89,7 +89,7 @@ def fetch_paginated_data(population_ids: list[str], stdout=None):
 	Fetch paginated data for a given population ID from the external API.
 	"""
 	detailed_data = []
-	detailed_url = f"https://composer.scicrunch.io/api/composer/knowledge-statement/?population_uris={','.join(population_ids)}"
+	detailed_url = f"{COMPOSER_KNOWLEDGE_STATEMENTS_URL}?population_uris={','.join(population_ids)}"
 	next_url = detailed_url
 
 	while next_url:
@@ -109,9 +109,7 @@ def fetch_paginated_data(population_ids: list[str], stdout=None):
 	return detailed_data
 
 
-def get_statements_from_composer(logger_service_param=Optional[LoggerService], stdout=None):
-	global logger_service
-	logger_service = logger_service_param
+def get_statements(stdout=None):
 	try:
 		# Step 1: Fetch raw JSON from external source
 		raw_data_url = "https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/a-b-via-c-2.json"
@@ -131,6 +129,17 @@ def get_statements_from_composer(logger_service_param=Optional[LoggerService], s
 		for population_id in batched(population_ids, KNOWLEDGE_STATEMENTS_BATCH_SIZE):
 			detailed_data.extend(fetch_paginated_data(list(population_id)))
 
+		# --- FIXME - REMOVE THE FOLLOWING - ONLY FOR TESTING LOCALLY ---
+		# WE ARE INTENTIONALLY FETCHING very few statements for now.
+		# This is to make the ingestion process faster and easier to debug.
+		# population_ids = population_ids[:DEV_POPULATION_LIMIT]
+		# detailed_data = []
+		# for population_id in batched(population_ids, 2):
+		# 	detailed_data.extend(fetch_paginated_data(list(population_id)))
+		# --- FIXME - REMOVE THE ABOVE ---
+
+
+
 		if stdout:
 			stdout.write(f"Ingestion process completed successfully! Total statements: {len(detailed_data)}\n")
 
@@ -141,3 +150,5 @@ def get_statements_from_composer(logger_service_param=Optional[LoggerService], s
 		raise e
 
 
+if __name__ == "__main__":
+    get_statements()
