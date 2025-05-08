@@ -132,6 +132,9 @@ class DataSourceForm(forms.ModelForm):
                 attrs={"accept": ".py"}
             ),
         }
+        help_texts = {
+            "python_code_file_for_statements_retrival": "Upload a Python file containing a get_statement() function that returns an array of statements in the format [{}, {}, {}]",
+        }
 
     def clean_raw_json_data_for_statements_retrival(self):
         file = self.cleaned_data.get("raw_json_data_for_statements_retrival")
