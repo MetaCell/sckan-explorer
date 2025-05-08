@@ -1,9 +1,15 @@
 harness:
-  database: {auto: true, type: postgres}
+  database: 
+    auto: true
+    type: postgres
+    postgres:
+      image: postgres:14
   dependencies:
     build: [cloudharness-frontend-build, cloudharness-django]
-    hard: [accounts, events]
-  deployment: {auto: true, port: 8080}
+    hard: [workflows, accounts, events]
+  deployment: 
+    auto: true
+    port: 8080
   livenessProbe: {path: /api/live}
   readinessProbe: {path: /api/ready}
   secured: true
