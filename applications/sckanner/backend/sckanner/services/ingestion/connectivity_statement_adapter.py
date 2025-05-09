@@ -1,9 +1,8 @@
-# from .composer_ingestion_script import get_statements_from_composer
-# from .neurondm_ingestion_script import get_statements_from_neurondm
-from typing import List, Dict
-# from sckanner.datatypes import ConnectivityStatement, DataSnapshot, ConnectivityStatementData
-from datetime import datetime
-from .datatypes import ConnectivityStatementData, DataSnapshotData, ConnectivityStatement
+from .ingestion_schemas import (
+    ConnectivityStatementData,
+    DataSnapshotData,
+    ConnectivityStatement,
+)
 from sckanner.models import DataSnapshotStatus
 import os
 import importlib.util
@@ -16,7 +15,7 @@ class ConnectivityStatementAdapter:
 		self.snapshot = snapshot
 		self.reference_uri_key = reference_uri_key
 
-	def _extract_statements(self) -> ConnectivityStatementData:
+	def extract_statements(self) -> ConnectivityStatementData:
 		file_path = self.source.python_code_file_for_statements_retrival
 		return self._parse_and_validate_statements(file_path)
 
@@ -46,11 +45,6 @@ class ConnectivityStatementAdapter:
 					)
 				)
 			else:
-				self.snapshot.status = DataSnapshotStatus.FAILED
-				self.snapshot.save()
 				raise ValueError(f"Uploaded file {file_path} does not contain a get_statements function")
 		else:
-			self.snapshot.status = DataSnapshotStatus.FAILED
-			self.snapshot.save()
 			raise ValueError(f"File {file_path} does not exist")
-		

@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from sckanner.services.ingestion.helpers.connectivity_statement_workflow import (
+from sckanner.services.ingestion.connectivity_statement_ingestion_service import (
     ConnectivityStatementIngestionService,
 )
 from sckanner.models import DataSource, DataSnapshot, DataSnapshotStatus
@@ -28,8 +28,8 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **kwargs):
-        self.stdout.write("Starting the connectivity statements ingestion process")
-        logger.info("Starting the connectivity statements ingestion process")
+        self.stdout.write("Starting the connectivity statements ingestion django command")
+        logger.info("Starting the connectivity statements ingestion django command")
 
         source_id = kwargs.get("source_id", None)
         reference_uri_key = kwargs.get("reference_uri_key", None)
@@ -39,34 +39,28 @@ class Command(BaseCommand):
         logger.info(f"Reference URI Key: {reference_uri_key}")
         logger.info(f"Snapshot ID: {snapshot_id}")
 
-        snapshot = self.validate_if_snapshot_exists(snapshot_id)
-        snapshot.status = DataSnapshotStatus.IN_PROGRESS
-        snapshot.save()
-
-        if not source_id:
-            self.stdout.write("No source provided, ingesting all sources")
-            logger.info("No source provided, ingesting all sources")
-            snapshot.status = DataSnapshotStatus.FAILED
-            snapshot.save()
-            return
-
-        source = self.validate_if_source_exists(source_id, snapshot)
 
         try:
+            snapshot = self.validate_if_snapshot_exists(snapshot_id)
+            source = self.validate_if_source_exists(source_id, snapshot)
+            self.validate_if_reference_uri_key_is_provided(reference_uri_key, snapshot)
+
             # Trigger the ingestion adapter
             ingestion_service = ConnectivityStatementIngestionService(reference_uri_key)
-            success = ingestion_service.run_ingestion_workflow(source, snapshot)
-
-
+            is_successful = ingestion_service.run_ingestion(source, snapshot)
+            if is_successful:
+                snapshot = self.update_snapshot_status(snapshot, DataSnapshotStatus.COMPLETED)
+            else:
+                snapshot = self.update_snapshot_status(snapshot, DataSnapshotStatus.FAILED)
         except Exception as e:
+            snapshot = self.update_snapshot_status(snapshot, DataSnapshotStatus.FAILED)
             logger.error(f"Error during ingestion: {str(e)}")
             raise e
 
     def validate_if_source_exists(self, source_id, snapshot):
         source = DataSource.objects.get(id=int(source_id))
         if not source:
-            snapshot.status = DataSnapshotStatus.FAILED
-            snapshot.save()
+            snapshot = self.update_snapshot_status(snapshot, DataSnapshotStatus.FAILED)
             raise ValueError(f"Invalid source: {source_id}")
         return source
 
@@ -76,3 +70,13 @@ class Command(BaseCommand):
             raise ValueError(f"Invalid snapshot: {snapshot_id}")        
         return snapshot
 
+    def validate_if_reference_uri_key_is_provided(self, reference_uri_key, snapshot):
+        if not reference_uri_key:
+            snapshot = self.update_snapshot_status(snapshot, DataSnapshotStatus.FAILED)
+            raise ValueError("Reference URI key is required")
+        return reference_uri_key
+
+    def update_snapshot_status(self, snapshot, status):
+        snapshot.status = status
+        snapshot.save()
+        return snapshot

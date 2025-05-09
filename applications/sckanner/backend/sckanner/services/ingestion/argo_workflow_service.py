@@ -1,10 +1,6 @@
 from cloudharness.workflows import operations, tasks
 from django.utils import timezone
-from .ingest_datasnapshot_connectivity_statements import (
-    ingest_datasnapshot_connectivity_statements,
-)
-from .datatypes import ConnectivityStatementData, DataSnapshotData
-from sckanner.models import DataSource, DataSnapshot, DataSnapshotStatus
+from sckanner.models import DataSnapshot, DataSnapshotStatus
 
 
 class ArgoWorkflowService:

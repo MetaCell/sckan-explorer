@@ -1,5 +1,5 @@
 from django.db import transaction
-from .datatypes import ConnectivityStatementData, DataSnapshotData
+from .ingestion_schemas import ConnectivityStatementData
 from sckanner.models import DataSnapshot
 
 # we would like another parameter -- depending on which - we either delete all and then insert, or we update
@@ -16,8 +16,8 @@ def ingest_datasnapshot_connectivity_statements(cs_data: ConnectivityStatementDa
 	import logging
 	logging.basicConfig(level=logging.INFO)
 	logger = logging.getLogger(__name__)
-	logger.info(f"Updating connectivity statements for source {cs_data.snapshot.source}")
-	print(f"number of statements to ingest: {len(cs_data.statements)}")
+	logger.info(f"Adding connectivity statements to db for source {cs_data.snapshot.source} as snapshot {snapshot.id}")
+	print(f"number of statements to ingested as part of snapshot {snapshot.id}: {len(cs_data.statements)}")
 	# Insert new data
 	DBConnectivityStatement.objects.bulk_create(
 		[DBConnectivityStatement(

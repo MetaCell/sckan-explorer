@@ -2,8 +2,7 @@
 <div class="submit-row">
 	{% if show_delete_link %}
 	<p class="deletelink-box">
-		<a href="{% url opts|admin_urlname:'delete' original.pk|admin_urlquote %}" class="deletelink">Delete
-			Snapshot</a>
+		<a href="{% url opts|admin_urlname:'delete' original.pk|admin_urlquote %}" class="deletelink">Delete Snapshot</a>
 	</p>
 	{% endif %}
 </div>
