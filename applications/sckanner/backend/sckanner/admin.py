@@ -117,14 +117,10 @@ class DataSourceForm(forms.ModelForm):
         model = DataSource
         fields = [
             "name",
-            "raw_json_data_for_statements_retrival",
             "python_code_file_for_statements_retrival",
             "reference_uri_key",
         ]
         widgets = {
-            "raw_json_data_for_statements_retrival": forms.ClearableFileInput(
-                attrs={"accept": ".json"}
-            ),
             "python_code_file_for_statements_retrival": forms.ClearableFileInput(
                 attrs={"accept": ".py"}
             ),
@@ -132,16 +128,6 @@ class DataSourceForm(forms.ModelForm):
         help_texts = {
             "python_code_file_for_statements_retrival": "Upload a Python file containing a get_statement() function that returns an array of statements in the format [{}, {}, {}]",
         }
-
-    def clean_raw_json_data_for_statements_retrival(self):
-        file = self.cleaned_data.get("raw_json_data_for_statements_retrival")
-        if file:
-            ext = os.path.splitext(file.name)[1]
-            if ext.lower() != ".json":
-                raise forms.ValidationError(
-                    "Only JSON files are allowed for data configuration"
-                )
-        return file
 
     def clean_python_code_file_for_statements_retrival(self):
         file = self.cleaned_data.get("python_code_file_for_statements_retrival")
@@ -160,12 +146,10 @@ class DataSourceAdmin(admin.ModelAdmin):
     ordering = ("name",)
     fields = (
         "name",
-        "raw_json_data_for_statements_retrival",
         "python_code_file_for_statements_retrival",
         "reference_uri_key",
     )
     help_texts = {
-        "raw_json_data_for_statements_retrival": "Upload a JSON file containing the data source configuration",
         "python_code_file_for_statements_retrival": "Upload a Python file containing the structure retrieval code",
         "reference_uri_key": "Enter the key for the reference URI field in the data source",
     }

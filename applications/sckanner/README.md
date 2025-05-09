@@ -28,6 +28,14 @@ This application is composed of a Django-Ninja backend and a React frontend.
 Backend code is inside the *backend* directory.
 See [backend/README.md#Develop]
 
+## Ingestion 
+
+Ingestion uses Argo Workflows to run the ingestion scripts. The flow goes like this:
+```
+Django Admin (Create Snapshot) -> Argo Workflow (Trigger) -> Django Command (Ingestion) -> Connectivity Statement Service -> Connectivity Statement Adapter -> DB. 
+```
+
+
 ### Frontend
 
 Frontend code is inside the *frontend* directory.

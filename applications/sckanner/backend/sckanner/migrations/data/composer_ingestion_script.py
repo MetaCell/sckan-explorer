@@ -62,8 +62,8 @@ class JsonData(BaseModel):
 
 DEV_POPULATION_LIMIT = 3
 KNOWLEDGE_STATEMENTS_BATCH_SIZE = 50
-COMPOSER_KNOWLEDGE_STATEMENTS_URL = "https://composer.sckan.stage.metacell.us/api/composer/knowledge-statement/"
-# COMPOSER_KNOWLEDGE_STATEMENTS_URL = "https://composer.scicrunch.io/api/composer/knowledge-statement/"
+# COMPOSER_KNOWLEDGE_STATEMENTS_URL = "https://composer.sckan.stage.metacell.us/api/composer/knowledge-statement/"
+COMPOSER_KNOWLEDGE_STATEMENTS_URL = "https://composer.scicrunch.io/api/composer/knowledge-statement/"
 
 
 def log_error(message):
