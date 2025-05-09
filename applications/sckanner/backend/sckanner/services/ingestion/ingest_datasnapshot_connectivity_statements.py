@@ -17,7 +17,7 @@ def ingest_datasnapshot_connectivity_statements(cs_data: ConnectivityStatementDa
 	logging.basicConfig(level=logging.INFO)
 	logger = logging.getLogger(__name__)
 	logger.info(f"Adding connectivity statements to db for source {cs_data.snapshot.source} as snapshot {snapshot.id}")
-	print(f"number of statements to ingested as part of snapshot {snapshot.id}: {len(cs_data.statements)}")
+	logger.info(f"number of statements to ingested as part of snapshot {snapshot.id}: {len(cs_data.statements)}")
 	# Insert new data
 	DBConnectivityStatement.objects.bulk_create(
 		[DBConnectivityStatement(

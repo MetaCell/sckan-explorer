@@ -1,6 +1,10 @@
 from cloudharness.workflows import operations, tasks
 from django.utils import timezone
 from sckanner.models import DataSnapshot, DataSnapshotStatus
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class ArgoWorkflowService:
@@ -19,7 +23,7 @@ class ArgoWorkflowService:
             version="Admin ingestion",
             timestamp=timezone.now(),
         )
-        print(f"Running ingestion workflow for source: {source}")
+        logger.info(f"Running ingestion workflow for source: {source}")
         task_ingestion = tasks.CustomTask(
             "ingestion",
             image_name="sckanner",
@@ -50,4 +54,5 @@ class ArgoWorkflowService:
                 202,
             )
         else:
+            logger.error("Error submitting operation")
             return "Error submitting operation", 500

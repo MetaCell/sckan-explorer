@@ -724,5 +724,3 @@ def get_statements(local=False, full_imports=[], label_imports=[], statement_ale
 
 if __name__ == "__main__":
     statements = get_statements()
-    statements = [resolve_rdf_objects(statement) for statement in statements]
-    print(statements)
