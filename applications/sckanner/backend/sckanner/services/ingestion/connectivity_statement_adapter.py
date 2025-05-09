@@ -7,7 +7,10 @@ from sckanner.models import DataSnapshotStatus
 import os
 import importlib.util
 import sys
+import logging
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class ConnectivityStatementAdapter:
 	def __init__(self, source, snapshot, reference_uri_key: str):
@@ -16,6 +19,7 @@ class ConnectivityStatementAdapter:
 		self.reference_uri_key = reference_uri_key
 
 	def extract_statements(self) -> ConnectivityStatementData:
+		logger.info(f"Extracting statements from {self.source.python_code_file_for_statements_retrival}")
 		file_path = self.source.python_code_file_for_statements_retrival
 		return self._parse_and_validate_statements(file_path)
 
@@ -45,6 +49,8 @@ class ConnectivityStatementAdapter:
 					)
 				)
 			else:
+				logger.error(f"Uploaded file {file_path} does not contain a get_statements function")
 				raise ValueError(f"Uploaded file {file_path} does not contain a get_statements function")
 		else:
+			logger.error(f"File {file_path} does not exist")
 			raise ValueError(f"File {file_path} does not exist")

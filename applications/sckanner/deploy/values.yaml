@@ -10,6 +10,12 @@ harness:
   deployment: 
     auto: true
     port: 8080
+    volume:
+      mountpath: /usr/src/app/persistent
+      name: sckanner-ingestion-files
+      auto: true
+      size: 30Mi
+      usenfs: false
   livenessProbe: {path: /api/live}
   readinessProbe: {path: /api/ready}
   secured: true
