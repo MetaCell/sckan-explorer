@@ -14,7 +14,7 @@ harness:
       mountpath: /usr/src/app/persistent
       name: sckanner-ingestion-files
       auto: true
-      size: 30Mi
+      size: 100Mi
       usenfs: false
   livenessProbe: {path: /api/live}
   readinessProbe: {path: /api/ready}
