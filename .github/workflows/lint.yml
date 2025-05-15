@@ -44,7 +44,7 @@ jobs:
         working-directory: ./applications/sckanner/backend
         run: |
           cd ../../..
-          harness-deployment cloud-harness . -i sckanner -d sckanner.local -n sckanner -u -dtls --no-cd -l
+          harness-deployment cloud-harness . -i sckanner -e dev-test -d sckanner.local -n sckanner -u -dtls --no-cd -l
       - working-directory: ./applications/sckanner/backend
         name: Run tests
         run: |
