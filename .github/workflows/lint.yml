@@ -45,6 +45,9 @@ jobs:
         run: |
           cd ../../..
           harness-deployment cloud-harness . -i sckanner -d sckanner.local -n sckanner -u -dtls --no-cd -l
+      - name: Copy values.yaml
+        run: |
+          cp deployment/helm/values.yaml /opt/cloudharness/resources/allvalues.yaml
       - working-directory: ./applications/sckanner/backend
         name: Run tests
         run: |
