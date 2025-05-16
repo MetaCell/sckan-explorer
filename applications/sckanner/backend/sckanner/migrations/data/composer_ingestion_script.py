@@ -8,6 +8,7 @@ from typing import Optional, Literal
 from pydantic import BaseModel
 import requests
 from itertools import batched
+import os
 
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -60,10 +61,23 @@ class JsonData(BaseModel):
 
 # ------------ end of data structure definition ------------
 
-DEV_POPULATION_LIMIT = 3
-KNOWLEDGE_STATEMENTS_BATCH_SIZE = 50
-# COMPOSER_KNOWLEDGE_STATEMENTS_URL = "https://composer.sckan.stage.metacell.us/api/composer/knowledge-statement/"
-COMPOSER_KNOWLEDGE_STATEMENTS_URL = "https://composer.scicrunch.io/api/composer/knowledge-statement/"
+DEV_POPULATION_LIMIT = 10
+COMPOSER_SCICRUNCH_PROD_KNOWLEDGE_STATEMENTS_URL = (
+    "https://composer.scicrunch.io/api/composer/knowledge-statement/"
+)
+COMPOSER_STAGING_KNOWLEDGE_STATEMENTS_URL = (
+    "https://composer.sckan.stage.metacell.us/api/composer/knowledge-statement/"
+)
+
+COMPOSER_SCRIPT_TESTING_MODE = (
+    os.environ.get("COMPOSER_SCRIPT_TESTING_MODE", "false").lower() == "true"
+)
+COMPOSER_KNOWLEDGE_STATEMENTS_URL = (
+    COMPOSER_SCICRUNCH_PROD_KNOWLEDGE_STATEMENTS_URL
+    if not COMPOSER_SCRIPT_TESTING_MODE
+    else COMPOSER_STAGING_KNOWLEDGE_STATEMENTS_URL
+)
+KNOWLEDGE_STATEMENTS_BATCH_SIZE = 50 if not COMPOSER_SCRIPT_TESTING_MODE else 5
 
 
 def log_error(message):
@@ -110,44 +124,41 @@ def fetch_paginated_data(population_ids: list[str], stdout=None):
 
 
 def get_statements(stdout=None):
-	try:
-		# Step 1: Fetch raw JSON from external source
-		raw_data_url = "https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/a-b-via-c-2.json"
-		if stdout:
-			stdout.write(f"Fetching data from {raw_data_url}...\n")
-		response = requests.get(raw_data_url)
-		response.raise_for_status()
-		raw_data = JsonData(**response.json())
+    try:
+        # Step 1: Fetch raw JSON from external source
+        raw_data_url = "https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/a-b-via-c-2.json"
+        if stdout:
+            stdout.write(f"Fetching data from {raw_data_url}...\n")
+        response = requests.get(raw_data_url)
+        response.raise_for_status()
+        raw_data = JsonData(**response.json())
 
-		# Step 2: Extract population IDs
-		if stdout:
-			stdout.write("Processing raw data to extract population IDs...\n")
-		population_ids = extract_population_ids(raw_data)
+        # Step 2: Extract population IDs
+        if stdout:
+            stdout.write("Processing raw data to extract population IDs...\n")
+        population_ids = extract_population_ids(raw_data)
 
-		# Step 3: Fetch detailed data for each population ID
-		detailed_data = []
-		for population_id in batched(population_ids, KNOWLEDGE_STATEMENTS_BATCH_SIZE):
-			detailed_data.extend(fetch_paginated_data(list(population_id)))
+        # Step 3: Fetch detailed data for each population ID
 
-		# --- FIXME - REMOVE THE FOLLOWING - ONLY FOR TESTING LOCALLY ---
-		# WE ARE INTENTIONALLY FETCHING very few statements for now.
-		# This is to make the ingestion process faster and easier to debug.
-		# population_ids = population_ids[:DEV_POPULATION_LIMIT]
-		# detailed_data = []
-		# for population_id in batched(population_ids, 2):
-		# 	detailed_data.extend(fetch_paginated_data(list(population_id)))
-		# --- FIXME - REMOVE THE ABOVE ---
+        detailed_data = []
+        if COMPOSER_SCRIPT_TESTING_MODE:
+            # --- NOTE: ONLY FOR TESTING LOCALLY ---
+            # WE ARE INTENTIONALLY FETCHING very few statements for now.
+            # This is to make the ingestion process faster and easier to debug.
+            population_ids = population_ids[:DEV_POPULATION_LIMIT]
+            # --- NOTE: ONLY FOR TESTING LOCALLY ---
 
+        for population_id in batched(population_ids, KNOWLEDGE_STATEMENTS_BATCH_SIZE):
+            detailed_data.extend(fetch_paginated_data(list(population_id)))
 
+        if stdout:
+            stdout.write(f"Ingestion process completed successfully! Total statements: {len(detailed_data)}\n")
 
-		if stdout:
-			stdout.write(f"Ingestion process completed successfully! Total statements: {len(detailed_data)}\n")
+        return detailed_data
 
-		return detailed_data
-
-	except Exception as e:
-		log_error(f"Error fetching statements from {COMPOSER_KNOWLEDGE_STATEMENTS_URL}: {e}")
-		raise e
+    except Exception as e:
+        log_error(f"Error fetching statements from {COMPOSER_KNOWLEDGE_STATEMENTS_URL}: {e}")
+        raise e
 
 
 if __name__ == "__main__":

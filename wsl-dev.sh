@@ -7,7 +7,10 @@ kubectl config set-context --current --namespace=sckanner
 
 # TO run the harness deployment command - to generate helm chart files - use the launch json command or 
 # as below:
-harness-deployment cloud-harness . -i sckanner -d sckanner.local -n sckanner -u -dtls --no-cd -l
+# for local
+harness-deployment cloud-harness . -i sckanner -d sckanner.local -n sckanner -u -dtls --no-cd -l -e local
+# for remote
+harness-deployment cloud-harness . -i sckanner -d sckanner.local -n sckanner -u -dtls --no-cd -l -e dev
 
 
 # do the skaffold deploy

@@ -1,27 +1,29 @@
 from cloudharness.workflows import operations, tasks
 from django.utils import timezone
-from sckanner.models import DataSnapshot, DataSnapshotStatus
-import logging
+from sckanner.models import DataSnapshot, DataSnapshotStatus, DataSource
+from sckanner.services.ingestion.logger_service import logger
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 class ArgoWorkflowService:
-    def __init__(self, reference_uri_key: str):
-        self.reference_uri_key = reference_uri_key
+    def __init__(self, timestamp: str, version: str):
+        self.timestamp = timestamp
+        self.version = version
+    
 
-    def run_ingestion_workflow(self, source: str):
+    def run_ingestion_workflow(self, source: DataSource):
         """
         Run the ingestion workflow for the given source.
         This method is called by the Argo workflow.
         """
+        logger.info(f"Running ingestion workflow for source: {source}")
+        print(f"Running ingestion workflow for source: {source}")
 
         snapshot = DataSnapshot.objects.create(
             source=source,
             status=DataSnapshotStatus.PENDING,
-            version="Admin ingestion",
-            timestamp=timezone.now(),
+            version=self.version,
+            timestamp=self.timestamp,
         )
         logger.info(f"Running ingestion workflow for source: {source}")
         task_ingestion = tasks.CustomTask(
@@ -33,8 +35,6 @@ class ArgoWorkflowService:
                 "connectivity_statements_ingestion",
                 "--source_id",
                 str(source.id),
-                "--reference_uri_key",
-                self.reference_uri_key,
                 "--snapshot_id",
                 str(snapshot.id),
             ],
