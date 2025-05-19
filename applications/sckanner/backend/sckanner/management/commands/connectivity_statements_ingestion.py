@@ -3,9 +3,7 @@ from sckanner.services.ingestion.connectivity_statement_ingestion_service import
     ConnectivityStatementIngestionService,
 )
 from sckanner.models import DataSource, DataSnapshot, DataSnapshotStatus
-import logging
-
-logger = logging.getLogger(__name__)
+from sckanner.services.ingestion.logger_service import logger
 
 class Command(BaseCommand):
     help = "Run the ingestion workflow for Sckanner - works with Argo"
@@ -32,34 +30,33 @@ class Command(BaseCommand):
         logger.info("Starting the connectivity statements ingestion django command")
 
         source_id = kwargs.get("source_id", None)
-        reference_uri_key = kwargs.get("reference_uri_key", None)
         snapshot_id = kwargs.get("snapshot_id", None)
 
         logger.info(f"Source ID: {source_id}")
-        logger.info(f"Reference URI Key: {reference_uri_key}")
         logger.info(f"Snapshot ID: {snapshot_id}")
 
-
+        snapshot = None
         try:
             snapshot = self.validate_if_snapshot_exists(snapshot_id)
             source = self.validate_if_source_exists(source_id, snapshot)
-            self.validate_if_reference_uri_key_is_provided(reference_uri_key, snapshot)
 
             # Trigger the ingestion adapter
-            ingestion_service = ConnectivityStatementIngestionService(reference_uri_key)
+            ingestion_service = ConnectivityStatementIngestionService()
             is_successful = ingestion_service.run_ingestion(source, snapshot)
             if is_successful:
                 snapshot = self.update_snapshot_status(snapshot, DataSnapshotStatus.COMPLETED)
             else:
                 snapshot = self.update_snapshot_status(snapshot, DataSnapshotStatus.FAILED)
         except Exception as e:
-            snapshot = self.update_snapshot_status(snapshot, DataSnapshotStatus.FAILED)
+            if snapshot is not None:
+                snapshot = self.update_snapshot_status(snapshot, DataSnapshotStatus.FAILED)
             logger.error(f"Error during ingestion: {str(e)}")
             raise e
 
     def validate_if_source_exists(self, source_id, snapshot):
-        source = DataSource.objects.get(id=int(source_id))
-        if not source:
+        try:
+            source = DataSource.objects.get(id=int(source_id))
+        except DataSource.DoesNotExist:
             snapshot = self.update_snapshot_status(snapshot, DataSnapshotStatus.FAILED)
             raise ValueError(f"Invalid source: {source_id}")
         return source

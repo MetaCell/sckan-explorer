@@ -9,22 +9,10 @@ class DataSource(models.Model):
     id = models.AutoField(primary_key=True)
     reference_uri_key = models.CharField(max_length=255, db_index=True)
     name = models.CharField(max_length=255, db_index=True)
-    raw_json_data_for_statements_retrival = models.FileField(upload_to='data_sources/config/', help_text="JSON file containing data source configuration", null=True, blank=True)
-    python_code_file_for_statements_retrival = models.FileField(upload_to='data_sources/retrieval/', help_text="Python file containing structure retrieval code", null=True, blank=True)
+    python_code_file_for_statements_retrival = models.FileField(upload_to='data_sources/retrieval/', help_text="Python file containing structure retrieval code", null=False, blank=False)
 
     def __str__(self):
         return f"DataSource - {self.name}"
-    
-    def clean(self):
-        super().clean()
-        # Check that exactly one of the file fields is provided
-        has_json = bool(self.raw_json_data_for_statements_retrival)
-        has_python = bool(self.python_code_file_for_statements_retrival)
-        
-        if has_json and has_python:
-            raise ValidationError("Only one of raw_json_data_for_statements_retrival or python_code_file_for_statements_retrival can be provided")
-        if not has_json and not has_python:
-            raise ValidationError("Either raw_json_data_for_statements_retrival or python_code_file_for_statements_retrival must be provided")
     
     class Meta:
         pass
