@@ -3,8 +3,8 @@ from .ingestion_schemas import (
     DataSnapshotData,
     ConnectivityStatement,
 )
-from sckanner.models import DataSnapshotStatus
 import os
+from sckanner.services.ingestion.logger_service import logger
 import importlib.util
 import sys
 
