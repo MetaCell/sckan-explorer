@@ -16,7 +16,7 @@ class ConnectivityStatementAdapter:
         self.reference_uri_key = source.reference_uri_key
 
     def extract_statements(self) -> ConnectivityStatementData:
-        file_path = self.source.python_code_file_for_statements_retrival
+        file_path = self.source.python_code_file_for_statements_retrieval
         return self._parse_and_validate_statements(file_path)
 
     def _parse_and_validate_statements(
