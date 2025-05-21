@@ -3,4 +3,4 @@ harness:
   dependencies:
     build: [cloudharness-frontend-build, cloudharness-django]
     hard: [accounts]
-    soft: []
+    soft: [argo]
