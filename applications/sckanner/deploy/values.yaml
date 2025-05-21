@@ -6,7 +6,7 @@ harness:
       image: postgres:14
   dependencies:
     build: [cloudharness-frontend-build, cloudharness-django]
-    hard: [accounts]
+    hard: []
   deployment:
     auto: true
     port: 8080

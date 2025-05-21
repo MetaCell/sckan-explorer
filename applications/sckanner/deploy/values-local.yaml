@@ -1,4 +1,5 @@
 harness:
   secured: true
   dependencies:
-    hard: [argo, accounts]
+    hard: [accounts]
+    soft: [argo]

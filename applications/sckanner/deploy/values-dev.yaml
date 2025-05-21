@@ -4,4 +4,5 @@ harness:
     - uri: /*
       roles: [ ]
   dependencies:
-    hard: [argo, accounts]
+    hard: [accounts]
+    soft: [argo]
