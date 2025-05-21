@@ -10,6 +10,7 @@ from sckanner.services.ingestion.argo_workflow_service import (
     ArgoWorkflowService,
 )
 from django.http import HttpResponseRedirect
+from django.core.exceptions import ValidationError
 
 # Customize admin site
 admin.site.site_header = _("Sckanner Administration")
@@ -48,7 +49,7 @@ class ConnectivityStatementAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False  # Disable manual addition since data comes from ingestion
-
+    
 
 class DataSnapshotCreateForm(forms.Form):
     source = forms.ModelChoiceField(
@@ -60,11 +61,19 @@ class DataSnapshotCreateForm(forms.Form):
         widget=forms.DateTimeInput(attrs={"type": "datetime-local"}),
         help_text=_("Leave blank to use the current time."),
     )
-    version = forms.CharField(label=_("Version"), required=False)
+    version = forms.CharField(label=_("Version"), required=True)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        source = cleaned_data.get("source")
+        version = cleaned_data.get("version")
+        if DataSnapshot.objects.filter(source=source, version=version).exists():
+            raise forms.ValidationError(_("A snapshot with the same version already exists."))
+        return cleaned_data
 
 
 class DataSnapshotAdmin(admin.ModelAdmin):
-    list_display = ("source", "timestamp", "status")
+    list_display = ("id", "source", "version", "timestamp", "status")
     ordering = ("-timestamp",)
     exclude = ("status",)
 
@@ -77,7 +86,7 @@ class DataSnapshotAdmin(admin.ModelAdmin):
                 source = form.cleaned_data["source"]
                 timestamp = form.cleaned_data["timestamp"] or datetime.datetime.now()
                 version = form.cleaned_data["version"]
-                service = ArgoWorkflowService(timestamp=timestamp, version=version)
+                service = ArgoWorkflowService(timestamp=str(timestamp), version=version)
                 service.run_ingestion_workflow(source)
                 self.message_user(
                     request, _("Snapshot ingestion started."), messages.SUCCESS
@@ -115,20 +124,20 @@ class DataSourceForm(forms.ModelForm):
         model = DataSource
         fields = [
             "name",
-            "python_code_file_for_statements_retrival",
+            "python_code_file_for_statements_retrieval",
             "reference_uri_key",
         ]
         widgets = {
-            "python_code_file_for_statements_retrival": forms.ClearableFileInput(
+            "python_code_file_for_statements_retrieval": forms.ClearableFileInput(
                 attrs={"accept": ".py"}
             ),
         }
         help_texts = {
-            "python_code_file_for_statements_retrival": "Upload a Python file containing a get_statement() function that returns an array of statements in the format [{}, {}, {}]",
+            "python_code_file_for_statements_retrieval": "Upload a Python file containing a get_statement() function that returns an array of statements in the format [{}, {}, {}]",
         }
 
-    def clean_python_code_file_for_statements_retrival(self):
-        file = self.cleaned_data.get("python_code_file_for_statements_retrival")
+    def clean_python_code_file_for_statements_retrieval(self):
+        file = self.cleaned_data.get("python_code_file_for_statements_retrieval")
         if file:
             ext = os.path.splitext(file.name)[1]
             if ext.lower() != ".py":
@@ -144,11 +153,11 @@ class DataSourceAdmin(admin.ModelAdmin):
     ordering = ("name",)
     fields = (
         "name",
-        "python_code_file_for_statements_retrival",
+        "python_code_file_for_statements_retrieval",
         "reference_uri_key",
     )
     help_texts = {
-        "python_code_file_for_statements_retrival": "Upload a Python file containing the structure retrieval code",
+        "python_code_file_for_statements_retrieval": "Upload a Python file containing the structure retrieval code",
         "reference_uri_key": "Enter the key for the reference URI field in the data source",
     }
 
