@@ -4,7 +4,10 @@ harness:
     type: postgres
     postgres:
       image: postgres:14
-  deployment: 
+  dependencies:
+    build: [cloudharness-frontend-build, cloudharness-django]
+    hard: [accounts]
+  deployment:
     auto: true
     port: 8080
   livenessProbe: {path: /api/live}
@@ -13,7 +16,5 @@ harness:
   service: {auto: true, port: 8080}
   subdomain: www
   uri_role_mapping:
-  - require-any-role: true
-    roles: ['sckanner:sckanner-administrator', 'sckanner:sckanner-manager',
-      'sckanner:sckanner-user']
-    uri: /*
+  - uri: /*
+    white-listed: true
