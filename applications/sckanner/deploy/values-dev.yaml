@@ -4,5 +4,6 @@ harness:
     - uri: /*
       roles: [ ]
   dependencies:
+    build: [cloudharness-frontend-build, cloudharness-django]
     hard: [accounts]
     soft: [argo]

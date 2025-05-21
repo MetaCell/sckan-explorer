@@ -1,5 +1,6 @@
 harness:
   secured: true
   dependencies:
+    build: [cloudharness-frontend-build, cloudharness-django]
     hard: [accounts]
-    soft: [argo]
+    soft: []

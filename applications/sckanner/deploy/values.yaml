@@ -5,7 +5,7 @@ harness:
     postgres:
       image: postgres:14
   dependencies:
-    build: [cloudharness-frontend-build, cloudharness-django]
+    build: []
     hard: []
   deployment:
     auto: true
