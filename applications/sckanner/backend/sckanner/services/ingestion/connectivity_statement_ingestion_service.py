@@ -3,32 +3,30 @@ from .ingest_datasnapshot_connectivity_statements import (
 )
 from .ingestion_schemas import ConnectivityStatementData
 from sckanner.models import DataSource, DataSnapshot as DataSnapshotModel, DataSnapshotStatus
-import logging
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from sckanner.services.ingestion.logger_service import logger
 
 class ConnectivityStatementIngestionService:
-    def __init__(self, reference_uri_key: str):
-        self.reference_uri_key = reference_uri_key
+    def __init__(self):
+        pass
 
     def run_ingestion(self, source: DataSource, snapshot: DataSnapshotModel):
         """
+        Returns: True if the ingestion was successful, False otherwise.
         Run the ingestion workflow for the given source.
         This method is called by the Argo workflow.
         """
         logger.info(f"Running Connectivity Statement Ingestion for source: {source.name}")
-        return self.ingest_data(source, self.reference_uri_key, snapshot)
+        return self.ingest_data(source, snapshot)
 
     def ingest_data(
         self,
         source: DataSource,
-        reference_uri_key: str,
         snapshot: DataSnapshotModel
     ):
         """
         Returns True if the ingestion was successful, False otherwise.
-        sources: List of names of the source in the sckanner db
+        Calls the adapter to extract the statements and 
+        then ingests them to the database.
         """
         logger.info(f"Starting Connectivity Statement Ingestion for source: {source.name}")
         logger.info(f"Using snapshot: {snapshot.id}")
@@ -37,7 +35,7 @@ class ConnectivityStatementIngestionService:
         try:
             from .connectivity_statement_adapter import ConnectivityStatementAdapter
             adapter = ConnectivityStatementAdapter(
-                source=source, snapshot=snapshot, reference_uri_key=reference_uri_key
+                source=source, snapshot=snapshot
             )
             statements = adapter.extract_statements()
             are_statements_successfully_ingested = self._ingest_connectivity_statements_to_db(statements, snapshot)

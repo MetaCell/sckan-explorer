@@ -77,9 +77,7 @@ class DataSnapshotAdmin(admin.ModelAdmin):
                 source = form.cleaned_data["source"]
                 timestamp = form.cleaned_data["timestamp"] or datetime.datetime.now()
                 version = form.cleaned_data["version"]
-                service = ArgoWorkflowService(
-                    reference_uri_key=source.reference_uri_key
-                )
+                service = ArgoWorkflowService(timestamp=timestamp, version=version)
                 service.run_ingestion_workflow(source)
                 self.message_user(
                     request, _("Snapshot ingestion started."), messages.SUCCESS
