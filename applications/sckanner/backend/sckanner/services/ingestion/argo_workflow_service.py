@@ -54,7 +54,6 @@ class ArgoWorkflowService:
             return (
                 {
                     "task": {
-                        "href": op.get_operation_update_url(),
                         "name": submitted.name,
                     }
                 },

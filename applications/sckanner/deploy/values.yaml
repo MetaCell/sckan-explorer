@@ -6,8 +6,9 @@ harness:
       image: postgres:14
   dependencies:
     build: [cloudharness-frontend-build, cloudharness-django]
-    hard: [workflows, accounts, events]
-  deployment: 
+    hard: [accounts]
+    soft: [argo]
+  deployment:
     auto: true
     port: 8080
     volume:
@@ -22,10 +23,5 @@ harness:
   service: {auto: true, port: 8080}
   subdomain: www
   uri_role_mapping:
-  - require-any-role: true
-    roles: ['sckanner:sckanner-administrator', 'sckanner:sckanner-manager',
-      'sckanner:sckanner-user']
-    uri: /*
-composer:
-  cronjob:
-    schedule: "0 3 * * *"  # Runs at 3:00 AM every day
+  - uri: /*
+    white-listed: true
