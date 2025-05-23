@@ -58,7 +58,6 @@ def get_datasnapshots(request):
             source_id=snapshot.source.id,
             source=snapshot.source.name,
             version=snapshot.version,
-            status=snapshot.status
         ) for snapshot in datasnapshots
     ]
 
