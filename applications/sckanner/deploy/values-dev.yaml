@@ -1,9 +1,0 @@
-harness:
-  secured: false
-  uri_role_mapping:
-    - uri: /*
-      roles: [ ]
-  dependencies:
-    build: [cloudharness-frontend-build, cloudharness-django]
-    hard: [accounts]
-    soft: [argo]
