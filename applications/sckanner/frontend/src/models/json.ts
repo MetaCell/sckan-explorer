@@ -63,3 +63,12 @@ export interface NerveResponse {
   };
   results: NerveResult;
 }
+
+
+export interface Datasnapshot {
+  id: number;
+  timestamp: string;
+  source_id: number;
+  source: string;
+  version: string;
+}

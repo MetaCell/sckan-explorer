@@ -7,6 +7,7 @@ const {
   primary500,
   primaryPurple600,
   gray800,
+  gray900,
   white,
   baseContainerBg,
   primaryPurple700,
@@ -117,7 +118,7 @@ const theme = createTheme({
           padding: 0;
         }
       body {
-          background: ${gray800};
+          background: ${gray900};
           scrollbar-width: thin;
           scrollbar-color: ${gray200S} transparent;
         }
@@ -265,7 +266,7 @@ const theme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          background: gray800,
+          background: gray900,
           boxShadow: 'none',
         },
       },

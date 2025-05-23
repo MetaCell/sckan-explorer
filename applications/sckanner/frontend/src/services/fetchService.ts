@@ -5,7 +5,7 @@ import {
 } from '../settings.ts';
 import { KnowledgeStatement } from '../models/explorer.ts';
 import { mapApiResponseToKnowledgeStatements } from './mappers.ts';
-import { JsonData, NerveResponse, OrderJson } from '../models/json.ts';
+import { Datasnapshot, JsonData, NerveResponse, OrderJson } from '../models/json.ts';
 
 const fetchData = async <T>(url: string): Promise<T> => {
   try {
@@ -36,9 +36,19 @@ export const fetchMajorNerves = async (): Promise<NerveResponse> => {
   return await fetchData<NerveResponse>(SCKAN_MAJOR_NERVES_JSON_URL);
 };
 
-export const fetchKnowledgeStatements = async () => {
+export const fetchDatasnapshots = async (): Promise<Datasnapshot[]> => {
+  const url = `/api/datasnapshots`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return await response.json();
+};
+
+
+export const fetchKnowledgeStatements = async (datasnapshot_id: string) => {
   let results: KnowledgeStatement[] = [];
-  const url = `/api/knowledge-statements`;
+  const url = `/api/knowledge-statements?datasnapshot_id=${datasnapshot_id}`;
 
   try {
     // Construct the request body or query params based on API requirements

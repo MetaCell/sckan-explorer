@@ -22,6 +22,7 @@ import SummaryPage from './components/SummaryPage.tsx';
 import Loader from './components/common/Loader.tsx';
 import { DataContextProvider } from './context/DataContextProvider.tsx';
 import {
+  fetchDatasnapshots,
   fetchJSON,
   fetchKnowledgeStatements,
   fetchMajorNerves,
@@ -38,6 +39,7 @@ import {
   getOrgans,
 } from './services/hierarchyService.ts';
 import ReactGA from 'react-ga4';
+import { Datasnapshot } from './models/json.ts';
 
 const App = () => {
   const store = useStore();
@@ -53,6 +55,9 @@ const App = () => {
   const [knowledgeStatements, setKnowledgeStatements] = useState<
     Record<string, KnowledgeStatement>
   >({});
+  const [datasnaphshots, setDatasnaphshots] = useState<Datasnapshot[]>([]);
+  const [selectedDatasnaphshot, setSelectedDatasnaphshot] = useState<string>('');
+
   useEffect(() => {
     if (LayoutComponent === undefined) {
       const myManager = getLayoutManagerInstance();
@@ -70,15 +75,18 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [jsonData, orderData, majorNervesData] = await Promise.all([
+        const [jsonData, orderData, majorNervesData, datasnaphshots] = await Promise.all([
           fetchJSON(),
           fetchOrderJson(),
           fetchMajorNerves(),
+          fetchDatasnapshots(),
         ]);
 
         setHierarchicalNodes(getHierarchicalNodes(jsonData, orderData));
         setOrgans(getOrgans(jsonData));
         setMajorNerves(getUniqueMajorNerves(majorNervesData));
+        setDatasnaphshots(datasnaphshots);
+        setSelectedDatasnaphshot(datasnaphshots[0].id.toString());
       } catch (error) {
         // TODO: We should give feedback to the user
         console.error('Failed to fetch data:', error);
@@ -90,7 +98,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (Object.keys(hierarchicalNodes).length > 0) {
+    if (Object.keys(hierarchicalNodes).length > 0 && selectedDatasnaphshot) {
       const neuronIDsSet = new Set<string>();
 
       // Loop through each node's connectionDetails and add all ids to the neuronIDsSet
@@ -104,7 +112,7 @@ const App = () => {
         }
       });
 
-      fetchKnowledgeStatements()
+      fetchKnowledgeStatements(selectedDatasnaphshot)
         .then((statements) => {
           // Convert array to a map by ID for easy access
           const ksMap = statements.reduce<Record<string, KnowledgeStatement>>(
@@ -121,7 +129,7 @@ const App = () => {
           console.error('Failed to fetch knowledge statements data:', error);
         });
     }
-  }, [hierarchicalNodes]);
+  }, [hierarchicalNodes, selectedDatasnaphshot]);
 
   const loadingLabels = [
     'Layout',
@@ -152,7 +160,7 @@ const App = () => {
         <Router>
           <GoogleAnalyticsTracker />
           <Box>
-            <Header />
+            <Header datasnaphshots={datasnaphshots} selectedDatasnaphshot={selectedDatasnaphshot} setSelectedDatasnaphshot={setSelectedDatasnaphshot} />
             <Box className="MuiContainer">
               <Routes>
                 <Route path="/summary" element={<SummaryPage />} />
