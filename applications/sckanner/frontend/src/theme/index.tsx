@@ -151,6 +151,7 @@ const theme = createTheme({
         #x-label {
           background: ${gray100};
           margin: 0 0.12rem 0.1rem 0.12rem !important;
+          transform: rotate(180deg);
         }
         #y-label-empty {
             background-image: linear-gradient(${gray400}, ${gray100});
