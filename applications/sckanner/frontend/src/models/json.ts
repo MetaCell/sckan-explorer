@@ -64,7 +64,6 @@ export interface NerveResponse {
   results: NerveResult;
 }
 
-
 export interface Datasnapshot {
   id: number;
   timestamp: string;

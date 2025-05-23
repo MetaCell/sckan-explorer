@@ -5,7 +5,12 @@ import {
 } from '../settings.ts';
 import { KnowledgeStatement } from '../models/explorer.ts';
 import { mapApiResponseToKnowledgeStatements } from './mappers.ts';
-import { Datasnapshot, JsonData, NerveResponse, OrderJson } from '../models/json.ts';
+import {
+  Datasnapshot,
+  JsonData,
+  NerveResponse,
+  OrderJson,
+} from '../models/json.ts';
 
 const fetchData = async <T>(url: string): Promise<T> => {
   try {
@@ -44,7 +49,6 @@ export const fetchDatasnapshots = async (): Promise<Datasnapshot[]> => {
   }
   return await response.json();
 };
-
 
 export const fetchKnowledgeStatements = async (datasnapshot_id: string) => {
   let results: KnowledgeStatement[] = [];

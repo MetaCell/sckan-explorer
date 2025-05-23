@@ -147,11 +147,13 @@ function Header({
                 </Button>
               ))}
             </Box>
-            {
-              datasnaphshots && selectedDatasnaphshot && (
-                <ReleaseDropdown datasnaphshots={datasnaphshots} selectedDatasnaphshot={selectedDatasnaphshot} setSelectedDatasnaphshot={setSelectedDatasnaphshot} />
-              )
-            }
+            {datasnaphshots && selectedDatasnaphshot && (
+              <ReleaseDropdown
+                datasnaphshots={datasnaphshots}
+                selectedDatasnaphshot={selectedDatasnaphshot}
+                setSelectedDatasnaphshot={setSelectedDatasnaphshot}
+              />
+            )}
             <Box sx={{ flexGrow: 0 }}>
               <IconButton sx={{ p: 0 }} onClick={() => setOpen(!open)}>
                 <img src={AboutScannerLogo} />

@@ -56,7 +56,8 @@ const App = () => {
     Record<string, KnowledgeStatement>
   >({});
   const [datasnaphshots, setDatasnaphshots] = useState<Datasnapshot[]>([]);
-  const [selectedDatasnaphshot, setSelectedDatasnaphshot] = useState<string>('');
+  const [selectedDatasnaphshot, setSelectedDatasnaphshot] =
+    useState<string>('');
 
   useEffect(() => {
     if (LayoutComponent === undefined) {
@@ -75,12 +76,13 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [jsonData, orderData, majorNervesData, datasnaphshots] = await Promise.all([
-          fetchJSON(),
-          fetchOrderJson(),
-          fetchMajorNerves(),
-          fetchDatasnapshots(),
-        ]);
+        const [jsonData, orderData, majorNervesData, datasnaphshots] =
+          await Promise.all([
+            fetchJSON(),
+            fetchOrderJson(),
+            fetchMajorNerves(),
+            fetchDatasnapshots(),
+          ]);
 
         setHierarchicalNodes(getHierarchicalNodes(jsonData, orderData));
         setOrgans(getOrgans(jsonData));
@@ -160,7 +162,11 @@ const App = () => {
         <Router>
           <GoogleAnalyticsTracker />
           <Box>
-            <Header datasnaphshots={datasnaphshots} selectedDatasnaphshot={selectedDatasnaphshot} setSelectedDatasnaphshot={setSelectedDatasnaphshot} />
+            <Header
+              datasnaphshots={datasnaphshots}
+              selectedDatasnaphshot={selectedDatasnaphshot}
+              setSelectedDatasnaphshot={setSelectedDatasnaphshot}
+            />
             <Box className="MuiContainer">
               <Routes>
                 <Route path="/summary" element={<SummaryPage />} />
