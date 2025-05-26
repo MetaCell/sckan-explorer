@@ -742,8 +742,8 @@ export const MinusIcon = () => (
 
 export const ReleaseDropdownIcon = () => (
   <svg
-    width="10"
-    height="16"
+    width="8"
+    height="12"
     viewBox="0 0 10 16"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"

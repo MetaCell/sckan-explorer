@@ -178,7 +178,7 @@ const ReleaseDropdown = ({
 
   return (
     <ClickAwayListener onClickAway={() => setOpen(false)}>
-      <Box sx={{ position: 'relative', minWidth: 220 }}>
+      <Box sx={{ position: 'relative', minWidth: 220, maxWidth: 237, width: '100%' }}>
         <Tooltip
           body="Choose which data snapshot you want to view."
           placement="bottom"
@@ -187,6 +187,8 @@ const ReleaseDropdown = ({
             ref={anchorRef}
             sx={{
               ...styles.root,
+              maxWidth: 237,
+              width: '100%',
             }}
             onClick={() => {
               setOpen((v) => !v);
@@ -196,26 +198,34 @@ const ReleaseDropdown = ({
               if (e.key === 'Enter' || e.key === ' ') setOpen((v) => !v);
             }}
           >
-            <Typography
-              sx={{
-                color: gray50,
-                mr: 1,
-              }}
-            >
-              {getGroupNameForSelected(groupedOptions, selectedDatasnaphshot)}
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: gray400,
-                fontWeight: 600,
-                mr: 1,
-              }}
-            >
-              {`Data Snapshot ${selectedOption?.version}`}
-            </Typography>
-
-            <ReleaseDropdownIcon />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              <Typography
+                sx={{
+                  color: gray50,
+                  mr: 1,
+                }}
+              >
+                {getGroupNameForSelected(groupedOptions, selectedDatasnaphshot)}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: gray400,
+                  fontWeight: 600,
+                  mr: 1,
+                  maxWidth: '112px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  display: 'block',
+                }}
+              >
+                {`Data Snapshot ${selectedOption?.version}`}
+              </Typography>
+              <Box sx={{ width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <ReleaseDropdownIcon />
+              </Box>
+            </Box>
           </Box>
         </Tooltip>
         <Popper
@@ -271,6 +281,7 @@ const ReleaseDropdown = ({
                           display: 'flex',
                           alignItems: 'center',
                           gap: '0.5rem',
+                          marginRight: '1.5rem',
                         }}
                       >
                         <Typography
