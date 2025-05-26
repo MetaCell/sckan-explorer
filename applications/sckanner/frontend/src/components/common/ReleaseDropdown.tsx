@@ -182,7 +182,7 @@ const ReleaseDropdown = ({
         sx={{
           position: 'relative',
           minWidth: 220,
-          maxWidth: 237,
+          maxWidth: 275,
           width: '100%',
         }}
       >
@@ -194,7 +194,7 @@ const ReleaseDropdown = ({
             ref={anchorRef}
             sx={{
               ...styles.root,
-              maxWidth: 237,
+              maxWidth: 275,
               width: '100%',
             }}
             onClick={() => {
@@ -220,7 +220,7 @@ const ReleaseDropdown = ({
                   color: gray400,
                   fontWeight: 600,
                   mr: 1,
-                  maxWidth: '112px',
+                  maxWidth: '150px',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
