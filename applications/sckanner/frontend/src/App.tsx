@@ -55,7 +55,7 @@ const App = () => {
   const [knowledgeStatements, setKnowledgeStatements] = useState<
     Record<string, KnowledgeStatement>
   >({});
-  const [datasnaphshots, setDatasnaphshots] = useState<Datasnapshot[]>([]);
+  const [datasnapshots, setdatasnapshots] = useState<Datasnapshot[]>([]);
   const [selectedDatasnaphshot, setSelectedDatasnaphshot] =
     useState<string>('');
 
@@ -76,7 +76,7 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [jsonData, orderData, majorNervesData, datasnaphshots] =
+        const [jsonData, orderData, majorNervesData, datasnapshots] =
           await Promise.all([
             fetchJSON(),
             fetchOrderJson(),
@@ -87,8 +87,8 @@ const App = () => {
         setHierarchicalNodes(getHierarchicalNodes(jsonData, orderData));
         setOrgans(getOrgans(jsonData));
         setMajorNerves(getUniqueMajorNerves(majorNervesData));
-        setDatasnaphshots(datasnaphshots);
-        setSelectedDatasnaphshot(datasnaphshots[0].id.toString());
+        setdatasnapshots(datasnapshots);
+        setSelectedDatasnaphshot(datasnapshots[0].id.toString());
       } catch (error) {
         // TODO: We should give feedback to the user
         console.error('Failed to fetch data:', error);
@@ -163,7 +163,7 @@ const App = () => {
           <GoogleAnalyticsTracker />
           <Box>
             <Header
-              datasnaphshots={datasnaphshots}
+              datasnapshots={datasnapshots}
               selectedDatasnaphshot={selectedDatasnaphshot}
               setSelectedDatasnaphshot={setSelectedDatasnaphshot}
             />

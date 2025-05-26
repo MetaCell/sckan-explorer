@@ -110,11 +110,11 @@ function formatTimestamp(timestamp: string) {
 }
 
 const ReleaseDropdown = ({
-  datasnaphshots,
+  datasnapshots,
   selectedDatasnaphshot,
   setSelectedDatasnaphshot,
 }: {
-  datasnaphshots: Datasnapshot[];
+    datasnapshots: Datasnapshot[];
   selectedDatasnaphshot: string;
   setSelectedDatasnaphshot: (datasnaphshot: string) => void;
 }) => {
@@ -139,7 +139,7 @@ const ReleaseDropdown = ({
 
   const groupedOptions = useMemo(() => {
     const groups: { [key: string]: Datasnapshot[] } = {};
-    datasnaphshots.forEach((snapshot) => {
+    datasnapshots.forEach((snapshot) => {
       if (!groups[snapshot.source]) {
         groups[snapshot.source] = [];
       }
@@ -149,7 +149,7 @@ const ReleaseDropdown = ({
       group,
       options,
     }));
-  }, [datasnaphshots]);
+  }, [datasnapshots]);
 
   // Helper to get group name for selected snapshot
   const getGroupNameForSelected = (

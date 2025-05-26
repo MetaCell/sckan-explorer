@@ -28,11 +28,11 @@ const pages = [
 ];
 
 function Header({
-  datasnaphshots,
+  datasnapshots,
   selectedDatasnaphshot,
   setSelectedDatasnaphshot,
 }: {
-  datasnaphshots: Datasnapshot[];
+    datasnapshots: Datasnapshot[];
   selectedDatasnaphshot: string;
   setSelectedDatasnaphshot: (datasnaphshot: string) => void;
 }) {
@@ -147,9 +147,9 @@ function Header({
                 </Button>
               ))}
             </Box>
-            {datasnaphshots && selectedDatasnaphshot && (
+            {datasnapshots && selectedDatasnaphshot && (
               <ReleaseDropdown
-                datasnaphshots={datasnaphshots}
+                datasnapshots={datasnapshots}
                 selectedDatasnaphshot={selectedDatasnaphshot}
                 setSelectedDatasnaphshot={setSelectedDatasnaphshot}
               />

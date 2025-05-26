@@ -50,7 +50,7 @@ def get_knowledge_statements(request, datasnapshot_id: int):
 
 @api.get('/datasnapshots', response=List[DataSnapshotSchema], tags=['datasnapshots'])
 def get_datasnapshots(request):
-    datasnapshots = DataSnapshot.objects.filter(status=DataSnapshotStatus.COMPLETED).order_by('source__name', '-timestamp')
+    datasnapshots = DataSnapshot.objects.completed()
     return [
         DataSnapshotSchema(
             id=snapshot.id,

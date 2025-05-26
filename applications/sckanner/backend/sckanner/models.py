@@ -30,12 +30,19 @@ class DataSnapshotStatus(models.TextChoices):
     FAILED = "failed"
 
 
+class DataSnapshotManager(models.Manager):
+    def completed(self):
+        return self.get_queryset().filter(status=DataSnapshotStatus.COMPLETED).order_by('source__name', '-timestamp')
+
+
 class DataSnapshot(models.Model):
     id = models.AutoField(primary_key=True)
     timestamp = models.DateTimeField(null=True, blank=True, db_index=True)
     source = models.ForeignKey(DataSource, on_delete=models.CASCADE)
     version = models.CharField(max_length=255, db_index=True)
     status = models.CharField(max_length=255, choices=DataSnapshotStatus.choices, db_index=True, default=DataSnapshotStatus.TO_START)
+
+    objects = DataSnapshotManager()
 
     def __str__(self):
         return f"DataSnapshot {self.id} - source: {self.source} - version: {self.version}"
