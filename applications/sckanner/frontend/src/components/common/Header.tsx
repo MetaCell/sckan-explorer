@@ -32,7 +32,7 @@ function Header({
   selectedDatasnaphshot,
   setSelectedDatasnaphshot,
 }: {
-    datasnapshots: Datasnapshot[];
+  datasnapshots: Datasnapshot[];
   selectedDatasnaphshot: string;
   setSelectedDatasnaphshot: (datasnaphshot: string) => void;
 }) {

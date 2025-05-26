@@ -114,7 +114,7 @@ const ReleaseDropdown = ({
   selectedDatasnaphshot,
   setSelectedDatasnaphshot,
 }: {
-    datasnapshots: Datasnapshot[];
+  datasnapshots: Datasnapshot[];
   selectedDatasnaphshot: string;
   setSelectedDatasnaphshot: (datasnaphshot: string) => void;
 }) => {
@@ -178,7 +178,14 @@ const ReleaseDropdown = ({
 
   return (
     <ClickAwayListener onClickAway={() => setOpen(false)}>
-      <Box sx={{ position: 'relative', minWidth: 220, maxWidth: 237, width: '100%' }}>
+      <Box
+        sx={{
+          position: 'relative',
+          minWidth: 220,
+          maxWidth: 237,
+          width: '100%',
+        }}
+      >
         <Tooltip
           body="Choose which data snapshot you want to view."
           placement="bottom"
@@ -222,7 +229,16 @@ const ReleaseDropdown = ({
               >
                 {`Data Snapshot ${selectedOption?.version}`}
               </Typography>
-              <Box sx={{ width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Box
+                sx={{
+                  width: 16,
+                  height: 16,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
                 <ReleaseDropdownIcon />
               </Box>
             </Box>
