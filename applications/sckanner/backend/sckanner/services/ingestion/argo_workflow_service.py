@@ -1,4 +1,3 @@
-from cloudharness.workflows import operations, tasks
 from django.utils import timezone
 from sckanner.models import DataSnapshot, DataSnapshotStatus, DataSource
 from sckanner.services.ingestion.logger_service import logger
@@ -21,6 +20,8 @@ class ArgoWorkflowService:
         Run the ingestion workflow for the given source.
         This method is called by the Argo workflow.
         """
+        from cloudharness.workflows import operations, tasks
+
         current_app = get_current_configuration()
         logger.info(f"Running ingestion workflow for source: {source}")
 
