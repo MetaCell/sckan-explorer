@@ -9,7 +9,7 @@ class DataSource(models.Model):
     id = models.AutoField(primary_key=True)
     reference_uri_key = models.CharField(max_length=255, db_index=True)
     name = models.CharField(max_length=255, db_index=True)
-    python_code_file_for_statements_retrival = models.FileField(upload_to='data_sources/retrieval/', help_text="Python file containing structure retrieval code", null=False, blank=False)
+    python_code_file_for_statements_retrieval = models.FileField(upload_to='data_sources/retrieval/', help_text="Python file containing structure retrieval code", null=False, blank=False)
 
     def __str__(self):
         return f"DataSource - {self.name}"
@@ -30,16 +30,25 @@ class DataSnapshotStatus(models.TextChoices):
     FAILED = "failed"
 
 
+class DataSnapshotManager(models.Manager):
+    def completed(self):
+        return self.get_queryset().filter(status=DataSnapshotStatus.COMPLETED).order_by('source__name', '-timestamp')
+
+
 class DataSnapshot(models.Model):
     id = models.AutoField(primary_key=True)
     timestamp = models.DateTimeField(null=True, blank=True, db_index=True)
     source = models.ForeignKey(DataSource, on_delete=models.CASCADE)
-    version = models.CharField(max_length=255, null=True, blank=True, db_index=True)
+    version = models.CharField(max_length=255, db_index=True)
     status = models.CharField(max_length=255, choices=DataSnapshotStatus.choices, db_index=True, default=DataSnapshotStatus.TO_START)
 
+    objects = DataSnapshotManager()
+
     def __str__(self):
-        return f"DataSnapshot {self.id} - source: {self.source} - version: {self.version}" \
-            if self.version else f"DataSnapshot {self.id} - source: {self.source}"
+        return f"DataSnapshot {self.id} - source: {self.source} - version: {self.version}"
+
+    class Meta:
+        unique_together = ('source', 'version')
     
     
 class ConnectivityStatement(models.Model):

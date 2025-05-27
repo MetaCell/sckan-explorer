@@ -740,6 +740,42 @@ export const MinusIcon = () => (
   </svg>
 );
 
+export const ReleaseDropdownIcon = () => (
+  <svg
+    width="8"
+    height="12"
+    viewBox="0 0 10 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M0.833374 10.4999L5.00004 14.6666L9.16671 10.4999M0.833374 5.49992L5.00004 1.33325L9.16671 5.49992"
+      stroke="#F6F7F9"
+      stroke-width="1.66667"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+);
+
+export const ReleaseSelectedCheckIcon = () => (
+  <svg
+    width="16"
+    height="11"
+    viewBox="0 0 16 11"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M14.6667 1L5.50004 10.1667L1.33337 6"
+      stroke="#E8C3F8"
+      stroke-width="1.66667"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+);
+
 export const PlusIcon = () => (
   <svg
     width="26"
