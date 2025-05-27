@@ -317,7 +317,6 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                   writingMode: 'vertical-lr',
                   lineHeight: 1,
                   display: 'flex',
-                  justifyContent: 'flex-end',
                   alignItems: 'center',
                   fontSize: '0.875rem',
                   fontWeight: '500',
