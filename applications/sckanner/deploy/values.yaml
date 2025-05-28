@@ -2,6 +2,8 @@ harness:
   database: 
     auto: true
     type: postgres
+    postgres:
+      image: postgres:14
   dependencies:
     build: [cloudharness-frontend-build, cloudharness-django]
     hard: [accounts]
