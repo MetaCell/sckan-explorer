@@ -210,7 +210,7 @@ def makelpesrdf():
 
 def get_populationset_from_neurondm(id_: str, owl_class: str) -> str:
     """
-    NOTE: keep the order of re.search calls as is, to address the case for 
+    NOTE: keep the order of re.search calls as is, to address the case for
     /readable/sparc-nlp/ - in the first place
     """
     if str(owl_class) == SPARC_NLP_OWL_CLASS_PREFIX:
@@ -248,10 +248,13 @@ def for_composer(n, statement_alert_uris: Set[str] = None):
         populationset=get_populationset_from_neurondm(n.id_, n.owlClass),
         vias=vias,
         species=lpes(n, ilxtr.hasInstanceInTaxon),
-        sex=lpes(n, ilxtr.hasBiologicalSex),
+        sex=lpes(n, ilxtr.hasBiologicalSex) if len(lpes(n, ilxtr.hasBiologicalSex)) > 0 else None,
         circuit_type=lpes(n, ilxtr.hasCircuitRolePhenotype),
         circuit_role=lpes(n, ilxtr.hasFunctionalCircuitRolePhenotype),
-        phenotype=lpes(n, ilxtr.hasAnatomicalSystemPhenotype),
+        phenotype={
+            'id': 0,
+            'name': lpes(n, ilxtr.hasAnatomicalSystemPhenotype)[0] if lpes(n, ilxtr.hasAnatomicalSystemPhenotype) else '',
+        },
         # classification_phenotype=lpes(n, ilxtr.hasClassificationPhenotype),
         other_phenotypes=(lpes(n, ilxtr.hasPhenotype)
                           + lpes(n, ilxtr.hasMolecularPhenotype)
@@ -262,6 +265,16 @@ def for_composer(n, statement_alert_uris: Set[str] = None):
         note_alert=lrdf(n, ilxtr.alertNote),
         validation_errors=validation_errors,
         statement_alerts=statement_alerts,
+        apinatomy_model='',
+        journey='',
+        knowledge_statement='',
+        laterality='',
+        phenotype_id=None,
+        projection=None,
+        provenances=list(),
+        reference_uri='',
+        sentence_id=None,
+        statement_preview='',
     )
 
     return fc
@@ -724,3 +737,24 @@ def get_statements(local=False, full_imports=[], label_imports=[], statement_ale
 
 if __name__ == "__main__":
     statements = get_statements()
+    print(len(statements))
+    statements_in_schema = {'items': statements}
+    # import the json file statement-validator.json and use this as schema to validate the statements
+    import json
+    from jsonschema import validate, ValidationError
+    # Load the JSON schema for validation
+    # Assuming the schema file is in the same directory as this script
+    import os
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    schema_path = os.path.join(current_dir, 'statement-validator.json')
+    if not os.path.exists(schema_path):
+        raise FileNotFoundError(f"Schema file not found at {schema_path}")
+    # Load the schema
+    with open(schema_path, 'r') as schema_file:
+        schema = json.load(schema_file)
+    try:
+        validate(instance=statements, schema=schema)
+    except ValidationError as e:
+        print(f"Validation error in statements: {e.message}")
+    else:
+        print(f"Statements is not valid.")
