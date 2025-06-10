@@ -5,11 +5,12 @@ import { vars } from '../../theme/variables.ts';
 import PopulationDisplay from './PopulationDisplay.tsx';
 import CommonAccordion from '../common/Accordion.tsx';
 import CommonChip from '../common/CommonChip.tsx';
-import { ArrowOutward } from '../icons/index.tsx';
+// import { ArrowOutward } from '../icons/index.tsx';
 import { KsRecord } from '../common/Types.ts';
 import { getConnectionDetails } from '../../services/summaryHeatmapService.ts';
 import { generateJourneyCsvService } from '../../services/csvService.ts';
 import { useDataContext } from '../../context/DataContext.ts';
+import MAPSButton from './shared/ButtonDropDown.tsx';
 
 const { gray500, gray700, gray800 } = vars;
 
@@ -130,13 +131,14 @@ const SummaryDetails = ({
             Details
           </Typography>
           <Stack direction="row" alignItems="center" spacing=".5rem">
-            <Button
+            <MAPSButton connectionDetails={connectionDetails} />
+            {/* <Button
               variant="outlined"
               startIcon={<ArrowOutward />}
-              disabled={true}
+              // disabled={true}
             >
               View on SPARC Portal
-            </Button>
+            </Button> */}
             <Button variant="contained" onClick={generateCSV}>
               Download (.csv)
             </Button>
