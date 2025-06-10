@@ -147,16 +147,23 @@ const theme = createTheme({
         #x-labels-list {
           position: sticky;
           top: 0;
+          left: 0;
           background: ${white};
+          z-index: 10;
+        }
+        #y-label {
+          display: none;
         }
         #x-label {
           background: ${gray100};
           margin: 0 0.12rem 0.1rem 0.12rem !important;
           transform: rotate(180deg);
+          width: .875rem !important;
         }
         #y-label-empty {
             background-image: linear-gradient(${gray400}, ${gray100});
             background: ${white};
+            display: none;
         }
         .MuiContainer:has(> .database-summary) {
           padding: 0;
