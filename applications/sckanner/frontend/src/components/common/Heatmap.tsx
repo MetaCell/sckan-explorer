@@ -255,7 +255,8 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         </Typography>
       </Box>
       <Box
-        width="fit-content"
+        width="100%"
+        paddingLeft="16.625rem"
         minWidth={0}
         display="flex"
         alignItems="center"
@@ -351,8 +352,8 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                 yLabels={yAxisData.labels}
                 xLabelsLocation={'top'}
                 xLabelsVisibility={xAxis?.map(() => true)}
-                xLabelWidth={250}
-                yLabelWidth={250}
+                xLabelWidth={100}
+                yLabelWidth={100}
                 data={heatmapMatrixData}
                 // squares
                 height={43}

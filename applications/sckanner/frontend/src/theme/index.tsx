@@ -149,7 +149,6 @@ const theme = createTheme({
           left: 0;
           background: ${white};
           z-index: 10;
-          width: fit-content;
         }
         #y-label {
           display: none;
@@ -158,7 +157,6 @@ const theme = createTheme({
           background: ${gray100};
           margin: 0 0.12rem 0.1rem 0.12rem !important;
           width: .875rem !important;
-          flex: 0 !important;
         }
         #y-label-empty {
             background-image: linear-gradient(${gray400}, ${gray100});
