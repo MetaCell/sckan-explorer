@@ -4,9 +4,11 @@ from .ingestion_schemas import (
     ConnectivityStatement,
 )
 import os
-from sckanner.services.ingestion.logger_service import logger
-import importlib.util
 import sys
+import json
+import importlib.util
+from sckanner.services.ingestion.logger_service import logger
+from jsonschema import validate, ValidationError
 
 
 class ConnectivityStatementAdapter:
@@ -38,13 +40,27 @@ class ConnectivityStatementAdapter:
 
         # Get statements from the uploaded module
         if hasattr(module, "get_statements") and callable(module.get_statements):
-            # TODO: validate the statements before saving them in the database
             statements = [
                 ConnectivityStatement(
                     data=statement, reference_uri=statement[self.reference_uri_key]
                 )
                 for statement in module.get_statements()
             ]
+            try:
+                # Validate the statements against the schema
+                current_path = os.path.dirname(os.path.abspath(__file__))
+                schema_path = os.path.join(current_path, 'statement-validator.json')
+                if not os.path.exists(schema_path):
+                    raise FileNotFoundError(f"Schema file not found at {schema_path}")
+                # Load the schema
+                with open(schema_path, 'r') as schema_file:
+                    schema = json.load(schema_file)
+                validate(instance=statements, schema=schema)
+            except ValidationError as e:
+                logger.error(
+                    f"Validation error in statements: {e.message}"
+                )
+                raise ValueError(f"Validation error in statements: {e.message}")
             return ConnectivityStatementData(
                 statements=statements,
                 snapshot=DataSnapshotData(

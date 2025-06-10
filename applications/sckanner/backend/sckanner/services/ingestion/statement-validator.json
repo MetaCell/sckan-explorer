@@ -434,7 +434,10 @@
 				]
 			},
 			"projection": {
-				"type": "null"
+				"type": [
+					"null",
+					"string"
+				]
 			},
 			"provenances": {
 				"type": "array",
@@ -459,7 +462,10 @@
 				}
 			},
 			"sentence_id": {
-				"type": "integer"
+				"type": [
+					"integer",
+					"null"
+				]
 			},
 			"circuit_type": {
 				"type": [
