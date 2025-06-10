@@ -255,28 +255,13 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         </Typography>
       </Box>
       <Box
-        width="calc(100% - 1.625rem)"
+        width="fit-content"
         minWidth={0}
         display="flex"
         alignItems="center"
+        position="relative"
+        flexDirection="row-reverse"
       >
-        {yAxisLabel && (
-          <Typography
-            sx={{
-              textAlign: 'center',
-              fontSize: '0.875rem',
-              marginTop: '4.875rem',
-              paddingRight: '0.75rem',
-              fontWeight: 400,
-              writingMode: 'vertical-lr',
-              lineHeight: 1,
-              color: gray500,
-            }}
-          >
-            {yAxisLabel}
-          </Typography>
-        )}
-
         <Box
           width={1}
           position="relative"
@@ -457,8 +442,26 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                 }}
               />
             )}
-          <CollapsibleList list={yAxis} onItemClick={handleCollapseClick} />
+          {/* <CollapsibleList list={yAxis} onItemClick={handleCollapseClick} /> */}
         </Box>
+
+        <CollapsibleList list={yAxis} onItemClick={handleCollapseClick} />
+        {yAxisLabel && (
+          <Typography
+            sx={{
+              textAlign: 'center',
+              fontSize: '0.875rem',
+              marginTop: '4.875rem',
+              paddingRight: '0.75rem',
+              fontWeight: 400,
+              writingMode: 'vertical-lr',
+              lineHeight: 1,
+              color: gray500,
+            }}
+          >
+            {yAxisLabel}
+          </Typography>
+        )}
       </Box>
     </Box>
   );

@@ -162,7 +162,15 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
   );
 
   return (
-    <Box sx={{ width: '15.625rem', position: 'absolute', bottom: 0 }}>
+    <Box
+      sx={{
+        width: '15.625rem',
+        position: 'sticky',
+        top: '40rem',
+        left: '0rem',
+        backgroundColor: '#fff',
+      }}
+    >
       {list.map((item, index) => (
         <Box key={index} style={{ padding: '0.125rem 0.125rem 0.125rem 0' }}>
           <Button
