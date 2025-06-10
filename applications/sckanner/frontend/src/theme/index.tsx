@@ -156,7 +156,7 @@ const theme = createTheme({
         }
         #x-label {
           background: ${gray100};
-          margin: 0 0.12rem 0.1rem 0.12rem !important;
+          margin-bottom: 0.1rem !important;
           transform: rotate(180deg);
           width: .875rem !important;
         }
