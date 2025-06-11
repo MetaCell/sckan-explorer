@@ -10,7 +10,7 @@ from sckanner.services.ingestion.argo_workflow_service import (
     ArgoWorkflowService,
 )
 from django.http import HttpResponseRedirect
-from django.core.exceptions import ValidationError
+
 
 # Customize admin site
 admin.site.site_header = _("Sckanner Administration")
@@ -132,8 +132,12 @@ class DataSourceForm(forms.ModelForm):
                 attrs={"accept": ".py"}
             ),
         }
+
+        statement_validator_url = "/static/sckanner/schema/statement-validator.json"
+        a_href  = f"<a href='{statement_validator_url}' download target='_blank'>statement validator schema</a>"
+
         help_texts = {
-            "python_code_file_for_statements_retrieval": "Upload a Python file containing a get_statement() function that returns an array of statements in the format [{}, {}, {}]",
+            "python_code_file_for_statements_retrieval": f"Upload a Python file containing a get_statement() function that returns an array of statements in particular format. See the {a_href} for the expected format.",
         }
 
     def clean_python_code_file_for_statements_retrieval(self):
