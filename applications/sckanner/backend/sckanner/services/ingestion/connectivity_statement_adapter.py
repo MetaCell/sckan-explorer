@@ -43,7 +43,7 @@ class ConnectivityStatementAdapter:
                 ConnectivityStatement(
                     data=statement, reference_uri=statement[self.reference_uri_key]
                 )
-                for statement in module.get_statements()
+                for statement in module.get_statements(self.snapshot.version)
             ]
             return ConnectivityStatementData(
                 statements=statements,

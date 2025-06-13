@@ -64,7 +64,7 @@ class Command(BaseCommand):
     def validate_if_snapshot_exists(self, snapshot_id):
         snapshot = DataSnapshot.objects.get(id=int(snapshot_id))
         if not snapshot:
-            raise ValueError(f"Invalid snapshot: {snapshot_id}")        
+            raise ValueError(f"Invalid snapshot: {snapshot_id}")
         return snapshot
 
     def validate_if_reference_uri_key_is_provided(self, reference_uri_key, snapshot):
