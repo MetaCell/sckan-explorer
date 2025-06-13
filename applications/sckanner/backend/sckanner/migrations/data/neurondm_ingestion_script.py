@@ -36,6 +36,13 @@ REGION_LAYER_TYPE = 'region_layer'
 
 # ------------ exceptions and models ------------
 
+def string_to_int_hash(s):
+    hash = 0
+    for c in s:
+        hash = ((hash << 5) - hash) + ord(c)
+        hash &= 0xFFFFFFFF  # Convert to 32-bit integer
+    return abs(hash)
+
 class NeuronDMInconsistency(Exception):
     def __init__(self, statement_id, entity_id, message):
         self.statement_id = statement_id
@@ -231,7 +238,7 @@ def get_sex(sex: str) -> Optional[dict]:
     Generate the correct dictionary for the sex property.
     """
     return {
-        'id': 0,
+        'id': string_to_int_hash(sex),
         'name': sex,
         'ontology_uri': sex
     } if sex else None
@@ -242,7 +249,7 @@ def get_species(species: str) -> Optional[dict]:
     Generate the correct dictionary for the species property.
     """
     return {
-        'id': 0,
+        'id': string_to_int_hash(species),
         'name': species,
         'ontology_uri': species
     } if species else None
@@ -253,7 +260,7 @@ def overwrite_ref_fw_connection(fc: Dict, ref: str):
     Overwrite the connectivity statement ref_uri with the forward connection one.
     """
     _fc = dict(fc)  # Create a copy to avoid mutating the original
-    _fc['ref_uri'] = ref
+    _fc['reference_uri'] = ref
     return _fc
 
 
@@ -286,7 +293,7 @@ def for_composer(n, statement_alert_uris: Set[str] = None, ind: Optional[int] = 
         circuit_type=lpes(n, ilxtr.hasCircuitRolePhenotype)[0] if lpes(n, ilxtr.hasCircuitRolePhenotype) else None,
         circuit_role=lpes(n, ilxtr.hasFunctionalCircuitRolePhenotype),
         phenotype={
-            'id': 0,
+            'id': string_to_int_hash(lpes(n, ilxtr.hasAnatomicalSystemPhenotype)[0]) if lpes(n, ilxtr.hasAnatomicalSystemPhenotype) else 0,
             'name': lpes(n, ilxtr.hasAnatomicalSystemPhenotype)[0] if lpes(n, ilxtr.hasAnatomicalSystemPhenotype) else '',
         },
         # classification_phenotype=lpes(n, ilxtr.hasClassificationPhenotype),
@@ -776,28 +783,28 @@ def gen_composer_entity(entity: str | dict) -> Dict:
     """
     if isinstance(entity, str):
         return {
-                'id': 0,
+                'id': string_to_int_hash(entity),
                 'synonyms': '',
                 'region_layer': None,
                 'simple_entity': {
-                    'id': 0,
+                    'id': string_to_int_hash(entity),
                     'name': entity,
                     'ontology_uri': entity
                 }
             }
     elif isinstance(entity, dict):
         return {
-                'id': 0,
+                'id': string_to_int_hash(entity.get('layer', '') + entity.get('region', '')),
                 'synonyms': '',
                 'region_layer': {
-                    'id': 0,
+                    'id': string_to_int_hash(entity.get('layer', '') + entity.get('region', '')),
                     'layer': {
-                        "id": 0,
+                        "id": string_to_int_hash(entity.get('layer', '')),
 	        			"name": entity.get('layer', ''),
 	        			"ontology_uri": entity.get('layer', '')
                     },
                     'region': {
-                        "id": 0,
+                        "id": string_to_int_hash(entity.get('region', '')),
                         'name': entity.get('region', ''),
                         'ontology_uri': entity.get('region', '')
                     }
@@ -831,7 +838,7 @@ def refine_statements(statements: List[Dict]) -> List[Dict]:
                     for entity in via.get('from_entities', [])
                 ],
                 'are_connections_explicit': True,
-                'connectivity_statement_id': 0,
+                'connectivity_statement_id': string_to_int_hash(statement.get('reference_uri', '')),
                 'order': via.get('order', 0),
                 'type': via.get('type', '')
             }
@@ -849,7 +856,7 @@ def refine_statements(statements: List[Dict]) -> List[Dict]:
                     for entity in destination.get('from_entities', [])
                 ],
                 'are_connections_explicit': True,
-                'connectivity_statement_id': 0,
+                'connectivity_statement_id': string_to_int_hash(statement.get('reference_uri', '')),
                 'type': destination.get('type', '')
             }
             destinations.append(_destination)
