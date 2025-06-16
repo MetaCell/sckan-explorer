@@ -692,91 +692,6 @@ def resolve_rdf_objects(data: Any) -> Any:
 # ---- note by @d-gopalkrishna - End of custom resolveer for the RDF objects to be used in the migration ----
 
 
-## Based on:
-## https://github.com/tgbugs/pyontutils/blob/30c415207b11644808f70c8caecc0c75bd6acb0a/neurondm/docs/composer.py#L668-L698
-def get_statements(local=False, full_imports=[], label_imports=[], statement_alert_uris: Set[str] = None):
-
-    config = Config('random-merge')
-    g = OntGraph()  # load and query graph
-
-    # remove scigraph and interlex calls
-    graphBase._sgv = None
-    del graphBase._sgv
-    if len(OntTerm.query._services) > 1:
-        # backup services and avoid issues on rerun
-        _old_query_services = OntTerm.query._services
-        _noloc_query_services = _old_query_services[1:]
-
-    OntTerm.query._services = (RDFL(g, OntId),)
-
-    # base paths to ontology files
-    gen_neurons_path = 'ttl/generated/neurons/'
-    suffix = '.ttl'
-    if local:
-        from pyontutils.config import auth
-        olr = auth.get_path('ontology-local-repo')
-        local_base = olr / gen_neurons_path
-    else:
-        orr = 'https://raw.githubusercontent.com/SciCrunch/NIF-Ontology/neurons/'
-        remote_base = orr + gen_neurons_path
-
-    # full imports - if not provided manually, use default
-    default_full_imports = ['apinat-partial-orders',
-                            'apinat-pops-more',
-                            'apinat-simple-sheet',
-                            'sparc-nlp']
-    full_imports_paths = full_imports if full_imports else default_full_imports
-    failed_full_imports_paths = []
-    for f in full_imports_paths:
-        if local:
-            ori = OntResPath(local_base / (f + suffix))
-        else:
-            ori = OntResIri(remote_base + f + suffix)
-
-        try:
-            [g.add(t) for t in ori.graph]
-        except ValueError:
-            failed_full_imports_paths.append(f)
-            log_error(f"Error in loading {ori}")
-    
-    if failed_full_imports_paths:
-        log_error(f"Failed to load the following full imports: {', '.join(failed_full_imports_paths)}")
-
-    # label imports - if not provided manually, use default
-    default_label_imports = ['apinatomy-neuron-populations',
-                             '../../npo']
-    label_imports_paths = label_imports if label_imports else default_label_imports
-    failed_label_imports_paths = []
-    for f in label_imports_paths:
-        p = os.path.normpath(gen_neurons_path + f)
-        if local:
-            ori = OntResPath(olr / (p + suffix))
-        else:
-            ori = OntResIri(orr + p + suffix)
-
-        try:
-            [g.add((s, rdfs.label, o)) for s, o in ori.graph[:rdfs.label:]]
-        except ValueError:
-            failed_label_imports_paths.append(f)
-            log_error(f"Error in loading {ori}")
-
-    if failed_label_imports_paths:
-        log_error(f"Failed to load the following label imports: {', '.join(failed_label_imports_paths)}")
-
-    config.load_existing(g)
-    neurons = config.neurons()
-
-    if statement_alert_uris is None:
-        statement_alert_uris = set()
-
-    fcs = [for_composer(n, statement_alert_uris, ind) for ind, n in enumerate(neurons)]
-    composer_statements = [item for item in fcs if item is not None]
-
-    return [
-        resolve_rdf_objects(statement) for statement in composer_statements
-    ]
-
-
 def gen_composer_entity(entity: str | dict) -> Dict:
     """
     Generate a simple entity or a region-layer pair representation for the given entity.
@@ -869,5 +784,91 @@ def refine_statements(statements: List[Dict]) -> List[Dict]:
     return refined_statements
 
 
+## Based on:
+## https://github.com/tgbugs/pyontutils/blob/30c415207b11644808f70c8caecc0c75bd6acb0a/neurondm/docs/composer.py#L668-L698
+def get_statements(version="", local=False, full_imports=[], label_imports=[], statement_alert_uris: Set[str] = None):
+
+    config = Config('random-merge')
+    g = OntGraph()  # load and query graph
+
+    # remove scigraph and interlex calls
+    graphBase._sgv = None
+    del graphBase._sgv
+    if len(OntTerm.query._services) > 1:
+        # backup services and avoid issues on rerun
+        _old_query_services = OntTerm.query._services
+        _noloc_query_services = _old_query_services[1:]
+
+    OntTerm.query._services = (RDFL(g, OntId),)
+
+    # base paths to ontology files
+    gen_neurons_path = 'ttl/generated/neurons/'
+    suffix = '.ttl'
+    if local:
+        from pyontutils.config import auth
+        olr = auth.get_path('ontology-local-repo')
+        local_base = olr / gen_neurons_path
+    else:
+        orr = 'https://raw.githubusercontent.com/SciCrunch/NIF-Ontology/neurons/'
+        remote_base = orr + gen_neurons_path
+
+    # full imports - if not provided manually, use default
+    default_full_imports = ['apinat-partial-orders',
+                            'apinat-pops-more',
+                            'apinat-simple-sheet',
+                            'sparc-nlp']
+    full_imports_paths = full_imports if full_imports else default_full_imports
+    failed_full_imports_paths = []
+    for f in full_imports_paths:
+        if local:
+            ori = OntResPath(local_base / (f + suffix))
+        else:
+            ori = OntResIri(remote_base + f + suffix)
+
+        try:
+            [g.add(t) for t in ori.graph]
+        except ValueError:
+            failed_full_imports_paths.append(f)
+            log_error(f"Error in loading {ori}")
+    
+    if failed_full_imports_paths:
+        log_error(f"Failed to load the following full imports: {', '.join(failed_full_imports_paths)}")
+
+    # label imports - if not provided manually, use default
+    default_label_imports = ['apinatomy-neuron-populations',
+                             '../../npo']
+    label_imports_paths = label_imports if label_imports else default_label_imports
+    failed_label_imports_paths = []
+    for f in label_imports_paths:
+        p = os.path.normpath(gen_neurons_path + f)
+        if local:
+            ori = OntResPath(olr / (p + suffix))
+        else:
+            ori = OntResIri(orr + p + suffix)
+
+        try:
+            [g.add((s, rdfs.label, o)) for s, o in ori.graph[:rdfs.label:]]
+        except ValueError:
+            failed_label_imports_paths.append(f)
+            log_error(f"Error in loading {ori}")
+
+    if failed_label_imports_paths:
+        log_error(f"Failed to load the following label imports: {', '.join(failed_label_imports_paths)}")
+
+    config.load_existing(g)
+    neurons = config.neurons()
+
+    if statement_alert_uris is None:
+        statement_alert_uris = set()
+
+    fcs = [for_composer(n, statement_alert_uris, ind) for ind, n in enumerate(neurons)]
+    composer_statements = [item for item in fcs if item is not None]
+
+    ndm_statements = [
+        resolve_rdf_objects(statement) for statement in composer_statements
+    ]
+    return refine_statements(ndm_statements)
+
+
 if __name__ == "__main__":
-    refine_statements(get_statements())
+    get_statements()
