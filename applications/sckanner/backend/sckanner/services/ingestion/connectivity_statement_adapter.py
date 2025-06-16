@@ -44,7 +44,7 @@ class ConnectivityStatementAdapter:
                 ConnectivityStatement(
                     data=statement, reference_uri=statement[self.reference_uri_key]
                 )
-                for statement in module.get_statements()
+                for statement in module.get_statements(self.snapshot.version)
             ]
             try:
                 # Validate the statements against the schema

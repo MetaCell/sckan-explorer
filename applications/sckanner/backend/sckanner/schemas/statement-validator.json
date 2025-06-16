@@ -405,6 +405,9 @@
 					]
 				}
 			},
+			"curie_id": {
+				"type": "string"
+			},
 			"phenotype": {
 				"anyOf": [
 					{
@@ -431,6 +434,25 @@
 				"type": [
 					"null",
 					"string"
+				]
+			},
+			"population": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"description",
+					"id",
+					"name"
 				]
 			},
 			"projection": {
@@ -788,6 +810,48 @@
 						"destinations",
 						"origins",
 						"vias"
+					]
+				}
+			},
+			"statement_alerts": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"id": {
+							"type": "integer"
+						},
+						"text": {
+							"type": "string"
+						},
+						"alert": {
+							"type": "string"
+						},
+						"saved_by": {
+							"type": "integer"
+						},
+						"alert_type": {
+							"type": "integer"
+						},
+						"created_at": {
+							"type": "string"
+						},
+						"updated_at": {
+							"type": "string"
+						},
+						"connectivity_statement_id": {
+							"type": "integer"
+						}
+					},
+					"required": [
+						"alert",
+						"alert_type",
+						"connectivity_statement_id",
+						"created_at",
+						"id",
+						"saved_by",
+						"text",
+						"updated_at"
 					]
 				}
 			},
@@ -1228,6 +1292,25 @@
 								"string"
 							]
 						},
+						"population": {
+							"type": "object",
+							"properties": {
+								"id": {
+									"type": "integer"
+								},
+								"name": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"description",
+								"id",
+								"name"
+							]
+						},
 						"projection": {
 							"type": "null"
 						},
@@ -1583,6 +1666,9 @@
 								]
 							}
 						},
+						"statement_alerts": {
+							"type": "array"
+						},
 						"statement_preview": {
 							"type": "string"
 						},
@@ -1593,7 +1679,9 @@
 					"required": [
 						"apinatomy_model",
 						"circuit_type",
+						"curie_id",
 						"destinations",
+						"entities_journey",
 						"id",
 						"journey",
 						"knowledge_statement",
@@ -1601,12 +1689,15 @@
 						"origins",
 						"phenotype",
 						"phenotype_id",
+						"population",
 						"projection",
 						"provenances",
 						"reference_uri",
 						"sentence_id",
 						"sex",
 						"species",
+						"state",
+						"statement_alerts",
 						"statement_preview",
 						"vias"
 					]
@@ -1619,7 +1710,9 @@
 		"required": [
 			"apinatomy_model",
 			"circuit_type",
+			"curie_id",
 			"destinations",
+			"entities_journey",
 			"forward_connection",
 			"id",
 			"journey",
@@ -1628,12 +1721,15 @@
 			"origins",
 			"phenotype",
 			"phenotype_id",
+			"population",
 			"projection",
 			"provenances",
 			"reference_uri",
 			"sentence_id",
 			"sex",
 			"species",
+			"state",
+			"statement_alerts",
 			"statement_preview",
 			"vias"
 		]
