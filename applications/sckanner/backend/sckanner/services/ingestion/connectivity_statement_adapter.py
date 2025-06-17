@@ -1,4 +1,4 @@
-from .ingestion_schemas import (
+from sckanner.services.ingestion.ingestion_schemas import (
     ConnectivityStatementData,
     DataSnapshotData,
     ConnectivityStatement,
@@ -40,12 +40,7 @@ class ConnectivityStatementAdapter:
 
         # Get statements from the uploaded module
         if hasattr(module, "get_statements") and callable(module.get_statements):
-            statements = [
-                ConnectivityStatement(
-                    data=statement, reference_uri=statement[self.reference_uri_key]
-                )
-                for statement in module.get_statements(self.snapshot.version)
-            ]
+            statements = module.get_statements(self.snapshot.version)
             try:
                 # Validate the statements against the schema
                 current_path = os.path.dirname(os.path.abspath(__file__))
@@ -56,6 +51,12 @@ class ConnectivityStatementAdapter:
                 with open(schema_path, 'r') as schema_file:
                     schema = json.load(schema_file)
                 validate(instance=statements, schema=schema)
+                statements = [
+                    ConnectivityStatement(
+                        data=statement, reference_uri=statement[self.reference_uri_key]
+                    )
+                    for statement in statements
+                ]
             except ValidationError as e:
                 logger.error(
                     f"Validation error in statements: {e.message}"
