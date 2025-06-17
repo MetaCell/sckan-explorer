@@ -11,7 +11,7 @@ def create_neurondm_and_composer_data_sources(apps, schema_editor):
 
     neuron_source, _ = DataSource.objects.get_or_create(
         name="NeuronDM",
-        reference_uri_key="id",
+        reference_uri_key="reference_uri",
         python_code_file_for_statements_retrieval=None,
     )
     script_path = os.path.join(os.path.dirname(__file__), 'data', 'neurondm_ingestion_script.py')
