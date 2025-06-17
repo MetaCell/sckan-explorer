@@ -25,7 +25,7 @@ class ConnectivityStatementIngestionService:
     ):
         """
         Returns True if the ingestion was successful, False otherwise.
-        Calls the adapter to extract the statements and 
+        Calls the adapter to extract the statements and
         then ingests them to the database.
         """
         logger.info(f"Starting Connectivity Statement Ingestion for source: {source.name}")

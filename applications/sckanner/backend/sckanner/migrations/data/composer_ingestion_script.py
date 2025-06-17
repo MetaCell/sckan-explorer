@@ -123,7 +123,7 @@ def fetch_paginated_data(population_ids: list[str], stdout=None):
 	return detailed_data
 
 
-def get_statements(stdout=None):
+def get_statements(version="", stdout=None):
     try:
         # Step 1: Fetch raw JSON from external source
         raw_data_url = "https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/a-b-via-c-2.json"

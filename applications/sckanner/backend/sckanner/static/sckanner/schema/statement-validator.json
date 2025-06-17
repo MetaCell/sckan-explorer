@@ -456,7 +456,10 @@
 				]
 			},
 			"projection": {
-				"type": "null"
+				"type": [
+					"null",
+					"string"
+				]
 			},
 			"provenances": {
 				"type": "array",
@@ -481,7 +484,10 @@
 				}
 			},
 			"sentence_id": {
-				"type": "integer"
+				"type": [
+					"integer",
+					"null"
+				]
 			},
 			"circuit_type": {
 				"type": [
@@ -1306,7 +1312,10 @@
 							]
 						},
 						"projection": {
-							"type": "null"
+							"type": [
+								"null",
+								"string"
+							]
 						},
 						"provenances": {
 							"type": "array",
@@ -1331,7 +1340,10 @@
 							}
 						},
 						"sentence_id": {
-							"type": "integer"
+							"type": [
+								"integer",
+								"null"
+							]
 						},
 						"circuit_type": {
 							"type": [
@@ -1673,7 +1685,6 @@
 					"required": [
 						"apinatomy_model",
 						"circuit_type",
-						"curie_id",
 						"destinations",
 						"entities_journey",
 						"id",
@@ -1683,15 +1694,12 @@
 						"origins",
 						"phenotype",
 						"phenotype_id",
-						"population",
 						"projection",
 						"provenances",
 						"reference_uri",
 						"sentence_id",
 						"sex",
 						"species",
-						"state",
-						"statement_alerts",
 						"statement_preview",
 						"vias"
 					]
@@ -1704,7 +1712,6 @@
 		"required": [
 			"apinatomy_model",
 			"circuit_type",
-			"curie_id",
 			"destinations",
 			"entities_journey",
 			"forward_connection",
@@ -1715,15 +1722,12 @@
 			"origins",
 			"phenotype",
 			"phenotype_id",
-			"population",
 			"projection",
 			"provenances",
 			"reference_uri",
 			"sentence_id",
 			"sex",
 			"species",
-			"state",
-			"statement_alerts",
 			"statement_preview",
 			"vias"
 		]
