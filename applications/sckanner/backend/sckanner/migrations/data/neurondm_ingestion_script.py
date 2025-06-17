@@ -867,21 +867,4 @@ def get_statements(version="", local=False, full_imports=[], label_imports=[], s
 
 
 if __name__ == "__main__":
-    statements = get_statements()
-    # # import the json file statement-validator.json and use this as schema to validate the statements
-    import json
-    from jsonschema import validate, ValidationError
-    # # Load the JSON schema for validation
-    # # Assuming the schema file is in the same directory as this script
-    import os
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    schema_path = os.path.join(current_dir, 'statement-validator.json')
-    if not os.path.exists(schema_path):
-        raise FileNotFoundError(f"Schema file not found at {schema_path}")
-    # Load the schema
-    with open(schema_path, 'r') as schema_file:
-        schema = json.load(schema_file)
-    try:
-        validate(instance=statements, schema=schema)
-    except ValidationError as e:
-        print(f"Validation error in statements: {e.message}")
+    get_statements()
