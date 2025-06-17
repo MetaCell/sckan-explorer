@@ -405,6 +405,9 @@
 					]
 				}
 			},
+			"curie_id": {
+				"type": "string"
+			},
 			"phenotype": {
 				"anyOf": [
 					{
@@ -431,6 +434,25 @@
 				"type": [
 					"null",
 					"string"
+				]
+			},
+			"population": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"description",
+					"id",
+					"name"
 				]
 			},
 			"projection": {
@@ -788,6 +810,48 @@
 						"destinations",
 						"origins",
 						"vias"
+					]
+				}
+			},
+			"statement_alerts": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"id": {
+							"type": "integer"
+						},
+						"text": {
+							"type": "string"
+						},
+						"alert": {
+							"type": "string"
+						},
+						"saved_by": {
+							"type": "integer"
+						},
+						"alert_type": {
+							"type": "integer"
+						},
+						"created_at": {
+							"type": "string"
+						},
+						"updated_at": {
+							"type": "string"
+						},
+						"connectivity_statement_id": {
+							"type": "integer"
+						}
+					},
+					"required": [
+						"alert",
+						"alert_type",
+						"connectivity_statement_id",
+						"created_at",
+						"id",
+						"saved_by",
+						"text",
+						"updated_at"
 					]
 				}
 			},
@@ -1228,8 +1292,30 @@
 								"string"
 							]
 						},
+						"population": {
+							"type": "object",
+							"properties": {
+								"id": {
+									"type": "integer"
+								},
+								"name": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"description",
+								"id",
+								"name"
+							]
+						},
 						"projection": {
-							"type": "null"
+							"type": [
+								"null",
+								"string"
+							]
 						},
 						"provenances": {
 							"type": "array",
@@ -1254,7 +1340,10 @@
 							}
 						},
 						"sentence_id": {
-							"type": "integer"
+							"type": [
+								"integer",
+								"null"
+							]
 						},
 						"circuit_type": {
 							"type": [
@@ -1583,6 +1672,9 @@
 								]
 							}
 						},
+						"statement_alerts": {
+							"type": "array"
+						},
 						"statement_preview": {
 							"type": "string"
 						},
@@ -1594,6 +1686,7 @@
 						"apinatomy_model",
 						"circuit_type",
 						"destinations",
+						"entities_journey",
 						"id",
 						"journey",
 						"knowledge_statement",
@@ -1620,6 +1713,7 @@
 			"apinatomy_model",
 			"circuit_type",
 			"destinations",
+			"entities_journey",
 			"forward_connection",
 			"id",
 			"journey",

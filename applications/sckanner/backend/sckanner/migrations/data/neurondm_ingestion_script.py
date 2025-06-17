@@ -307,6 +307,7 @@ def for_composer(n, statement_alert_uris: Set[str] = None, ind: Optional[int] = 
         validation_errors=validation_errors,
         statement_alerts=statement_alerts,
         apinatomy_model='',
+        entities_journey=[],
         journey=[],
         knowledge_statement='',
         laterality='',
@@ -318,11 +319,13 @@ def for_composer(n, statement_alert_uris: Set[str] = None, ind: Optional[int] = 
         statement_preview='',
     )
 
-    forward_connections = [overwrite_ref_fw_connection(fc, conn) for conn in lpes(n, ilxtr.hasForwardConnectionPhenotype)]
-    if len(forward_connections) > 0:
-        fc['forward_connections'] = forward_connections
-
-    return fc
+    refined = None
+    if fc is not None:
+        refined = refine_statement(resolve_rdf_objects(fc))
+        forward_connections = [overwrite_ref_fw_connection(refined, conn) for conn in lpes(n, ilxtr.hasForwardConnectionPhenotype)]
+        if len(forward_connections) > 0:
+            refined['forward_connection'] = forward_connections
+    return refined
 
 
 def get_connections(n, lpes):
@@ -730,58 +733,55 @@ def gen_composer_entity(entity: str | dict) -> Dict:
         raise ValueError(f"Unsupported entity type: {type(entity)}")
 
 
-def refine_statements(statements: List[Dict]) -> List[Dict]:
+def refine_statement(statement: Dict) -> Dict:
     """
     Refine the statements to ensure they are in the correct format.
     """
-    refined_statements = []
-    for statement in statements:
-        origins = [
-            gen_composer_entity(origin)
-            for origin in statement.get(ORIGINS, []).get('anatomical_entities', [])
-        ]
-        vias = []
-        for i, via in enumerate(statement.get(VIAS, [])):
-            _via = {
-                'id': i,
-                'anatomical_entities': [
-                    gen_composer_entity(entity)
-                    for entity in via.get('anatomical_entities', [])
-                ],
-                'from_entities': [
-                    gen_composer_entity(entity)
-                    for entity in via.get('from_entities', [])
-                ],
-                'are_connections_explicit': True,
-                'connectivity_statement_id': string_to_int_hash(statement.get('reference_uri', '')),
-                'order': via.get('order', 0),
-                'type': via.get('type', '')
-            }
-            vias.append(_via)
-        destinations = []
-        for i, destination in enumerate(statement.get(DESTINATIONS, [])):
-            _destination = {
-                'id': i,
-                'anatomical_entities': [
-                    gen_composer_entity(entity)
-                    for entity in destination.get('anatomical_entities', [])
-                ],
-                'from_entities': [
-                    gen_composer_entity(entity)
-                    for entity in destination.get('from_entities', [])
-                ],
-                'are_connections_explicit': True,
-                'connectivity_statement_id': string_to_int_hash(statement.get('reference_uri', '')),
-                'type': destination.get('type', '')
-            }
-            destinations.append(_destination)
-        # Create a refined statement (copy to avoid mutating input)
-        refined = dict(statement)
-        refined['origins'] = origins
-        refined['vias'] = vias
-        refined['destinations'] = destinations
-        refined_statements.append(refined)
-    return refined_statements
+    origins = [
+        gen_composer_entity(origin)
+        for origin in statement.get(ORIGINS, []).get('anatomical_entities', [])
+    ]
+    vias = []
+    for i, via in enumerate(statement.get(VIAS, [])):
+        _via = {
+            'id': i,
+            'anatomical_entities': [
+                gen_composer_entity(entity)
+                for entity in via.get('anatomical_entities', [])
+            ],
+            'from_entities': [
+                gen_composer_entity(entity)
+                for entity in via.get('from_entities', [])
+            ],
+            'are_connections_explicit': True,
+            'connectivity_statement_id': string_to_int_hash(statement.get('reference_uri', '')),
+            'order': via.get('order', 0),
+            'type': via.get('type', '')
+        }
+        vias.append(_via)
+    destinations = []
+    for i, destination in enumerate(statement.get(DESTINATIONS, [])):
+        _destination = {
+            'id': i,
+            'anatomical_entities': [
+                gen_composer_entity(entity)
+                for entity in destination.get('anatomical_entities', [])
+            ],
+            'from_entities': [
+                gen_composer_entity(entity)
+                for entity in destination.get('from_entities', [])
+            ],
+            'are_connections_explicit': True,
+            'connectivity_statement_id': string_to_int_hash(statement.get('reference_uri', '')),
+            'type': destination.get('type', '')
+        }
+        destinations.append(_destination)
+    # Create a refined statement (copy to avoid mutating input)
+    refined = dict(statement)
+    refined['origins'] = origins
+    refined['vias'] = vias
+    refined['destinations'] = destinations
+    return refined
 
 
 ## Based on:
@@ -862,13 +862,26 @@ def get_statements(version="", local=False, full_imports=[], label_imports=[], s
         statement_alert_uris = set()
 
     fcs = [for_composer(n, statement_alert_uris, ind) for ind, n in enumerate(neurons)]
-    composer_statements = [item for item in fcs if item is not None]
-
-    ndm_statements = [
-        resolve_rdf_objects(statement) for statement in composer_statements
-    ]
-    return refine_statements(ndm_statements)
+    fcs_cleaned = [fc for fc in fcs if fc is not None]
+    return fcs_cleaned
 
 
 if __name__ == "__main__":
-    get_statements()
+    statements = get_statements()
+    # # import the json file statement-validator.json and use this as schema to validate the statements
+    import json
+    from jsonschema import validate, ValidationError
+    # # Load the JSON schema for validation
+    # # Assuming the schema file is in the same directory as this script
+    import os
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    schema_path = os.path.join(current_dir, 'statement-validator.json')
+    if not os.path.exists(schema_path):
+        raise FileNotFoundError(f"Schema file not found at {schema_path}")
+    # Load the schema
+    with open(schema_path, 'r') as schema_file:
+        schema = json.load(schema_file)
+    try:
+        validate(instance=statements, schema=schema)
+    except ValidationError as e:
+        print(f"Validation error in statements: {e.message}")
