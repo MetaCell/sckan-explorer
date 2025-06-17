@@ -1,0 +1,1735 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"type": "array",
+	"items": {
+		"type": "object",
+		"properties": {
+			"id": {
+				"type": "integer"
+			},
+			"sex": {
+				"anyOf": [
+					{
+						"type": "null"
+					},
+					{
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "integer"
+							},
+							"name": {
+								"type": "string"
+							},
+							"ontology_uri": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"id",
+							"name",
+							"ontology_uri"
+						]
+					}
+				]
+			},
+			"vias": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"id": {
+							"type": "integer"
+						},
+						"type": {
+							"type": "string"
+						},
+						"order": {
+							"type": "integer"
+						},
+						"from_entities": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "integer"
+									},
+									"synonyms": {
+										"type": "string"
+									},
+									"region_layer": {
+										"anyOf": [
+											{
+												"type": "null"
+											},
+											{
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "integer"
+													},
+													"layer": {
+														"type": "object",
+														"properties": {
+															"id": {
+																"type": "integer"
+															},
+															"name": {
+																"type": "string"
+															},
+															"ontology_uri": {
+																"type": "string"
+															}
+														},
+														"required": [
+															"id",
+															"name",
+															"ontology_uri"
+														]
+													},
+													"region": {
+														"type": "object",
+														"properties": {
+															"id": {
+																"type": "integer"
+															},
+															"name": {
+																"type": "string"
+															},
+															"ontology_uri": {
+																"type": "string"
+															}
+														},
+														"required": [
+															"id",
+															"name",
+															"ontology_uri"
+														]
+													}
+												},
+												"required": [
+													"id",
+													"layer",
+													"region"
+												]
+											}
+										]
+									},
+									"simple_entity": {
+										"anyOf": [
+											{
+												"type": "null"
+											},
+											{
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "integer"
+													},
+													"name": {
+														"type": "string"
+													},
+													"ontology_uri": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"id",
+													"name",
+													"ontology_uri"
+												]
+											}
+										]
+									}
+								},
+								"required": [
+									"id",
+									"region_layer",
+									"simple_entity",
+									"synonyms"
+								]
+							}
+						},
+						"anatomical_entities": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "integer"
+									},
+									"synonyms": {
+										"type": "string"
+									},
+									"region_layer": {
+										"anyOf": [
+											{
+												"type": "null"
+											},
+											{
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "integer"
+													},
+													"layer": {
+														"type": "object",
+														"properties": {
+															"id": {
+																"type": "integer"
+															},
+															"name": {
+																"type": "string"
+															},
+															"ontology_uri": {
+																"type": "string"
+															}
+														},
+														"required": [
+															"id",
+															"name",
+															"ontology_uri"
+														]
+													},
+													"region": {
+														"type": "object",
+														"properties": {
+															"id": {
+																"type": "integer"
+															},
+															"name": {
+																"type": "string"
+															},
+															"ontology_uri": {
+																"type": "string"
+															}
+														},
+														"required": [
+															"id",
+															"name",
+															"ontology_uri"
+														]
+													}
+												},
+												"required": [
+													"id",
+													"layer",
+													"region"
+												]
+											}
+										]
+									},
+									"simple_entity": {
+										"anyOf": [
+											{
+												"type": "null"
+											},
+											{
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "integer"
+													},
+													"name": {
+														"type": "string"
+													},
+													"ontology_uri": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"id",
+													"name",
+													"ontology_uri"
+												]
+											}
+										]
+									}
+								},
+								"required": [
+									"id",
+									"region_layer",
+									"simple_entity",
+									"synonyms"
+								]
+							}
+						},
+						"are_connections_explicit": {
+							"type": "boolean"
+						},
+						"connectivity_statement_id": {
+							"type": "integer"
+						}
+					},
+					"required": [
+						"anatomical_entities",
+						"are_connections_explicit",
+						"connectivity_statement_id",
+						"from_entities",
+						"id",
+						"order",
+						"type"
+					]
+				}
+			},
+			"journey": {
+				"type": "array",
+				"items": {
+					"type": "string"
+				}
+			},
+			"origins": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"id": {
+							"type": "integer"
+						},
+						"synonyms": {
+							"type": "string"
+						},
+						"region_layer": {
+							"anyOf": [
+								{
+									"type": "null"
+								},
+								{
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "integer"
+										},
+										"layer": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "integer"
+												},
+												"name": {
+													"type": "string"
+												},
+												"ontology_uri": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"id",
+												"name",
+												"ontology_uri"
+											]
+										},
+										"region": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "integer"
+												},
+												"name": {
+													"type": "string"
+												},
+												"ontology_uri": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"id",
+												"name",
+												"ontology_uri"
+											]
+										}
+									},
+									"required": [
+										"id",
+										"layer",
+										"region"
+									]
+								}
+							]
+						},
+						"simple_entity": {
+							"anyOf": [
+								{
+									"type": "null"
+								},
+								{
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "integer"
+										},
+										"name": {
+											"type": "string"
+										},
+										"ontology_uri": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"id",
+										"name",
+										"ontology_uri"
+									]
+								}
+							]
+						}
+					},
+					"required": [
+						"id",
+						"region_layer",
+						"simple_entity",
+						"synonyms"
+					]
+				}
+			},
+			"species": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"id": {
+							"type": "integer"
+						},
+						"name": {
+							"type": "string"
+						},
+						"ontology_uri": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"id",
+						"name",
+						"ontology_uri"
+					]
+				}
+			},
+			"curie_id": {
+				"type": "string"
+			},
+			"phenotype": {
+				"anyOf": [
+					{
+						"type": "null"
+					},
+					{
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "integer"
+							},
+							"name": {
+								"type": "string"
+							}
+						},
+						"required": [
+							"id",
+							"name"
+						]
+					}
+				]
+			},
+			"laterality": {
+				"type": [
+					"null",
+					"string"
+				]
+			},
+			"population": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"description",
+					"id",
+					"name"
+				]
+			},
+			"projection": {
+				"type": [
+					"null",
+					"string"
+				]
+			},
+			"provenances": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"id": {
+							"type": "integer"
+						},
+						"uri": {
+							"type": "string"
+						},
+						"connectivity_statement_id": {
+							"type": "integer"
+						}
+					},
+					"required": [
+						"connectivity_statement_id",
+						"id",
+						"uri"
+					]
+				}
+			},
+			"sentence_id": {
+				"type": [
+					"integer",
+					"null"
+				]
+			},
+			"circuit_type": {
+				"type": [
+					"null",
+					"string"
+				]
+			},
+			"destinations": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"id": {
+							"type": "integer"
+						},
+						"type": {
+							"type": "string"
+						},
+						"from_entities": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "integer"
+									},
+									"synonyms": {
+										"type": "string"
+									},
+									"region_layer": {
+										"anyOf": [
+											{
+												"type": "null"
+											},
+											{
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "integer"
+													},
+													"layer": {
+														"type": "object",
+														"properties": {
+															"id": {
+																"type": "integer"
+															},
+															"name": {
+																"type": "string"
+															},
+															"ontology_uri": {
+																"type": "string"
+															}
+														},
+														"required": [
+															"id",
+															"name",
+															"ontology_uri"
+														]
+													},
+													"region": {
+														"type": "object",
+														"properties": {
+															"id": {
+																"type": "integer"
+															},
+															"name": {
+																"type": "string"
+															},
+															"ontology_uri": {
+																"type": "string"
+															}
+														},
+														"required": [
+															"id",
+															"name",
+															"ontology_uri"
+														]
+													}
+												},
+												"required": [
+													"id",
+													"layer",
+													"region"
+												]
+											}
+										]
+									},
+									"simple_entity": {
+										"anyOf": [
+											{
+												"type": "null"
+											},
+											{
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "integer"
+													},
+													"name": {
+														"type": "string"
+													},
+													"ontology_uri": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"id",
+													"name",
+													"ontology_uri"
+												]
+											}
+										]
+									}
+								},
+								"required": [
+									"id",
+									"region_layer",
+									"simple_entity",
+									"synonyms"
+								]
+							}
+						},
+						"anatomical_entities": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "integer"
+									},
+									"synonyms": {
+										"type": "string"
+									},
+									"region_layer": {
+										"anyOf": [
+											{
+												"type": "null"
+											},
+											{
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "integer"
+													},
+													"layer": {
+														"type": "object",
+														"properties": {
+															"id": {
+																"type": "integer"
+															},
+															"name": {
+																"type": "string"
+															},
+															"ontology_uri": {
+																"type": "string"
+															}
+														},
+														"required": [
+															"id",
+															"name",
+															"ontology_uri"
+														]
+													},
+													"region": {
+														"type": "object",
+														"properties": {
+															"id": {
+																"type": "integer"
+															},
+															"name": {
+																"type": "string"
+															},
+															"ontology_uri": {
+																"type": "string"
+															}
+														},
+														"required": [
+															"id",
+															"name",
+															"ontology_uri"
+														]
+													}
+												},
+												"required": [
+													"id",
+													"layer",
+													"region"
+												]
+											}
+										]
+									},
+									"simple_entity": {
+										"anyOf": [
+											{
+												"type": "null"
+											},
+											{
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "integer"
+													},
+													"name": {
+														"type": "string"
+													},
+													"ontology_uri": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"id",
+													"name",
+													"ontology_uri"
+												]
+											}
+										]
+									}
+								},
+								"required": [
+									"id",
+									"region_layer",
+									"simple_entity",
+									"synonyms"
+								]
+							}
+						},
+						"are_connections_explicit": {
+							"type": "boolean"
+						},
+						"connectivity_statement_id": {
+							"type": "integer"
+						}
+					},
+					"required": [
+						"anatomical_entities",
+						"are_connections_explicit",
+						"connectivity_statement_id",
+						"from_entities",
+						"id",
+						"type"
+					]
+				}
+			},
+			"phenotype_id": {
+				"type": [
+					"integer",
+					"null"
+				]
+			},
+			"reference_uri": {
+				"type": "string"
+			},
+			"apinatomy_model": {
+				"type": [
+					"null",
+					"string"
+				]
+			},
+			"entities_journey": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"vias": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "string"
+									},
+									"label": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"id",
+									"label"
+								]
+							}
+						},
+						"origins": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "string"
+									},
+									"label": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"id",
+									"label"
+								]
+							}
+						},
+						"destinations": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "string"
+									},
+									"label": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"id",
+									"label"
+								]
+							}
+						}
+					},
+					"required": [
+						"destinations",
+						"origins",
+						"vias"
+					]
+				}
+			},
+			"statement_alerts": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"id": {
+							"type": "integer"
+						},
+						"text": {
+							"type": "string"
+						},
+						"alert": {
+							"type": "string"
+						},
+						"saved_by": {
+							"type": "integer"
+						},
+						"alert_type": {
+							"type": "integer"
+						},
+						"created_at": {
+							"type": "string"
+						},
+						"updated_at": {
+							"type": "string"
+						},
+						"connectivity_statement_id": {
+							"type": "integer"
+						}
+					},
+					"required": [
+						"alert",
+						"alert_type",
+						"connectivity_statement_id",
+						"created_at",
+						"id",
+						"saved_by",
+						"text",
+						"updated_at"
+					]
+				}
+			},
+			"statement_preview": {
+				"type": "string"
+			},
+			"forward_connection": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"id": {
+							"type": "integer"
+						},
+						"sex": {
+							"anyOf": [
+								{
+									"type": "null"
+								},
+								{
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "integer"
+										},
+										"name": {
+											"type": "string"
+										},
+										"ontology_uri": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"id",
+										"name",
+										"ontology_uri"
+									]
+								}
+							]
+						},
+						"vias": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "integer"
+									},
+									"type": {
+										"type": "string"
+									},
+									"order": {
+										"type": "integer"
+									},
+									"from_entities": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "integer"
+												},
+												"synonyms": {
+													"type": "string"
+												},
+												"region_layer": {
+													"anyOf": [
+														{
+															"type": "null"
+														},
+														{
+															"type": "object",
+															"properties": {
+																"id": {
+																	"type": "integer"
+																},
+																"layer": {
+																	"type": "object",
+																	"properties": {
+																		"id": {
+																			"type": "integer"
+																		},
+																		"name": {
+																			"type": "string"
+																		},
+																		"ontology_uri": {
+																			"type": "string"
+																		}
+																	},
+																	"required": [
+																		"id",
+																		"name",
+																		"ontology_uri"
+																	]
+																},
+																"region": {
+																	"type": "object",
+																	"properties": {
+																		"id": {
+																			"type": "integer"
+																		},
+																		"name": {
+																			"type": "string"
+																		},
+																		"ontology_uri": {
+																			"type": "string"
+																		}
+																	},
+																	"required": [
+																		"id",
+																		"name",
+																		"ontology_uri"
+																	]
+																}
+															},
+															"required": [
+																"id",
+																"layer",
+																"region"
+															]
+														}
+													]
+												},
+												"simple_entity": {
+													"anyOf": [
+														{
+															"type": "null"
+														},
+														{
+															"type": "object",
+															"properties": {
+																"id": {
+																	"type": "integer"
+																},
+																"name": {
+																	"type": "string"
+																},
+																"ontology_uri": {
+																	"type": "string"
+																}
+															},
+															"required": [
+																"id",
+																"name",
+																"ontology_uri"
+															]
+														}
+													]
+												}
+											},
+											"required": [
+												"id",
+												"region_layer",
+												"simple_entity",
+												"synonyms"
+											]
+										}
+									},
+									"anatomical_entities": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "integer"
+												},
+												"synonyms": {
+													"type": "string"
+												},
+												"region_layer": {
+													"anyOf": [
+														{
+															"type": "null"
+														},
+														{
+															"type": "object",
+															"properties": {
+																"id": {
+																	"type": "integer"
+																},
+																"layer": {
+																	"type": "object",
+																	"properties": {
+																		"id": {
+																			"type": "integer"
+																		},
+																		"name": {
+																			"type": "string"
+																		},
+																		"ontology_uri": {
+																			"type": "string"
+																		}
+																	},
+																	"required": [
+																		"id",
+																		"name",
+																		"ontology_uri"
+																	]
+																},
+																"region": {
+																	"type": "object",
+																	"properties": {
+																		"id": {
+																			"type": "integer"
+																		},
+																		"name": {
+																			"type": "string"
+																		},
+																		"ontology_uri": {
+																			"type": "string"
+																		}
+																	},
+																	"required": [
+																		"id",
+																		"name",
+																		"ontology_uri"
+																	]
+																}
+															},
+															"required": [
+																"id",
+																"layer",
+																"region"
+															]
+														}
+													]
+												},
+												"simple_entity": {
+													"anyOf": [
+														{
+															"type": "null"
+														},
+														{
+															"type": "object",
+															"properties": {
+																"id": {
+																	"type": "integer"
+																},
+																"name": {
+																	"type": "string"
+																},
+																"ontology_uri": {
+																	"type": "string"
+																}
+															},
+															"required": [
+																"id",
+																"name",
+																"ontology_uri"
+															]
+														}
+													]
+												}
+											},
+											"required": [
+												"id",
+												"region_layer",
+												"simple_entity",
+												"synonyms"
+											]
+										}
+									},
+									"are_connections_explicit": {
+										"type": "boolean"
+									},
+									"connectivity_statement_id": {
+										"type": "integer"
+									}
+								},
+								"required": [
+									"anatomical_entities",
+									"are_connections_explicit",
+									"connectivity_statement_id",
+									"from_entities",
+									"id",
+									"order",
+									"type"
+								]
+							}
+						},
+						"journey": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"origins": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "integer"
+									},
+									"synonyms": {
+										"type": "string"
+									},
+									"region_layer": {
+										"anyOf": [
+											{
+												"type": "null"
+											},
+											{
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "integer"
+													},
+													"layer": {
+														"type": "object",
+														"properties": {
+															"id": {
+																"type": "integer"
+															},
+															"name": {
+																"type": "string"
+															},
+															"ontology_uri": {
+																"type": "string"
+															}
+														},
+														"required": [
+															"id",
+															"name",
+															"ontology_uri"
+														]
+													},
+													"region": {
+														"type": "object",
+														"properties": {
+															"id": {
+																"type": "integer"
+															},
+															"name": {
+																"type": "string"
+															},
+															"ontology_uri": {
+																"type": "string"
+															}
+														},
+														"required": [
+															"id",
+															"name",
+															"ontology_uri"
+														]
+													}
+												},
+												"required": [
+													"id",
+													"layer",
+													"region"
+												]
+											}
+										]
+									},
+									"simple_entity": {
+										"anyOf": [
+											{
+												"type": "null"
+											},
+											{
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "integer"
+													},
+													"name": {
+														"type": "string"
+													},
+													"ontology_uri": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"id",
+													"name",
+													"ontology_uri"
+												]
+											}
+										]
+									}
+								},
+								"required": [
+									"id",
+									"region_layer",
+									"simple_entity",
+									"synonyms"
+								]
+							}
+						},
+						"species": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "integer"
+									},
+									"name": {
+										"type": "string"
+									},
+									"ontology_uri": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"id",
+									"name",
+									"ontology_uri"
+								]
+							}
+						},
+						"phenotype": {
+							"anyOf": [
+								{
+									"type": "null"
+								},
+								{
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "integer"
+										},
+										"name": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"id",
+										"name"
+									]
+								}
+							]
+						},
+						"laterality": {
+							"type": [
+								"null",
+								"string"
+							]
+						},
+						"population": {
+							"type": "object",
+							"properties": {
+								"id": {
+									"type": "integer"
+								},
+								"name": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"description",
+								"id",
+								"name"
+							]
+						},
+						"projection": {
+							"type": [
+								"null",
+								"string"
+							]
+						},
+						"provenances": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "integer"
+									},
+									"uri": {
+										"type": "string"
+									},
+									"connectivity_statement_id": {
+										"type": "integer"
+									}
+								},
+								"required": [
+									"connectivity_statement_id",
+									"id",
+									"uri"
+								]
+							}
+						},
+						"sentence_id": {
+							"type": [
+								"integer",
+								"null"
+							]
+						},
+						"circuit_type": {
+							"type": [
+								"null",
+								"string"
+							]
+						},
+						"destinations": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "integer"
+									},
+									"type": {
+										"type": "string"
+									},
+									"from_entities": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "integer"
+												},
+												"synonyms": {
+													"type": "string"
+												},
+												"region_layer": {
+													"anyOf": [
+														{
+															"type": "null"
+														},
+														{
+															"type": "object",
+															"properties": {
+																"id": {
+																	"type": "integer"
+																},
+																"layer": {
+																	"type": "object",
+																	"properties": {
+																		"id": {
+																			"type": "integer"
+																		},
+																		"name": {
+																			"type": "string"
+																		},
+																		"ontology_uri": {
+																			"type": "string"
+																		}
+																	},
+																	"required": [
+																		"id",
+																		"name",
+																		"ontology_uri"
+																	]
+																},
+																"region": {
+																	"type": "object",
+																	"properties": {
+																		"id": {
+																			"type": "integer"
+																		},
+																		"name": {
+																			"type": "string"
+																		},
+																		"ontology_uri": {
+																			"type": "string"
+																		}
+																	},
+																	"required": [
+																		"id",
+																		"name",
+																		"ontology_uri"
+																	]
+																}
+															},
+															"required": [
+																"id",
+																"layer",
+																"region"
+															]
+														}
+													]
+												},
+												"simple_entity": {
+													"anyOf": [
+														{
+															"type": "null"
+														},
+														{
+															"type": "object",
+															"properties": {
+																"id": {
+																	"type": "integer"
+																},
+																"name": {
+																	"type": "string"
+																},
+																"ontology_uri": {
+																	"type": "string"
+																}
+															},
+															"required": [
+																"id",
+																"name",
+																"ontology_uri"
+															]
+														}
+													]
+												}
+											},
+											"required": [
+												"id",
+												"region_layer",
+												"simple_entity",
+												"synonyms"
+											]
+										}
+									},
+									"anatomical_entities": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "integer"
+												},
+												"synonyms": {
+													"type": "string"
+												},
+												"region_layer": {
+													"anyOf": [
+														{
+															"type": "null"
+														},
+														{
+															"type": "object",
+															"properties": {
+																"id": {
+																	"type": "integer"
+																},
+																"layer": {
+																	"type": "object",
+																	"properties": {
+																		"id": {
+																			"type": "integer"
+																		},
+																		"name": {
+																			"type": "string"
+																		},
+																		"ontology_uri": {
+																			"type": "string"
+																		}
+																	},
+																	"required": [
+																		"id",
+																		"name",
+																		"ontology_uri"
+																	]
+																},
+																"region": {
+																	"type": "object",
+																	"properties": {
+																		"id": {
+																			"type": "integer"
+																		},
+																		"name": {
+																			"type": "string"
+																		},
+																		"ontology_uri": {
+																			"type": "string"
+																		}
+																	},
+																	"required": [
+																		"id",
+																		"name",
+																		"ontology_uri"
+																	]
+																}
+															},
+															"required": [
+																"id",
+																"layer",
+																"region"
+															]
+														}
+													]
+												},
+												"simple_entity": {
+													"anyOf": [
+														{
+															"type": "null"
+														},
+														{
+															"type": "object",
+															"properties": {
+																"id": {
+																	"type": "integer"
+																},
+																"name": {
+																	"type": "string"
+																},
+																"ontology_uri": {
+																	"type": "string"
+																}
+															},
+															"required": [
+																"id",
+																"name",
+																"ontology_uri"
+															]
+														}
+													]
+												}
+											},
+											"required": [
+												"id",
+												"region_layer",
+												"simple_entity",
+												"synonyms"
+											]
+										}
+									},
+									"are_connections_explicit": {
+										"type": "boolean"
+									},
+									"connectivity_statement_id": {
+										"type": "integer"
+									}
+								},
+								"required": [
+									"anatomical_entities",
+									"are_connections_explicit",
+									"connectivity_statement_id",
+									"from_entities",
+									"id",
+									"type"
+								]
+							}
+						},
+						"phenotype_id": {
+							"type": [
+								"integer",
+								"null"
+							]
+						},
+						"reference_uri": {
+							"type": [
+								"null",
+								"string"
+							]
+						},
+						"apinatomy_model": {
+							"type": [
+								"null",
+								"string"
+							]
+						},
+						"entities_journey": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"vias": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "string"
+												},
+												"label": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"id",
+												"label"
+											]
+										}
+									},
+									"origins": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "string"
+												},
+												"label": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"id",
+												"label"
+											]
+										}
+									},
+									"destinations": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "string"
+												},
+												"label": {
+													"type": "string"
+												}
+											},
+											"required": [
+												"id",
+												"label"
+											]
+										}
+									}
+								},
+								"required": [
+									"destinations",
+									"origins",
+									"vias"
+								]
+							}
+						},
+						"statement_alerts": {
+							"type": "array"
+						},
+						"statement_preview": {
+							"type": "string"
+						},
+						"knowledge_statement": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"apinatomy_model",
+						"circuit_type",
+						"destinations",
+						"entities_journey",
+						"id",
+						"journey",
+						"knowledge_statement",
+						"laterality",
+						"origins",
+						"phenotype",
+						"phenotype_id",
+						"projection",
+						"provenances",
+						"reference_uri",
+						"sentence_id",
+						"sex",
+						"species",
+						"statement_preview",
+						"vias"
+					]
+				}
+			},
+			"knowledge_statement": {
+				"type": "string"
+			}
+		},
+		"required": [
+			"apinatomy_model",
+			"circuit_type",
+			"destinations",
+			"entities_journey",
+			"forward_connection",
+			"id",
+			"journey",
+			"knowledge_statement",
+			"laterality",
+			"origins",
+			"phenotype",
+			"phenotype_id",
+			"projection",
+			"provenances",
+			"reference_uri",
+			"sentence_id",
+			"sex",
+			"species",
+			"statement_preview",
+			"vias"
+		]
+	}
+}

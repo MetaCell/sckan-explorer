@@ -255,28 +255,14 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         </Typography>
       </Box>
       <Box
-        width="calc(100% - 1.625rem)"
+        width="100%"
+        paddingLeft="16.625rem"
         minWidth={0}
         display="flex"
         alignItems="center"
+        position="relative"
+        flexDirection="row-reverse"
       >
-        {yAxisLabel && (
-          <Typography
-            sx={{
-              textAlign: 'center',
-              fontSize: '0.875rem',
-              marginTop: '4.875rem',
-              paddingRight: '0.75rem',
-              fontWeight: 400,
-              writingMode: 'vertical-lr',
-              lineHeight: 1,
-              color: gray500,
-            }}
-          >
-            {yAxisLabel}
-          </Typography>
-        )}
-
         <Box
           width={1}
           position="relative"
@@ -317,7 +303,6 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                   writingMode: 'vertical-lr',
                   lineHeight: 1,
                   display: 'flex',
-                  justifyContent: 'flex-end',
                   alignItems: 'center',
                   fontSize: '0.875rem',
                   fontWeight: '500',
@@ -366,8 +351,8 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                 yLabels={yAxisData.labels}
                 xLabelsLocation={'top'}
                 xLabelsVisibility={xAxis?.map(() => true)}
-                xLabelWidth={250}
-                yLabelWidth={250}
+                xLabelWidth={100}
+                yLabelWidth={100}
                 data={heatmapMatrixData}
                 // squares
                 height={43}
@@ -457,8 +442,26 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                 }}
               />
             )}
-          <CollapsibleList list={yAxis} onItemClick={handleCollapseClick} />
+          {/* <CollapsibleList list={yAxis} onItemClick={handleCollapseClick} /> */}
         </Box>
+
+        <CollapsibleList list={yAxis} onItemClick={handleCollapseClick} />
+        {yAxisLabel && (
+          <Typography
+            sx={{
+              textAlign: 'center',
+              fontSize: '0.875rem',
+              marginTop: '4.875rem',
+              paddingRight: '0.75rem',
+              fontWeight: 400,
+              writingMode: 'vertical-lr',
+              lineHeight: 1,
+              color: gray500,
+            }}
+          >
+            {yAxisLabel}
+          </Typography>
+        )}
       </Box>
     </Box>
   );

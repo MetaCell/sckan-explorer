@@ -1,5 +1,0 @@
-harness:
-  secured: false
-  uri_role_mapping:
-    - uri: /*
-      roles: [ ]

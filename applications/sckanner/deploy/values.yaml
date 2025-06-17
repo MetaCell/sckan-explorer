@@ -1,19 +1,27 @@
 harness:
-  database: {auto: true, type: postgres}
+  database:
+    auto: true
+    type: postgres
+    postgres:
+      image: postgres:14
   dependencies:
     build: [cloudharness-frontend-build, cloudharness-django]
-    hard: [accounts, events]
-  deployment: {auto: true, port: 8080}
+    hard: [accounts]
+    soft: [argo]
+  deployment:
+    auto: true
+    port: 8080
+    volume:
+      mountpath: /usr/src/app/persistent
+      name: sckanner-ingestion-files
+      auto: true
+      size: 100Mi
+      usenfs: false
   livenessProbe: {path: /api/live}
   readinessProbe: {path: /api/ready}
   secured: true
   service: {auto: true, port: 8080}
   subdomain: www
   uri_role_mapping:
-  - require-any-role: true
-    roles: ['sckanner:sckanner-administrator', 'sckanner:sckanner-manager',
-      'sckanner:sckanner-user']
-    uri: /*
-composer:
-  cronjob:
-    schedule: "0 3 * * *"  # Runs at 3:00 AM every day
+  - uri: /*
+    white-listed: true

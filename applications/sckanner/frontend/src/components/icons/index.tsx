@@ -53,9 +53,9 @@ export const ArrowRight = () => (
       <path
         d="M6 12L10 8L6 4"
         stroke="#8300BF"
-        stroke-width="1.66667"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.66667"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   </SvgIcon>
@@ -73,9 +73,9 @@ export const ArrowLeft = () => (
       <path
         d="M 10 12 L 6 8 L 10 4"
         stroke="#8300BF"
-        stroke-width="1.66667"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.66667"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   </SvgIcon>
@@ -93,9 +93,9 @@ export const CloseArrows = () => (
       <path
         d="M 4 12 L 8 8 L 4 4 L 4 4 M 12 12 L 8 8 L 12 4"
         stroke="#8300BF"
-        stroke-width="1.66667"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.66667"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   </SvgIcon>
@@ -113,9 +113,9 @@ export const PurplePlus = () => (
       <path
         d="M 4 8 L 8 8 L 8 12 L 8 4 M 12 8 L 8 8 L 12 8"
         stroke="#8300BF"
-        stroke-width="1.66667"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.66667"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   </SvgIcon>
@@ -133,9 +133,9 @@ export const PurpleMinus = () => (
       <path
         d="M 5 8 L 11 8 L 8 8 L 5 8"
         stroke="#8300BF"
-        stroke-width="1.66667"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.66667"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   </SvgIcon>
@@ -222,7 +222,7 @@ export const OriginInfoIcon = () => (
   //             height="22"
   //             rx="11"
   //             stroke="#039855"
-  //             stroke-width="2"
+  //             strokeWidth="2"
   //         />
   //     </g>
   //     <defs>
@@ -310,7 +310,7 @@ export const OriginInfoIcon = () => (
       height="22.7467"
       rx="11.3733"
       stroke="#6C707A"
-      stroke-width="1.25333"
+      strokeWidth="1.25333"
     />
   </svg>
 );
@@ -332,7 +332,7 @@ export const ViaInfoIcon = () => (
   //             height="22"
   //             rx="7"
   //             stroke="#0E9384"
-  //             stroke-width="2"
+  //             strokeWidth="2"
   //         />
   //     </g>
   //     <defs>
@@ -419,7 +419,7 @@ export const ViaInfoIcon = () => (
       height="22.7467"
       rx="1.37333"
       stroke="#6C707A"
-      stroke-width="1.25333"
+      strokeWidth="1.25333"
     />
   </svg>
 );
@@ -441,7 +441,7 @@ export const DestinationInfoIcon = () => (
   //             height="22"
   //             rx="3"
   //             stroke="#088AB2"
-  //             stroke-width="2"
+  //             strokeWidth="2"
   //         />
   //     </g>
   //     <defs>
@@ -530,7 +530,7 @@ export const DestinationInfoIcon = () => (
       rx="1.37333"
       transform="rotate(-45 0.886241 17.0659)"
       stroke="#6C707A"
-      stroke-width="1.25333"
+      strokeWidth="1.25333"
     />
   </svg>
 );
@@ -566,7 +566,7 @@ export const ForwardConnectionIcon = () => (
       rx="1.37333"
       transform="rotate(-45 1.3274 16.9688)"
       stroke="#6C707A"
-      stroke-width="1.25333"
+      strokeWidth="1.25333"
     />
     <defs>
       <clipPath id="clip0_3303_11348">
@@ -648,9 +648,9 @@ export const DestinationIcon = (props: SvgIconProps) => (
     <path
       d="M22.5605 12H19.0605"
       stroke={props.fill ? props.fill : '#0C2751'}
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
     <rect
       x="-1"
@@ -660,7 +660,7 @@ export const DestinationIcon = (props: SvgIconProps) => (
       rx="4"
       transform="matrix(-1 0 0 1 17.5605 7)"
       stroke={props.fill ? props.fill : '#0C2751'}
-      stroke-width="2"
+      strokeWidth="2"
       fill="#fff"
     />
   </SvgIcon>
@@ -677,9 +677,9 @@ export const ArrowRightIcon = () => (
     <path
       d="M15.3335 18H28.6668M28.6668 18L23.6668 13M28.6668 18L23.6668 23"
       stroke="#4A4C4F"
-      stroke-width="1.66667"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="1.66667"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );
@@ -740,6 +740,42 @@ export const MinusIcon = () => (
   </svg>
 );
 
+export const ReleaseDropdownIcon = () => (
+  <svg
+    width="8"
+    height="12"
+    viewBox="0 0 10 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M0.833374 10.4999L5.00004 14.6666L9.16671 10.4999M0.833374 5.49992L5.00004 1.33325L9.16671 5.49992"
+      stroke="#F6F7F9"
+      strokeWidth="1.66667"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const ReleaseSelectedCheckIcon = () => (
+  <svg
+    width="16"
+    height="11"
+    viewBox="0 0 16 11"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M14.6667 1L5.50004 10.1667L1.33337 6"
+      stroke="#E8C3F8"
+      strokeWidth="1.66667"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 export const PlusIcon = () => (
   <svg
     width="26"
@@ -776,7 +812,7 @@ export const OriginIcon = (props: SvgIconProps) => (
       cy="11"
       r="3"
       stroke={props.fill ? props.fill : '#344054'}
-      stroke-width="2"
+      strokeWidth="2"
       fill="#fff"
     />
   </SvgIcon>

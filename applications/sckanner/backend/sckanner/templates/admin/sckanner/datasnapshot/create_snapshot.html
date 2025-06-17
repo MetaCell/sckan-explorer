@@ -1,0 +1,14 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data" novalidate>
+	{% csrf_token %}
+	<table>
+		{{ form.as_table }}
+	</table>
+	<div class="submit-row">
+		<input type="submit" value="{% trans 'Create snapshot' %}" class="default">
+	</div>
+</form>
+{% endblock %}

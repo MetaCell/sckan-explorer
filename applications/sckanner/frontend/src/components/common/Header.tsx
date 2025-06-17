@@ -13,6 +13,8 @@ import AboutScannerLogo from '../assets/svg/actions.svg';
 import MenuIcon from '@mui/icons-material/Menu';
 import About from './About';
 import { useNavigate, useLocation } from 'react-router-dom';
+import ReleaseDropdown from './ReleaseDropdown';
+import { Datasnapshot } from '../../models/json';
 
 const pages = [
   {
@@ -25,7 +27,15 @@ const pages = [
   },
 ];
 
-function Header() {
+function Header({
+  datasnapshots,
+  selectedDatasnaphshot,
+  setSelectedDatasnaphshot,
+}: {
+  datasnapshots: Datasnapshot[];
+  selectedDatasnaphshot: string;
+  setSelectedDatasnaphshot: (datasnaphshot: string) => void;
+}) {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null,
   );
@@ -137,7 +147,13 @@ function Header() {
                 </Button>
               ))}
             </Box>
-
+            {datasnapshots && selectedDatasnaphshot && (
+              <ReleaseDropdown
+                datasnapshots={datasnapshots}
+                selectedDatasnaphshot={selectedDatasnaphshot}
+                setSelectedDatasnaphshot={setSelectedDatasnaphshot}
+              />
+            )}
             <Box sx={{ flexGrow: 0 }}>
               <IconButton sx={{ p: 0 }} onClick={() => setOpen(!open)}>
                 <img src={AboutScannerLogo} />

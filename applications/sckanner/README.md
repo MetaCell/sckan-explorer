@@ -28,6 +28,14 @@ This application is composed of a Django-Ninja backend and a React frontend.
 Backend code is inside the *backend* directory.
 See [backend/README.md#Develop]
 
+## Ingestion 
+
+Ingestion uses Argo Workflows to run the ingestion scripts. The flow goes like this:
+```
+Django Admin (Create Snapshot) -> Argo Workflow (Trigger) -> Django Command (Ingestion) -> Connectivity Statement Service -> Connectivity Statement Adapter -> DB. 
+```
+
+
 ### Frontend
 
 Frontend code is inside the *frontend* directory.
@@ -84,3 +92,9 @@ When you create port forwards to microservices in your k8s cluster you want to f
 the AuthService and EventService services.
 This can be done by setting the `KUBERNETES_SERVICE_HOST` environment variable to a dummy or correct k8s service host.
 The `KUBERNETES_SERVICE_HOST` switch will activate the creation of the keycloak client and client roles of this microservice.
+
+
+
+## Run Cloudharness deployment for Sckanner locally:
+Depends on: CloudHarness CLI, Skaffold, Docker, kubectl. To run the deployment locally, follow the wsl-dev.sh script (It shows an example of how to run the deployment for the local environment in Windows WSL, however - it is same for mac and linux - check the kubectl commands for respective OS).
+
