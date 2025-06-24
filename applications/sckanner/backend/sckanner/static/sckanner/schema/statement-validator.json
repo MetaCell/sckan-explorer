@@ -828,7 +828,14 @@
 							"type": "string"
 						},
 						"saved_by": {
-							"type": "integer"
+							"anyOf": [
+								{
+									"type": "null"
+								},
+								{
+									"type": "integer"
+								}
+							]
 						},
 						"alert_type": {
 							"type": "integer"
@@ -1293,22 +1300,29 @@
 							]
 						},
 						"population": {
-							"type": "object",
-							"properties": {
-								"id": {
-									"type": "integer"
+							"anyOf": [
+								{
+									"type": "null"
 								},
-								"name": {
-									"type": "string"
-								},
-								"description": {
-									"type": "string"
+								{
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "integer"
+										},
+										"name": {
+											"type": "string"
+										},
+										"description": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"description",
+										"id",
+										"name"
+									]
 								}
-							},
-							"required": [
-								"description",
-								"id",
-								"name"
 							]
 						},
 						"projection": {
