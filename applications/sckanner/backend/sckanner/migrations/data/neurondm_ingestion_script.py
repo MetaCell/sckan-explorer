@@ -218,17 +218,25 @@ def makelpesrdf():
     return lpes, lrdf, collect
 
 
-def get_populationset_from_neurondm(id_: str, owl_class: str) -> str:
+def get_populationset_from_neurondm(id_: str, owl_class: str) -> dict:
     """
     NOTE: keep the order of re.search calls as is, to address the case for
     /readable/sparc-nlp/ - in the first place
     """
     if str(owl_class) == SPARC_NLP_OWL_CLASS_PREFIX:
-        return id_.split("/")[-2]
+        return {
+            "id": string_to_int_hash(id_.split("/")[-2]),
+            "name": id_.split("/")[-2],
+            "description": ""
+        }
     
     match = re.search(r'/readable/[^-]+-[^-]+-([^-/]+)', id_)
     if match:
-        return match.group(1)
+        return {
+            "id": string_to_int_hash(id_.split("/")[-2]),
+            "name": match.group(1),
+            "description": ""
+        }
     
     raise ValueError(f"Unable to extract population set from statement ID: {id_}")
 
@@ -286,7 +294,8 @@ def for_composer(n, statement_alert_uris: Set[str] = None, ind: Optional[int] = 
         pref_label=str(n.prefLabel),
         origins=origins,
         destinations=destinations,
-        populationset=get_populationset_from_neurondm(n.id_, n.owlClass),
+        population=get_populationset_from_neurondm(n.id_, n.owlClass),
+        curie_id=lrdf(n, rdfs.label)[0],
         vias=vias,
         species=[get_species(specie) for specie in lpes(n, ilxtr.hasInstanceInTaxon)],
         sex=get_sex(lpes(n, ilxtr.hasBiologicalSex)[0]) if len(lpes(n, ilxtr.hasBiologicalSex)) > 0 else None,
