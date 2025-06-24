@@ -838,13 +838,34 @@
 							]
 						},
 						"alert_type": {
-							"type": "integer"
+							"anyOf": [
+								{
+									"type": "null"
+								},
+								{
+									"type": "string"
+								}
+							]
 						},
 						"created_at": {
-							"type": "string"
+							"anyOf": [
+								{
+									"type": "null"
+								},
+								{
+									"type": "string"
+								}
+							]
 						},
 						"updated_at": {
-							"type": "string"
+							"anyOf": [
+								{
+									"type": "null"
+								},
+								{
+									"type": "string"
+								}
+							]
 						},
 						"connectivity_statement_id": {
 							"type": "integer"
@@ -852,13 +873,9 @@
 					},
 					"required": [
 						"alert",
-						"alert_type",
 						"connectivity_statement_id",
-						"created_at",
 						"id",
-						"saved_by",
-						"text",
-						"updated_at"
+						"text"
 					]
 				}
 			},
