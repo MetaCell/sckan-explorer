@@ -218,17 +218,25 @@ def makelpesrdf():
     return lpes, lrdf, collect
 
 
-def get_populationset_from_neurondm(id_: str, owl_class: str) -> str:
+def get_populationset_from_neurondm(id_: str, owl_class: str) -> dict:
     """
     NOTE: keep the order of re.search calls as is, to address the case for
     /readable/sparc-nlp/ - in the first place
     """
     if str(owl_class) == SPARC_NLP_OWL_CLASS_PREFIX:
-        return id_.split("/")[-2]
+        return {
+            "id": string_to_int_hash(id_.split("/")[-2]),
+            "name": id_.split("/")[-2],
+            "description": ""
+        }
     
     match = re.search(r'/readable/[^-]+-[^-]+-([^-/]+)', id_)
     if match:
-        return match.group(1)
+        return {
+            "id": string_to_int_hash(id_.split("/")[-2]),
+            "name": match.group(1),
+            "description": ""
+        }
     
     raise ValueError(f"Unable to extract population set from statement ID: {id_}")
 
@@ -264,7 +272,23 @@ def overwrite_ref_fw_connection(fc: Dict, ref: str):
     return _fc
 
 
-def for_composer(n, statement_alert_uris: Set[str] = None, ind: Optional[int] = None):
+def format_statement_alerts(statement_alerts, ind):
+    formatted_statement_alerts = []
+    for alert in statement_alerts:
+        alert_uri, alert_value = alert
+        alert_text = str(alert_value)
+        alert_type = alert_uri.split("/")[-1]
+        formatted_statement_alerts.append({
+            "id": string_to_int_hash(str(alert_uri)),
+            "text": alert_text,
+            "alert": alert_type,
+            "alert_type": alert_type,
+            "connectivity_statement_id": ind,
+        })
+    return formatted_statement_alerts
+
+
+def for_composer(n, ind: Optional[int] = None):
     lpes, lrdf, collect = makelpesrdf()
 
     try:
@@ -272,13 +296,16 @@ def for_composer(n, statement_alert_uris: Set[str] = None, ind: Optional[int] = 
     except NeuronDMInconsistency as e:
         return None
 
-    if statement_alert_uris is None:
-        statement_alert_uris = set()
+    statement_alert_uris = set([
+        "http://uri.interlex.org/tgbugs/uris/readable/alertCuration",
+        "http://uri.interlex.org/tgbugs/uris/readable/alertNote"
+    ])
 
     statement_alerts = [
         item for item in n.core_graph[n.identifier:]
         if str(item[0]) in statement_alert_uris
     ]
+    statement_alerts = format_statement_alerts(statement_alerts, ind)
 
     fc = dict(
         id=ind,
@@ -286,7 +313,8 @@ def for_composer(n, statement_alert_uris: Set[str] = None, ind: Optional[int] = 
         pref_label=str(n.prefLabel),
         origins=origins,
         destinations=destinations,
-        populationset=get_populationset_from_neurondm(n.id_, n.owlClass),
+        population=get_populationset_from_neurondm(n.id_, n.owlClass),
+        curie_id=lrdf(n, rdfs.label)[0],
         vias=vias,
         species=[get_species(specie) for specie in lpes(n, ilxtr.hasInstanceInTaxon)],
         sex=get_sex(lpes(n, ilxtr.hasBiologicalSex)[0]) if len(lpes(n, ilxtr.hasBiologicalSex)) > 0 else None,
@@ -786,7 +814,7 @@ def refine_statement(statement: Dict) -> Dict:
 
 ## Based on:
 ## https://github.com/tgbugs/pyontutils/blob/30c415207b11644808f70c8caecc0c75bd6acb0a/neurondm/docs/composer.py#L668-L698
-def get_statements(version="", local=False, full_imports=[], label_imports=[], statement_alert_uris: Set[str] = None):
+def get_statements(version="", local=False, full_imports=[], label_imports=[]):
 
     config = Config('random-merge')
     g = OntGraph()  # load and query graph
@@ -858,13 +886,9 @@ def get_statements(version="", local=False, full_imports=[], label_imports=[], s
     config.load_existing(g)
     neurons = config.neurons()
 
-    if statement_alert_uris is None:
-        statement_alert_uris = set()
-
-    fcs = [for_composer(n, statement_alert_uris, ind) for ind, n in enumerate(neurons)]
+    fcs = [for_composer(n, ind) for ind, n in enumerate(neurons)]
     fcs_cleaned = [fc for fc in fcs if fc is not None]
     return fcs_cleaned
-
 
 if __name__ == "__main__":
     get_statements()

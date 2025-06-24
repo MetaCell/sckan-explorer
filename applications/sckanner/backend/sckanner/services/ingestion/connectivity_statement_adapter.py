@@ -44,7 +44,7 @@ class ConnectivityStatementAdapter:
             try:
                 # Validate the statements against the schema
                 current_path = os.path.dirname(os.path.abspath(__file__))
-                schema_path = os.path.join(current_path, 'statement-validator.json')
+                schema_path = os.path.join(current_path, 'schemas', 'statement-validator.json')
                 if not os.path.exists(schema_path):
                     raise FileNotFoundError(f"Schema file not found at {schema_path}")
                 # Load the schema

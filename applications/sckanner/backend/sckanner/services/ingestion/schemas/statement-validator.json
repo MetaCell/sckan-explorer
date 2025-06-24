@@ -436,6 +436,25 @@
 					"string"
 				]
 			},
+			"population": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"description",
+					"id",
+					"name"
+				]
+			},
 			"projection": {
 				"type": [
 					"null",
@@ -791,6 +810,72 @@
 						"destinations",
 						"origins",
 						"vias"
+					]
+				}
+			},
+			"statement_alerts": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"id": {
+							"type": "integer"
+						},
+						"text": {
+							"type": "string"
+						},
+						"alert": {
+							"type": "string"
+						},
+						"saved_by": {
+							"anyOf": [
+								{
+									"type": "null"
+								},
+								{
+									"type": "integer"
+								}
+							]
+						},
+						"alert_type": {
+							"anyOf": [
+								{
+									"type": "null"
+								},
+								{
+									"type": "string"
+								}
+							]
+						},
+						"created_at": {
+							"anyOf": [
+								{
+									"type": "null"
+								},
+								{
+									"type": "string"
+								}
+							]
+						},
+						"updated_at": {
+							"anyOf": [
+								{
+									"type": "null"
+								},
+								{
+									"type": "string"
+								}
+							]
+						},
+						"connectivity_statement_id": {
+							"type": "integer"
+						}
+					},
+					"required": [
+						"alert",
+						"connectivity_statement_id",
+						"id",
+						"text"
 					]
 				}
 			},
@@ -1231,6 +1316,32 @@
 								"string"
 							]
 						},
+						"population": {
+							"anyOf": [
+								{
+									"type": "null"
+								},
+								{
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "integer"
+										},
+										"name": {
+											"type": "string"
+										},
+										"description": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"description",
+										"id",
+										"name"
+									]
+								}
+							]
+						},
 						"projection": {
 							"type": [
 								"null",
@@ -1591,6 +1702,9 @@
 									"vias"
 								]
 							}
+						},
+						"statement_alerts": {
+							"type": "array"
 						},
 						"statement_preview": {
 							"type": "string"

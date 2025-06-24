@@ -828,16 +828,44 @@
 							"type": "string"
 						},
 						"saved_by": {
-							"type": "integer"
+							"anyOf": [
+								{
+									"type": "null"
+								},
+								{
+									"type": "integer"
+								}
+							]
 						},
 						"alert_type": {
-							"type": "integer"
+							"anyOf": [
+								{
+									"type": "null"
+								},
+								{
+									"type": "string"
+								}
+							]
 						},
 						"created_at": {
-							"type": "string"
+							"anyOf": [
+								{
+									"type": "null"
+								},
+								{
+									"type": "string"
+								}
+							]
 						},
 						"updated_at": {
-							"type": "string"
+							"anyOf": [
+								{
+									"type": "null"
+								},
+								{
+									"type": "string"
+								}
+							]
 						},
 						"connectivity_statement_id": {
 							"type": "integer"
@@ -845,13 +873,9 @@
 					},
 					"required": [
 						"alert",
-						"alert_type",
 						"connectivity_statement_id",
-						"created_at",
 						"id",
-						"saved_by",
-						"text",
-						"updated_at"
+						"text"
 					]
 				}
 			},
@@ -1293,22 +1317,29 @@
 							]
 						},
 						"population": {
-							"type": "object",
-							"properties": {
-								"id": {
-									"type": "integer"
+							"anyOf": [
+								{
+									"type": "null"
 								},
-								"name": {
-									"type": "string"
-								},
-								"description": {
-									"type": "string"
+								{
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "integer"
+										},
+										"name": {
+											"type": "string"
+										},
+										"description": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"description",
+										"id",
+										"name"
+									]
 								}
-							},
-							"required": [
-								"description",
-								"id",
-								"name"
 							]
 						},
 						"projection": {
