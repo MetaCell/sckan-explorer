@@ -122,7 +122,7 @@ steps:
         - DOMAIN=${{DOMAIN}}
         - NOCACHE=${{CF_BUILD_ID}}
         - REGISTRY=${{REGISTRY}}/cloudharness/
-        - CLOUDHARNESS_BASE_DEBIAN=${{REGISTRY}}/cloudharness/cloudharness-base-debian:${{CLOUDHARNESS_BASE_DEBIAN_TAG}}
+        - CLOUDHARNESS_BASE=${{REGISTRY}}/cloudharness/cloudharness-base:${{CLOUDHARNESS_BASE_TAG}}
         image_name: cloudharness/cloudharness-django
         title: Cloudharness django
         working_directory: ./cloud-harness/infrastructure/common-images/cloudharness-django
@@ -382,14 +382,6 @@ steps:
         type: push
         title: Cloudharness frontend build
         candidate: '${{REGISTRY}}/cloudharness/cloudharness-frontend-build:${{CLOUDHARNESS_FRONTEND_BUILD_TAG}}'
-        tags:
-        - '${{DEPLOYMENT_PUBLISH_TAG}}'
-        registry: '${{REGISTRY_PUBLISH_URL}}'
-      publish_cloudharness-base-debian:
-        stage: publish
-        type: push
-        title: Cloudharness base debian
-        candidate: '${{REGISTRY}}/cloudharness/cloudharness-base-debian:${{CLOUDHARNESS_BASE_DEBIAN_TAG}}'
         tags:
         - '${{DEPLOYMENT_PUBLISH_TAG}}'
         registry: '${{REGISTRY_PUBLISH_URL}}'
