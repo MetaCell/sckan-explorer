@@ -843,6 +843,9 @@
 									"type": "null"
 								},
 								{
+									"type": "integer"
+								},
+								{
 									"type": "string"
 								}
 							]
