@@ -255,9 +255,8 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         </Typography>
       </Box>
       <Box
+        minWidth="fit-content"
         width="100%"
-        paddingLeft="16.625rem"
-        minWidth={0}
         display="flex"
         alignItems="center"
         position="relative"
@@ -442,7 +441,6 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                 }}
               />
             )}
-          {/* <CollapsibleList list={yAxis} onItemClick={handleCollapseClick} /> */}
         </Box>
 
         <CollapsibleList list={yAxis} onItemClick={handleCollapseClick} />
