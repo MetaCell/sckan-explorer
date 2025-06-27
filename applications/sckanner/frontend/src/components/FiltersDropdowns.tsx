@@ -141,7 +141,7 @@ const FiltersDropdowns: React.FC = () => {
   ]);
 
   return (
-    <Box display="flex" gap={1} flexWrap="wrap">
+    <Box display="flex" gap={1} flexWrap="wrap" p={3}>
       {filterConfig.map((filter) => (
         <CustomFilterDropdown
           key={filter.id}

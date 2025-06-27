@@ -212,34 +212,30 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
   };
 
   return (
-    <Box flex={1} my={3} display="inline-flex" flexDirection="column">
-      <ButtonGroup
-        variant="outlined"
-        sx={{
-          '& .MuiButtonBase-root': {
-            left: '1.6rem',
-            top: '2rem',
-            width: '4.5rem',
-            height: '2rem',
-            marginRight: '0.5rem',
-            borderRadius: '0.25rem',
-            border: `0.0625rem solid ${primaryPurple600}`,
-            color: primaryPurple600,
-          },
-        }}
-      >
-        <Typography
-          variant="subtitle1"
-          color={gray500}
-          style={{
-            marginTop: '2rem',
-          }}
-        >
+    <Box flex={1} my={3} display="inline-flex" flexDirection="column" px={3}>
+      <Box display="flex" alignItems="center" gap={2}>
+        <Typography variant="subtitle1" color={gray500}>
           Tree hierarchy:
         </Typography>
-        <Button onClick={() => handleExpandAll()}>Open All</Button>
-        <Button onClick={() => handleCompressAll()}>Close All</Button>
-      </ButtonGroup>
+        <ButtonGroup
+          variant="outlined"
+          sx={{
+            display: 'flex',
+            '& .MuiButtonBase-root': {
+              width: '4.5rem',
+              height: '2rem',
+              marginRight: '0.5rem',
+              borderRadius: '0.25rem',
+              border: `0.0625rem solid ${primaryPurple600}`,
+              color: primaryPurple600,
+            },
+          }}
+        >
+          <Button onClick={() => handleExpandAll()}>Open All</Button>
+          <Button onClick={() => handleCompressAll()}>Close All</Button>
+        </ButtonGroup>
+      </Box>
+
       <Box mb={1.5} pl="17.375rem">
         <Typography
           sx={{
