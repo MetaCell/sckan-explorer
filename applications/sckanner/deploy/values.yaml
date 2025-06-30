@@ -1,37 +1,35 @@
-apps:
-  sckanner:
-    harness:
-      database:
-        auto: true
-        type: postgres
-        postgres:
-          image: postgres:14
-      dependencies:
-        build: [cloudharness-base, cloudharness-frontend-build, cloudharness-django]
-        hard: [accounts]
-        soft: [argo, workflows]
-      deployment:
-        auto: true
-        port: 8080
-        volume:
-          mountpath: /usr/src/app/persistent
-          name: sckanner-ingestion-files
-          auto: true
-          size: 100Mi
-          usenfs: false
-      livenessProbe: {path: /api/live}
-      readinessProbe: {path: /api/ready}
-      secured: true
-      service: {auto: true, port: 8080}
-      subdomain: www
-      uri_role_mapping:
-      - uri: /*
-        white-listed: true
-ingress:
-  enabled: true
-  annotations:
-    nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
-    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
-    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type, Authorization"
-    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+harness:
+  database:
+    auto: true
+    type: postgres
+    postgres:
+      image: postgres:14
+  dependencies:
+    build: [cloudharness-base, cloudharness-frontend-build, cloudharness-django]
+    hard: [accounts]
+    soft: [argo, workflows]
+  deployment:
+    auto: true
+    port: 8080
+    volume:
+      mountpath: /usr/src/app/persistent
+      name: sckanner-ingestion-files
+      auto: true
+      size: 100Mi
+      usenfs: false
+  livenessProbe: {path: /api/live}
+  readinessProbe: {path: /api/ready}
+  secured: true
+  service: {auto: true, port: 8080}
+  subdomain: www
+  uri_role_mapping:
+  - uri: /*
+    white-listed: true
+  ingress:
+    enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/enable-cors: "true"
+      nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+      nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+      nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type, Authorization"
+      nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
