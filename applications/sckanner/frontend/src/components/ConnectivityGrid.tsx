@@ -209,7 +209,10 @@ function ConnectivityGrid() {
         </Button>
       </Box>
 
-      <FiltersDropdowns />
+      <FiltersDropdowns
+        filteredYAxis={filteredYAxis}
+        filteredXOrgans={filteredXOrgans}
+      />
 
       <HeatmapGrid
         yAxis={filteredYAxis}

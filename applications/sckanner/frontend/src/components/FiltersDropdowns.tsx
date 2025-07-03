@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 import CustomFilterDropdown from './common/CustomFilterDropdown.tsx';
 import React, { useMemo } from 'react';
 import { Filters, useDataContext } from '../context/DataContext.ts';
-import { Option } from './common/Types.ts';
+import { HierarchicalItem, Option } from './common/Types.ts';
 import {
   getUniqueApinatomies,
   getUniqueOrgans,
@@ -22,6 +22,7 @@ import {
   searchEntities,
 } from '../services/searchService.ts';
 import { filterKnowledgeStatements } from '../services/heatmapService.ts';
+import { Organ } from '../models/explorer.ts';
 
 interface FilterConfig {
   id: keyof Filters;
@@ -75,7 +76,10 @@ const filterConfig: FilterConfig[] = [
   },
 ];
 
-const FiltersDropdowns: React.FC = () => {
+const FiltersDropdowns: React.FC<{
+  filteredYAxis: HierarchicalItem[];
+  filteredXOrgans: Organ[];
+}> = ({ filteredYAxis, filteredXOrgans }) => {
   const {
     filters,
     setFilters,
@@ -94,8 +98,8 @@ const FiltersDropdowns: React.FC = () => {
   }, [knowledgeStatements, hierarchicalNodes, filters, organs]);
 
   const originsOptions = useMemo(
-    () => getUniqueOrigins(filteredKnowledgeStatements, hierarchicalNodes),
-    [filteredKnowledgeStatements, hierarchicalNodes],
+    () => getUniqueOrigins(filteredKnowledgeStatements, filteredYAxis),
+    [filteredKnowledgeStatements, filteredYAxis],
   );
   const speciesOptions = useMemo(
     () => getUniqueSpecies(filteredKnowledgeStatements),
@@ -113,16 +117,19 @@ const FiltersDropdowns: React.FC = () => {
     () => getUniqueVias(filteredKnowledgeStatements),
     [filteredKnowledgeStatements],
   );
-  const organsOptions = useMemo(() => getUniqueOrgans(organs), [organs]);
+  const organsOptions = useMemo(
+    () => getUniqueOrgans(filteredXOrgans),
+    [filteredXOrgans],
+  );
 
   const entitiesOptions = useMemo(
     () =>
       getUniqueAllEntities(
         filteredKnowledgeStatements,
-        hierarchicalNodes,
-        organs,
+        filteredYAxis,
+        filteredXOrgans,
       ),
-    [filteredKnowledgeStatements, hierarchicalNodes, organs],
+    [filteredKnowledgeStatements, filteredYAxis, filteredXOrgans],
   );
 
   const handleSelect = (
