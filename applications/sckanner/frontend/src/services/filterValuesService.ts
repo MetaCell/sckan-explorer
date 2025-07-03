@@ -61,7 +61,6 @@ export const getUniqueOrigins = (
 
 export const getUniqueVias = (
   knowledgeStatements: Record<string, KnowledgeStatement>,
-  hierarchicalNodes: Record<string, HierarchicalNode>,
 ): Option[] => {
   let vias: AnatomicalEntity[] = [];
   Object.values(knowledgeStatements).forEach((ks) => {
@@ -72,9 +71,8 @@ export const getUniqueVias = (
   });
 
   const sortedVias: AnatomicalEntity[] = sortEntities(vias);
-  const nonLeafNames = getNonLeafNames(hierarchicalNodes);
 
-  return getUniqueEntities([...sortedVias, ...nonLeafNames]);
+  return getUniqueEntities([...sortedVias]);
 };
 
 export const getUniqueAllEntities = (

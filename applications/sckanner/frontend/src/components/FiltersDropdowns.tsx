@@ -21,6 +21,7 @@ import {
   searchVias,
   searchEntities,
 } from '../services/searchService.ts';
+import { filterKnowledgeStatements } from '../services/heatmapService.ts';
 
 interface FilterConfig {
   id: keyof Filters;
@@ -83,31 +84,45 @@ const FiltersDropdowns: React.FC = () => {
     organs,
   } = useDataContext();
 
+  const filteredKnowledgeStatements = useMemo(() => {
+    return filterKnowledgeStatements(
+      knowledgeStatements,
+      hierarchicalNodes,
+      filters,
+      organs,
+    );
+  }, [knowledgeStatements, hierarchicalNodes, filters, organs]);
+
   const originsOptions = useMemo(
-    () => getUniqueOrigins(knowledgeStatements, hierarchicalNodes),
-    [knowledgeStatements, hierarchicalNodes],
+    () => getUniqueOrigins(filteredKnowledgeStatements, hierarchicalNodes),
+    [filteredKnowledgeStatements, hierarchicalNodes],
   );
   const speciesOptions = useMemo(
-    () => getUniqueSpecies(knowledgeStatements),
-    [knowledgeStatements],
+    () => getUniqueSpecies(filteredKnowledgeStatements),
+    [filteredKnowledgeStatements],
   );
   const phenotypesOptions = useMemo(
-    () => getUniquePhenotypes(knowledgeStatements),
-    [knowledgeStatements],
+    () => getUniquePhenotypes(filteredKnowledgeStatements),
+    [filteredKnowledgeStatements],
   );
   const apinatomiesOptions = useMemo(
-    () => getUniqueApinatomies(knowledgeStatements),
-    [knowledgeStatements],
+    () => getUniqueApinatomies(filteredKnowledgeStatements),
+    [filteredKnowledgeStatements],
   );
   const viasOptions = useMemo(
-    () => getUniqueVias(knowledgeStatements, hierarchicalNodes),
-    [knowledgeStatements, hierarchicalNodes],
+    () => getUniqueVias(filteredKnowledgeStatements),
+    [filteredKnowledgeStatements],
   );
   const organsOptions = useMemo(() => getUniqueOrgans(organs), [organs]);
 
   const entitiesOptions = useMemo(
-    () => getUniqueAllEntities(knowledgeStatements, hierarchicalNodes, organs),
-    [knowledgeStatements, hierarchicalNodes, organs],
+    () =>
+      getUniqueAllEntities(
+        filteredKnowledgeStatements,
+        hierarchicalNodes,
+        organs,
+      ),
+    [filteredKnowledgeStatements, hierarchicalNodes, organs],
   );
 
   const handleSelect = (
