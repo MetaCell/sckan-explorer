@@ -43,7 +43,7 @@ const getUniqueEntities = (entities: BaseEntity[]): Option[] => {
   return mapEntityToOption(Array.from(uniqueMap.values()));
 };
 
-// Helper function to get the base ID from a compound ID
+// to get the base ID from a compound ID
 const getBaseId = (id: string): string => {
   // If the ID contains '#', take the part after the last '#'
   // This handles hierarchical IDs like "parent#child#grandchild"
@@ -51,7 +51,7 @@ const getBaseId = (id: string): string => {
   return parts[parts.length - 1];
 };
 
-// Helper function to recursively get all nodes (both leaf and parent nodes) without duplicates
+//recursively get all nodes (both leaf and parent nodes) without duplicates
 const getAllNodes = (nodes: HierarchicalItem[]): BaseEntity[] => {
   const nodeMap = new Map<string, BaseEntity>();
 
