@@ -40,6 +40,9 @@ export interface DataContext {
     summary: Omit<ConnectionSummary, 'filteredKnowledgeStatements'> | null,
   ) => void;
   phenotypesColorMap: Record<string, PhenotypeDetail>;
+  resetApplicationState: () => void;
+  isDataLoading: boolean;
+  setIsDataLoading: (loading: boolean) => void;
 }
 
 export const DataContext = createContext<DataContext>({
@@ -60,6 +63,9 @@ export const DataContext = createContext<DataContext>({
   selectedConnectionSummary: null,
   setSelectedConnectionSummary: () => {},
   phenotypesColorMap: {},
+  resetApplicationState: () => {},
+  isDataLoading: false,
+  setIsDataLoading: () => {},
 });
 
 export const useDataContext = () => useContext(DataContext);

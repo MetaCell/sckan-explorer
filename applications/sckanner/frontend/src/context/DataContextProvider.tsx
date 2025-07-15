@@ -28,15 +28,20 @@ export const DataContextProvider = ({
   majorNerves: Set<string>;
   knowledgeStatements: Record<string, KnowledgeStatement>;
 }>) => {
-  const [filters, setFilters] = useState<Filters>({
-    Origin: [],
-    EndOrgan: [],
-    Species: [],
-    Phenotype: [],
-    apiNATOMY: [],
-    Via: [],
-    Entities: [],
-  });
+  const initialFilters = useMemo<Filters>(
+    () => ({
+      Origin: [],
+      EndOrgan: [],
+      Species: [],
+      Phenotype: [],
+      apiNATOMY: [],
+      Via: [],
+      Entities: [],
+    }),
+    [],
+  );
+
+  const [filters, setFilters] = useState<Filters>(initialFilters);
 
   const [selectedConnectionSummary, setSelectedConnectionSummary] =
     useState<ConnectionSummary | null>(null);
@@ -135,6 +140,17 @@ export const DataContextProvider = ({
     );
   }, [filters, hierarchicalNodes, updateSelectedConnectionSummary]);
 
+  // Reset state when knowledge statements change (new datasnapshot)
+  useEffect(() => {
+    setFilters(initialFilters);
+    setSelectedConnectionSummary(null);
+  }, [knowledgeStatements, initialFilters]);
+
+  const resetApplicationState = useCallback(() => {
+    setFilters(initialFilters);
+    setSelectedConnectionSummary(null);
+  }, [initialFilters]);
+
   const dataContextValue = {
     filters,
     organs,
@@ -145,6 +161,9 @@ export const DataContextProvider = ({
     selectedConnectionSummary,
     setSelectedConnectionSummary: handleSetSelectedConnectionSummary,
     phenotypesColorMap,
+    resetApplicationState,
+    isDataLoading: false,
+    setIsDataLoading: () => {},
   };
 
   return (
