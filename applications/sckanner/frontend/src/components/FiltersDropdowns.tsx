@@ -88,6 +88,8 @@ const FiltersDropdowns: React.FC<{
     organs,
   } = useDataContext();
 
+  const { initialFilterOptions } = useDataContext();
+
   const filteredKnowledgeStatements = useMemo(() => {
     return filterKnowledgeStatements(
       knowledgeStatements,
@@ -97,39 +99,72 @@ const FiltersDropdowns: React.FC<{
     );
   }, [knowledgeStatements, hierarchicalNodes, filters, organs]);
 
+  const isReset = Object.values(filters).every((arr) => arr.length === 0);
+
   const originsOptions = useMemo(
-    () => getUniqueOrigins(filteredKnowledgeStatements, filteredYAxis),
-    [filteredKnowledgeStatements, filteredYAxis],
+    () =>
+      isReset
+        ? initialFilterOptions.Origin
+        : getUniqueOrigins(filteredKnowledgeStatements, filteredYAxis),
+    [
+      isReset,
+      initialFilterOptions.Origin,
+      filteredKnowledgeStatements,
+      filteredYAxis,
+    ],
   );
   const speciesOptions = useMemo(
-    () => getUniqueSpecies(filteredKnowledgeStatements),
-    [filteredKnowledgeStatements],
+    () =>
+      isReset
+        ? initialFilterOptions.Species
+        : getUniqueSpecies(filteredKnowledgeStatements),
+    [isReset, initialFilterOptions.Species, filteredKnowledgeStatements],
   );
   const phenotypesOptions = useMemo(
-    () => getUniquePhenotypes(filteredKnowledgeStatements),
-    [filteredKnowledgeStatements],
+    () =>
+      isReset
+        ? initialFilterOptions.Phenotype
+        : getUniquePhenotypes(filteredKnowledgeStatements),
+    [isReset, initialFilterOptions.Phenotype, filteredKnowledgeStatements],
   );
   const apinatomiesOptions = useMemo(
-    () => getUniqueApinatomies(filteredKnowledgeStatements),
-    [filteredKnowledgeStatements],
+    () =>
+      isReset
+        ? initialFilterOptions.apiNATOMY
+        : getUniqueApinatomies(filteredKnowledgeStatements),
+    [isReset, initialFilterOptions.apiNATOMY, filteredKnowledgeStatements],
   );
   const viasOptions = useMemo(
-    () => getUniqueVias(filteredKnowledgeStatements),
-    [filteredKnowledgeStatements],
+    () =>
+      isReset
+        ? initialFilterOptions.Via
+        : getUniqueVias(filteredKnowledgeStatements),
+    [isReset, initialFilterOptions.Via, filteredKnowledgeStatements],
   );
   const organsOptions = useMemo(
-    () => getUniqueOrgans(filteredXOrgans),
-    [filteredXOrgans],
+    () =>
+      isReset
+        ? initialFilterOptions.EndOrgan
+        : getUniqueOrgans(filteredXOrgans),
+    [isReset, initialFilterOptions.EndOrgan, filteredXOrgans],
   );
 
   const entitiesOptions = useMemo(
     () =>
-      getUniqueAllEntities(
-        filteredKnowledgeStatements,
-        filteredYAxis,
-        filteredXOrgans,
-      ),
-    [filteredKnowledgeStatements, filteredYAxis, filteredXOrgans],
+      isReset
+        ? initialFilterOptions.Entities
+        : getUniqueAllEntities(
+            filteredKnowledgeStatements,
+            filteredYAxis,
+            filteredXOrgans,
+          ),
+    [
+      isReset,
+      initialFilterOptions.Entities,
+      filteredKnowledgeStatements,
+      filteredYAxis,
+      filteredXOrgans,
+    ],
   );
 
   const handleSelect = (

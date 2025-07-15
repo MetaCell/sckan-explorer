@@ -15,6 +15,16 @@ import { PhenotypeDetail } from '../components/common/Types.ts';
 import { generatePhenotypeColors } from '../services/summaryHeatmapService.ts';
 import { OTHER_PHENOTYPE_LABEL } from '../settings.ts';
 import { filterKnowledgeStatements } from '../services/heatmapService.ts';
+import {
+  getUniqueOrigins,
+  getUniqueOrgans,
+  getUniqueSpecies,
+  getUniquePhenotypes,
+  getUniqueApinatomies,
+  getUniqueVias,
+  getUniqueAllEntities,
+} from '../services/filterValuesService.ts';
+import { getYAxis } from '../services/heatmapService.ts';
 
 export const DataContextProvider = ({
   hierarchicalNodes,
@@ -73,6 +83,20 @@ export const DataContextProvider = ({
     });
     return colorMap;
   }, [phenotypes]);
+
+  const initialFilterOptions = useMemo(() => {
+    const yAxis = getYAxis(hierarchicalNodes);
+    const xAxisOrgans = Object.values(organs);
+    return {
+      Origin: getUniqueOrigins(knowledgeStatements, yAxis),
+      EndOrgan: getUniqueOrgans(xAxisOrgans),
+      Species: getUniqueSpecies(knowledgeStatements),
+      Phenotype: getUniquePhenotypes(knowledgeStatements),
+      apiNATOMY: getUniqueApinatomies(knowledgeStatements),
+      Via: getUniqueVias(knowledgeStatements),
+      Entities: getUniqueAllEntities(knowledgeStatements, yAxis, xAxisOrgans),
+    };
+  }, [hierarchicalNodes, organs, knowledgeStatements]);
 
   const updateSelectedConnectionSummary = useCallback(
     (
@@ -145,6 +169,7 @@ export const DataContextProvider = ({
     selectedConnectionSummary,
     setSelectedConnectionSummary: handleSetSelectedConnectionSummary,
     phenotypesColorMap,
+    initialFilterOptions,
   };
 
   return (
