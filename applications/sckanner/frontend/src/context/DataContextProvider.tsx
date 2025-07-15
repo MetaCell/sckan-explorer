@@ -5,7 +5,12 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { DataContext, Filters, ConnectionSummary } from './DataContext';
+import {
+  DataContext,
+  Filters,
+  ConnectionSummary,
+  RightWidgetState,
+} from './DataContext';
 import {
   HierarchicalNode,
   KnowledgeStatement,
@@ -15,31 +20,65 @@ import { PhenotypeDetail } from '../components/common/Types.ts';
 import { generatePhenotypeColors } from '../services/summaryHeatmapService.ts';
 import { OTHER_PHENOTYPE_LABEL } from '../settings.ts';
 import { filterKnowledgeStatements } from '../services/heatmapService.ts';
+import { encodeURLState, URLState } from '../utils/urlStateManager.ts';
 
 export const DataContextProvider = ({
   hierarchicalNodes,
   organs,
   majorNerves,
   knowledgeStatements,
+  initialUrlState = {},
+  selectedDatasnapshot,
   children,
 }: PropsWithChildren<{
   hierarchicalNodes: Record<string, HierarchicalNode>;
   organs: Record<string, Organ>;
   majorNerves: Set<string>;
   knowledgeStatements: Record<string, KnowledgeStatement>;
+  initialUrlState?: URLState;
+  selectedDatasnapshot?: string;
 }>) => {
-  const [filters, setFilters] = useState<Filters>({
-    Origin: [],
-    EndOrgan: [],
-    Species: [],
-    Phenotype: [],
-    apiNATOMY: [],
-    Via: [],
-    Entities: [],
-  });
+  const [filters, setFilters] = useState<Filters>(
+    initialUrlState.filters || {
+      Origin: [],
+      EndOrgan: [],
+      Species: [],
+      Phenotype: [],
+      apiNATOMY: [],
+      Via: [],
+      Entities: [],
+    },
+  );
 
   const [selectedConnectionSummary, setSelectedConnectionSummary] =
     useState<ConnectionSummary | null>(null);
+
+  const [selectedCluster, setSelectedCluster] = useState<string | null>(
+    initialUrlState.selectedCluster || null,
+  );
+
+  const [rightWidgetState, setRightWidgetState] = useState<RightWidgetState>(
+    initialUrlState.rightWidget || { type: null },
+  );
+
+  const updateUrlState = useCallback(() => {
+    const urlState: URLState = {
+      datasnapshot: selectedDatasnapshot,
+      filters,
+      selectedCluster: selectedCluster || undefined,
+      rightWidget: rightWidgetState,
+    };
+
+    const encodedState = encodeURLState(urlState);
+    const newUrl = `${window.location.pathname}${encodedState ? `?${encodedState}` : ''}`;
+
+    // Update URL without triggering a page reload
+    window.history.replaceState(null, '', newUrl);
+  }, [filters, selectedCluster, rightWidgetState, selectedDatasnapshot]);
+  // Update URL when state changes
+  useEffect(() => {
+    updateUrlState();
+  }, [filters, selectedCluster, rightWidgetState, updateUrlState]);
 
   const phenotypes = useMemo(() => {
     const allPhenotypes = Object.values(knowledgeStatements).map(
@@ -145,6 +184,11 @@ export const DataContextProvider = ({
     selectedConnectionSummary,
     setSelectedConnectionSummary: handleSetSelectedConnectionSummary,
     phenotypesColorMap,
+    selectedCluster,
+    setSelectedCluster,
+    rightWidgetState,
+    setRightWidgetState,
+    updateUrlState,
   };
 
   return (

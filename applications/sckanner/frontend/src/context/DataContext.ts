@@ -28,6 +28,14 @@ export interface ConnectionSummary {
   endOrgan: Organ;
 }
 
+export interface RightWidgetState {
+  type: 'summary' | 'connection' | null;
+  clusterId?: string;
+  connectionId?: string;
+  populationId?: string;
+  filters?: SummaryFilters;
+}
+
 export interface DataContext {
   filters: Filters;
   majorNerves: Set<string>;
@@ -40,6 +48,11 @@ export interface DataContext {
     summary: Omit<ConnectionSummary, 'filteredKnowledgeStatements'> | null,
   ) => void;
   phenotypesColorMap: Record<string, PhenotypeDetail>;
+  selectedCluster: string | null;
+  setSelectedCluster: (clusterId: string | null) => void;
+  rightWidgetState: RightWidgetState;
+  setRightWidgetState: (state: RightWidgetState) => void;
+  updateUrlState: () => void;
 }
 
 export const DataContext = createContext<DataContext>({
@@ -60,6 +73,11 @@ export const DataContext = createContext<DataContext>({
   selectedConnectionSummary: null,
   setSelectedConnectionSummary: () => {},
   phenotypesColorMap: {},
+  selectedCluster: null,
+  setSelectedCluster: () => {},
+  rightWidgetState: { type: null },
+  setRightWidgetState: () => {},
+  updateUrlState: () => {},
 });
 
 export const useDataContext = () => useContext(DataContext);

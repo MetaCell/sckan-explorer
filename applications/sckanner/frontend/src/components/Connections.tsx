@@ -62,6 +62,8 @@ function Connections() {
     hierarchicalNodes,
     knowledgeStatements,
     filters,
+    rightWidgetState,
+    setRightWidgetState,
   } = useDataContext();
 
   const [showConnectionDetails, setShowConnectionDetails] =
@@ -97,13 +99,20 @@ function Connections() {
   );
 
   useEffect(() => {
-    // By default on the first render, show the instruction/summary
-    if (selectedConnectionSummary) {
+    // Use rightWidgetState to restore the widget state, fallback to selectedConnectionSummary logic
+    if (rightWidgetState.type === 'summary' && selectedConnectionSummary) {
+      setShowConnectionDetails(SummaryType.Summary);
+    } else if (
+      rightWidgetState.type === 'connection' &&
+      selectedConnectionSummary
+    ) {
+      setShowConnectionDetails(SummaryType.DetailedSummary);
+    } else if (selectedConnectionSummary) {
       setShowConnectionDetails(SummaryType.Summary);
     } else {
       setShowConnectionDetails(SummaryType.Instruction);
     }
-  }, [selectedConnectionSummary]);
+  }, [selectedConnectionSummary, rightWidgetState]);
 
   // Values from the selected connection - In the SummaryType.summary
   const viasConnection = getAllViasFromConnections(
@@ -191,6 +200,13 @@ function Connections() {
         setShowConnectionDetails(SummaryType.DetailedSummary);
         const ksMap = getKnowledgeStatementMap(ksIds, knowledgeStatements);
         setKnowledgeStatementsMap(ksMap);
+
+        // Update right widget state to show connection details
+        setRightWidgetState({
+          type: 'connection',
+          clusterId: rightWidgetState.clusterId,
+          connectionId: `${x}-${y}`,
+        });
       }
     }
   };
@@ -223,6 +239,60 @@ function Connections() {
   const heatmapData = useMemo(() => {
     return getSecondaryHeatmapData(filteredYAxis, filteredConnectionsMap);
   }, [filteredYAxis, filteredConnectionsMap]);
+
+  // Restore connection state from URL if rightWidgetState indicates a connection
+  useEffect(() => {
+    if (
+      rightWidgetState.type === 'connection' &&
+      rightWidgetState.connectionId &&
+      filteredConnectionsMap.size > 0 &&
+      filteredYAxis.length > 0
+    ) {
+      const [xStr, yStr] = rightWidgetState.connectionId.split('-');
+      const x = parseInt(xStr);
+      const y = parseInt(yStr);
+
+      // Validate coordinates are within bounds
+      if (
+        x >= 0 &&
+        x < filteredXAxis.length &&
+        y >= 0 &&
+        y < filteredYAxis.length
+      ) {
+        const yId = filteredYAxis[y].id;
+        const row = filteredConnectionsMap.get(yId);
+        if (row) {
+          const newX = filteredXAxis.indexOf(reorderedAxis[x]);
+          const ksIds = Object.values(row[newX]).reduce(
+            (acc, phenotypeData) => {
+              return acc.concat(phenotypeData.ksIds);
+            },
+            [] as string[],
+          );
+
+          if (
+            selectedConnectionSummary &&
+            Object.keys(selectedConnectionSummary.filteredKnowledgeStatements)
+              .length !== 0 &&
+            ksIds.length > 0
+          ) {
+            setSelectedCell({ x, y });
+            setConnectionPage(1);
+            const ksMap = getKnowledgeStatementMap(ksIds, knowledgeStatements);
+            setKnowledgeStatementsMap(ksMap);
+          }
+        }
+      }
+    }
+  }, [
+    rightWidgetState,
+    filteredConnectionsMap,
+    filteredYAxis,
+    filteredXAxis,
+    reorderedAxis,
+    selectedConnectionSummary,
+    knowledgeStatements,
+  ]);
 
   const sortedResults = sortHeatmapData(
     filteredXAxis,

@@ -31,6 +31,9 @@ function ConnectivityGrid() {
     filters,
     setFilters,
     setSelectedConnectionSummary,
+    selectedCluster,
+    setSelectedCluster,
+    setRightWidgetState,
   } = useDataContext();
 
   const organizedFilters = useMemo(
@@ -110,6 +113,53 @@ function ConnectivityGrid() {
     };
   }, [filteredYAxis, filteredConnectionsMap]);
 
+  // Restore selected cell from URL state on initial load
+  useEffect(() => {
+    if (
+      selectedCluster &&
+      filteredConnectionsMap.size > 0 &&
+      detailedHeatmapData.length > 0
+    ) {
+      const [xStr, yStr] = selectedCluster.split('-');
+      const x = parseInt(xStr);
+      const y = parseInt(yStr);
+
+      // Validate coordinates are within bounds
+      if (
+        x >= 0 &&
+        x < filteredXOrgans.length &&
+        y >= 0 &&
+        y < detailedHeatmapData.length
+      ) {
+        const nodeData = detailedHeatmapData[y];
+        const yId = nodeData.id;
+
+        // Simulate the click to restore the state
+        setSelectedCell({ x, y });
+        const row = filteredConnectionsMap.get(yId);
+        if (row && row[x]) {
+          const endOrgan = filteredXOrgans[x];
+          const hierarchicalNode = hierarchicalNodes[nodeData.id];
+          const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
+
+          setSelectedConnectionSummary({
+            connections: ksMap,
+            endOrgan: endOrgan,
+            hierarchicalNode: hierarchicalNode,
+          });
+        }
+      }
+    }
+  }, [
+    selectedCluster,
+    filteredConnectionsMap,
+    detailedHeatmapData,
+    filteredXOrgans,
+    hierarchicalNodes,
+    knowledgeStatements,
+    setSelectedConnectionSummary,
+  ]);
+
   const handleClick = (x: number, y: number, yId: string): void => {
     // When the primary heatmap cell is clicked - this sets the react-context state for Connections in SummaryType.summary
     setSelectedCell({ x, y });
@@ -119,6 +169,16 @@ function ConnectivityGrid() {
       const nodeData = detailedHeatmapData[y];
       const hierarchicalNode = hierarchicalNodes[nodeData.id];
       const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
+
+      // Create cluster ID from coordinates
+      const clusterId = `${x}-${y}`;
+      setSelectedCluster(clusterId);
+
+      // Set right widget state to show summary
+      setRightWidgetState({
+        type: 'summary',
+        clusterId: clusterId,
+      });
 
       setSelectedConnectionSummary({
         connections: ksMap,
@@ -141,6 +201,8 @@ function ConnectivityGrid() {
     });
     setSelectedCell(null);
     setSelectedConnectionSummary(null);
+    setSelectedCluster(null);
+    setRightWidgetState({ type: null });
   };
 
   const isLoading = yAxis.length == 0;

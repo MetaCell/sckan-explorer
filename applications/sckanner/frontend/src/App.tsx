@@ -13,10 +13,10 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Header from './components/common/Header.tsx';
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
-  useLocation,
+  useSearchParams,
+  BrowserRouter,
 } from 'react-router-dom';
 import SummaryPage from './components/SummaryPage.tsx';
 import Loader from './components/common/Loader.tsx';
@@ -40,10 +40,23 @@ import {
 } from './services/hierarchyService.ts';
 import ReactGA from 'react-ga4';
 import { Datasnapshot } from './models/json.ts';
+import { decodeURLState, URLState } from './utils/urlStateManager.ts';
 
 const App = () => {
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </ThemeProvider>
+  );
+};
+
+const AppContent = () => {
   const store = useStore();
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
   const [LayoutComponent, setLayoutComponent] = useState<
     React.ComponentType | undefined
   >(undefined);
@@ -58,6 +71,24 @@ const App = () => {
   const [datasnapshots, setdatasnapshots] = useState<Datasnapshot[]>([]);
   const [selectedDatasnaphshot, setSelectedDatasnaphshot] =
     useState<string>('');
+  const [urlState, setUrlState] = useState<URLState>({});
+
+  // Parse URL state on component mount
+  useEffect(() => {
+    const parsedState = decodeURLState(searchParams);
+    setUrlState(parsedState);
+  }, [searchParams]);
+
+  // Google Analytics tracking
+  useEffect(() => {
+    const location = window.location;
+    if (import.meta.env.VITE_REACT_APP_GA4_ID) {
+      ReactGA.initialize(import.meta.env.VITE_REACT_APP_GA4_ID);
+      ReactGA.send({ hitType: 'pageview', page: location.pathname });
+    } else {
+      console.warn('Google Analytics ID not set');
+    }
+  }, []);
 
   useEffect(() => {
     if (LayoutComponent === undefined) {
@@ -88,7 +119,11 @@ const App = () => {
         setOrgans(getOrgans(jsonData));
         setMajorNerves(getUniqueMajorNerves(majorNervesData));
         setdatasnapshots(datasnapshots);
-        setSelectedDatasnaphshot(datasnapshots[0].id.toString());
+
+        // Set initial datasnapshot from URL or default to first one
+        const initialDatasnapshot =
+          urlState.datasnapshot || datasnapshots[0].id.toString();
+        setSelectedDatasnaphshot(initialDatasnapshot);
       } catch (error) {
         // TODO: We should give feedback to the user
         console.error('Failed to fetch data:', error);
@@ -97,7 +132,7 @@ const App = () => {
     };
 
     fetchData();
-  }, []);
+  }, [urlState.datasnapshot]);
 
   useEffect(() => {
     if (Object.keys(hierarchicalNodes).length > 0 && selectedDatasnaphshot) {
@@ -156,64 +191,41 @@ const App = () => {
     loadingLabels[loadingConditions.findIndex((c) => c)] ?? '';
 
   return (
-    <>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Router>
-          <GoogleAnalyticsTracker />
-          <Box>
-            <Header
-              datasnapshots={datasnapshots}
-              selectedDatasnaphshot={selectedDatasnaphshot}
-              setSelectedDatasnaphshot={setSelectedDatasnaphshot}
-            />
-            <Box className="MuiContainer">
-              <Routes>
-                <Route path="/summary" element={<SummaryPage />} />
-                <Route
-                  path="/"
-                  element={
-                    isLoading ? (
-                      <Loader
-                        progress={loadingProgress}
-                        text={`Loading ${loadingInfo}...`}
-                      />
-                    ) : (
-                      <DataContextProvider
-                        majorNerves={
-                          majorNerves ? majorNerves : new Set<string>()
-                        }
-                        hierarchicalNodes={hierarchicalNodes}
-                        organs={organs}
-                        knowledgeStatements={knowledgeStatements}
-                      >
-                        {LayoutComponent && <LayoutComponent />}
-                      </DataContextProvider>
-                    )
-                  }
+    <Box>
+      <Header
+        datasnapshots={datasnapshots}
+        selectedDatasnaphshot={selectedDatasnaphshot}
+        setSelectedDatasnaphshot={setSelectedDatasnaphshot}
+      />
+      <Box className="MuiContainer">
+        <Routes>
+          <Route path="/summary" element={<SummaryPage />} />
+          <Route
+            path="/"
+            element={
+              isLoading ? (
+                <Loader
+                  progress={loadingProgress}
+                  text={`Loading ${loadingInfo}...`}
                 />
-              </Routes>
-            </Box>
-          </Box>
-        </Router>
-      </ThemeProvider>
-    </>
+              ) : (
+                <DataContextProvider
+                  majorNerves={majorNerves ? majorNerves : new Set<string>()}
+                  hierarchicalNodes={hierarchicalNodes}
+                  organs={organs}
+                  knowledgeStatements={knowledgeStatements}
+                  initialUrlState={urlState}
+                  selectedDatasnapshot={selectedDatasnaphshot}
+                >
+                  {LayoutComponent && <LayoutComponent />}
+                </DataContextProvider>
+              )
+            }
+          />
+        </Routes>
+      </Box>
+    </Box>
   );
-};
-
-const GoogleAnalyticsTracker = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    if (import.meta.env.VITE_REACT_APP_GA4_ID) {
-      ReactGA.initialize(import.meta.env.VITE_REACT_APP_GA4_ID);
-      ReactGA.send({ hitType: 'pageview', page: location.pathname });
-    } else {
-      console.warn('Google Analytics ID not set');
-    }
-  }, [location]);
-
-  return null;
 };
 
 export default App;
