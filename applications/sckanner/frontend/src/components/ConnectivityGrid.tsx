@@ -164,17 +164,20 @@ function ConnectivityGrid() {
   ) : (
     <Box
       minHeight="100%"
-      p={3}
+      // p={3}
       pb={0}
       fontSize={14}
       display="flex"
       flexDirection="column"
+      width="fit-content"
+      position="relative"
     >
       <Box
         display="flex"
         justifyContent="space-between"
         alignItems="center"
-        pb={2.5}
+        px={3}
+        pt={3}
       >
         <Box
           sx={{
@@ -201,6 +204,11 @@ function ConnectivityGrid() {
         </Box>
 
         <Button
+          sx={{
+            position: 'sticky',
+            right: '2rem',
+            top: 0,
+          }}
           variant="contained"
           onClick={handleReset}
           disabled={Object.values(filters).every((arr) => arr.length === 0)}
@@ -226,17 +234,18 @@ function ConnectivityGrid() {
       />
 
       <Box
-        py={1.5}
+        p={1.5}
         borderTop={`0.0625rem solid ${gray100}`}
         width={1}
         display="flex"
         alignItems="center"
-        justifyContent="flex-end"
-        position="sticky"
-        bottom={0}
+        justifyContent="start"
         sx={{ background: white }}
       >
         <Box
+          position="sticky"
+          left={0}
+          bottom={0}
           sx={{
             display: 'flex',
             alignItems: 'center',
