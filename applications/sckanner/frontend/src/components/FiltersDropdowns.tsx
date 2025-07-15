@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 import CustomFilterDropdown from './common/CustomFilterDropdown.tsx';
 import React, { useMemo } from 'react';
 import { Filters, useDataContext } from '../context/DataContext.ts';
-import { Option } from './common/Types.ts';
+import { HierarchicalItem, Option } from './common/Types.ts';
 import {
   getUniqueApinatomies,
   getUniqueOrgans,
@@ -21,6 +21,8 @@ import {
   searchVias,
   searchEntities,
 } from '../services/searchService.ts';
+import { filterKnowledgeStatements } from '../services/heatmapService.ts';
+import { Organ } from '../models/explorer.ts';
 
 interface FilterConfig {
   id: keyof Filters;
@@ -74,7 +76,10 @@ const filterConfig: FilterConfig[] = [
   },
 ];
 
-const FiltersDropdowns: React.FC = () => {
+const FiltersDropdowns: React.FC<{
+  filteredYAxis: HierarchicalItem[];
+  filteredXOrgans: Organ[];
+}> = ({ filteredYAxis, filteredXOrgans }) => {
   const {
     filters,
     setFilters,
@@ -83,31 +88,83 @@ const FiltersDropdowns: React.FC = () => {
     organs,
   } = useDataContext();
 
+  const { initialFilterOptions } = useDataContext();
+
+  const filteredKnowledgeStatements = useMemo(() => {
+    return filterKnowledgeStatements(
+      knowledgeStatements,
+      hierarchicalNodes,
+      filters,
+      organs,
+    );
+  }, [knowledgeStatements, hierarchicalNodes, filters, organs]);
+
+  const isReset = Object.values(filters).every((arr) => arr.length === 0);
+
   const originsOptions = useMemo(
-    () => getUniqueOrigins(knowledgeStatements, hierarchicalNodes),
-    [knowledgeStatements, hierarchicalNodes],
+    () =>
+      isReset
+        ? initialFilterOptions.Origin
+        : getUniqueOrigins(filteredKnowledgeStatements, filteredYAxis),
+    [
+      isReset,
+      initialFilterOptions.Origin,
+      filteredKnowledgeStatements,
+      filteredYAxis,
+    ],
   );
   const speciesOptions = useMemo(
-    () => getUniqueSpecies(knowledgeStatements),
-    [knowledgeStatements],
+    () =>
+      isReset
+        ? initialFilterOptions.Species
+        : getUniqueSpecies(filteredKnowledgeStatements),
+    [isReset, initialFilterOptions.Species, filteredKnowledgeStatements],
   );
   const phenotypesOptions = useMemo(
-    () => getUniquePhenotypes(knowledgeStatements),
-    [knowledgeStatements],
+    () =>
+      isReset
+        ? initialFilterOptions.Phenotype
+        : getUniquePhenotypes(filteredKnowledgeStatements),
+    [isReset, initialFilterOptions.Phenotype, filteredKnowledgeStatements],
   );
   const apinatomiesOptions = useMemo(
-    () => getUniqueApinatomies(knowledgeStatements),
-    [knowledgeStatements],
+    () =>
+      isReset
+        ? initialFilterOptions.apiNATOMY
+        : getUniqueApinatomies(filteredKnowledgeStatements),
+    [isReset, initialFilterOptions.apiNATOMY, filteredKnowledgeStatements],
   );
   const viasOptions = useMemo(
-    () => getUniqueVias(knowledgeStatements, hierarchicalNodes),
-    [knowledgeStatements, hierarchicalNodes],
+    () =>
+      isReset
+        ? initialFilterOptions.Via
+        : getUniqueVias(filteredKnowledgeStatements),
+    [isReset, initialFilterOptions.Via, filteredKnowledgeStatements],
   );
-  const organsOptions = useMemo(() => getUniqueOrgans(organs), [organs]);
+  const organsOptions = useMemo(
+    () =>
+      isReset
+        ? initialFilterOptions.EndOrgan
+        : getUniqueOrgans(filteredXOrgans),
+    [isReset, initialFilterOptions.EndOrgan, filteredXOrgans],
+  );
 
   const entitiesOptions = useMemo(
-    () => getUniqueAllEntities(knowledgeStatements, hierarchicalNodes, organs),
-    [knowledgeStatements, hierarchicalNodes, organs],
+    () =>
+      isReset
+        ? initialFilterOptions.Entities
+        : getUniqueAllEntities(
+            filteredKnowledgeStatements,
+            filteredYAxis,
+            filteredXOrgans,
+          ),
+    [
+      isReset,
+      initialFilterOptions.Entities,
+      filteredKnowledgeStatements,
+      filteredYAxis,
+      filteredXOrgans,
+    ],
   );
 
   const handleSelect = (

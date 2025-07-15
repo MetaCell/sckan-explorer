@@ -1,11 +1,10 @@
 import {
   AnatomicalEntity,
   BaseEntity,
-  HierarchicalNode,
   KnowledgeStatement,
   Organ,
 } from '../models/explorer.ts';
-import { Option } from '../components/common/Types.ts';
+import { HierarchicalItem, Option } from '../components/common/Types.ts';
 import { NerveResponse } from '../models/json.ts';
 import { SYNONYMS_TITLE } from '../settings.ts';
 
@@ -44,9 +43,43 @@ const getUniqueEntities = (entities: BaseEntity[]): Option[] => {
   return mapEntityToOption(Array.from(uniqueMap.values()));
 };
 
+// to get the base ID from a compound ID
+const getBaseId = (id: string): string => {
+  // If the ID contains '#', take the part after the last '#'
+  // This handles hierarchical IDs like "parent#child#grandchild"
+  const parts = id.split('#');
+  return parts[parts.length - 1];
+};
+
+//recursively get all nodes (both leaf and parent nodes) without duplicates
+const getAllNodes = (nodes: HierarchicalItem[]): BaseEntity[] => {
+  const nodeMap = new Map<string, BaseEntity>();
+
+  const traverse = (node: HierarchicalItem) => {
+    // Get the base ID to normalize hierarchical IDs
+    const baseId = getBaseId(node.id);
+
+    // Add current node only if it's not already in the map (prevents duplicates)
+    if (!nodeMap.has(baseId)) {
+      nodeMap.set(baseId, {
+        id: baseId,
+        name: node.label,
+      });
+    }
+
+    // If this node has children, traverse them
+    if (node.children && node.children.length > 0) {
+      node.children.forEach(traverse);
+    }
+  };
+
+  nodes.forEach(traverse);
+  return Array.from(nodeMap.values());
+};
+
 export const getUniqueOrigins = (
   knowledgeStatements: Record<string, KnowledgeStatement>,
-  hierarchicalNodes: Record<string, HierarchicalNode>,
+  filteredYAxis: HierarchicalItem[],
 ): Option[] => {
   let origins: AnatomicalEntity[] = [];
   Object.values(knowledgeStatements).forEach((ks) => {
@@ -54,14 +87,17 @@ export const getUniqueOrigins = (
   });
 
   const sortedOrigins: AnatomicalEntity[] = sortEntities(origins);
-  const nonLeafNames = getNonLeafNames(hierarchicalNodes);
+  const uniqueYAxis = getAllNodes(filteredYAxis);
 
-  return getUniqueEntities([...sortedOrigins, ...nonLeafNames]);
+  const combinedEntities = [...sortedOrigins, ...uniqueYAxis];
+
+  const result = getUniqueEntities(combinedEntities);
+
+  return result;
 };
 
 export const getUniqueVias = (
   knowledgeStatements: Record<string, KnowledgeStatement>,
-  hierarchicalNodes: Record<string, HierarchicalNode>,
 ): Option[] => {
   let vias: AnatomicalEntity[] = [];
   Object.values(knowledgeStatements).forEach((ks) => {
@@ -72,15 +108,14 @@ export const getUniqueVias = (
   });
 
   const sortedVias: AnatomicalEntity[] = sortEntities(vias);
-  const nonLeafNames = getNonLeafNames(hierarchicalNodes);
 
-  return getUniqueEntities([...sortedVias, ...nonLeafNames]);
+  return getUniqueEntities([...sortedVias]);
 };
 
 export const getUniqueAllEntities = (
   knowledgeStatements: Record<string, KnowledgeStatement>,
-  hierarchicalNodes: Record<string, HierarchicalNode>,
-  organs: Record<string, Organ>,
+  filteredYAxis: HierarchicalItem[],
+  filteredXOrgans: Organ[],
 ): Option[] => {
   let allEntities: AnatomicalEntity[] = [];
   Object.values(knowledgeStatements).forEach((ks) => {
@@ -93,18 +128,17 @@ export const getUniqueAllEntities = (
     );
   });
 
-  const endOrganOptions: AnatomicalEntity[] = Object.values(organs).map(
-    (organ) => ({
-      id: organ.id,
-      name: organ.name + ' (End Organ)',
-      synonyms: '',
-    }),
-  );
+  const endOrganOptions: AnatomicalEntity[] = filteredXOrgans.map((organ) => ({
+    id: organ.id,
+    name: organ.name + ' (End Organ)',
+    synonyms: '',
+  }));
+
   allEntities = allEntities.concat(endOrganOptions);
   const sortedEntities: AnatomicalEntity[] = sortEntities(allEntities);
-  const nonLeafNames = getNonLeafNames(hierarchicalNodes);
-
-  return getUniqueEntities([...sortedEntities, ...nonLeafNames]);
+  const uniqueYAxis = getAllNodes(filteredYAxis);
+  const combinedEntities = [...sortedEntities, ...uniqueYAxis];
+  return getUniqueEntities(combinedEntities);
 };
 
 export const getUniqueSpecies = (
@@ -117,8 +151,8 @@ export const getUniqueSpecies = (
   return getUniqueEntities(species);
 };
 
-export const getUniqueOrgans = (organs: Record<string, Organ>): Option[] => {
-  return Object.values(organs).map((organ) => ({
+export const getUniqueOrgans = (filteredXOrgans: Organ[]): Option[] => {
+  return filteredXOrgans.map((organ) => ({
     id: organ.id,
     label: organ.name,
     group: '',
@@ -167,15 +201,4 @@ export const getUniqueMajorNerves = (jsonData: NerveResponse) => {
   });
 
   return nerves;
-};
-
-const getNonLeafNames = (
-  hierarchicalNodes: Record<string, HierarchicalNode>,
-): BaseEntity[] => {
-  return Object.values(hierarchicalNodes)
-    .filter((node) => node.children && node.children.size > 0)
-    .map((node) => ({
-      id: node.id,
-      name: node.name,
-    }));
 };

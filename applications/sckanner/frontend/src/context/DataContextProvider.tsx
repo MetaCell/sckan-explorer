@@ -15,6 +15,16 @@ import { PhenotypeDetail } from '../components/common/Types.ts';
 import { generatePhenotypeColors } from '../services/summaryHeatmapService.ts';
 import { OTHER_PHENOTYPE_LABEL } from '../settings.ts';
 import { filterKnowledgeStatements } from '../services/heatmapService.ts';
+import {
+  getUniqueOrigins,
+  getUniqueOrgans,
+  getUniqueSpecies,
+  getUniquePhenotypes,
+  getUniqueApinatomies,
+  getUniqueVias,
+  getUniqueAllEntities,
+} from '../services/filterValuesService.ts';
+import { getYAxis } from '../services/heatmapService.ts';
 
 export const DataContextProvider = ({
   hierarchicalNodes,
@@ -28,15 +38,20 @@ export const DataContextProvider = ({
   majorNerves: Set<string>;
   knowledgeStatements: Record<string, KnowledgeStatement>;
 }>) => {
-  const [filters, setFilters] = useState<Filters>({
-    Origin: [],
-    EndOrgan: [],
-    Species: [],
-    Phenotype: [],
-    apiNATOMY: [],
-    Via: [],
-    Entities: [],
-  });
+  const initialFilters = useMemo<Filters>(
+    () => ({
+      Origin: [],
+      EndOrgan: [],
+      Species: [],
+      Phenotype: [],
+      apiNATOMY: [],
+      Via: [],
+      Entities: [],
+    }),
+    [],
+  );
+
+  const [filters, setFilters] = useState<Filters>(initialFilters);
 
   const [selectedConnectionSummary, setSelectedConnectionSummary] =
     useState<ConnectionSummary | null>(null);
@@ -73,6 +88,20 @@ export const DataContextProvider = ({
     });
     return colorMap;
   }, [phenotypes]);
+
+  const initialFilterOptions = useMemo(() => {
+    const yAxis = getYAxis(hierarchicalNodes);
+    const xAxisOrgans = Object.values(organs);
+    return {
+      Origin: getUniqueOrigins(knowledgeStatements, yAxis),
+      EndOrgan: getUniqueOrgans(xAxisOrgans),
+      Species: getUniqueSpecies(knowledgeStatements),
+      Phenotype: getUniquePhenotypes(knowledgeStatements),
+      apiNATOMY: getUniqueApinatomies(knowledgeStatements),
+      Via: getUniqueVias(knowledgeStatements),
+      Entities: getUniqueAllEntities(knowledgeStatements, yAxis, xAxisOrgans),
+    };
+  }, [hierarchicalNodes, organs, knowledgeStatements]);
 
   const updateSelectedConnectionSummary = useCallback(
     (
@@ -135,6 +164,17 @@ export const DataContextProvider = ({
     );
   }, [filters, hierarchicalNodes, updateSelectedConnectionSummary]);
 
+  // Reset state when knowledge statements change (new datasnapshot)
+  useEffect(() => {
+    setFilters(initialFilters);
+    setSelectedConnectionSummary(null);
+  }, [knowledgeStatements, initialFilters]);
+
+  const resetApplicationState = useCallback(() => {
+    setFilters(initialFilters);
+    setSelectedConnectionSummary(null);
+  }, [initialFilters]);
+
   const dataContextValue = {
     filters,
     organs,
@@ -145,6 +185,10 @@ export const DataContextProvider = ({
     selectedConnectionSummary,
     setSelectedConnectionSummary: handleSetSelectedConnectionSummary,
     phenotypesColorMap,
+    resetApplicationState,
+    isDataLoading: false,
+    setIsDataLoading: () => {},
+    initialFilterOptions,
   };
 
   return (

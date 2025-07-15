@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useStore } from 'react-redux';
 import { Box } from '@mui/material';
 import { getLayoutManagerInstance } from '@metacell/geppetto-meta-client/common/layout/LayoutManager';
@@ -40,6 +40,35 @@ import {
 } from './services/hierarchyService.ts';
 import ReactGA from 'react-ga4';
 import { Datasnapshot } from './models/json.ts';
+import { useDataContext } from './context/DataContext.ts';
+import LoadingOverlay from './components/common/LoadingOverlay.tsx';
+import ErrorModal from './components/common/ErrorModal.tsx';
+
+const AppWithReset = ({
+  selectedDatasnaphshot,
+  children,
+}: {
+  selectedDatasnaphshot: string;
+  children: React.ReactNode;
+}) => {
+  const { resetApplicationState } = useDataContext();
+  const previousDatasnaphshot = useRef<string>(selectedDatasnaphshot);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (previousDatasnaphshot.current !== selectedDatasnaphshot) {
+      resetApplicationState();
+
+      // Reset layout widgets to their initial state
+      dispatch(addWidget(connectivityGridWidget()));
+      dispatch(addWidget(connectionsWidget()));
+
+      previousDatasnaphshot.current = selectedDatasnaphshot;
+    }
+  }, [selectedDatasnaphshot, resetApplicationState, dispatch]);
+
+  return <>{children}</>;
+};
 
 const App = () => {
   const store = useStore();
@@ -58,6 +87,17 @@ const App = () => {
   const [datasnapshots, setdatasnapshots] = useState<Datasnapshot[]>([]);
   const [selectedDatasnaphshot, setSelectedDatasnaphshot] =
     useState<string>('');
+  const [isDataLoading, setIsDataLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<{
+    show: boolean;
+    message: string;
+    details: string;
+  }>({
+    show: false,
+    message: '',
+    details: '',
+  });
+  const previousDatasnaphshot = useRef<string>('');
 
   useEffect(() => {
     if (LayoutComponent === undefined) {
@@ -101,6 +141,15 @@ const App = () => {
 
   useEffect(() => {
     if (Object.keys(hierarchicalNodes).length > 0 && selectedDatasnaphshot) {
+      // Check if this is a datasnapshot change (not initial load)
+      if (
+        previousDatasnaphshot.current !== '' &&
+        previousDatasnaphshot.current !== selectedDatasnaphshot
+      ) {
+        setIsDataLoading(true);
+        setFetchError({ show: false, message: '', details: '' });
+      }
+
       const neuronIDsSet = new Set<string>();
 
       // Loop through each node's connectionDetails and add all ids to the neuronIDsSet
@@ -125,13 +174,26 @@ const App = () => {
             {},
           );
           setKnowledgeStatements(ksMap);
+          // Set loading to false once data is loaded
+          setIsDataLoading(false);
+          // Update the previous datasnapshot reference
+          previousDatasnaphshot.current = selectedDatasnaphshot;
         })
         .catch((error) => {
-          // TODO: We should give feedback to the user
           console.error('Failed to fetch knowledge statements data:', error);
+          setIsDataLoading(false);
+          setFetchError({
+            show: true,
+            message: `Failed to load data snapshot "${selectedDatasnaphshot}". Please try again or select a different snapshot.`,
+            details: error.message || 'Unknown error occurred',
+          });
         });
     }
   }, [hierarchicalNodes, selectedDatasnaphshot]);
+
+  const handleErrorModalClose = () => {
+    setFetchError({ show: false, message: '', details: '' });
+  };
 
   const loadingLabels = [
     'Layout',
@@ -179,16 +241,34 @@ const App = () => {
                         text={`Loading ${loadingInfo}...`}
                       />
                     ) : (
-                      <DataContextProvider
-                        majorNerves={
-                          majorNerves ? majorNerves : new Set<string>()
-                        }
-                        hierarchicalNodes={hierarchicalNodes}
-                        organs={organs}
-                        knowledgeStatements={knowledgeStatements}
-                      >
-                        {LayoutComponent && <LayoutComponent />}
-                      </DataContextProvider>
+                      <>
+                        <DataContextProvider
+                          key={selectedDatasnaphshot}
+                          majorNerves={
+                            majorNerves ? majorNerves : new Set<string>()
+                          }
+                          hierarchicalNodes={hierarchicalNodes}
+                          organs={organs}
+                          knowledgeStatements={knowledgeStatements}
+                        >
+                          <AppWithReset
+                            selectedDatasnaphshot={selectedDatasnaphshot}
+                          >
+                            {LayoutComponent && <LayoutComponent />}
+                          </AppWithReset>
+                        </DataContextProvider>
+                        <LoadingOverlay
+                          open={isDataLoading}
+                          message="Loading new data snapshot..."
+                        />
+                        <ErrorModal
+                          open={fetchError.show}
+                          handleClose={handleErrorModalClose}
+                          title="Data Loading Error"
+                          message={fetchError.message}
+                          details={fetchError.details}
+                        />
+                      </>
                     )
                   }
                 />
