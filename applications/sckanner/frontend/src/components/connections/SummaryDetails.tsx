@@ -25,8 +25,7 @@ const RowStack = ({
 }) => (
   <Stack
     direction="row"
-    alignItems="center"
-    spacing={'.75rem'}
+    gap=".75rem"
     sx={{
       '& .MuiSvgIcon-root': {
         height: '1rem',
@@ -35,10 +34,18 @@ const RowStack = ({
       },
     }}
   >
-    <Typography variant="subtitle1" width="6rem">
+    <Typography variant="subtitle1" width="6rem" flexShrink={0}>
       {label}
     </Typography>
-    <Typography variant="subtitle1" fontWeight={400}>
+    <Typography
+      variant="subtitle1"
+      fontWeight={400}
+      sx={{
+        wordBreak: 'break-word',
+        flex: 1,
+        minWidth: 0,
+      }}
+    >
       {value}
       {Icon && <Icon />}
     </Typography>
@@ -103,6 +110,8 @@ const SummaryDetails = ({
       icon: undefined,
     },
   ];
+
+  const statementAlerts = connectionDetails?.statement_alerts || [];
 
   const generateCSV = () => {
     const blob = generateJourneyCsvService(
@@ -205,6 +214,32 @@ const SummaryDetails = ({
                     ),
                   )}
                 </Stack>
+
+                {statementAlerts.length > 0 && (
+                  <>
+                    <Typography variant="subtitle2" color={gray700}>
+                      Statement Alerts
+                    </Typography>
+                    <Stack
+                      spacing={1}
+                      sx={{
+                        paddingLeft: '2.5rem',
+                        marginLeft: '0.5rem',
+                        paddingTop: '0.5rem',
+                        backgroundColor: 'rgba(0, 0, 0, 0.08)',
+                      }}
+                    >
+                      {statementAlerts.map((alert, index) => (
+                        <RowStack
+                          key={index}
+                          label={alert.alert || `Alert ${index + 1}`}
+                          value={alert.text || '-'}
+                          Icon={undefined}
+                        />
+                      ))}
+                    </Stack>
+                  </>
+                )}
               </>
             }
           />

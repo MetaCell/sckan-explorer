@@ -3,7 +3,11 @@ import {
   TypeB60Enum,
   TypeC11Enum,
 } from '../models/composer.ts';
-import { Sex, type KnowledgeStatement } from '../models/explorer.ts';
+import {
+  Sex,
+  type KnowledgeStatement,
+  StatementAlert,
+} from '../models/explorer.ts';
 import { ComposerEntitiesJourneyType } from '../models/explorer.ts';
 
 export interface ComposerResponse {
@@ -55,6 +59,7 @@ interface KnowledgeStatementAPI {
   circuit_type: string;
   sex: Sex;
   statement_preview: string;
+  statement_alerts: StatementAlert[];
 }
 
 export function mapApiResponseToKnowledgeStatements(
@@ -106,6 +111,7 @@ export function mapApiResponseToKnowledgeStatements(
     circuit_type: ks.circuit_type || '',
     sex: ks.sex || {},
     statement_preview: ks.statement_preview || '',
+    statement_alerts: ks.statement_alerts || [],
   }));
 }
 

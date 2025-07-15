@@ -151,6 +151,57 @@ export interface Sex {
   ontology_uri: string;
 }
 
+export interface StatementAlert {
+  /**
+   *
+   * @type {number}
+   * @memberof StatementAlert
+   */
+  id: number;
+  /**
+   *
+   * @type {string}
+   * @memberof StatementAlert
+   */
+  text: string;
+  /**
+   *
+   * @type {string}
+   * @memberof StatementAlert
+   */
+  alert: string;
+  /**
+   *
+   * @type {number | null}
+   * @memberof StatementAlert
+   */
+  saved_by: number | null;
+  /**
+   *
+   * @type {number | string | null}
+   * @memberof StatementAlert
+   */
+  alert_type: number | string | null;
+  /**
+   *
+   * @type {string | null}
+   * @memberof StatementAlert
+   */
+  created_at: string | null;
+  /**
+   *
+   * @type {string | null}
+   * @memberof StatementAlert
+   */
+  updated_at: string | null;
+  /**
+   *
+   * @type {number}
+   * @memberof StatementAlert
+   */
+  connectivity_statement_id: number;
+}
+
 export type EntitiesNameWithId = {
   label: string;
   id: string;
@@ -281,6 +332,12 @@ export interface KnowledgeStatement {
    * @memberof KnowledgeStatement
    */
   statement_preview: string;
+  /**
+   *
+   * @type {Array<StatementAlert>}
+   * @memberof KnowledgeStatement
+   */
+  statement_alerts: StatementAlert[];
 }
 
 export interface HierarchicalNode {
