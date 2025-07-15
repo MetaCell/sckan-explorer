@@ -10,7 +10,7 @@ import Button from '@mui/material/Button';
 import CloseIcon from '@mui/icons-material/Close';
 import ErrorIcon from '@mui/icons-material/Error';
 import { vars } from '../../theme/variables.ts';
-const { primaryPurple600, gray100, white } = vars;
+const { primaryPurple600, gray100 } = vars;
 
 const errorColors = {
   red600: '#DC2626',
