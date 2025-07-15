@@ -42,6 +42,7 @@ import ReactGA from 'react-ga4';
 import { Datasnapshot } from './models/json.ts';
 import { useDataContext } from './context/DataContext.ts';
 import LoadingOverlay from './components/common/LoadingOverlay.tsx';
+import ErrorModal from './components/common/ErrorModal.tsx';
 
 const AppWithReset = ({
   selectedDatasnaphshot,
@@ -87,6 +88,15 @@ const App = () => {
   const [selectedDatasnaphshot, setSelectedDatasnaphshot] =
     useState<string>('');
   const [isDataLoading, setIsDataLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<{
+    show: boolean;
+    message: string;
+    details: string;
+  }>({
+    show: false,
+    message: '',
+    details: '',
+  });
   const previousDatasnaphshot = useRef<string>('');
 
   useEffect(() => {
@@ -136,8 +146,8 @@ const App = () => {
         previousDatasnaphshot.current !== '' &&
         previousDatasnaphshot.current !== selectedDatasnaphshot
       ) {
-        console.log('Setting loading to true for datasnapshot change');
         setIsDataLoading(true);
+        setFetchError({ show: false, message: '', details: '' });
       }
 
       const neuronIDsSet = new Set<string>();
@@ -165,18 +175,25 @@ const App = () => {
           );
           setKnowledgeStatements(ksMap);
           // Set loading to false once data is loaded
-          console.log('Setting loading to false after data fetch');
           setIsDataLoading(false);
           // Update the previous datasnapshot reference
           previousDatasnaphshot.current = selectedDatasnaphshot;
         })
         .catch((error) => {
-          // TODO: We should give feedback to the user
           console.error('Failed to fetch knowledge statements data:', error);
           setIsDataLoading(false);
+          setFetchError({
+            show: true,
+            message: `Failed to load data snapshot "${selectedDatasnaphshot}". Please try again or select a different snapshot.`,
+            details: error.message || 'Unknown error occurred',
+          });
         });
     }
   }, [hierarchicalNodes, selectedDatasnaphshot]);
+
+  const handleErrorModalClose = () => {
+    setFetchError({ show: false, message: '', details: '' });
+  };
 
   const loadingLabels = [
     'Layout',
@@ -243,6 +260,13 @@ const App = () => {
                         <LoadingOverlay
                           open={isDataLoading}
                           message="Loading new data snapshot..."
+                        />
+                        <ErrorModal
+                          open={fetchError.show}
+                          handleClose={handleErrorModalClose}
+                          title="Data Loading Error"
+                          message={fetchError.message}
+                          details={fetchError.details}
                         />
                       </>
                     )

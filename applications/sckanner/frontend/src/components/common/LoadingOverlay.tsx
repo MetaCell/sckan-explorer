@@ -13,8 +13,6 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
   open,
   message = 'Loading data...',
 }) => {
-  console.log('LoadingOverlay render:', { open, message });
-
   return (
     <Backdrop
       sx={{

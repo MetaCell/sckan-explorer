@@ -28,6 +28,16 @@ export interface ConnectionSummary {
   endOrgan: Organ;
 }
 
+export interface InitialFilterOptions {
+  Origin: Option[];
+  EndOrgan: Option[];
+  Species: Option[];
+  Phenotype: Option[];
+  apiNATOMY: Option[];
+  Via: Option[];
+  Entities: Option[];
+}
+
 export interface DataContext {
   filters: Filters;
   majorNerves: Set<string>;
@@ -43,6 +53,7 @@ export interface DataContext {
   resetApplicationState: () => void;
   isDataLoading: boolean;
   setIsDataLoading: (loading: boolean) => void;
+  initialFilterOptions: InitialFilterOptions;
 }
 
 export const DataContext = createContext<DataContext>({
@@ -66,6 +77,15 @@ export const DataContext = createContext<DataContext>({
   resetApplicationState: () => {},
   isDataLoading: false,
   setIsDataLoading: () => {},
+  initialFilterOptions: {
+    Origin: [],
+    EndOrgan: [],
+    Species: [],
+    Phenotype: [],
+    apiNATOMY: [],
+    Via: [],
+    Entities: [],
+  },
 });
 
 export const useDataContext = () => useContext(DataContext);
