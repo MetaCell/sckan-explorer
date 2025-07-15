@@ -220,7 +220,15 @@ const SummaryDetails = ({
                     <Typography variant="subtitle2" color={gray700}>
                       Statement Alerts
                     </Typography>
-                    <Stack spacing={1}>
+                    <Stack
+                      spacing={1}
+                      sx={{
+                        paddingLeft: '2.5rem',
+                        marginLeft: '0.5rem',
+                        paddingTop: '0.5rem',
+                        backgroundColor: 'rgba(0, 0, 0, 0.08)',
+                      }}
+                    >
                       {statementAlerts.map((alert, index) => (
                         <RowStack
                           key={index}
