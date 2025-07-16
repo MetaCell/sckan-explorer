@@ -168,7 +168,9 @@ const SummaryDetails = ({
             {connectionDetails?.statement_preview || '-'}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            {phenotype && <CommonChip label={phenotype} variant="outlined" />}
+            {phenotype && (
+              <CommonChip label={phenotype.toLowerCase()} variant="outlined" />
+            )}
             {circuit_type && (
               <CommonChip
                 label={circuit_type.toLowerCase()}
