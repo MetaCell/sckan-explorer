@@ -163,7 +163,7 @@ export const getUniqueOrgans = (filteredXOrgans: Organ[]): Option[] => {
 function mapNameToOption(items: Set<string>) {
   return Array.from(items).map((item) => ({
     id: item,
-    label: item,
+    label: item.toLowerCase(),
     group: '',
     content: [],
   }));
@@ -188,6 +188,9 @@ export const getUniquePhenotypes = (
   Object.values(knowledgeStatements).forEach((ks) => {
     if (ks.phenotype) {
       phenotypes.add(ks.phenotype);
+    }
+    if (ks.circuit_type) {
+      phenotypes.add(ks.circuit_type);
     }
   });
   return mapNameToOption(phenotypes);

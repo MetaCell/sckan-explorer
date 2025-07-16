@@ -68,6 +68,7 @@ const SummaryDetails = ({
     connectionPage,
   );
   const phenotype = connectionDetails?.phenotype || '';
+  const circuit_type = connectionDetails?.circuit_type || '';
 
   // Details shown in the dropdown - from composer
   const detailsObject = [
@@ -87,11 +88,6 @@ const SummaryDetails = ({
       icon: undefined,
     },
     {
-      label: 'Circuit Type',
-      value: connectionDetails?.circuit_type || '-',
-      icon: undefined,
-    },
-    {
       label: 'References',
       value:
         connectionDetails?.provenances.filter(
@@ -101,7 +97,18 @@ const SummaryDetails = ({
     },
     {
       label: 'Phenotype',
-      value: connectionDetails?.phenotype || '-',
+      // in value array showing phenotype and circuit_type
+      value:
+        connectionDetails?.phenotype !== '' &&
+        connectionDetails?.circuit_type !== ''
+          ? [connectionDetails?.phenotype, connectionDetails?.circuit_type]
+          : connectionDetails?.phenotype === '' &&
+              connectionDetails?.circuit_type !== ''
+            ? [connectionDetails?.circuit_type]
+            : connectionDetails?.circuit_type === '' &&
+                connectionDetails?.phenotype !== ''
+              ? [connectionDetails?.phenotype]
+              : [],
       icon: undefined,
     },
     {
@@ -160,7 +167,15 @@ const SummaryDetails = ({
           <Typography variant="body1" color={gray500}>
             {connectionDetails?.statement_preview || '-'}
           </Typography>
-          {phenotype && <CommonChip label={phenotype} variant="outlined" />}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {phenotype && <CommonChip label={phenotype} variant="outlined" />}
+            {circuit_type && (
+              <CommonChip
+                label={circuit_type.toLowerCase()}
+                variant="outlined"
+              />
+            )}
+          </Box>
           <CommonAccordion
             summary="Connection Details"
             details={
@@ -205,7 +220,9 @@ const SummaryDetails = ({
                                 }
                               }}
                               icon={
-                                <ArrowOutwardRoundedIcon fontSize="small" />
+                                row.includes('http') ? (
+                                  <ArrowOutwardRoundedIcon fontSize="small" />
+                                ) : undefined
                               }
                             />
                           ))}

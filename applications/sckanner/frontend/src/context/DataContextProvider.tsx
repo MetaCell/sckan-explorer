@@ -60,6 +60,12 @@ export const DataContextProvider = ({
     const allPhenotypes = Object.values(knowledgeStatements).map(
       (ks) => ks.phenotype || OTHER_PHENOTYPE_LABEL,
     );
+    const allCircuitTypes = Object.values(knowledgeStatements).map(
+      (ks) => ks.circuit_type || OTHER_PHENOTYPE_LABEL,
+    );
+    // Combine phenotypes and circuit types, ensuring uniqueness
+    allPhenotypes.push(...allCircuitTypes);
+    // Use Set to ensure uniqueness and return as an array
     return Array.from(new Set(allPhenotypes)); // Get unique phenotypes
   }, [knowledgeStatements]);
 

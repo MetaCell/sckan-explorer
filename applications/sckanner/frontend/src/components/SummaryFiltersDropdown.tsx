@@ -59,7 +59,7 @@ const SummaryFiltersDropdown = ({
     return phenotypes
       .map((phenotype) => ({
         id: phenotype,
-        label: phenotype,
+        label: phenotype.toLowerCase(),
         group: 'Phenotype',
         content: [],
       }))

@@ -69,7 +69,7 @@ const PhenotypeLegend = ({ phenotypes }: { phenotypes: string[] }) => {
                   color: '#4A4C4F',
                 }}
               >
-                {phenotype}
+                {phenotype.toLowerCase()}
               </Typography>
             </Box>
           ))}
