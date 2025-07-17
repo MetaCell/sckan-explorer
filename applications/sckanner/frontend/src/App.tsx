@@ -150,12 +150,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (
-      Object.keys(hierarchicalNodes).length > 0 &&
-      selectedDatasnaphshot &&
-      orderData &&
-      datasnapshots.length > 0
-    ) {
+    if (Object.keys(hierarchicalNodes).length > 0 && selectedDatasnaphshot) {
       // Check if this is a datasnapshot change (not initial load)
       if (
         previousDatasnaphshot.current !== '' &&
