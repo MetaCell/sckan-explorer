@@ -98,6 +98,7 @@ const App = () => {
     details: '',
   });
   const previousDatasnaphshot = useRef<string>('');
+  const [orderData, setOrderData] = useState<any>(undefined);
 
   useEffect(() => {
     if (LayoutComponent === undefined) {
@@ -113,22 +114,29 @@ const App = () => {
     dispatch(addWidget(connectionsWidget()));
   }, [LayoutComponent, dispatch]);
 
+
+  const fetchJSONAndSetHierarchicalNodes = (datasnapshot: Datasnapshot, orderData: OrderData) => {
+    fetchJSON(datasnapshot.a_b_via_c_json_file).then((jsonData) => {
+      setHierarchicalNodes(getHierarchicalNodes(jsonData, orderData));
+      setOrgans(getOrgans(jsonData));
+    });
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [jsonData, orderData, majorNervesData, datasnapshots] =
+        const [orderDataFetched, majorNervesData, datasnapshots] =
           await Promise.all([
-            fetchJSON(),
             fetchOrderJson(),
             fetchMajorNerves(),
             fetchDatasnapshots(),
           ]);
 
-        setHierarchicalNodes(getHierarchicalNodes(jsonData, orderData));
-        setOrgans(getOrgans(jsonData));
+        setOrderData(orderDataFetched);
         setMajorNerves(getUniqueMajorNerves(majorNervesData));
         setdatasnapshots(datasnapshots);
         setSelectedDatasnaphshot(datasnapshots[0].id.toString());
+        fetchJSONAndSetHierarchicalNodes(datasnapshots[0], orderDataFetched);
       } catch (error) {
         // TODO: We should give feedback to the user
         console.error('Failed to fetch data:', error);
@@ -140,7 +148,12 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (Object.keys(hierarchicalNodes).length > 0 && selectedDatasnaphshot) {
+    if (
+      Object.keys(hierarchicalNodes).length > 0 &&
+      selectedDatasnaphshot &&
+      orderData &&
+      datasnapshots.length > 0
+    ) {
       // Check if this is a datasnapshot change (not initial load)
       if (
         previousDatasnaphshot.current !== '' &&
@@ -154,14 +167,15 @@ const App = () => {
 
       // Loop through each node's connectionDetails and add all ids to the neuronIDsSet
       Object.values(hierarchicalNodes).forEach((node) => {
-        if (node.connectionDetails) {
-          Object.values(node.connectionDetails).forEach((subOrgans) => {
+        const typedNode = node as HierarchicalNode;
+        if (typedNode.connectionDetails) {
+          Object.values(typedNode.connectionDetails).forEach((subOrgans) => {
             Object.values(subOrgans).forEach((ksIds) => {
-              ksIds.forEach((id) => neuronIDsSet.add(id));
+              (ksIds as string[]).forEach((id) => neuronIDsSet.add(id));
             });
           });
         }
-      });
+      })
 
       fetchKnowledgeStatements(selectedDatasnaphshot)
         .then((statements) => {
@@ -190,6 +204,13 @@ const App = () => {
         });
     }
   }, [hierarchicalNodes, selectedDatasnaphshot]);
+
+  useEffect(() => {
+    const selectedSnapshotObj = datasnapshots.find((ds: Datasnapshot) => ds.id === parseInt(selectedDatasnaphshot));
+    if (selectedSnapshotObj) {
+      fetchJSONAndSetHierarchicalNodes(selectedSnapshotObj, orderData);
+    }
+  }, [selectedDatasnaphshot, orderData, datasnapshots]);
 
   const handleErrorModalClose = () => {
     setFetchError({ show: false, message: '', details: '' });

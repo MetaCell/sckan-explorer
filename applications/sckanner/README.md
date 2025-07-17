@@ -28,6 +28,11 @@ This application is composed of a Django-Ninja backend and a React frontend.
 Backend code is inside the *backend* directory.
 See [backend/README.md#Develop]
 
+
+### Python version
+python 3.12.9
+
+
 ## Ingestion 
 
 Ingestion uses Argo Workflows to run the ingestion scripts. The flow goes like this:

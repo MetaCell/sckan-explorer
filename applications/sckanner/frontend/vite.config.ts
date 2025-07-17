@@ -17,6 +17,11 @@ export default defineConfig(({ mode }) => {
             changeOrigin: true,
             secure: false,
           },
+          '/media': {
+            target: API_URL,
+            changeOrigin: true,
+            secure: false,
+          },
         },
       }),
     },
