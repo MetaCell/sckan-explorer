@@ -10,6 +10,9 @@ THIS FILE IS A REPLICA OF THE NEURONDM INGESTION FROM - COMPOSER PROJECT.
 
 # ------------ imports ------------
 import os
+import json
+import requests
+
 from typing import Optional, Tuple, List, Set, Dict
 
 import rdflib
@@ -230,9 +233,6 @@ def get_predicate_mapping(predicate: str, uris: List[str]) -> Optional[dict]:
     Returns:
         The API response as a dictionary, or None if the request fails
     """
-    import requests
-    import json
-    
     # Create cache key from predicate and sorted URIs for consistency
     cache_key = f"{predicate}:{':'.join(sorted(uris))}"
     
@@ -311,7 +311,7 @@ def get_sex(sex: str) -> Optional[dict]:
         return None
 
     api_results = get_predicate_mapping("hasBiologicalSex", [sex])
-    label = api_results["hasBiologicalSex"][sex][0] if api_results and "hasBiologicalSex" and len(api_results["hasBiologicalSex"][sex]) > 0in api_results else sex
+    label = api_results["hasBiologicalSex"][sex][0] if api_results and "hasBiologicalSex" in api_results and len(api_results["hasBiologicalSex"][sex]) > 0 else sex
 
     return {
         'id': string_to_int_hash(sex),
@@ -330,7 +330,7 @@ def get_species(species: str) -> Optional[dict]:
     
     # Use the generic predicate mapping function
     api_results = get_predicate_mapping("hasInstanceInTaxon", [species])
-    label = api_results["hasInstanceInTaxon"][species][0] if api_results and "hasInstanceInTaxon" and len(api_results["hasInstanceInTaxon"][species]) in api_results else species
+    label = api_results["hasInstanceInTaxon"][species][0] if api_results and "hasInstanceInTaxon" in api_results and len(api_results["hasInstanceInTaxon"][species]) > 0 else species
     # Return the original format but include the API results if available
     result = {
         'id': string_to_int_hash(species),
@@ -833,7 +833,7 @@ def gen_composer_entity(entity: str | dict) -> Dict:
                 'region_layer': None,
                 'simple_entity': {
                     'id': string_to_int_hash(entity),
-                    'name': results["hasSomaLocatedIn"][entity][0] if results and "hasSomaLocatedIn" and len(results["hasSomaLocatedIn"][entity]) in results else entity,
+                    'name': results["hasSomaLocatedIn"][entity][0] if results and "hasSomaLocatedIn" in results and len(results["hasSomaLocatedIn"][entity]) > 0 else entity,
                     'ontology_uri': entity
                 }
             }
