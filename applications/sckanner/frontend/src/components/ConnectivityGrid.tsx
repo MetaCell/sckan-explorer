@@ -82,7 +82,7 @@ function ConnectivityGrid() {
     existingYAxis: HierarchicalItem[],
   ): HierarchicalItem[] => {
     const expandedStateMap = new Map<string, boolean>();
-    
+
     const collectExpandedState = (items: HierarchicalItem[]) => {
       items.forEach((item) => {
         expandedStateMap.set(item.id, item.expanded);
@@ -91,7 +91,7 @@ function ConnectivityGrid() {
         }
       });
     };
-    
+
     const applyExpandedStateRecursive = (
       items: HierarchicalItem[],
     ): HierarchicalItem[] => {
@@ -105,17 +105,17 @@ function ConnectivityGrid() {
           : item.children,
       }));
     };
-    
+
     // Collect the expanded state from existing yAxis
     collectExpandedState(existingYAxis);
-    
+
     // Apply the expanded state to fresh yAxis
     return applyExpandedStateRecursive(freshYAxis);
   };
 
   useEffect(() => {
     const freshYAxis = getYAxis(hierarchicalNodes);
-    
+
     // If yAxis already exists (meaning this is a filter change, not initial load)
     // preserve the expand/collapse state
     if (yAxis.length > 0) {
