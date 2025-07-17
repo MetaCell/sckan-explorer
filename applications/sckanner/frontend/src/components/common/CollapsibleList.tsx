@@ -166,7 +166,7 @@ const CollapsibleList: FC<CollapsibleListProps> = ({ list, onItemClick }) => {
       sx={{
         width: '15.625rem',
         position: 'sticky',
-        top: '40rem',
+        top: '60rem',
         left: '0',
         backgroundColor: '#fff',
       }}
