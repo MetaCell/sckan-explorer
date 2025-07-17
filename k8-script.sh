@@ -5,22 +5,15 @@
 kubectl create ns sckanner
 kubectl config set-context --current --namespace=sckanner
 
-# TO run the harness deployment command - to generate helm chart files - use the launch json command or 
-# as below:
+# TO run the harness deployment command - to generate helm chart files - use the launch json command or as below:
 # for local
 harness-deployment cloud-harness . -i sckanner -d sckanner.local -n sckanner -u -dtls --no-cd -l -e local
-# for remote
+# for dev
 harness-deployment cloud-harness . -i sckanner -d sckanner.local -n sckanner -u -dtls --no-cd -l -e dev
 
-# to run for the local environment - use the -e local flag
-harness-deployment cloud-harness . -i sckanner -d sckanner.local -n sckanner -u -dtls --no-cd -l -e local
-
-# to run for the dev environment - use the -e dev flag
-harness-deployment cloud-harness . -i sckanner -d sckanner.local -n sckanner -u -dtls --no-cd -l -e dev
 
 # run without -u to disable the gatekeeper check and without --no-cd to disable re-generating codefresh-dev.yaml
 harness-deployment cloud-harness . -i sckanner -d sckanner.local -n sckanner -l -e local
-
 
 
 # do the skaffold deploy
