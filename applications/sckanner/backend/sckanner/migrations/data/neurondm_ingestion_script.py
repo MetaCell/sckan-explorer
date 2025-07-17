@@ -10,7 +10,6 @@ THIS FILE IS A REPLICA OF THE NEURONDM INGESTION FROM - COMPOSER PROJECT.
 
 # ------------ imports ------------
 import os
-import json
 import requests
 
 from typing import Optional, Tuple, List, Set, Dict
@@ -341,7 +340,7 @@ def get_species(species: str) -> Optional[dict]:
     return result
 
 
-def get_anatomical_phenotype(phenotype: str) -> Optional[dict]:
+def get_anatomical_phenotype(phenotype: list) -> Optional[dict]:
     """
     Generate the correct dictionary for the anatomical phenotype.
     """
