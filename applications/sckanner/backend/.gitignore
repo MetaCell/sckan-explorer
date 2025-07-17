@@ -1,3 +1,3 @@
-persistent/data_sources
+persistent/*
 static/*
 sckanner.egg-info/*
