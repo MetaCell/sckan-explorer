@@ -37,7 +37,7 @@ const styles = {
     minWidth: 260,
     maxHeight: 320,
     borderRadius: '0.5rem',
-    overflowX: 'hidden',
+    overflow: 'hidden',
     background: gray900,
     borderColor: gray800,
     zIndex: 1200,
