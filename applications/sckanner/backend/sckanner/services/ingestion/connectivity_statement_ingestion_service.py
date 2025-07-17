@@ -12,7 +12,6 @@ class ConnectivityStatementIngestionService:
 
     def download_and_save_a_b_via_c_json_file(self, a_b_via_c_json_url: str) -> str:
         import os
-        import shutil
         import tempfile
         import requests
         from django.core.files import File
@@ -61,7 +60,7 @@ class ConnectivityStatementIngestionService:
             logger.info("Ingestion completed")
         except Exception as e:
             logger.error(f"Error ingesting statements: {e}")
-            raise Exception("Error ingesting statements: {e}")
+            raise Exception(f"Error ingesting statements: {e}")
 
     def _ingest_connectivity_statements_to_db(self, statements):
 
