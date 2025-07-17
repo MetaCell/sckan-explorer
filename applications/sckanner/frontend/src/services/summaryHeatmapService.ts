@@ -72,12 +72,12 @@ export function getAllPhenotypes(connections: KsRecord): string[] {
   Object.values(connections).forEach((ks) => {
     if (ks.phenotype) {
       phenotypeNames.add(ks.phenotype);
-    } else {
-      phenotypeNames.add(OTHER_PHENOTYPE_LABEL);
     }
-
     if (ks.circuit_type) {
       phenotypeNames.add(ks.circuit_type);
+    }
+    if (!ks.phenotype && !ks.circuit_type) {
+      phenotypeNames.add(OTHER_PHENOTYPE_LABEL);
     }
   });
 
@@ -231,7 +231,9 @@ export function calculateSecondaryConnections(
 
           knowledgeStatementIds.forEach((ksId) => {
             const phenotype =
-              knowledgeStatements[ksId].phenotype || OTHER_PHENOTYPE_LABEL;
+              knowledgeStatements[ksId].phenotype ||
+              knowledgeStatements[ksId].circuit_type ||
+              OTHER_PHENOTYPE_LABEL;
             const circuit_type = knowledgeStatements[ksId].circuit_type;
             if (!result[index][phenotype]) {
               result[index][phenotype] = { ksIds: [] };

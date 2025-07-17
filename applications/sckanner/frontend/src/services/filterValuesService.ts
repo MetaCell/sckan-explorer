@@ -74,7 +74,9 @@ const getAllNodes = (nodes: HierarchicalItem[]): BaseEntity[] => {
   };
 
   nodes.forEach(traverse);
-  return Array.from(nodeMap.values());
+  return Array.from(nodeMap.values()).sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
 };
 
 export const getUniqueOrigins = (
@@ -86,12 +88,11 @@ export const getUniqueOrigins = (
     origins = origins.concat(ks.origins);
   });
 
-  const sortedOrigins: AnatomicalEntity[] = sortEntities(origins);
   const uniqueYAxis = getAllNodes(filteredYAxis);
-
-  const combinedEntities = [...sortedOrigins, ...uniqueYAxis];
-
-  const result = getUniqueEntities(combinedEntities);
+  const combinedEntities = [...origins, ...uniqueYAxis];
+  const result = getUniqueEntities(combinedEntities).sort((a, b) =>
+    a.label.localeCompare(b.label),
+  );
 
   return result;
 };
@@ -135,10 +136,11 @@ export const getUniqueAllEntities = (
   }));
 
   allEntities = allEntities.concat(endOrganOptions);
-  const sortedEntities: AnatomicalEntity[] = sortEntities(allEntities);
   const uniqueYAxis = getAllNodes(filteredYAxis);
-  const combinedEntities = [...sortedEntities, ...uniqueYAxis];
-  return getUniqueEntities(combinedEntities);
+  const combinedEntities = [...allEntities, ...uniqueYAxis];
+  return getUniqueEntities(combinedEntities).sort((a, b) =>
+    a.label.localeCompare(b.label),
+  );
 };
 
 export const getUniqueSpecies = (
@@ -148,7 +150,9 @@ export const getUniqueSpecies = (
   Object.values(knowledgeStatements).forEach((ks) => {
     species = species.concat(ks.species);
   });
-  return getUniqueEntities(species);
+  return getUniqueEntities(species).sort((a, b) =>
+    a.label.localeCompare(b.label),
+  );
 };
 
 export const getUniqueOrgans = (filteredXOrgans: Organ[]): Option[] => {
@@ -178,7 +182,9 @@ export const getUniqueApinatomies = (
       apinatomies.add(ks.apinatomy);
     }
   });
-  return mapNameToOption(apinatomies);
+  return mapNameToOption(apinatomies).sort((a, b) =>
+    a.label.localeCompare(b.label),
+  );
 };
 
 export const getUniquePhenotypes = (
@@ -193,7 +199,9 @@ export const getUniquePhenotypes = (
       phenotypes.add(ks.circuit_type);
     }
   });
-  return mapNameToOption(phenotypes);
+  return mapNameToOption(phenotypes).sort((a, b) =>
+    a.label.localeCompare(b.label),
+  );
 };
 
 export const getUniqueMajorNerves = (jsonData: NerveResponse) => {
