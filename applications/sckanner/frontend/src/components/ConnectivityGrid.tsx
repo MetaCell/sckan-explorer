@@ -76,11 +76,58 @@ function ConnectivityGrid() {
     setXAxisOrgans(organList);
   }, [organs]);
 
+  // Helper function to apply expand/collapse state to fresh yAxis
+  const applyExpandedState = (
+    freshYAxis: HierarchicalItem[],
+    existingYAxis: HierarchicalItem[],
+  ): HierarchicalItem[] => {
+    const expandedStateMap = new Map<string, boolean>();
+    
+    const collectExpandedState = (items: HierarchicalItem[]) => {
+      items.forEach((item) => {
+        expandedStateMap.set(item.id, item.expanded);
+        if (item.children) {
+          collectExpandedState(item.children);
+        }
+      });
+    };
+    
+    const applyExpandedStateRecursive = (
+      items: HierarchicalItem[],
+    ): HierarchicalItem[] => {
+      return items.map((item) => ({
+        ...item,
+        expanded: expandedStateMap.has(item.id)
+          ? expandedStateMap.get(item.id)!
+          : item.expanded,
+        children: item.children
+          ? applyExpandedStateRecursive(item.children)
+          : item.children,
+      }));
+    };
+    
+    // Collect the expanded state from existing yAxis
+    collectExpandedState(existingYAxis);
+    
+    // Apply the expanded state to fresh yAxis
+    return applyExpandedStateRecursive(freshYAxis);
+  };
+
   useEffect(() => {
-    const yAxis = getYAxis(hierarchicalNodes);
-    setYAxis(yAxis);
-    setInitialYAxis(yAxis);
-  }, [hierarchicalNodes]);
+    const freshYAxis = getYAxis(hierarchicalNodes);
+    
+    // If yAxis already exists (meaning this is a filter change, not initial load)
+    // preserve the expand/collapse state
+    if (yAxis.length > 0) {
+      const yAxisWithPreservedState = applyExpandedState(freshYAxis, yAxis);
+      setYAxis(yAxisWithPreservedState);
+    } else {
+      // Initial load
+      setYAxis(freshYAxis);
+      setInitialYAxis(freshYAxis);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hierarchicalNodes, organizedFilters]); // Add organizedFilters as dependency
 
   useEffect(() => {
     if (connectionsMap.size > 0 && yAxis.length > 0) {
@@ -126,6 +173,14 @@ function ConnectivityGrid() {
         hierarchicalNode: hierarchicalNode,
       });
     }
+  };
+
+  // Custom handler for updating yAxis from the heatmap collapsible list
+  const handleYAxisUpdate = (updatedFilteredYAxis: HierarchicalItem[]) => {
+    // Apply the expand/collapse changes from the filtered yAxis back to the original yAxis
+    setYAxis((currentYAxis) =>
+      applyExpandedState(currentYAxis, updatedFilteredYAxis),
+    );
   };
 
   const handleReset = () => {
@@ -223,7 +278,7 @@ function ConnectivityGrid() {
 
       <HeatmapGrid
         yAxis={filteredYAxis}
-        setYAxis={setYAxis}
+        setYAxis={handleYAxisUpdate}
         heatmapData={heatmapData}
         xAxis={filteredXOrgans.map((organ) => organ.name)}
         xAxisLabel={'End organ'}
