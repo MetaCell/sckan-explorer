@@ -15,7 +15,7 @@ class ArgoWorkflowService:
         self.timestamp = timestamp
         self.version = version
 
-    def run_ingestion_workflow(self, source: DataSource):
+    def run_ingestion_workflow(self, source: DataSource, a_b_via_c_json_url: str):
         """
         Run the ingestion workflow for the given source.
         This method is called by the Argo workflow.
@@ -44,7 +44,10 @@ class ArgoWorkflowService:
                 str(source.id),
                 "--snapshot_id",
                 str(snapshot.id),
+                "--a_b_via_c_json_url",
+                a_b_via_c_json_url,
             ],
+            retry_limit=2,
             volume_mounts=[get_volume_directory(current_app)],
         )
 
