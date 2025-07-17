@@ -39,7 +39,7 @@ import {
   getOrgans,
 } from './services/hierarchyService.ts';
 import ReactGA from 'react-ga4';
-import { Datasnapshot } from './models/json.ts';
+import { Datasnapshot, OrderJson } from './models/json.ts';
 import { useDataContext } from './context/DataContext.ts';
 import LoadingOverlay from './components/common/LoadingOverlay.tsx';
 import ErrorModal from './components/common/ErrorModal.tsx';
@@ -98,7 +98,7 @@ const App = () => {
     details: '',
   });
   const previousDatasnaphshot = useRef<string>('');
-  const [orderData, setOrderData] = useState<any>(undefined);
+  const [orderData, setOrderData] = useState<OrderJson>({});
 
   useEffect(() => {
     if (LayoutComponent === undefined) {
@@ -114,13 +114,15 @@ const App = () => {
     dispatch(addWidget(connectionsWidget()));
   }, [LayoutComponent, dispatch]);
 
-
-  const fetchJSONAndSetHierarchicalNodes = (datasnapshot: Datasnapshot, orderData: OrderData) => {
+  const fetchJSONAndSetHierarchicalNodes = (
+    datasnapshot: Datasnapshot,
+    orderData: OrderJson,
+  ) => {
     fetchJSON(datasnapshot.a_b_via_c_json_file).then((jsonData) => {
       setHierarchicalNodes(getHierarchicalNodes(jsonData, orderData));
       setOrgans(getOrgans(jsonData));
     });
-  }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -175,7 +177,7 @@ const App = () => {
             });
           });
         }
-      })
+      });
 
       fetchKnowledgeStatements(selectedDatasnaphshot)
         .then((statements) => {
@@ -206,7 +208,9 @@ const App = () => {
   }, [hierarchicalNodes, selectedDatasnaphshot]);
 
   useEffect(() => {
-    const selectedSnapshotObj = datasnapshots.find((ds: Datasnapshot) => ds.id === parseInt(selectedDatasnaphshot));
+    const selectedSnapshotObj = datasnapshots.find(
+      (ds: Datasnapshot) => ds.id === parseInt(selectedDatasnaphshot),
+    );
     if (selectedSnapshotObj) {
       fetchJSONAndSetHierarchicalNodes(selectedSnapshotObj, orderData);
     }

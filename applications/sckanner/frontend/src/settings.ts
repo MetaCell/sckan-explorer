@@ -1,4 +1,3 @@
-
 export const SCKAN_ORDER_JSON_URL =
   'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/refs/heads/master/sckan-explorer/json/sckanner-data/order.json';
 export const SCKAN_MAJOR_NERVES_JSON_URL =
