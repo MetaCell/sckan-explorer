@@ -98,17 +98,10 @@ const SummaryDetails = ({
     {
       label: 'Phenotype',
       // in value array showing phenotype and circuit_type
-      value:
-        connectionDetails?.phenotype !== '' &&
-        connectionDetails?.circuit_type !== ''
-          ? [connectionDetails?.phenotype, connectionDetails?.circuit_type]
-          : connectionDetails?.phenotype === '' &&
-              connectionDetails?.circuit_type !== ''
-            ? [connectionDetails?.circuit_type]
-            : connectionDetails?.circuit_type === '' &&
-                connectionDetails?.phenotype !== ''
-              ? [connectionDetails?.phenotype]
-              : [],
+      value: [
+        connectionDetails?.phenotype,
+        connectionDetails?.circuit_type,
+      ].filter(Boolean),
       icon: undefined,
     },
     {
