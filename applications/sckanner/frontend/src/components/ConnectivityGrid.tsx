@@ -211,7 +211,6 @@ function ConnectivityGrid() {
           }}
           variant="contained"
           onClick={handleReset}
-          disabled={Object.values(filters).every((arr) => arr.length === 0)}
         >
           Reset All
         </Button>

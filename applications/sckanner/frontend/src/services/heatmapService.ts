@@ -261,7 +261,9 @@ export function filterKnowledgeStatements(
   return Object.entries(knowledgeStatements).reduce(
     (filtered, [id, ks]) => {
       const phenotypeMatch =
-        !phenotypeIds.length || phenotypeIds.includes(ks.phenotype);
+        !phenotypeIds.length ||
+        phenotypeIds.includes(ks.phenotype) ||
+        phenotypeIds.includes(ks.circuit_type);
       const apiNATOMYMatch =
         !apiNATOMYIds.length || apiNATOMYIds.includes(ks.apinatomy);
       const speciesMatch =
