@@ -72,6 +72,48 @@ button:focus-visible {
   }
 }
 
+/* Custom scrollbar styling for better visibility */
+.graphContainer::-webkit-scrollbar,
+.flexlayout__tab::-webkit-scrollbar,
+.flexlayout__tabset_content::-webkit-scrollbar,
+.flexlayout__border::-webkit-scrollbar {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.graphContainer::-webkit-scrollbar-track,
+.flexlayout__tab::-webkit-scrollbar-track,
+.flexlayout__tabset_content::-webkit-scrollbar-track,
+.flexlayout__border::-webkit-scrollbar-track {
+  background: #f1f1f1 !important;
+  border-radius: 8px !important;
+}
+
+.graphContainer::-webkit-scrollbar-thumb,
+.flexlayout__tab::-webkit-scrollbar-thumb,
+.flexlayout__tabset_content::-webkit-scrollbar-thumb,
+.flexlayout__border::-webkit-scrollbar-thumb {
+  background: #888 !important;
+  border-radius: 8px !important;
+}
+
+.graphContainer::-webkit-scrollbar-thumb:hover,
+.flexlayout__tab::-webkit-scrollbar-thumb:hover,
+.flexlayout__tabset_content::-webkit-scrollbar-thumb:hover,
+.flexlayout__border::-webkit-scrollbar-thumb:hover {
+  background: #555 !important;
+}
+
+/* Force scrollbars to always be visible */
+.graphContainer,
+.flexlayout__tab,
+.flexlayout__tabset_content,
+.flexlayout__border {
+  overflow: auto !important;
+  scrollbar-width: thick !important;
+  scrollbar-color: #888 #f1f1f1 !important;
+}
+
 .graphContainer {
   height: 100%;
   width: 100%;
