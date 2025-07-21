@@ -10,6 +10,7 @@ THIS FILE IS A REPLICA OF THE NEURONDM INGESTION FROM - COMPOSER PROJECT.
 
 # ------------ imports ------------
 import os
+import time
 import requests
 
 from typing import Optional, Tuple, List, Set, Dict
@@ -237,7 +238,6 @@ def batch_request_predicate_mapping(predicate: str, uris: List[str], batch_size:
         uris: List of URIs to map
         batch_size: Number of URIs per batch request
     """
-    import time
     
     # Filter out URIs that are already cached
     uncached_uris = [uri for uri in uris if uri not in _predicate_mapping_cache]
@@ -495,7 +495,7 @@ def get_anatomical_phenotype(phenotype: list) -> Optional[dict]:
     # If no mapping found, return the first phenotype
     if phenotype:
         return {
-            'id': phenotype[0],
+            'id': string_to_int_hash(phenotype[0]),
             'name': phenotype[0],
         }
     
@@ -1006,7 +1006,7 @@ def gen_composer_entity(entity: str | dict) -> Dict:
         region_uri = entity.get('region', '')
         layer_label = get_cached_predicate_mapping("hasSomaLocatedIn", layer_uri) if layer_uri else ''
         region_label = get_cached_predicate_mapping("hasSomaLocatedIn", region_uri) if region_uri else ''
-        
+
         return {
                 'id': string_to_int_hash(layer_uri + region_uri),
                 'synonyms': '',
@@ -1014,8 +1014,8 @@ def gen_composer_entity(entity: str | dict) -> Dict:
                     'id': string_to_int_hash(layer_uri + region_uri),
                     'layer': {
                         "id": string_to_int_hash(layer_uri),
-	        			"name": layer_label,
-	        			"ontology_uri": layer_uri
+                        "name": layer_label,
+                        "ontology_uri": layer_uri
                     },
                     'region': {
                         "id": string_to_int_hash(region_uri),
