@@ -488,7 +488,7 @@ def get_anatomical_phenotype(phenotype: list) -> Optional[dict]:
         label = get_cached_predicate_mapping("hasAnatomicalSystemPhenotype", pheno)
         if label != pheno:  # Found a mapping
             return {
-                'id': pheno,
+                'id': string_to_int_hash(pheno),
                 'name': label,
             }
     
