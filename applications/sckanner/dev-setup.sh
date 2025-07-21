@@ -48,3 +48,7 @@ pip install -e "$CH_DIRECTORY/infrastructure/common-images/cloudharness-django/l
 
 pip install -r "$CURRENT_DIRECTORY/backend/requirements.txt" || install_error "$APP_NAME dependencies"
 pip install -e "$CURRENT_DIRECTORY/backend" || install_error "$APP_NAME"
+
+
+# run the `bash install.sh` to install the dependencies for the sckanner application
+bash "$CH_DIRECTORY/install.sh"

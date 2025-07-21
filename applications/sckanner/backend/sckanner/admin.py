@@ -62,6 +62,7 @@ class DataSnapshotCreateForm(forms.Form):
         help_text=_("Leave blank to use the current time."),
     )
     version = forms.CharField(label=_("Version"), required=True)
+    a_b_via_c_json_url = forms.URLField(label=_('A-B-via-C JSON URL'), required=True, help_text=_('URL to the connection pathways JSON.'))
 
     def clean(self):
         cleaned_data = super().clean()
@@ -73,7 +74,7 @@ class DataSnapshotCreateForm(forms.Form):
 
 
 class DataSnapshotAdmin(admin.ModelAdmin):
-    list_display = ("id", "source", "version", "timestamp", "status")
+    list_display = ("id", "source", "version", "timestamp", "status", "a_b_via_c_json_file")
     ordering = ("-timestamp",)
     exclude = ("status",)
 
@@ -86,8 +87,9 @@ class DataSnapshotAdmin(admin.ModelAdmin):
                 source = form.cleaned_data["source"]
                 timestamp = form.cleaned_data["timestamp"] or datetime.datetime.now()
                 version = form.cleaned_data["version"]
+                a_b_via_c_json_url = form.cleaned_data.get("a_b_via_c_json_url")
                 service = ArgoWorkflowService(timestamp=str(timestamp), version=version)
-                service.run_ingestion_workflow(source)
+                service.run_ingestion_workflow(source, a_b_via_c_json_url)
                 self.message_user(
                     request, _("Snapshot ingestion started."), messages.SUCCESS
                 )

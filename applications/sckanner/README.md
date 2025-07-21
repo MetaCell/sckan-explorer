@@ -1,6 +1,7 @@
 # Sckanner
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Dependencies](#dependencies)
 - [Install Cloud-Harness](#install-cloud-harness)
@@ -21,10 +22,10 @@ Django-Ninja/React-based web application.
 This application is designed to be deployed inside a Cloud-Harness Kubernetes environment.
 It can also be run locally for development and testing purposes.
 
-
 ## Dependencies
 
 You must have the following dependencies installed:
+
 - python 3.12.9
 - docker (minikube)
 - kubectl
@@ -40,6 +41,7 @@ cd cloud-harness
 
 Create a new virtual environment and install the dependencies - you can use - pyenv, conda, virtualenv, etc.
 With Conda:
+
 ```
 conda create -n sckanner python=3.12.9
 conda activate sckanner
@@ -52,40 +54,51 @@ bash dev-setup.sh
 ```
 
 Inside the `sckanner/backend` directory run the following command:
+
 ```
 pip install -r requirements.txt
 ```
 
-
 ## Development
 
-Backend code is inside the *backend* directory.
+Backend code is inside the _backend_ directory.
 See [backend/README.md#Develop]
 
-Frontend code is inside the *frontend* directory.
+## Ingestion
 
+Ingestion uses Argo Workflows to run the ingestion scripts. The flow goes like this:
+
+```
+Django Admin (Create Snapshot) -> Argo Workflow (Trigger) -> Django Command (Ingestion) -> Connectivity Statement Service -> Connectivity Statement Adapter -> DB.
+```
+
+### Frontend
+
+Frontend code is inside the _frontend_ directory.
 
 ## Run the Application Deployment Locally
 
 Run the harness deployment command:
+
 ```
 harness-deployment cloud-harness . -i sckanner -d sckanner.local -n sckanner -u -dtls --no-cd -l -e local
 ```
+
 For detailed and other options for `harness-deployment` and k8 namespace settings check - [`k8-script.sh`](../../k8-script.sh)
 
-
-
 Make sure to add the following to the host file of your machine:
+
 ```
 ############ ESCKAN - PROJECT HOST ###########
 127.0.0.1       sckanner.local workflows.sckanner.local argo.sckanner.local accounts.sckanner.local www.sckanner.local
-127.0.0.1       sckanner-db 
+127.0.0.1       sckanner-db
 127.0.0.1       workflows.sckanner argo-server.sckanner sckanner.sckanner accounts.sckanner
 ```
 
-Please verify the above entries with the logs after running the harness-deployment command. 
+Please verify the above entries with the logs after running the harness-deployment command.
 
 Now run the skaffold dev command:
+
 ```
 skaffold dev --cleanup=false
 ```
@@ -96,21 +109,19 @@ To access the django admin interface (to run the ingestion) - you need to create
 The argo workflow is running on `https://argo.sckanner.local` (to be able to see the argo UI - one must be an admin - and hence if you use your credentials - make sure you are an admin - ask the admin to add you as an admin)
 The keycloak is running on `https://accounts.sckanner.local`
 
-
-
 ## Run the Frontend
-To run the application locally, 
+
+To run the application locally,
 Frontend with remote backend (sckanner.dev.metacell.us)
 use yarn dev - and Add `VITE_API_URL=https://sckanner.dev.metacell.us` to the .env file.
 
 To run the application with local backend (localhost:8000 or http://sckanner.local)
 use yarn dev - and Add `VITE_API_URL=http://localhost:8000` or `VITE_API_URL=http://sckanner.local` to the .env file.
 
-
-
 ## Prepare Backend
 
 Create a Django local superuser account, this you only need to do on initial setup.
+
 ```bash
 cd backend
 python3 manage.py migrate # to sync the database with the Django models
@@ -124,21 +135,20 @@ ln -s ../../../frontend/dist dist
 ## Build Frontend
 
 Compile the frontend
+
 ```bash
 cd frontend
 yarn install
 yarn build
 ```
 
-
 ## Ingestion
 
 Ingestion uses Argo Workflows to run the ingestion scripts. The flow goes like this:
-```
-Django Admin (Create Snapshot) -> Argo Workflow (Trigger) -> Django Command (Ingestion) -> Connectivity Statement Service -> Connectivity Statement Adapter -> DB. 
-```
 
-
+```
+Django Admin (Create Snapshot) -> Argo Workflow (Trigger) -> Django Command (Ingestion) -> Connectivity Statement Service -> Connectivity Statement Adapter -> DB.
+```
 
 ## VS Code Configuration to Run the Application
 
@@ -241,26 +251,20 @@ Django Admin (Create Snapshot) -> Argo Workflow (Trigger) -> Django Command (Ing
 }
 ```
 
-
------
-
+---
 
 ## More Information About the Application
 
 We are using keycloak - for authenticating the argo - so if you go to `argo.sckanner.dev.metacell.us` - then you will be redirected to the keycloak login page.
 For accessing django admin - we are using django's authentication system. (Not connected to keycloak)
 
-
-
 ## Running Local with Port Forwardings to a Kubernetes Cluster
+
 When you create port forwards to microservices in your k8s cluster you want to force your local backend server to initialize
 the AuthService and EventService services.
 This can be done by setting the `KUBERNETES_SERVICE_HOST` environment variable to a dummy or correct k8s service host.
 The `KUBERNETES_SERVICE_HOST` switch will activate the creation of the keycloak client and client roles of this microservice.
 
-
-
 ## Run Cloudharness Deployment for Sckanner Locally
+
 Depends on: CloudHarness CLI, Skaffold, Docker, kubectl. To run the deployment locally, follow the wsl-dev.sh script (It shows an example of how to run the deployment for the local environment in Windows WSL, however - it is same for mac and linux - check the kubectl commands for respective OS).
-
-
