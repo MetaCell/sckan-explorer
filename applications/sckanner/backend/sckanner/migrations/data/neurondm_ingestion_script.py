@@ -10,6 +10,8 @@ THIS FILE IS A REPLICA OF THE NEURONDM INGESTION FROM - COMPOSER PROJECT.
 
 # ------------ imports ------------
 import os
+import requests
+
 from typing import Optional, Tuple, List, Set, Dict
 
 import rdflib
@@ -69,9 +71,6 @@ class NeuronDMDestination:
         self.anatomical_entities = anatomical_entities
         self.from_entities = from_entities
         self.type = type
-
-
-
 
 
 class ValidationErrors:
@@ -218,6 +217,68 @@ def makelpesrdf():
     return lpes, lrdf, collect
 
 
+# Cache for predicate mapping results
+_predicate_mapping_cache = {}
+
+
+def get_predicate_mapping(predicate: str, uris: List[str]) -> Optional[dict]:
+    """
+    Generic function to fetch predicate mapping from composer API with caching.
+    
+    Args:
+        predicate: The predicate name (e.g., "hasInstanceInTaxon")
+        uris: List of URIs to map for this predicate
+    
+    Returns:
+        The API response as a dictionary, or None if the request fails
+    """
+    # Create cache key from predicate and sorted URIs for consistency
+    cache_key = f"{predicate}:{':'.join(sorted(uris))}"
+    
+    # Check if we already have this result cached
+    if cache_key in _predicate_mapping_cache:
+        print(f"Using cached result for predicate '{predicate}' with URIs: {uris}")
+        return _predicate_mapping_cache[cache_key]
+    
+    try:
+        # Make POST request to composer API for predicate mapping
+        url = "https://composer.scicrunch.io/api/composer/predicate-mapping/"
+        payload = {predicate: uris}
+        
+        headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        print(f"Making POST request to: {url}")
+        print(f"Payload: {payload}")
+        
+        response = requests.post(url, json=payload, headers=headers, allow_redirects=False)
+        
+        # Debug the response
+        print(f"Response status: {response.status_code}")
+        if response.status_code >= 400:
+            print(f"Response headers: {dict(response.headers)}")
+            print(f"Response text: {response.text}")
+        
+        response.raise_for_status()
+        
+        # Store the API response
+        api_results = response.json()
+        
+        # Cache the result
+        _predicate_mapping_cache[cache_key] = api_results
+        print(f"Cached result for predicate '{predicate}' with URIs: {uris}")
+        
+        return api_results
+        
+    except requests.exceptions.RequestException as e:
+        # Log the error and cache None to avoid repeated failed requests
+        log_error(f"Failed to fetch predicate mapping for predicate '{predicate}' with URIs {uris}: {e}")
+        _predicate_mapping_cache[cache_key] = None
+        return None
+
+
 def get_populationset_from_neurondm(id_: str, owl_class: str) -> dict:
     """
     NOTE: keep the order of re.search calls as is, to address the case for
@@ -245,22 +306,61 @@ def get_sex(sex: str) -> Optional[dict]:
     """
     Generate the correct dictionary for the sex property.
     """
+    if not sex:
+        return None
+
+    api_results = get_predicate_mapping("hasBiologicalSex", [sex])
+    label = api_results["hasBiologicalSex"][sex][0] if api_results and "hasBiologicalSex" in api_results and len(api_results["hasBiologicalSex"][sex]) > 0 else sex
+
     return {
         'id': string_to_int_hash(sex),
-        'name': sex,
+        'name': label,
         'ontology_uri': sex
     } if sex else None
+
 
 
 def get_species(species: str) -> Optional[dict]:
     """
     Generate the correct dictionary for the species property.
     """
-    return {
+    if not species:
+        return None
+    
+    # Use the generic predicate mapping function
+    api_results = get_predicate_mapping("hasInstanceInTaxon", [species])
+    label = api_results["hasInstanceInTaxon"][species][0] if api_results and "hasInstanceInTaxon" in api_results and len(api_results["hasInstanceInTaxon"][species]) > 0 else species
+    # Return the original format but include the API results if available
+    result = {
         'id': string_to_int_hash(species),
-        'name': species,
+        'name': label,
         'ontology_uri': species
-    } if species else None
+    }
+
+    return result
+
+
+def get_anatomical_phenotype(phenotype: list) -> Optional[dict]:
+    """
+    Generate the correct dictionary for the anatomical phenotype.
+    """
+    if not phenotype:
+        return None
+
+    result = None
+
+    api_results = get_predicate_mapping("hasAnatomicalSystemPhenotype", phenotype)
+    for pheno in phenotype:
+        if api_results and "hasAnatomicalSystemPhenotype" in api_results and len(api_results["hasAnatomicalSystemPhenotype"][phenotype[0]]) > 0:
+            result = {
+                'id': pheno,
+                'name': api_results["hasAnatomicalSystemPhenotype"][pheno][0] if api_results and "hasAnatomicalSystemPhenotype" in api_results else pheno,
+            }
+            break
+
+    # Return the original format but include the API results if available
+
+    return result
 
 
 def overwrite_ref_fw_connection(fc: Dict, ref: str):
@@ -320,10 +420,7 @@ def for_composer(n, ind: Optional[int] = None):
         sex=get_sex(lpes(n, ilxtr.hasBiologicalSex)[0]) if len(lpes(n, ilxtr.hasBiologicalSex)) > 0 else None,
         circuit_type=lpes(n, ilxtr.hasCircuitRolePhenotype)[0] if lpes(n, ilxtr.hasCircuitRolePhenotype) else None,
         circuit_role=lpes(n, ilxtr.hasFunctionalCircuitRolePhenotype),
-        phenotype={
-            'id': string_to_int_hash(lpes(n, ilxtr.hasAnatomicalSystemPhenotype)[0]) if lpes(n, ilxtr.hasAnatomicalSystemPhenotype) else 0,
-            'name': lpes(n, ilxtr.hasAnatomicalSystemPhenotype)[0] if lpes(n, ilxtr.hasAnatomicalSystemPhenotype) else '',
-        },
+        phenotype=get_anatomical_phenotype(lpes(n, ilxtr.hasAnatomicalSystemPhenotype)),
         # classification_phenotype=lpes(n, ilxtr.hasClassificationPhenotype),
         other_phenotypes=(lpes(n, ilxtr.hasPhenotype)
                           + lpes(n, ilxtr.hasMolecularPhenotype)
@@ -728,17 +825,19 @@ def gen_composer_entity(entity: str | dict) -> Dict:
     Generate a simple entity or a region-layer pair representation for the given entity.
     """
     if isinstance(entity, str):
+        results = get_predicate_mapping("hasSomaLocatedIn", [entity])
         return {
                 'id': string_to_int_hash(entity),
                 'synonyms': '',
                 'region_layer': None,
                 'simple_entity': {
                     'id': string_to_int_hash(entity),
-                    'name': entity,
+                    'name': results["hasSomaLocatedIn"][entity][0] if results and "hasSomaLocatedIn" in results and len(results["hasSomaLocatedIn"][entity]) > 0 else entity,
                     'ontology_uri': entity
                 }
             }
     elif isinstance(entity, dict):
+        results = get_predicate_mapping("hasSomaLocatedIn", [entity.get('layer', ''), entity.get('region', '')])
         return {
                 'id': string_to_int_hash(entity.get('layer', '') + entity.get('region', '')),
                 'synonyms': '',
@@ -746,12 +845,12 @@ def gen_composer_entity(entity: str | dict) -> Dict:
                     'id': string_to_int_hash(entity.get('layer', '') + entity.get('region', '')),
                     'layer': {
                         "id": string_to_int_hash(entity.get('layer', '')),
-	        			"name": entity.get('layer', ''),
+	        			"name": results["hasSomaLocatedIn"][entity.get('layer', '')][0] if results and "hasSomaLocatedIn" in results and len(results["hasSomaLocatedIn"][entity.get('layer', '')]) > 0 else entity.get('layer', ''),
 	        			"ontology_uri": entity.get('layer', '')
                     },
                     'region': {
                         "id": string_to_int_hash(entity.get('region', '')),
-                        'name': entity.get('region', ''),
+                        'name': results["hasSomaLocatedIn"][entity.get('region', '')][0] if results and "hasSomaLocatedIn" in results and len(results["hasSomaLocatedIn"][entity.get('region', '')]) > 0 else entity.get('region', ''),
                         'ontology_uri': entity.get('region', '')
                     }
                 },

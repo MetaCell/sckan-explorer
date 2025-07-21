@@ -16,6 +16,26 @@ export default defineConfig(({ mode }) => {
             target: API_URL,
             changeOrigin: true,
             secure: false,
+            rewrite: (path) => path,
+            configure: (proxy) => {
+              proxy.on('error', (err) => {
+                console.log('proxy error', err);
+              });
+              proxy.on('proxyReq', (proxyReq, req) => {
+                console.log(
+                  'Sending Request to the Target:',
+                  req.method,
+                  req.url,
+                );
+              });
+              proxy.on('proxyRes', (proxyRes, req) => {
+                console.log(
+                  'Received Response from the Target:',
+                  proxyRes.statusCode,
+                  req.url,
+                );
+              });
+            },
           },
           '/media': {
             target: API_URL,
@@ -24,6 +44,7 @@ export default defineConfig(({ mode }) => {
           },
         },
       }),
+      cors: false,
     },
   };
 });

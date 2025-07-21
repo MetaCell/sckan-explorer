@@ -58,7 +58,7 @@ export const DataContextProvider = ({
 
   const phenotypes = useMemo(() => {
     const allPhenotypes = Object.values(knowledgeStatements).map(
-      (ks) => ks.phenotype || OTHER_PHENOTYPE_LABEL,
+      (ks) => ks.phenotype || ks.circuit_type || OTHER_PHENOTYPE_LABEL,
     );
     return Array.from(new Set(allPhenotypes)); // Get unique phenotypes
   }, [knowledgeStatements]);

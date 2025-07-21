@@ -7,7 +7,6 @@ import {
   getUniqueApinatomies,
   getUniqueOrgans,
   getUniqueOrigins,
-  getUniquePhenotypes,
   getUniqueSpecies,
   getUniqueVias,
   getUniqueAllEntities,
@@ -121,11 +120,8 @@ const FiltersDropdowns: React.FC<{
     [isReset, initialFilterOptions.Species, filteredKnowledgeStatements],
   );
   const phenotypesOptions = useMemo(
-    () =>
-      isReset
-        ? initialFilterOptions.Phenotype
-        : getUniquePhenotypes(filteredKnowledgeStatements),
-    [isReset, initialFilterOptions.Phenotype, filteredKnowledgeStatements],
+    () => initialFilterOptions.Phenotype,
+    [initialFilterOptions.Phenotype],
   );
   const apinatomiesOptions = useMemo(
     () =>
