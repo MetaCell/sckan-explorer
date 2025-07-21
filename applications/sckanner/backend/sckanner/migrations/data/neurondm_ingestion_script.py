@@ -189,7 +189,7 @@ class LoggerService(metaclass=SingletonMeta):
 
 
 logger_service: Optional[LoggerService] = None
-logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 RED_COLOR = "\033[91m"
 RESET_COLOR = "\033[0m"
@@ -217,66 +217,194 @@ def makelpesrdf():
     return lpes, lrdf, collect
 
 
-# Cache for predicate mapping results
+# Cache for predicate mapping results: URI -> label mapping
 _predicate_mapping_cache = {}
 
+# Constants for batch processing
+BATCH_SIZE = 50
+MAX_RETRIES = 5
+RETRY_DELAY = 30  # seconds
 
-def get_predicate_mapping(predicate: str, uris: List[str]) -> Optional[dict]:
+
+
+def batch_request_predicate_mapping(predicate: str, uris: List[str], batch_size: int = BATCH_SIZE) -> None:
     """
-    Generic function to fetch predicate mapping from composer API with caching.
+    Send predicate mapping requests in batches with retry logic.
+    Results are stored with each URI as a cache key mapping to its label.
     
     Args:
-        predicate: The predicate name (e.g., "hasInstanceInTaxon")
-        uris: List of URIs to map for this predicate
-    
-    Returns:
-        The API response as a dictionary, or None if the request fails
+        predicate: The predicate name
+        uris: List of URIs to map
+        batch_size: Number of URIs per batch request
     """
-    # Create cache key from predicate and sorted URIs for consistency
-    cache_key = f"{predicate}:{':'.join(sorted(uris))}"
+    import time
     
-    # Check if we already have this result cached
-    if cache_key in _predicate_mapping_cache:
-        print(f"Using cached result for predicate '{predicate}' with URIs: {uris}")
-        return _predicate_mapping_cache[cache_key]
+    # Filter out URIs that are already cached
+    uncached_uris = [uri for uri in uris if uri not in _predicate_mapping_cache]
     
-    try:
-        # Make POST request to composer API for predicate mapping
-        url = "https://composer.scicrunch.io/api/composer/predicate-mapping/"
-        payload = {predicate: uris}
+    if not uncached_uris:
+        logger.info(f"All {len(uris)} URIs for predicate '{predicate}' are already cached")
+        return
+    
+    logger.info(f"Need to fetch {len(uncached_uris)} uncached URIs out of {len(uris)} total for predicate '{predicate}'")
+    
+    # Split uncached URIs into batches
+    for i in range(0, len(uncached_uris), batch_size):
+        batch_uris = uncached_uris[i:i + batch_size]
         
-        headers = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
+        logger.info(f"Batch {i//batch_size + 1}: Processing {len(batch_uris)} URIs for predicate '{predicate}'")
         
-        print(f"Making POST request to: {url}")
-        print(f"Payload: {payload}")
+        # Retry logic
+        for attempt in range(MAX_RETRIES):
+            try:
+                url = "https://composer.scicrunch.io/api/composer/predicate-mapping/"
+                payload = {predicate: batch_uris}
+                
+                headers = {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+                
+                logger.debug(f"  Attempt {attempt + 1}: Making POST request")
+                response = requests.post(url, json=payload, headers=headers, 
+                                       allow_redirects=False, timeout=60)
+                
+                response.raise_for_status()
+                api_results = response.json()
+                
+                # Store each URI-label mapping individually in the cache
+                if predicate in api_results:
+                    for uri, labels in api_results[predicate].items():
+                        if labels and len(labels) > 0:
+                            # Store the first label for each URI
+                            _predicate_mapping_cache[uri] = labels[0]
+                            logger.debug(f"  Cached: {uri} -> {labels[0]}")
+                        else:
+                            # Store the original URI if no label found
+                            _predicate_mapping_cache[uri] = uri
+                            logger.debug(f"  Cached (no label): {uri} -> {uri}")
+                
+                logger.info(f"  Attempt {attempt + 1}: Success! Cached {len(batch_uris)} URI-label mappings")
+                break
+                
+            except (requests.exceptions.RequestException, requests.exceptions.Timeout) as e:
+                logger.warning(f"  Attempt {attempt + 1}: Failed - {e}")
+                
+                if attempt < MAX_RETRIES - 1:
+                    logger.info(f"  Waiting {RETRY_DELAY} seconds before retry...")
+                    time.sleep(RETRY_DELAY)
+                else:
+                    # Cache original URIs for failed batch to avoid repeated requests
+                    for uri in batch_uris:
+                        _predicate_mapping_cache[uri] = uri
+                    log_error(f"Failed to fetch predicate mapping for predicate '{predicate}' after {MAX_RETRIES} attempts. Batch URIs: {batch_uris}")
+
+
+def collect_all_uris_from_neurons(neurons: List) -> Dict[str, Set[str]]:
+    """
+    Collect all URIs that need predicate mapping from all neurons.
+    
+    Args:
+        neurons: List of neuron objects
         
-        response = requests.post(url, json=payload, headers=headers, allow_redirects=False)
+    Returns:
+        Dictionary mapping predicate names to sets of URIs
+    """
+    predicate_uris = {
+        "hasBiologicalSex": set(),
+        "hasInstanceInTaxon": set(),
+        "hasAnatomicalSystemPhenotype": set(),
+        "hasSomaLocatedIn": set()
+    }
+    
+    logger.info(f"Collecting URIs from {len(neurons)} neurons...")
+    
+    for ind, n in enumerate(neurons):
+        logger.debug(f"Processing neuron {ind + 1}/{len(neurons)}")
         
-        # Debug the response
-        print(f"Response status: {response.status_code}")
-        if response.status_code >= 400:
-            print(f"Response headers: {dict(response.headers)}")
-            print(f"Response text: {response.text}")
-        
-        response.raise_for_status()
-        
-        # Store the API response
-        api_results = response.json()
-        
-        # Cache the result
-        _predicate_mapping_cache[cache_key] = api_results
-        print(f"Cached result for predicate '{predicate}' with URIs: {uris}")
-        
-        return api_results
-        
-    except requests.exceptions.RequestException as e:
-        # Log the error and cache None to avoid repeated failed requests
-        log_error(f"Failed to fetch predicate mapping for predicate '{predicate}' with URIs {uris}: {e}")
-        _predicate_mapping_cache[cache_key] = None
-        return None
+        try:
+            lpes, lrdf, collect = makelpesrdf()
+            
+            # Collect biological sex URIs
+            sex_uris = lpes(n, ilxtr.hasBiologicalSex)
+            if sex_uris:
+                predicate_uris["hasBiologicalSex"].update(sex_uris)
+            
+            # Collect species URIs
+            species_uris = lpes(n, ilxtr.hasInstanceInTaxon)
+            predicate_uris["hasInstanceInTaxon"].update(species_uris)
+            
+            # Collect anatomical phenotype URIs
+            phenotype_uris = lpes(n, ilxtr.hasAnatomicalSystemPhenotype)
+            predicate_uris["hasAnatomicalSystemPhenotype"].update(phenotype_uris)
+            
+            # Collect anatomical entity URIs from connections
+            try:
+                origins, vias, destinations, validation_errors = get_connections(n, lambda predicate: lpes(n, predicate))
+                
+                # Collect URIs from origins
+                if hasattr(origins, 'anatomical_entities'):
+                    for entity in origins.anatomical_entities:
+                        if hasattr(entity, 'region') and hasattr(entity, 'layer'):
+                            predicate_uris["hasSomaLocatedIn"].add(str(entity.region))
+                            predicate_uris["hasSomaLocatedIn"].add(str(entity.layer))
+                        else:
+                            predicate_uris["hasSomaLocatedIn"].add(str(entity))
+                
+                # Collect URIs from vias
+                for via in vias:
+                    if hasattr(via, 'anatomical_entities'):
+                        for entity in via.anatomical_entities:
+                            if hasattr(entity, 'region') and hasattr(entity, 'layer'):
+                                predicate_uris["hasSomaLocatedIn"].add(str(entity.region))
+                                predicate_uris["hasSomaLocatedIn"].add(str(entity.layer))
+                            else:
+                                predicate_uris["hasSomaLocatedIn"].add(str(entity))
+                
+                # Collect URIs from destinations
+                for destination in destinations:
+                    if hasattr(destination, 'anatomical_entities'):
+                        for entity in destination.anatomical_entities:
+                            if hasattr(entity, 'region') and hasattr(entity, 'layer'):
+                                predicate_uris["hasSomaLocatedIn"].add(str(entity.region))
+                                predicate_uris["hasSomaLocatedIn"].add(str(entity.layer))
+                            else:
+                                predicate_uris["hasSomaLocatedIn"].add(str(entity))
+                                
+            except NeuronDMInconsistency:
+                # Skip neurons with inconsistencies during URI collection
+                continue
+                
+        except Exception as e:
+            logger.error(f"Error processing neuron {ind}: {e}")
+            continue
+    
+    # Convert sets to lists and filter out empty strings
+    result = {}
+    for predicate, uri_set in predicate_uris.items():
+        filtered_uris = [uri for uri in uri_set if uri and uri.strip()]
+        if filtered_uris:
+            result[predicate] = filtered_uris
+            logger.info(f"Collected {len(filtered_uris)} unique URIs for predicate '{predicate}'")
+    
+    return result
+
+
+def prefetch_all_predicate_mappings(predicate_uris: Dict[str, List[str]]) -> None:
+    """
+    Prefetch all predicate mappings in batches.
+    
+    Args:
+        predicate_uris: Dictionary mapping predicate names to lists of URIs
+    """
+    logger.info("Starting batch prefetch of predicate mappings...")
+    
+    for predicate, uris in predicate_uris.items():
+        if uris:
+            logger.info(f"Processing predicate '{predicate}' with {len(uris)} URIs...")
+            batch_request_predicate_mapping(predicate, uris)
+    
+    logger.info("Completed batch prefetch of predicate mappings!")
 
 
 def get_populationset_from_neurondm(id_: str, owl_class: str) -> dict:
@@ -302,6 +430,20 @@ def get_populationset_from_neurondm(id_: str, owl_class: str) -> dict:
     raise ValueError(f"Unable to extract population set from statement ID: {id_}")
 
 
+def get_cached_predicate_mapping(predicate: str, uri: str) -> str:
+    """
+    Get a single URI mapping from cache.
+    
+    Args:
+        predicate: The predicate name (not used in cache lookup, but kept for backwards compatibility)
+        uri: The URI to look up
+        
+    Returns:
+        The label for the URI, or the original URI if not found in cache
+    """
+    return _predicate_mapping_cache.get(uri, uri)
+
+
 def get_sex(sex: str) -> Optional[dict]:
     """
     Generate the correct dictionary for the sex property.
@@ -309,15 +451,13 @@ def get_sex(sex: str) -> Optional[dict]:
     if not sex:
         return None
 
-    api_results = get_predicate_mapping("hasBiologicalSex", [sex])
-    label = api_results["hasBiologicalSex"][sex][0] if api_results and "hasBiologicalSex" in api_results and len(api_results["hasBiologicalSex"][sex]) > 0 else sex
+    label = get_cached_predicate_mapping("hasBiologicalSex", sex)
 
     return {
         'id': string_to_int_hash(sex),
         'name': label,
         'ontology_uri': sex
-    } if sex else None
-
+    }
 
 
 def get_species(species: str) -> Optional[dict]:
@@ -327,17 +467,13 @@ def get_species(species: str) -> Optional[dict]:
     if not species:
         return None
     
-    # Use the generic predicate mapping function
-    api_results = get_predicate_mapping("hasInstanceInTaxon", [species])
-    label = api_results["hasInstanceInTaxon"][species][0] if api_results and "hasInstanceInTaxon" in api_results and len(api_results["hasInstanceInTaxon"][species]) > 0 else species
-    # Return the original format but include the API results if available
-    result = {
+    label = get_cached_predicate_mapping("hasInstanceInTaxon", species)
+    
+    return {
         'id': string_to_int_hash(species),
         'name': label,
         'ontology_uri': species
     }
-
-    return result
 
 
 def get_anatomical_phenotype(phenotype: list) -> Optional[dict]:
@@ -347,20 +483,23 @@ def get_anatomical_phenotype(phenotype: list) -> Optional[dict]:
     if not phenotype:
         return None
 
-    result = None
-
-    api_results = get_predicate_mapping("hasAnatomicalSystemPhenotype", phenotype)
+    # Get the first phenotype with a mapping
     for pheno in phenotype:
-        if api_results and "hasAnatomicalSystemPhenotype" in api_results and len(api_results["hasAnatomicalSystemPhenotype"][phenotype[0]]) > 0:
-            result = {
+        label = get_cached_predicate_mapping("hasAnatomicalSystemPhenotype", pheno)
+        if label != pheno:  # Found a mapping
+            return {
                 'id': pheno,
-                'name': api_results["hasAnatomicalSystemPhenotype"][pheno][0] if api_results and "hasAnatomicalSystemPhenotype" in api_results else pheno,
+                'name': label,
             }
-            break
-
-    # Return the original format but include the API results if available
-
-    return result
+    
+    # If no mapping found, return the first phenotype
+    if phenotype:
+        return {
+            'id': phenotype[0],
+            'name': phenotype[0],
+        }
+    
+    return None
 
 
 def overwrite_ref_fw_connection(fc: Dict, ref: str):
@@ -825,33 +964,37 @@ def gen_composer_entity(entity: str | dict) -> Dict:
     Generate a simple entity or a region-layer pair representation for the given entity.
     """
     if isinstance(entity, str):
-        results = get_predicate_mapping("hasSomaLocatedIn", [entity])
+        label = get_cached_predicate_mapping("hasSomaLocatedIn", entity)
         return {
                 'id': string_to_int_hash(entity),
                 'synonyms': '',
                 'region_layer': None,
                 'simple_entity': {
                     'id': string_to_int_hash(entity),
-                    'name': results["hasSomaLocatedIn"][entity][0] if results and "hasSomaLocatedIn" in results and len(results["hasSomaLocatedIn"][entity]) > 0 else entity,
+                    'name': label,
                     'ontology_uri': entity
                 }
             }
     elif isinstance(entity, dict):
-        results = get_predicate_mapping("hasSomaLocatedIn", [entity.get('layer', ''), entity.get('region', '')])
+        layer_uri = entity.get('layer', '')
+        region_uri = entity.get('region', '')
+        layer_label = get_cached_predicate_mapping("hasSomaLocatedIn", layer_uri) if layer_uri else ''
+        region_label = get_cached_predicate_mapping("hasSomaLocatedIn", region_uri) if region_uri else ''
+        
         return {
-                'id': string_to_int_hash(entity.get('layer', '') + entity.get('region', '')),
+                'id': string_to_int_hash(layer_uri + region_uri),
                 'synonyms': '',
                 'region_layer': {
-                    'id': string_to_int_hash(entity.get('layer', '') + entity.get('region', '')),
+                    'id': string_to_int_hash(layer_uri + region_uri),
                     'layer': {
-                        "id": string_to_int_hash(entity.get('layer', '')),
-	        			"name": results["hasSomaLocatedIn"][entity.get('layer', '')][0] if results and "hasSomaLocatedIn" in results and len(results["hasSomaLocatedIn"][entity.get('layer', '')]) > 0 else entity.get('layer', ''),
-	        			"ontology_uri": entity.get('layer', '')
+                        "id": string_to_int_hash(layer_uri),
+	        			"name": layer_label,
+	        			"ontology_uri": layer_uri
                     },
                     'region': {
-                        "id": string_to_int_hash(entity.get('region', '')),
-                        'name': results["hasSomaLocatedIn"][entity.get('region', '')][0] if results and "hasSomaLocatedIn" in results and len(results["hasSomaLocatedIn"][entity.get('region', '')]) > 0 else entity.get('region', ''),
-                        'ontology_uri': entity.get('region', '')
+                        "id": string_to_int_hash(region_uri),
+                        'name': region_label,
+                        'ontology_uri': region_uri
                     }
                 },
                 'simple_entity': None
@@ -985,9 +1128,26 @@ def get_statements(version="", local=False, full_imports=[], label_imports=[]):
     config.load_existing(g)
     neurons = config.neurons()
 
+    # Debug: Process only first 2 neurons
+    # debug_neurons = neurons[:2]
+    # logger.info(f"Debug mode: Processing only first {len(debug_neurons)} out of {len(neurons)} neurons")
+
+    # Step 1: Collect all URIs that need predicate mapping
+    logger.info("=== Step 1: Collecting URIs for predicate mapping ===")
+    predicate_uris = collect_all_uris_from_neurons(neurons)
+    
+    # Step 2: Prefetch all predicate mappings in batches
+    logger.info("=== Step 2: Prefetching predicate mappings ===")
+    prefetch_all_predicate_mappings(predicate_uris)
+    
+    # Step 3: Process neurons using cached mappings
+    logger.info("=== Step 3: Processing neurons with cached mappings ===")
     fcs = [for_composer(n, ind) for ind, n in enumerate(neurons)]
     fcs_cleaned = [fc for fc in fcs if fc is not None]
     return fcs_cleaned
 
 if __name__ == "__main__":
     get_statements()
+    # statements = get_statements()
+    # logger.info(f"Generated {len(statements)} statements.")
+    # Optionally, you can save the statements to a file or process them further.
