@@ -382,9 +382,11 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                     borderStyle: 'solid',
                     borderWidth: '0.0625rem',
                     borderColor:
-                      1 - (max - value) / (max - min) <= 0.1
-                        ? gray100A
-                        : 'rgba(255, 255, 255, 0.2)',
+                      value > 0
+                        ? 1 - (max - value) / (max - min) <= 0.1
+                          ? gray100A
+                          : 'rgba(255, 255, 255, 0.5)' // More visible border for cells with results
+                        : 'rgba(255, 255, 255, 0.1)', // Very light border for empty cells
                   };
                   if (yAxisData.expanded[_y]) {
                     return {
@@ -413,9 +415,11 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                       borderWidth: isSelectedCell ? '0.125rem' : '0.0625rem',
                       borderColor: isSelectedCell
                         ? '#8300BF'
-                        : 1 - (max - value) / (max - min) <= 0.1
-                          ? gray100A
-                          : 'rgba(255, 255, 255, 0.2)',
+                        : value > 0
+                          ? 1 - (max - value) / (max - min) <= 0.1
+                            ? 'rgba(0, 0, 0, 0.2)'
+                            : 'rgba(0, 0, 0, 0.2)' // More visible border for cells with results
+                          : 'rgba(255, 255, 255, 0.8)', // Very light border for empty cells
                       background: `rgba(131, 0, 191, ${safeNormalizedValue})`,
                     };
                   }
