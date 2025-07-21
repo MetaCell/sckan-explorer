@@ -527,6 +527,32 @@ def format_statement_alerts(statement_alerts, ind):
     return formatted_statement_alerts
 
 
+def get_circuit_type(uri: str) -> str:
+    """
+    Get the circuit type from the URI.
+    """
+    class CircuitType(Enum):
+        SENSORY = "SENSORY", "Sensory"
+        MOTOR = "MOTOR", "Motor"
+        INTRINSIC = "INTRINSIC", "Intrinsic"
+        PROJECTION = "PROJECTION", "Projection"
+        ANAXONIC = "ANAXONIC", "Anaxonic"
+
+    circuit_mapping = {
+    "http://uri.interlex.org/tgbugs/uris/readable/IntrinsicPhenotype": CircuitType.INTRINSIC,
+    "http://uri.interlex.org/tgbugs/uris/readable/ProjectionPhenotype": CircuitType.PROJECTION,
+    "http://uri.interlex.org/tgbugs/uris/readable/MotorPhenotype": CircuitType.MOTOR,
+    "http://uri.interlex.org/tgbugs/uris/readable/SensoryPhenotype": CircuitType.SENSORY,
+    "http://uri.interlex.org/tgbugs/uris/readable/AnaxonicPhenotype": CircuitType.ANAXONIC
+    }
+    if uri in circuit_mapping:
+        circuit_type = circuit_mapping[uri]
+        return circuit_type.value[1]  # Return the human-readable name
+    else:
+        log_error(f"Unknown circuit type URI: {uri}")
+        return ""
+
+
 def for_composer(n, ind: Optional[int] = None):
     lpes, lrdf, collect = makelpesrdf()
 
@@ -557,7 +583,7 @@ def for_composer(n, ind: Optional[int] = None):
         vias=vias,
         species=[get_species(specie) for specie in lpes(n, ilxtr.hasInstanceInTaxon)],
         sex=get_sex(lpes(n, ilxtr.hasBiologicalSex)[0]) if len(lpes(n, ilxtr.hasBiologicalSex)) > 0 else None,
-        circuit_type=lpes(n, ilxtr.hasCircuitRolePhenotype)[0] if lpes(n, ilxtr.hasCircuitRolePhenotype) else None,
+        circuit_type=get_circuit_type(lpes(n, ilxtr.hasCircuitRolePhenotype)[0]) if lpes(n, ilxtr.hasCircuitRolePhenotype) else None,
         circuit_role=lpes(n, ilxtr.hasFunctionalCircuitRolePhenotype),
         phenotype=get_anatomical_phenotype(lpes(n, ilxtr.hasAnatomicalSystemPhenotype)),
         # classification_phenotype=lpes(n, ilxtr.hasClassificationPhenotype),
