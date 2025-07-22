@@ -13,10 +13,11 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Header from './components/common/Header.tsx';
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
   useLocation,
+  BrowserRouter,
+  useSearchParams,
 } from 'react-router-dom';
 import SummaryPage from './components/SummaryPage.tsx';
 import Loader from './components/common/Loader.tsx';
@@ -43,6 +44,11 @@ import { Datasnapshot } from './models/json.ts';
 import { useDataContext } from './context/DataContext.ts';
 import LoadingOverlay from './components/common/LoadingOverlay.tsx';
 import ErrorModal from './components/common/ErrorModal.tsx';
+import {
+  decodeURLState,
+  getDatasnapshotFromURLStateOrDefault,
+} from './utils/urlStateManager.ts';
+import { URLState } from './context/DataContext.ts';
 
 const AppWithReset = ({
   selectedDatasnaphshot,
@@ -71,6 +77,18 @@ const AppWithReset = ({
 };
 
 const App = () => {
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <BrowserRouter>
+        <AppContent />
+        <GoogleAnalyticsTracker />
+      </BrowserRouter>
+    </ThemeProvider>
+  );
+};
+
+const AppContent = () => {
   const store = useStore();
   const dispatch = useDispatch();
   const [LayoutComponent, setLayoutComponent] = useState<
@@ -98,7 +116,18 @@ const App = () => {
     details: '',
   });
   const previousDatasnaphshot = useRef<string>('');
-
+  const [searchParams] = useSearchParams();
+  const [urlState, setUrlState] = useState<URLState>({
+    datasnapshot: null,
+    view: null,
+    leftWidgetConnectionId: null,
+    rightWidgetConnectionId: null,
+    filters: null,
+    summaryFilters: null,
+    connectionPage: null,
+    heatmapExpandedState: null,
+    secondaryHeatmapExpandedState: null,
+  });
   useEffect(() => {
     if (LayoutComponent === undefined) {
       const myManager = getLayoutManagerInstance();
@@ -128,7 +157,9 @@ const App = () => {
         setOrgans(getOrgans(jsonData));
         setMajorNerves(getUniqueMajorNerves(majorNervesData));
         setdatasnapshots(datasnapshots);
-        setSelectedDatasnaphshot(datasnapshots[0].id.toString());
+        setSelectedDatasnaphshot(
+          getDatasnapshotFromURLStateOrDefault(urlState, datasnapshots),
+        );
       } catch (error) {
         // TODO: We should give feedback to the user
         console.error('Failed to fetch data:', error);
@@ -137,7 +168,7 @@ const App = () => {
     };
 
     fetchData();
-  }, []);
+  }, [urlState]);
 
   useEffect(() => {
     if (Object.keys(hierarchicalNodes).length > 0 && selectedDatasnaphshot) {
@@ -217,66 +248,68 @@ const App = () => {
   const loadingInfo =
     loadingLabels[loadingConditions.findIndex((c) => c)] ?? '';
 
+  useEffect(() => {
+    const urlState = decodeURLState(searchParams);
+    setUrlState(urlState);
+  }, [searchParams]);
+
   return (
     <>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Router>
-          <GoogleAnalyticsTracker />
-          <Box>
-            <Header
-              datasnapshots={datasnapshots}
-              selectedDatasnaphshot={selectedDatasnaphshot}
-              setSelectedDatasnaphshot={setSelectedDatasnaphshot}
-            />
-            <Box className="MuiContainer">
-              <Routes>
-                <Route path="/summary" element={<SummaryPage />} />
-                <Route
-                  path="/"
-                  element={
-                    isLoading ? (
-                      <Loader
-                        progress={loadingProgress}
-                        text={`Loading ${loadingInfo}...`}
-                      />
-                    ) : (
-                      <>
-                        <DataContextProvider
-                          key={selectedDatasnaphshot}
-                          majorNerves={
-                            majorNerves ? majorNerves : new Set<string>()
-                          }
-                          hierarchicalNodes={hierarchicalNodes}
-                          organs={organs}
-                          knowledgeStatements={knowledgeStatements}
+      <DataContextProvider
+        key={selectedDatasnaphshot}
+        selectedDatasnapshot={selectedDatasnaphshot}
+        urlState={urlState}
+        setUrlState={setUrlState}
+        majorNerves={
+          majorNerves ? majorNerves : new Set<string>()
+        }
+        hierarchicalNodes={hierarchicalNodes}
+        organs={organs}
+        knowledgeStatements={knowledgeStatements}
+      >
+        <Box>
+          <Header
+            datasnapshots={datasnapshots}
+            selectedDatasnaphshot={selectedDatasnaphshot}
+            setSelectedDatasnaphshot={setSelectedDatasnaphshot}
+          />
+          <Box className="MuiContainer">
+            <Routes>
+              <Route path="/summary" element={<SummaryPage />} />
+              <Route
+                path="/"
+                element={
+                  isLoading ? (
+                    <Loader
+                      progress={loadingProgress}
+                      text={`Loading ${loadingInfo}...`}
+                    />
+                  ) : (
+                    <>
+                        <AppWithReset
+                          selectedDatasnaphshot={selectedDatasnaphshot}
                         >
-                          <AppWithReset
-                            selectedDatasnaphshot={selectedDatasnaphshot}
-                          >
-                            {LayoutComponent && <LayoutComponent />}
-                          </AppWithReset>
-                        </DataContextProvider>
-                        <LoadingOverlay
-                          open={isDataLoading}
-                          message="Loading new data snapshot..."
-                        />
-                        <ErrorModal
-                          open={fetchError.show}
-                          handleClose={handleErrorModalClose}
-                          title="Data Loading Error"
-                          message={fetchError.message}
-                          details={fetchError.details}
-                        />
-                      </>
-                    )
-                  }
-                />
-              </Routes>
-            </Box>
+                          {LayoutComponent && <LayoutComponent />}
+                        </AppWithReset>
+                      <LoadingOverlay
+                        open={isDataLoading}
+                        message="Loading new data snapshot..."
+                      />
+                      <ErrorModal
+                        open={fetchError.show}
+                        handleClose={handleErrorModalClose}
+                        title="Data Loading Error"
+                        message={fetchError.message}
+                        details={fetchError.details}
+                      />
+                    </>
+                  )
+                }
+              />
+            </Routes>
           </Box>
-        </Router>
-      </ThemeProvider>
+        </Box>
+      </DataContextProvider>
     </>
   );
 };
