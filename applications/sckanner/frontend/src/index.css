@@ -118,31 +118,31 @@ button:focus-visible {
   height: 100%;
   width: 100%;
   position: relative;
-  background: #EDEFF2;
+  background: #edeff2;
 }
 
 /* Vertical graph */
 
 .outPort {
-position: absolute;
-top: 100%;
-left: 50%;
+  position: absolute;
+  top: 100%;
+  left: 50%;
 }
 
 .inPort {
-position: absolute;
-top: 0%;
-left: 50%;
+  position: absolute;
+  top: 0%;
+  left: 50%;
 }
 
 .inPortDestination {
-position: absolute;
-top: 0%;
-left: 0%;
+  position: absolute;
+  top: 0%;
+  left: 0%;
 }
 
 .inPortAfferentTDestination {
-position: absolute;
-top: 100%;
-left: 100%;
+  position: absolute;
+  top: 100%;
+  left: 100%;
 }

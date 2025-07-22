@@ -37,6 +37,11 @@ export default defineConfig(({ mode }) => {
               });
             },
           },
+          '/media': {
+            target: API_URL,
+            changeOrigin: true,
+            secure: false,
+          },
         },
       }),
       cors: false,

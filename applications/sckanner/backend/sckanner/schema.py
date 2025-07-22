@@ -2,7 +2,7 @@ from ninja import Schema
 from typing import Optional
 from datetime import datetime
 from ninja.orm import create_schema
-from sckanner.models import DataSnapshot
+
 
 class DataSnapshotSchema(Schema):
     id: int
@@ -10,3 +10,4 @@ class DataSnapshotSchema(Schema):
     source_id: int
     source: str
     version: str
+    a_b_via_c_json_file: str

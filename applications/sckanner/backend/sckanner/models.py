@@ -39,8 +39,12 @@ class DataSnapshot(models.Model):
     id = models.AutoField(primary_key=True)
     timestamp = models.DateTimeField(null=True, blank=True, db_index=True)
     source = models.ForeignKey(DataSource, on_delete=models.CASCADE)
+    a_b_via_c_json_file = models.FileField(
+        upload_to="a_b_via_c_json/", null=True, blank=True
+    )
     version = models.CharField(max_length=255, db_index=True)
     status = models.CharField(max_length=255, choices=DataSnapshotStatus.choices, db_index=True, default=DataSnapshotStatus.TO_START)
+    message = models.TextField(null=True, blank=True)
 
     objects = DataSnapshotManager()
 
@@ -49,8 +53,8 @@ class DataSnapshot(models.Model):
 
     class Meta:
         unique_together = ('source', 'version')
-    
-    
+
+
 class ConnectivityStatement(models.Model):
     id = models.AutoField(primary_key=True, db_index=True)
     reference_uri = models.URLField(null=True, blank=True, db_index=True)
@@ -58,7 +62,7 @@ class ConnectivityStatement(models.Model):
     snapshot = models.ForeignKey(DataSnapshot, on_delete=models.CASCADE)
 
     class Meta:
-        # TODO - validation/confirmation needed: make sure that - 
+        # TODO - validation/confirmation needed: make sure that -
         # connectivity statement - reference_uri is unique for a given source.
         # It can be same for different sources.
         unique_together = ('reference_uri', 'snapshot')
@@ -69,4 +73,3 @@ class ConnectivityStatement(models.Model):
         if self.snapshot:
             cs_str += f" - source: {self.snapshot.source} - version: {self.snapshot.version}" if self.snapshot.version else f" - source: {self.snapshot.source}"
         return cs_str
-    

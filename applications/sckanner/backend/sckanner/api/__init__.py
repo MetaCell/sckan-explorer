@@ -6,6 +6,9 @@ from ninja import NinjaAPI
 from sckanner.models import ConnectivityStatement, DataSnapshot, DataSnapshotStatus
 from ..exceptions import Http401, Http403
 from sckanner.schema import DataSnapshotSchema
+from sckanner.services.datasnapshot import (
+    filter_datasnapshot_by_if_a_b_via_c_json_file_exists,
+)
 
 api = NinjaAPI(title='sckanner API', version='0.1.0')
 
@@ -58,6 +61,9 @@ def get_datasnapshots(request):
             source_id=snapshot.source.id,
             source=snapshot.source.name,
             version=snapshot.version,
-        ) for snapshot in datasnapshots
+            a_b_via_c_json_file=snapshot.a_b_via_c_json_file.url,
+        )
+        for snapshot in filter_datasnapshot_by_if_a_b_via_c_json_file_exists(
+            datasnapshots
+        )
     ]
-

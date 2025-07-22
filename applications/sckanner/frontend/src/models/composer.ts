@@ -9,6 +9,7 @@ export enum NodeTypes {
 export const TypeB60Enum = {
   Axon: 'AXON',
   Dendrite: 'DENDRITE',
+  SENSORY_AXON: 'SENSORY_AXON',
 } as const;
 
 export type TypeB60Enum = (typeof TypeB60Enum)[keyof typeof TypeB60Enum];

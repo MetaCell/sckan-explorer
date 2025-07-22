@@ -40,7 +40,7 @@ import {
   getOrgans,
 } from './services/hierarchyService.ts';
 import ReactGA from 'react-ga4';
-import { Datasnapshot } from './models/json.ts';
+import { Datasnapshot, OrderJson } from './models/json.ts';
 import { useDataContext } from './context/DataContext.ts';
 import LoadingOverlay from './components/common/LoadingOverlay.tsx';
 import ErrorModal from './components/common/ErrorModal.tsx';
@@ -116,6 +116,7 @@ const AppContent = () => {
     details: '',
   });
   const previousDatasnaphshot = useRef<string>('');
+  const [orderData, setOrderData] = useState<OrderJson>({});
   const [searchParams] = useSearchParams();
   const [urlState, setUrlState] = useState<URLState>({
     datasnapshot: null,
@@ -142,24 +143,33 @@ const AppContent = () => {
     dispatch(addWidget(connectionsWidget()));
   }, [LayoutComponent, dispatch]);
 
+  const fetchJSONAndSetHierarchicalNodes = (
+    datasnapshot: Datasnapshot,
+    orderData: OrderJson,
+  ) => {
+    fetchJSON(datasnapshot.a_b_via_c_json_file).then((jsonData) => {
+      setHierarchicalNodes(getHierarchicalNodes(jsonData, orderData));
+      setOrgans(getOrgans(jsonData));
+    });
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [jsonData, orderData, majorNervesData, datasnapshots] =
+        const [orderDataFetched, majorNervesData, datasnapshots] =
           await Promise.all([
-            fetchJSON(),
             fetchOrderJson(),
             fetchMajorNerves(),
             fetchDatasnapshots(),
           ]);
 
-        setHierarchicalNodes(getHierarchicalNodes(jsonData, orderData));
-        setOrgans(getOrgans(jsonData));
+        setOrderData(orderDataFetched);
         setMajorNerves(getUniqueMajorNerves(majorNervesData));
         setdatasnapshots(datasnapshots);
         setSelectedDatasnaphshot(
           getDatasnapshotFromURLStateOrDefault(urlState, datasnapshots),
         );
+        fetchJSONAndSetHierarchicalNodes(datasnapshots[0], orderDataFetched);
       } catch (error) {
         // TODO: We should give feedback to the user
         console.error('Failed to fetch data:', error);
@@ -185,10 +195,11 @@ const AppContent = () => {
 
       // Loop through each node's connectionDetails and add all ids to the neuronIDsSet
       Object.values(hierarchicalNodes).forEach((node) => {
-        if (node.connectionDetails) {
-          Object.values(node.connectionDetails).forEach((subOrgans) => {
+        const typedNode = node as HierarchicalNode;
+        if (typedNode.connectionDetails) {
+          Object.values(typedNode.connectionDetails).forEach((subOrgans) => {
             Object.values(subOrgans).forEach((ksIds) => {
-              ksIds.forEach((id) => neuronIDsSet.add(id));
+              (ksIds as string[]).forEach((id) => neuronIDsSet.add(id));
             });
           });
         }
@@ -221,6 +232,15 @@ const AppContent = () => {
         });
     }
   }, [hierarchicalNodes, selectedDatasnaphshot]);
+
+  useEffect(() => {
+    const selectedSnapshotObj = datasnapshots.find(
+      (ds: Datasnapshot) => ds.id === parseInt(selectedDatasnaphshot),
+    );
+    if (selectedSnapshotObj) {
+      fetchJSONAndSetHierarchicalNodes(selectedSnapshotObj, orderData);
+    }
+  }, [selectedDatasnaphshot, orderData, datasnapshots]);
 
   const handleErrorModalClose = () => {
     setFetchError({ show: false, message: '', details: '' });
@@ -286,11 +306,11 @@ const AppContent = () => {
                     />
                   ) : (
                     <>
-                        <AppWithReset
-                          selectedDatasnaphshot={selectedDatasnaphshot}
-                        >
-                          {LayoutComponent && <LayoutComponent />}
-                        </AppWithReset>
+                      <AppWithReset
+                        selectedDatasnaphshot={selectedDatasnaphshot}
+                      >
+                        {LayoutComponent && <LayoutComponent />}
+                      </AppWithReset>
                       <LoadingOverlay
                         open={isDataLoading}
                         message="Loading new data snapshot..."

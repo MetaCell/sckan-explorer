@@ -1,5 +1,4 @@
 import {
-  SCKAN_JSON_URL,
   SCKAN_MAJOR_NERVES_JSON_URL,
   SCKAN_ORDER_JSON_URL,
 } from '../settings.ts';
@@ -24,8 +23,8 @@ const fetchData = async <T>(url: string): Promise<T> => {
   }
 };
 
-export const fetchJSON = async (): Promise<JsonData> => {
-  return await fetchData<JsonData>(SCKAN_JSON_URL);
+export const fetchJSON = async (url: string): Promise<JsonData> => {
+  return await fetchData<JsonData>(url);
 };
 
 export const fetchOrderJson = async (): Promise<OrderJson> => {
