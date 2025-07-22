@@ -58,17 +58,32 @@ const SummaryHeader = ({
   connectionsCounter,
 }: SummaryHeaderProps) => {
   const totalUniqueKS = Object.keys(knowledgeStatementsMap).length;
-  const { selectedConnectionSummary, majorNerves } = useDataContext();
+  const {
+    selectedConnectionSummary,
+    majorNerves,
+    widgetState,
+    setWidgetState,
+  } = useDataContext();
 
   const handleUpClick = () => {
     if (connectionPage < totalUniqueKS) {
-      setConnectionPage(connectionPage + 1);
+      const newConnectionPage = connectionPage + 1;
+      setConnectionPage(newConnectionPage);
+      setWidgetState({
+        ...widgetState,
+        connectionPage: newConnectionPage,
+      });
     }
   };
 
   const handleDownClick = () => {
     if (connectionPage > 1) {
-      setConnectionPage(connectionPage - 1);
+      const newConnectionPage = connectionPage - 1;
+      setConnectionPage(newConnectionPage);
+      setWidgetState({
+        ...widgetState,
+        connectionPage: newConnectionPage,
+      });
     }
   };
 
@@ -83,6 +98,16 @@ const SummaryHeader = ({
       majorNerves,
     );
     pdfMake.createPdf(pdfDefinition).download();
+  };
+
+  const handleBackToSummary = () => {
+    setShowDetails(SummaryType.Summary);
+    setWidgetState({
+      ...widgetState,
+      view: 'connectionView',
+      rightWidgetConnectionId: null,
+      connectionPage: null,
+    });
   };
 
   if (showDetails === SummaryType.Instruction) {
@@ -120,7 +145,7 @@ const SummaryHeader = ({
               },
             }}
           >
-            <Button onClick={() => setShowDetails(SummaryType.Summary)}>
+            <Button onClick={() => handleBackToSummary()}>
               Back to Summary
             </Button>
           </ButtonGroup>

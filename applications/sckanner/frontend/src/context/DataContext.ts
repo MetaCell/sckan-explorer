@@ -38,6 +38,22 @@ export interface InitialFilterOptions {
   Entities: Option[];
 }
 
+export interface WidgetState {
+  datasnapshot: string | null;
+  view: 'connectionView' | 'connectionDetailsView' | null;
+  leftWidgetConnectionId?: string | null;
+  rightWidgetConnectionId?: string | null;
+  filters?: Filters | null;
+  summaryFilters?: SummaryFilters | null;
+  connectionPage?: number | null;
+  heatmapExpandedState?: string[] | null;
+  secondaryHeatmapExpandedState?: string[] | null;
+}
+
+export interface URLState extends WidgetState {
+  fullUrlState?: URLState | null;
+}
+
 export interface DataContext {
   filters: Filters;
   majorNerves: Set<string>;
@@ -54,6 +70,10 @@ export interface DataContext {
   isDataLoading: boolean;
   setIsDataLoading: (loading: boolean) => void;
   initialFilterOptions: InitialFilterOptions;
+  widgetState: WidgetState;
+  setWidgetState: (state: WidgetState) => void;
+  resetWidgetState: (datasnapshot: string) => void;
+  setSummaryFiltersInURL: (summaryFilters: SummaryFilters) => void;
 }
 
 export const DataContext = createContext<DataContext>({
@@ -86,6 +106,20 @@ export const DataContext = createContext<DataContext>({
     Via: [],
     Entities: [],
   },
+  widgetState: {
+    datasnapshot: null,
+    view: null,
+    filters: null,
+    leftWidgetConnectionId: null,
+    rightWidgetConnectionId: null,
+    summaryFilters: null,
+    connectionPage: null,
+    heatmapExpandedState: null,
+    secondaryHeatmapExpandedState: null,
+  },
+  setWidgetState: () => { },
+  resetWidgetState: (datasnapshot: string) => { },
+  setSummaryFiltersInURL: () => { },
 });
 
 export const useDataContext = () => useContext(DataContext);

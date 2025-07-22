@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { Box, Chip, TextField, Typography } from '@mui/material';
 import { ArrowRightIcon } from './icons/index.tsx';
 import { vars } from '../theme/variables.ts';
@@ -36,6 +36,7 @@ import HeatmapGrid from './common/Heatmap.tsx';
 import { Organ } from '../models/explorer.ts';
 import SummaryDetails from './connections/SummaryDetails.tsx';
 import SummaryFiltersDropdown from './SummaryFiltersDropdown.tsx';
+import { COORDINATE_SEPARATOR } from '../utils/urlStateManager.ts';
 
 const { gray700, gray600A, gray100 } = vars;
 
@@ -62,6 +63,8 @@ function Connections() {
     hierarchicalNodes,
     knowledgeStatements,
     filters,
+    widgetState,
+    setWidgetState,
   } = useDataContext();
 
   const [showConnectionDetails, setShowConnectionDetails] =
@@ -86,6 +89,7 @@ function Connections() {
     useState<KsRecord>({});
   const [nerveFilters, setNerveFilters] = useState<Option[]>([]);
   const [phenotypeFilters, setPhenotypeFilters] = useState<Option[]>([]);
+  const { setSummaryFiltersInURL } = useDataContext();
 
   const summaryFilters = useMemo(
     () => ({
@@ -97,13 +101,41 @@ function Connections() {
   );
 
   useEffect(() => {
-    // By default on the first render, show the instruction/summary
-    if (selectedConnectionSummary) {
+    if (nerveFilters.length > 0 || phenotypeFilters.length > 0) {
+      setSummaryFiltersInURL(summaryFilters);
+    }
+  }, [nerveFilters, phenotypeFilters]);
+
+  useEffect(() => {
+    if (widgetState.summaryFilters) {
+      setNerveFilters(widgetState.summaryFilters.Nerve);
+      setPhenotypeFilters(widgetState.summaryFilters.Phenotype);
+    } else {
+      setNerveFilters([]);
+      setPhenotypeFilters([]);
+    }
+  }, [widgetState.summaryFilters]);
+
+  useEffect(() => {
+    if (widgetState.view === 'connectionView' && selectedConnectionSummary) {
       setShowConnectionDetails(SummaryType.Summary);
+    } else if (
+      widgetState.view === 'connectionDetailsView' &&
+      selectedConnectionSummary &&
+      widgetState.rightWidgetConnectionId &&
+      widgetState.connectionPage
+    ) {
+      setShowConnectionDetails(SummaryType.DetailedSummary);
+      setConnectionPage(widgetState.connectionPage);
     } else {
       setShowConnectionDetails(SummaryType.Instruction);
     }
-  }, [selectedConnectionSummary]);
+  }, [
+    selectedConnectionSummary,
+    widgetState.view,
+    widgetState.rightWidgetConnectionId,
+    widgetState.connectionPage,
+  ]);
 
   // Values from the selected connection - In the SummaryType.summary
   const viasConnection = getAllViasFromConnections(
@@ -171,29 +203,45 @@ function Connections() {
     }
   }, [selectedConnectionSummary, hierarchicalNodes]);
 
-  const handleCellClick = (x: number, y: number, yId: string): void => {
-    // when the heatmap cell is clicked
-    setSelectedCell({ x, y });
-    const row = filteredConnectionsMap.get(yId);
-    if (row) {
-      setConnectionPage(1);
-      const newX = filteredXAxis.indexOf(reorderedAxis[x]);
-      const ksIds = Object.values(row[newX]).reduce((acc, phenotypeData) => {
-        return acc.concat(phenotypeData.ksIds);
-      }, [] as string[]);
+  const handleCellClick = useCallback(
+    (x: number, y: number, yId: string): void => {
+      // when the heatmap cell is clicked
+      setSelectedCell({ x, y });
+      const row = filteredConnectionsMap.get(yId);
+      if (row) {
+        setConnectionPage(widgetState.connectionPage ?? 1);
+        const newX = filteredXAxis.indexOf(reorderedAxis[x]);
+        const ksIds = Object.values(row[newX]).reduce((acc, phenotypeData) => {
+          return acc.concat(phenotypeData.ksIds);
+        }, [] as string[]);
 
-      if (
-        selectedConnectionSummary &&
-        Object.keys(selectedConnectionSummary.filteredKnowledgeStatements)
-          .length !== 0 &&
-        ksIds.length > 0
-      ) {
-        setShowConnectionDetails(SummaryType.DetailedSummary);
-        const ksMap = getKnowledgeStatementMap(ksIds, knowledgeStatements);
-        setKnowledgeStatementsMap(ksMap);
+        if (
+          selectedConnectionSummary &&
+          Object.keys(selectedConnectionSummary.filteredKnowledgeStatements)
+            .length !== 0 &&
+          ksIds.length > 0
+        ) {
+          setShowConnectionDetails(SummaryType.DetailedSummary);
+          const ksMap = getKnowledgeStatementMap(ksIds, knowledgeStatements);
+          setKnowledgeStatementsMap(ksMap);
+
+          setWidgetState({
+            ...widgetState,
+            view: 'connectionDetailsView',
+            rightWidgetConnectionId: `${x}${COORDINATE_SEPARATOR}${y}`,
+            connectionPage: widgetState.connectionPage ?? 1,
+          });
+        }
       }
-    }
-  };
+    },
+    [
+      filteredConnectionsMap,
+      filteredXAxis,
+      reorderedAxis,
+      selectedConnectionSummary,
+      knowledgeStatements,
+    ],
+  );
 
   useEffect(() => {
     // Filter yAxis
@@ -219,6 +267,101 @@ function Connections() {
     setReorderedAxis(reorderXAxis([...filteredXAxis].sort()));
     setFilteredConnectionsMap(filteredConnectionsMap);
   }, [yAxis, xAxis, connectionsMap]);
+
+
+  // Helper function to apply expand/collapse state to fresh yAxis
+  const applyExpandedState = (
+    freshYAxis: HierarchicalItem[],
+    existingYAxis: HierarchicalItem[],
+  ): HierarchicalItem[] => {
+    const expandedStateMap = new Map<string, boolean>();
+
+    const collectExpandedState = (items: HierarchicalItem[]) => {
+      items.forEach((item) => {
+        expandedStateMap.set(item.id, item.expanded);
+        if (item.children) {
+          collectExpandedState(item.children);
+        }
+      });
+    };
+
+    const applyExpandedStateRecursive = (
+      items: HierarchicalItem[],
+    ): HierarchicalItem[] => {
+      return items.map((item) => ({
+        ...item,
+        expanded: expandedStateMap.has(item.id)
+          ? expandedStateMap.get(item.id)!
+          : item.expanded,
+        children: item.children
+          ? applyExpandedStateRecursive(item.children)
+          : item.children,
+      }));
+    };
+
+    // Collect the expanded state from existing yAxis
+    collectExpandedState(existingYAxis);
+    // Apply the expanded state to fresh yAxis
+    return applyExpandedStateRecursive(freshYAxis);
+  };
+
+  useEffect(() => {
+    const assignExpandedState = (yAxis: HierarchicalItem[], expandedState: string[]) => {
+      return yAxis.map((item) => ({
+        ...item,
+        expanded: expandedState.includes(item.id),
+        children: item.children ? assignExpandedState(item.children, expandedState) : item.children,
+      }));
+    };
+    if (selectedConnectionSummary && hierarchicalNodes) {
+      const hierarchyNode = {
+        [selectedConnectionSummary.hierarchicalNode.id]:
+          selectedConnectionSummary.hierarchicalNode,
+      };
+
+      if (widgetState.secondaryHeatmapExpandedState && widgetState.secondaryHeatmapExpandedState.length > 0) {
+        const freshYAxis = getYAxis(hierarchicalNodes, hierarchyNode);
+        const yAxisWithExpandedState = assignExpandedState(freshYAxis, widgetState.secondaryHeatmapExpandedState);
+        const yAxisWithExpandedStateApplied = applyExpandedState(freshYAxis, yAxisWithExpandedState);
+        setYAxis(yAxisWithExpandedStateApplied);
+      }
+    }
+  }, [widgetState.secondaryHeatmapExpandedState, selectedConnectionSummary, hierarchicalNodes]);
+
+
+  useEffect(() => {
+    if (
+      widgetState.view === 'connectionDetailsView' &&
+      widgetState.rightWidgetConnectionId &&
+      filteredConnectionsMap.size > 0 &&
+      filteredXAxis.length > 0 &&
+      filteredYAxis.length > 0
+    ) {
+      const [xStr, yStr] =
+        widgetState.rightWidgetConnectionId.split(COORDINATE_SEPARATOR);
+      const x = parseInt(xStr);
+      const y = parseInt(yStr);
+
+      if (
+        x >= 0 &&
+        x < filteredXAxis.length &&
+        y >= 0 &&
+        y < filteredYAxis.length
+      ) {
+        const yId = filteredYAxis[y].id;
+        handleCellClick(x, y, yId);
+      }
+    }
+  }, [
+    widgetState.view,
+    widgetState.rightWidgetConnectionId,
+    widgetState.connectionPage,
+    filteredConnectionsMap,
+    filteredXAxis,
+    filteredYAxis,
+    reorderedAxis,
+    knowledgeStatements,
+  ]);
 
   const heatmapData = useMemo(() => {
     return getSecondaryHeatmapData(filteredYAxis, filteredConnectionsMap);
@@ -338,6 +481,7 @@ function Connections() {
               xAxis={reorderedAxis}
               onCellClick={handleCellClick}
               selectedCell={selectedCell}
+                  setSelectedCell={setSelectedCell}
               secondaryHeatmapData={sortedData}
               xAxisLabel={'Project to'}
               yAxisLabel={'Somas in'}

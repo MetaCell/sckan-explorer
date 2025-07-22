@@ -47,10 +47,11 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
   yAxisLabel,
   onCellClick,
   selectedCell,
+  setSelectedCell,
   heatmapData,
   secondaryHeatmapData,
 }) => {
-  const { phenotypesColorMap } = useDataContext();
+  const { phenotypesColorMap, widgetState, setWidgetState } = useDataContext();
 
   const secondary = !!secondaryHeatmapData;
   const yAxisData = generateYLabelsAndIds(yAxis);
@@ -77,6 +78,19 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     return lookup;
   }, [yAxisData.labels]);
 
+
+  const getExpandedIds = (list: HierarchicalItem[]): string[] => {
+    return list.reduce((acc, item) => {
+      if (item.expanded) {
+        acc.push(item.id);
+      }
+      if (item.children) {
+        acc.push(...getExpandedIds(item.children));
+      }
+      return acc;
+    }, [] as string[]);
+  };
+
   const handleCollapseClick = useCallback(
     (item: HierarchicalItem) => {
       const updateList = (
@@ -98,6 +112,20 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
           return listItem;
         });
       };
+
+      const expandedIds = getExpandedIds(updateList(yAxis, item));
+      if (secondary) {
+        setWidgetState({
+          ...widgetState,
+          secondaryHeatmapExpandedState: expandedIds,
+        });
+      } else {
+        setWidgetState({
+          ...widgetState,
+          heatmapExpandedState: expandedIds,
+        });
+      }
+      setSelectedCell(null);
       const updatedList = updateList(yAxis, item);
       setYAxis(updatedList);
     },
@@ -118,6 +146,20 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
       });
     };
     const updatedList = updateList(yAxis);
+    setSelectedCell(null);
+    const expandedIds = getExpandedIds(updateList(yAxis));
+    if (secondary) {
+      setWidgetState({
+        ...widgetState,
+        secondaryHeatmapExpandedState: expandedIds,
+      });
+    } else {
+      setWidgetState({
+        ...widgetState,
+        heatmapExpandedState: expandedIds,
+      });
+    }
+
     setYAxis(updatedList);
   }, [yAxis, setYAxis]);
 

@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import CustomFilterDropdown from './common/CustomFilterDropdown.tsx';
 import React, { useMemo } from 'react';
-import { Filters, useDataContext } from '../context/DataContext.ts';
+import { Filters, useDataContext, WidgetState } from '../context/DataContext.ts';
 import { HierarchicalItem, Option } from './common/Types.ts';
 import {
   getUniqueApinatomies,
@@ -85,6 +85,8 @@ const FiltersDropdowns: React.FC<{
     knowledgeStatements,
     hierarchicalNodes,
     organs,
+    widgetState,
+    setWidgetState,
   } = useDataContext();
 
   const { initialFilterOptions } = useDataContext();
@@ -167,10 +169,21 @@ const FiltersDropdowns: React.FC<{
     filterKey: keyof typeof filters,
     selectedOptions: Option[],
   ) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
+    const newFilter = {
+      ...filters,
       [filterKey]: selectedOptions,
-    }));
+    };
+    setFilters(newFilter);
+    setWidgetState({
+      ...widgetState,
+      filters: newFilter,
+      summaryFilters: null,
+      leftWidgetConnectionId: null,
+      rightWidgetConnectionId: null,
+      connectionPage: null,
+      view: null,
+      secondaryHeatmapExpandedState: null,
+    });
   };
 
   const searchFunctions = useMemo(() => {
