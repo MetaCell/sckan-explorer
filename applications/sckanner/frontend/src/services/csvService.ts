@@ -25,6 +25,7 @@ export const generateCsvService = (data: csvData) => {
     'origins',
     'vias',
     'destinations',
+    'statement_alerts',
   ];
   const keys = Object.keys(data);
   const rows = [properties];
@@ -114,6 +115,21 @@ export const generateCsvService = (data: csvData) => {
           return ks[property]
             .map((e) => '[ URI: ' + e.id + '; Label: ' + e.name + ' ]')
             .join(' & ');
+        } else {
+          return '';
+        }
+      } else if (property === 'statement_alerts') {
+        if (ks[property] && ks[property].length) {
+          return ks[property]
+            .map(
+              (alert) =>
+                '[ Alert: ' + alert.alert + '; Text: ' + alert.text + ' ]',
+            )
+            .join(' & ')
+            .replaceAll('\n', '. ')
+            .replaceAll('\r', '')
+            .replaceAll('\t', ' ')
+            .replaceAll(',', ';');
         } else {
           return '';
         }
@@ -207,6 +223,7 @@ export const generateJourneyCsvService = (
     'Synapses on (between first population and second)',
     'TARGET Organ (final organ after forward connections)',
     'Provenances',
+    'Statement Alerts',
   ];
 
   const rows = [...metadata, headers];
@@ -251,6 +268,11 @@ export const generateJourneyCsvService = (
         _getCommonSynapsesOn(entry),
         targetOrgan,
         entry.provenances.join('; '),
+        entry.statement_alerts && entry.statement_alerts.length > 0
+          ? entry.statement_alerts
+              .map((alert) => `${alert.alert}: ${alert.text}`)
+              .join('; ')
+          : '',
       ];
       rows.push(row);
     });
