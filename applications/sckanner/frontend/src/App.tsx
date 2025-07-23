@@ -48,6 +48,7 @@ import {
   decodeURLState,
   getDatasnapshotFromURLStateOrDefault,
 } from './utils/urlStateManager.ts';
+import { validateURLState } from './utils/validateURL.ts';
 import { URLState } from './context/DataContext.ts';
 
 const AppWithReset = ({
@@ -110,6 +111,7 @@ const AppContent = () => {
     show: boolean;
     message: string;
     details: string;
+    title?: string;
   }>({
     show: false,
     message: '',
@@ -154,7 +156,7 @@ const AppContent = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchInitialData = async () => {
       try {
         const [orderDataFetched, majorNervesData, datasnapshots] =
           await Promise.all([
@@ -166,19 +168,64 @@ const AppContent = () => {
         setOrderData(orderDataFetched);
         setMajorNerves(getUniqueMajorNerves(majorNervesData));
         setdatasnapshots(datasnapshots);
-        setSelectedDatasnaphshot(
-          getDatasnapshotFromURLStateOrDefault(urlState, datasnapshots),
-        );
-        fetchJSONAndSetHierarchicalNodes(datasnapshots[0], orderDataFetched);
       } catch (error) {
-        // TODO: We should give feedback to the user
-        console.error('Failed to fetch data:', error);
+        console.error('Failed to fetch initial data:', error);
+        setFetchError({
+          show: true,
+          title: 'Data Loading Error',
+          message:
+            'Failed to load initial application data. Please refresh the page.',
+          details:
+            error instanceof Error ? error.message : 'Unknown error occurred',
+        });
         setMajorNerves(undefined);
       }
     };
 
-    fetchData();
-  }, [urlState]);
+    fetchInitialData();
+  }, []); // Empty dependency array - runs only once
+
+  useEffect(() => {
+    if (datasnapshots.length === 0) return; // Wait for datasnapshots to be loaded
+
+    const urlValidationErrors = validateURLState(urlState, datasnapshots);
+    if (urlValidationErrors.length > 0) {
+      setFetchError({
+        show: true,
+        title: 'URL Parameter Error',
+        message:
+          'Invalid URL parameters detected. The application will use default values.',
+        details: urlValidationErrors.join('; '),
+      });
+    } else {
+      // Clear any previous URL validation errors
+      setFetchError((prev) =>
+        prev.title === 'URL Parameter Error'
+          ? { show: false, message: '', details: '' }
+          : prev,
+      );
+    }
+  }, [urlState, datasnapshots]);
+
+  useEffect(() => {
+    if (datasnapshots.length === 0) return; // Wait for datasnapshots to be loaded
+
+    const newSelectedDatasnapshot = getDatasnapshotFromURLStateOrDefault(
+      urlState,
+      datasnapshots,
+    );
+    setSelectedDatasnaphshot(newSelectedDatasnapshot);
+  }, [urlState, datasnapshots]);
+
+  // 4. Hierarchical nodes fetching - runs when selected datasnapshot or orderData changes
+  useEffect(() => {
+    const selectedSnapshotObj = datasnapshots.find(
+      (ds: Datasnapshot) => ds.id === parseInt(selectedDatasnaphshot),
+    );
+    if (selectedSnapshotObj && Object.keys(orderData).length > 0) {
+      fetchJSONAndSetHierarchicalNodes(selectedSnapshotObj, orderData);
+    }
+  }, [selectedDatasnaphshot, orderData, datasnapshots]);
 
   useEffect(() => {
     if (Object.keys(hierarchicalNodes).length > 0 && selectedDatasnaphshot) {
@@ -226,6 +273,7 @@ const AppContent = () => {
           setIsDataLoading(false);
           setFetchError({
             show: true,
+            title: 'Data Loading Error',
             message: `Failed to load data snapshot "${selectedDatasnaphshot}". Please try again or select a different snapshot.`,
             details: error.message || 'Unknown error occurred',
           });
@@ -233,14 +281,7 @@ const AppContent = () => {
     }
   }, [hierarchicalNodes, selectedDatasnaphshot]);
 
-  useEffect(() => {
-    const selectedSnapshotObj = datasnapshots.find(
-      (ds: Datasnapshot) => ds.id === parseInt(selectedDatasnaphshot),
-    );
-    if (selectedSnapshotObj) {
-      fetchJSONAndSetHierarchicalNodes(selectedSnapshotObj, orderData);
-    }
-  }, [selectedDatasnaphshot, orderData, datasnapshots]);
+
 
   const handleErrorModalClose = () => {
     setFetchError({ show: false, message: '', details: '' });
@@ -269,8 +310,25 @@ const AppContent = () => {
     loadingLabels[loadingConditions.findIndex((c) => c)] ?? '';
 
   useEffect(() => {
-    const urlState = decodeURLState(searchParams);
-    setUrlState(urlState);
+    const urlParsingResult = decodeURLState(searchParams);
+    setUrlState(urlParsingResult.state);
+
+    if (urlParsingResult.errors.length > 0) {
+      setFetchError({
+        show: true,
+        title: 'URL Parameter Error',
+        message:
+          'Invalid URL parameters detected. The application will continue with default values.',
+        details: urlParsingResult.errors.join('; '),
+      });
+    } else {
+      // Clear any previous URL-related errors
+      setFetchError((prev) =>
+        prev.title === 'URL Parameter Error'
+          ? { show: false, message: '', details: '' }
+          : prev,
+      );
+    }
   }, [searchParams]);
 
   return (
@@ -316,7 +374,7 @@ const AppContent = () => {
                       <ErrorModal
                         open={fetchError.show}
                         handleClose={handleErrorModalClose}
-                        title="Data Loading Error"
+                          title={fetchError.title || 'Error'}
                         message={fetchError.message}
                         details={fetchError.details}
                       />

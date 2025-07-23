@@ -20,6 +20,7 @@ import {
   AsapFontItalic,
   AsapFontRegular,
 } from '../../theme/AsapFontBase64.ts';
+import { useWidgetStateActions } from '../../hooks/useWidgetStateActions.ts';
 
 const { gray100, gray600A, gray500, primaryPurple600 } = vars;
 pdfMake.vfs = {};
@@ -61,18 +62,14 @@ const SummaryHeader = ({
   const {
     selectedConnectionSummary,
     majorNerves,
-    widgetState,
-    setWidgetState,
   } = useDataContext();
+  const { updateConnectionPageInWidgetState, goToConnectionView } = useWidgetStateActions();
 
   const handleUpClick = () => {
     if (connectionPage < totalUniqueKS) {
       const newConnectionPage = connectionPage + 1;
       setConnectionPage(newConnectionPage);
-      setWidgetState({
-        ...widgetState,
-        connectionPage: newConnectionPage,
-      });
+      updateConnectionPageInWidgetState(newConnectionPage);
     }
   };
 
@@ -80,10 +77,7 @@ const SummaryHeader = ({
     if (connectionPage > 1) {
       const newConnectionPage = connectionPage - 1;
       setConnectionPage(newConnectionPage);
-      setWidgetState({
-        ...widgetState,
-        connectionPage: newConnectionPage,
-      });
+      updateConnectionPageInWidgetState(newConnectionPage);
     }
   };
 
@@ -102,9 +96,7 @@ const SummaryHeader = ({
 
   const handleBackToSummary = () => {
     setShowDetails(SummaryType.Summary);
-    setWidgetState({
-      ...widgetState,
-      view: 'connectionView',
+    goToConnectionView({
       rightWidgetConnectionId: null,
       connectionPage: null,
     });

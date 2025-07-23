@@ -10,6 +10,7 @@ import {
   Option,
 } from './common/Types.ts';
 import { useDataContext } from '../context/DataContext.ts';
+import { useWidgetStateActions } from '../hooks/useWidgetStateActions.ts';
 import {
   calculateSecondaryConnections,
   convertViaToString,
@@ -65,8 +66,10 @@ function Connections() {
     knowledgeStatements,
     filters,
     widgetState,
-    setWidgetState,
   } = useDataContext();
+
+  const { goToConnectionDetailsView, updateSummaryFilters } =
+    useWidgetStateActions();
 
   const [showConnectionDetails, setShowConnectionDetails] =
     useState<SummaryType>(SummaryType.Instruction);
@@ -90,7 +93,6 @@ function Connections() {
     useState<KsRecord>({});
   const [nerveFilters, setNerveFilters] = useState<Option[]>([]);
   const [phenotypeFilters, setPhenotypeFilters] = useState<Option[]>([]);
-  const { setSummaryFiltersInURL } = useDataContext();
 
   const summaryFilters = useMemo(
     () => ({
@@ -103,10 +105,10 @@ function Connections() {
 
   useEffect(() => {
     if (nerveFilters.length > 0 || phenotypeFilters.length > 0) {
-      setSummaryFiltersInURL(summaryFilters);
+      updateSummaryFilters(summaryFilters);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nerveFilters, phenotypeFilters, summaryFilters]);
+  }, [nerveFilters, phenotypeFilters, summaryFilters, updateSummaryFilters]);
 
   useEffect(() => {
     if (widgetState.summaryFilters) {
@@ -232,12 +234,7 @@ function Connections() {
           setKnowledgeStatementsMap(ksMap);
 
           if (updateWidgetState) {
-            setWidgetState({
-              ...widgetState,
-              view: 'connectionDetailsView',
-              rightWidgetConnectionId: `${x}${COORDINATE_SEPARATOR}${y}`,
-              connectionPage: widgetState.connectionPage ?? 1,
-            });
+            goToConnectionDetailsView(x, y, widgetState.connectionPage ?? 1);
           }
         }
       }
@@ -249,7 +246,7 @@ function Connections() {
       selectedConnectionSummary,
       knowledgeStatements,
       widgetState,
-      setWidgetState,
+      goToConnectionDetailsView,
     ],
   );
 

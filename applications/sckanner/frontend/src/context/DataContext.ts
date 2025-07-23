@@ -73,7 +73,6 @@ export interface DataContext {
   widgetState: WidgetState;
   setWidgetState: (state: WidgetState) => void;
   resetWidgetState: (datasnapshot: string) => void;
-  setSummaryFiltersInURL: (summaryFilters: SummaryFilters) => void;
 }
 
 export const DataContext = createContext<DataContext>({
@@ -119,8 +118,7 @@ export const DataContext = createContext<DataContext>({
   },
   setWidgetState: () => {},
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  resetWidgetState: (_datasnapshot: string) => {},
-  setSummaryFiltersInURL: () => {},
+  resetWidgetState: (_datasnapshot: string) => { },
 });
 
 export const useDataContext = () => useContext(DataContext);

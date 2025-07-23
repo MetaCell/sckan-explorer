@@ -11,7 +11,6 @@ import {
   ConnectionSummary,
   WidgetState,
   URLState,
-  SummaryFilters,
 } from './DataContext';
 import {
   HierarchicalNode,
@@ -85,22 +84,6 @@ export const DataContextProvider = ({
     },
   );
 
-  const setSummaryFiltersInURL = (summaryFilters: SummaryFilters) => {
-    if (widgetState.view === 'connectionDetailsView') {
-      setWidgetState({
-        ...widgetState,
-        summaryFilters: summaryFilters,
-      });
-    } else {
-      setWidgetState({
-        ...widgetState,
-        summaryFilters: summaryFilters,
-        connectionPage: null,
-        rightWidgetConnectionId: null,
-      });
-    }
-  };
-
   const resetWidgetState = (datasnapshot: string) => {
     const resetURL: URLState = {
       datasnapshot: datasnapshot,
@@ -124,7 +107,7 @@ export const DataContextProvider = ({
 
   const updateURLState = useCallback(() => {
     const urlState: URLState = {
-      datasnapshot: widgetState.datasnapshot,
+      datasnapshot: widgetState.datasnapshot || selectedDatasnapshot,
       filters: widgetState.filters,
       leftWidgetConnectionId: widgetState.leftWidgetConnectionId,
       rightWidgetConnectionId: widgetState.rightWidgetConnectionId,
@@ -139,7 +122,7 @@ export const DataContextProvider = ({
       ? `${window.location.pathname}?${encodedURLState}`
       : window.location.pathname;
     window.history.replaceState(null, '', newURL);
-  }, [widgetState]);
+  }, [widgetState, selectedDatasnapshot]);
 
   useEffect(() => {
     if (
@@ -282,7 +265,6 @@ export const DataContextProvider = ({
     widgetState,
     setWidgetState,
     resetWidgetState,
-    setSummaryFiltersInURL,
     resetApplicationState,
     isDataLoading: false,
     setIsDataLoading: () => {},

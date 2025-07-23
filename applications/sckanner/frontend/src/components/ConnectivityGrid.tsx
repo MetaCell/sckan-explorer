@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { vars } from '../theme/variables.ts';
 import HeatmapGrid from './common/Heatmap.tsx';
 import { useDataContext } from '../context/DataContext.ts';
+import { useWidgetStateActions } from '../hooks/useWidgetStateActions.ts';
 import {
   calculateConnections,
   getMinMaxConnections,
@@ -34,8 +35,10 @@ function ConnectivityGrid() {
     setFilters,
     setSelectedConnectionSummary,
     widgetState,
-    setWidgetState,
   } = useDataContext();
+
+  const { updateConnectivityGridCellClick, resetAllWidgetState } =
+    useWidgetStateActions();
 
   const organizedFilters = useMemo(
     () => extractEndOrganFiltersFromEntities(filters, organs),
@@ -198,22 +201,11 @@ function ConnectivityGrid() {
         const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
 
         const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
-        setWidgetState({
-          ...widgetState,
-          view:
-            widgetState.view === 'connectionView' || isConnectionView
-              ? 'connectionView'
-              : 'connectionDetailsView',
-          rightWidgetConnectionId: isConnectionView
-            ? null
-            : widgetState.rightWidgetConnectionId,
-          leftWidgetConnectionId: leftSideHeatmapCoordinates,
-          filters: widgetState.filters,
-          summaryFilters: removeSummaryFilters
-            ? null
-            : widgetState.summaryFilters,
-          connectionPage: isConnectionView ? null : widgetState.connectionPage,
-        });
+        updateConnectivityGridCellClick(
+          removeSummaryFilters,
+          isConnectionView ?? false,
+          leftSideHeatmapCoordinates,
+        );
 
         setSelectedConnectionSummary({
           connections: ksMap,
@@ -228,8 +220,7 @@ function ConnectivityGrid() {
       detailedHeatmapData,
       hierarchicalNodes,
       knowledgeStatements,
-      widgetState,
-      setWidgetState,
+      updateConnectivityGridCellClick,
       setSelectedCell,
       setSelectedConnectionSummary,
     ],
@@ -305,17 +296,7 @@ function ConnectivityGrid() {
     });
     setSelectedCell(null);
     setSelectedConnectionSummary(null);
-    setWidgetState({
-      ...widgetState,
-      view: null,
-      filters: null,
-      summaryFilters: null,
-      leftWidgetConnectionId: null,
-      rightWidgetConnectionId: null,
-      connectionPage: null,
-      heatmapExpandedState: null,
-      secondaryHeatmapExpandedState: null,
-    });
+    resetAllWidgetState();
   };
 
   const isLoading = yAxis.length == 0;

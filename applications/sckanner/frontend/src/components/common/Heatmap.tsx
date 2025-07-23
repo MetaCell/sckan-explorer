@@ -12,6 +12,7 @@ import {
 } from '../../services/heatmapService.ts';
 import { OTHER_PHENOTYPE_LABEL } from '../../settings.ts';
 import { useDataContext } from '../../context/DataContext.ts';
+import { useWidgetStateActions } from '../../hooks/useWidgetStateActions.ts';
 
 const { gray50, primaryPurple500, gray100A, gray500, primaryPurple600 } = vars;
 
@@ -52,7 +53,8 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
   heatmapData,
   secondaryHeatmapData,
 }) => {
-  const { phenotypesColorMap, widgetState, setWidgetState } = useDataContext();
+  const { phenotypesColorMap } = useDataContext();
+  const { updateHeatmapExpandedState, updateSecondaryHeatmapExpandedState } = useWidgetStateActions();
 
   const secondary = !!secondaryHeatmapData;
   const yAxisData = generateYLabelsAndIds(yAxis);
@@ -94,18 +96,16 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
   const updateWidgetExpandedState = useCallback(
     (expandedIds: string[]) => {
       if (secondary) {
-        setWidgetState({
-          ...widgetState,
-          secondaryHeatmapExpandedState: expandedIds,
-        });
+        updateSecondaryHeatmapExpandedState(expandedIds);
       } else {
-        setWidgetState({
-          ...widgetState,
-          heatmapExpandedState: expandedIds,
-        });
+        updateHeatmapExpandedState(expandedIds);
       }
     },
-    [widgetState, setWidgetState, secondary],
+    [
+      updateHeatmapExpandedState,
+      updateSecondaryHeatmapExpandedState,
+      secondary,
+    ],
   );
 
   const handleCollapseClick = useCallback(

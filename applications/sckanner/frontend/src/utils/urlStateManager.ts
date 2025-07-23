@@ -53,8 +53,17 @@ export const encodeURLState = (state: URLState): string => {
   return params.toString();
 };
 
-export const decodeURLState = (searchParams: URLSearchParams): URLState => {
+export interface URLParsingResult {
+  state: URLState;
+  errors: string[];
+  hasInvalidDatasnapshot?: boolean;
+}
+
+export const decodeURLState = (
+  searchParams: URLSearchParams,
+): URLParsingResult => {
   const state: URLState = { datasnapshot: null, view: null };
+  const errors: string[] = [];
 
   const datasnapshot = searchParams.get('ds');
   if (datasnapshot) {
@@ -72,24 +81,49 @@ export const decodeURLState = (searchParams: URLSearchParams): URLState => {
 
   const view = searchParams.get('v');
   if (view) {
-    state.view = view as WidgetState['view'];
+    const validViews = ['connectionView', 'connectionDetailsView'];
+    if (validViews.includes(view)) {
+      state.view = view as WidgetState['view'];
+    } else {
+      errors.push(
+        `Invalid view parameter: "${view}". Valid values: ${validViews.join(', ')}`,
+      );
+    }
   }
 
   const connectionPage = searchParams.get('cp');
   if (connectionPage) {
-    state.connectionPage = parseInt(connectionPage);
+    const parsedPage = parseInt(connectionPage);
+    if (isNaN(parsedPage)) {
+      errors.push(`Invalid connection page number: "${connectionPage}"`);
+    } else {
+      state.connectionPage = parsedPage;
+    }
   }
 
   const heatmapExpandedState = searchParams.get('he');
   if (heatmapExpandedState) {
-    state.heatmapExpandedState = JSON.parse(atob(heatmapExpandedState));
+    try {
+      state.heatmapExpandedState = JSON.parse(atob(heatmapExpandedState));
+    } catch (error) {
+      console.warn('Failed to parse heatmap expanded state from URL:', error);
+      errors.push('Invalid heatmap expanded state in URL');
+    }
   }
 
   const secondaryHeatmapExpandedState = searchParams.get('she');
   if (secondaryHeatmapExpandedState) {
-    state.secondaryHeatmapExpandedState = JSON.parse(
-      atob(secondaryHeatmapExpandedState),
-    );
+    try {
+      state.secondaryHeatmapExpandedState = JSON.parse(
+        atob(secondaryHeatmapExpandedState),
+      );
+    } catch (error) {
+      console.warn(
+        'Failed to parse secondary heatmap expanded state from URL:',
+        error,
+      );
+      errors.push('Invalid secondary heatmap expanded state in URL');
+    }
   }
 
   const filtersParam = searchParams.get('f');
@@ -98,6 +132,7 @@ export const decodeURLState = (searchParams: URLSearchParams): URLState => {
       state.filters = JSON.parse(atob(filtersParam));
     } catch (error) {
       console.warn('Failed to parse filters from URL:', error);
+      errors.push('Invalid filters in URL');
     }
   }
 
@@ -107,10 +142,11 @@ export const decodeURLState = (searchParams: URLSearchParams): URLState => {
       state.summaryFilters = JSON.parse(atob(summaryFiltersParam));
     } catch (error) {
       console.warn('Failed to parse summary filters from URL:', error);
+      errors.push('Invalid summary filters in URL');
     }
   }
 
-  return state;
+  return { state, errors };
 };
 
 export const COORDINATE_SEPARATOR = ',';
@@ -119,5 +155,16 @@ export const getDatasnapshotFromURLStateOrDefault = (
   urlState: URLState,
   datasnapshots: Datasnapshot[],
 ): string => {
-  return urlState.datasnapshot || datasnapshots[0].id.toString();
+  // Validate if the datasnapshot from URL exists in available datasnapshots
+  if (urlState.datasnapshot) {
+    const snapshotExists = datasnapshots.some(
+      (ds) => ds.id.toString() === urlState.datasnapshot,
+    );
+    if (snapshotExists) {
+      return urlState.datasnapshot;
+    }
+  }
+
+  // Return default if URL datasnapshot is invalid or not found
+  return datasnapshots[0]?.id.toString() || '';
 };
