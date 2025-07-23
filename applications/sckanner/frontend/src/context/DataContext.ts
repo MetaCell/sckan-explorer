@@ -118,7 +118,7 @@ export const DataContext = createContext<DataContext>({
   },
   setWidgetState: () => {},
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  resetWidgetState: (_datasnapshot: string) => { },
+  resetWidgetState: (_datasnapshot: string) => {},
 });
 
 export const useDataContext = () => useContext(DataContext);

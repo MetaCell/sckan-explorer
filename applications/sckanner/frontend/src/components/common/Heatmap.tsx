@@ -54,7 +54,8 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
   secondaryHeatmapData,
 }) => {
   const { phenotypesColorMap } = useDataContext();
-  const { updateHeatmapExpandedState, updateSecondaryHeatmapExpandedState } = useWidgetStateActions();
+  const { updateHeatmapExpandedState, updateSecondaryHeatmapExpandedState } =
+    useWidgetStateActions();
 
   const secondary = !!secondaryHeatmapData;
   const yAxisData = generateYLabelsAndIds(yAxis);

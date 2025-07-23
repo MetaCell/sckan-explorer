@@ -59,11 +59,9 @@ const SummaryHeader = ({
   connectionsCounter,
 }: SummaryHeaderProps) => {
   const totalUniqueKS = Object.keys(knowledgeStatementsMap).length;
-  const {
-    selectedConnectionSummary,
-    majorNerves,
-  } = useDataContext();
-  const { updateConnectionPageInWidgetState, goToConnectionView } = useWidgetStateActions();
+  const { selectedConnectionSummary, majorNerves } = useDataContext();
+  const { updateConnectionPageInWidgetState, goToConnectionView } =
+    useWidgetStateActions();
 
   const handleUpClick = () => {
     if (connectionPage < totalUniqueKS) {

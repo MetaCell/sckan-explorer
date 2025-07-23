@@ -281,8 +281,6 @@ const AppContent = () => {
     }
   }, [hierarchicalNodes, selectedDatasnaphshot]);
 
-
-
   const handleErrorModalClose = () => {
     setFetchError({ show: false, message: '', details: '' });
   };
@@ -374,7 +372,7 @@ const AppContent = () => {
                       <ErrorModal
                         open={fetchError.show}
                         handleClose={handleErrorModalClose}
-                          title={fetchError.title || 'Error'}
+                        title={fetchError.title || 'Error'}
                         message={fetchError.message}
                         details={fetchError.details}
                       />
