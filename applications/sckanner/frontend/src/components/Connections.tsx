@@ -107,7 +107,8 @@ function Connections() {
     if (nerveFilters.length > 0 || phenotypeFilters.length > 0) {
       updateSummaryFilters(summaryFilters);
     }
-  }, [nerveFilters, phenotypeFilters, summaryFilters, updateSummaryFilters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nerveFilters, phenotypeFilters, summaryFilters]);
 
   useEffect(() => {
     if (widgetState.summaryFilters) {
