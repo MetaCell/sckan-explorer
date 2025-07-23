@@ -28,6 +28,7 @@ import {
   filterYAxis,
   getNonEmptyColumns,
   filterConnectionsMap,
+  assignExpandedState,
 } from '../services/heatmapService.ts';
 import SummaryHeader from './connections/SummaryHeader.tsx';
 import SummaryInstructions from './connections/SummaryInstructions.tsx';
@@ -104,7 +105,8 @@ function Connections() {
     if (nerveFilters.length > 0 || phenotypeFilters.length > 0) {
       setSummaryFiltersInURL(summaryFilters);
     }
-  }, [nerveFilters, phenotypeFilters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nerveFilters, phenotypeFilters, summaryFilters]);
 
   useEffect(() => {
     if (widgetState.summaryFilters) {
@@ -203,9 +205,13 @@ function Connections() {
     }
   }, [selectedConnectionSummary, hierarchicalNodes]);
 
-  const handleCellClick = useCallback(
-    (x: number, y: number, yId: string): void => {
-      // when the heatmap cell is clicked
+  const handleCellSelection = useCallback(
+    (
+      x: number,
+      y: number,
+      yId: string,
+      updateWidgetState: boolean = true,
+    ): void => {
       setSelectedCell({ x, y });
       const row = filteredConnectionsMap.get(yId);
       if (row) {
@@ -225,12 +231,14 @@ function Connections() {
           const ksMap = getKnowledgeStatementMap(ksIds, knowledgeStatements);
           setKnowledgeStatementsMap(ksMap);
 
-          setWidgetState({
-            ...widgetState,
-            view: 'connectionDetailsView',
-            rightWidgetConnectionId: `${x}${COORDINATE_SEPARATOR}${y}`,
-            connectionPage: widgetState.connectionPage ?? 1,
-          });
+          if (updateWidgetState) {
+            setWidgetState({
+              ...widgetState,
+              view: 'connectionDetailsView',
+              rightWidgetConnectionId: `${x}${COORDINATE_SEPARATOR}${y}`,
+              connectionPage: widgetState.connectionPage ?? 1,
+            });
+          }
         }
       }
     },
@@ -240,7 +248,16 @@ function Connections() {
       reorderedAxis,
       selectedConnectionSummary,
       knowledgeStatements,
+      widgetState,
+      setWidgetState,
     ],
+  );
+
+  const handleCellClick = useCallback(
+    (x: number, y: number, yId: string): void => {
+      handleCellSelection(x, y, yId, true);
+    },
+    [handleCellSelection],
   );
 
   useEffect(() => {
@@ -267,7 +284,6 @@ function Connections() {
     setReorderedAxis(reorderXAxis([...filteredXAxis].sort()));
     setFilteredConnectionsMap(filteredConnectionsMap);
   }, [yAxis, xAxis, connectionsMap]);
-
 
   // Helper function to apply expand/collapse state to fresh yAxis
   const applyExpandedState = (
@@ -306,28 +322,33 @@ function Connections() {
   };
 
   useEffect(() => {
-    const assignExpandedState = (yAxis: HierarchicalItem[], expandedState: string[]) => {
-      return yAxis.map((item) => ({
-        ...item,
-        expanded: expandedState.includes(item.id),
-        children: item.children ? assignExpandedState(item.children, expandedState) : item.children,
-      }));
-    };
     if (selectedConnectionSummary && hierarchicalNodes) {
       const hierarchyNode = {
         [selectedConnectionSummary.hierarchicalNode.id]:
           selectedConnectionSummary.hierarchicalNode,
       };
 
-      if (widgetState.secondaryHeatmapExpandedState && widgetState.secondaryHeatmapExpandedState.length > 0) {
+      if (
+        widgetState.secondaryHeatmapExpandedState &&
+        widgetState.secondaryHeatmapExpandedState.length > 0
+      ) {
         const freshYAxis = getYAxis(hierarchicalNodes, hierarchyNode);
-        const yAxisWithExpandedState = assignExpandedState(freshYAxis, widgetState.secondaryHeatmapExpandedState);
-        const yAxisWithExpandedStateApplied = applyExpandedState(freshYAxis, yAxisWithExpandedState);
+        const yAxisWithExpandedState = assignExpandedState(
+          freshYAxis,
+          widgetState.secondaryHeatmapExpandedState,
+        );
+        const yAxisWithExpandedStateApplied = applyExpandedState(
+          freshYAxis,
+          yAxisWithExpandedState,
+        );
         setYAxis(yAxisWithExpandedStateApplied);
       }
     }
-  }, [widgetState.secondaryHeatmapExpandedState, selectedConnectionSummary, hierarchicalNodes]);
-
+  }, [
+    widgetState.secondaryHeatmapExpandedState,
+    selectedConnectionSummary,
+    hierarchicalNodes,
+  ]);
 
   useEffect(() => {
     if (
@@ -349,7 +370,7 @@ function Connections() {
         y < filteredYAxis.length
       ) {
         const yId = filteredYAxis[y].id;
-        handleCellClick(x, y, yId);
+        handleCellSelection(x, y, yId, false);
       }
     }
   }, [
@@ -361,6 +382,8 @@ function Connections() {
     filteredYAxis,
     reorderedAxis,
     knowledgeStatements,
+    selectedConnectionSummary,
+    handleCellSelection,
   ]);
 
   const heatmapData = useMemo(() => {
@@ -481,7 +504,7 @@ function Connections() {
               xAxis={reorderedAxis}
               onCellClick={handleCellClick}
               selectedCell={selectedCell}
-                  setSelectedCell={setSelectedCell}
+              setSelectedCell={setSelectedCell}
               secondaryHeatmapData={sortedData}
               xAxisLabel={'Project to'}
               yAxisLabel={'Somas in'}

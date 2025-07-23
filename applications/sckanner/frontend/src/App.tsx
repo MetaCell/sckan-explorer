@@ -280,9 +280,7 @@ const AppContent = () => {
         selectedDatasnapshot={selectedDatasnaphshot}
         urlState={urlState}
         setUrlState={setUrlState}
-        majorNerves={
-          majorNerves ? majorNerves : new Set<string>()
-        }
+        majorNerves={majorNerves ? majorNerves : new Set<string>()}
         hierarchicalNodes={hierarchicalNodes}
         organs={organs}
         knowledgeStatements={knowledgeStatements}

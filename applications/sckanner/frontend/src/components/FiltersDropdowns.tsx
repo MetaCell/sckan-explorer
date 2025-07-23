@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import CustomFilterDropdown from './common/CustomFilterDropdown.tsx';
 import React, { useMemo } from 'react';
-import { Filters, useDataContext, WidgetState } from '../context/DataContext.ts';
+import { Filters, useDataContext } from '../context/DataContext.ts';
 import { HierarchicalItem, Option } from './common/Types.ts';
 import {
   getUniqueApinatomies,

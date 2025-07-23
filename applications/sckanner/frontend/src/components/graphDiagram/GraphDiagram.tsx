@@ -148,7 +148,7 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
           node.setPosition(userPos.x, userPos.y);
           (node as unknown as { _userMoved?: boolean })._userMoved = true;
         } else {
-      // Use calculated dagre position
+          // Use calculated dagre position
           const { x, y } = g.node(nodeId);
           node.setPosition(x, y);
         }

@@ -117,9 +117,10 @@ export const DataContext = createContext<DataContext>({
     heatmapExpandedState: null,
     secondaryHeatmapExpandedState: null,
   },
-  setWidgetState: () => { },
-  resetWidgetState: (datasnapshot: string) => { },
-  setSummaryFiltersInURL: () => { },
+  setWidgetState: () => {},
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  resetWidgetState: (_datasnapshot: string) => {},
+  setSummaryFiltersInURL: () => {},
 });
 
 export const useDataContext = () => useContext(DataContext);

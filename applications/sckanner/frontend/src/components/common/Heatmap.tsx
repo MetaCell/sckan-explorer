@@ -23,6 +23,7 @@ interface HeatmapGridProps {
   xAxisLabel?: string;
   yAxisLabel?: string;
   selectedCell?: { x: number; y: number } | null;
+  setSelectedCell: (cell: { x: number; y: number } | null) => void;
   heatmapData?: number[][];
   secondaryHeatmapData?: KsPerPhenotype[][];
 }
@@ -78,8 +79,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     return lookup;
   }, [yAxisData.labels]);
 
-
-  const getExpandedIds = (list: HierarchicalItem[]): string[] => {
+  const getExpandedIds = useCallback((list: HierarchicalItem[]): string[] => {
     return list.reduce((acc, item) => {
       if (item.expanded) {
         acc.push(item.id);
@@ -89,7 +89,24 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
       }
       return acc;
     }, [] as string[]);
-  };
+  }, []);
+
+  const updateWidgetExpandedState = useCallback(
+    (expandedIds: string[]) => {
+      if (secondary) {
+        setWidgetState({
+          ...widgetState,
+          secondaryHeatmapExpandedState: expandedIds,
+        });
+      } else {
+        setWidgetState({
+          ...widgetState,
+          heatmapExpandedState: expandedIds,
+        });
+      }
+    },
+    [widgetState, setWidgetState, secondary],
+  );
 
   const handleCollapseClick = useCallback(
     (item: HierarchicalItem) => {
@@ -113,23 +130,19 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         });
       };
 
-      const expandedIds = getExpandedIds(updateList(yAxis, item));
-      if (secondary) {
-        setWidgetState({
-          ...widgetState,
-          secondaryHeatmapExpandedState: expandedIds,
-        });
-      } else {
-        setWidgetState({
-          ...widgetState,
-          heatmapExpandedState: expandedIds,
-        });
-      }
-      setSelectedCell(null);
       const updatedList = updateList(yAxis, item);
+      const expandedIds = getExpandedIds(updatedList);
+      updateWidgetExpandedState(expandedIds);
+      setSelectedCell(null);
       setYAxis(updatedList);
     },
-    [yAxis, setYAxis],
+    [
+      yAxis,
+      setYAxis,
+      getExpandedIds,
+      updateWidgetExpandedState,
+      setSelectedCell,
+    ],
   );
 
   const handleExpandAll = useCallback(() => {
@@ -146,22 +159,17 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
       });
     };
     const updatedList = updateList(yAxis);
+    const expandedIds = getExpandedIds(updatedList);
+    updateWidgetExpandedState(expandedIds);
     setSelectedCell(null);
-    const expandedIds = getExpandedIds(updateList(yAxis));
-    if (secondary) {
-      setWidgetState({
-        ...widgetState,
-        secondaryHeatmapExpandedState: expandedIds,
-      });
-    } else {
-      setWidgetState({
-        ...widgetState,
-        heatmapExpandedState: expandedIds,
-      });
-    }
-
     setYAxis(updatedList);
-  }, [yAxis, setYAxis]);
+  }, [
+    yAxis,
+    setYAxis,
+    setSelectedCell,
+    getExpandedIds,
+    updateWidgetExpandedState,
+  ]);
 
   const handleCompressAll = useCallback(() => {
     const updateList = (list: HierarchicalItem[]): HierarchicalItem[] => {
@@ -179,8 +187,17 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
       });
     };
     const updatedList = updateList(yAxis);
+    const expandedIds = getExpandedIds(updatedList);
+    updateWidgetExpandedState(expandedIds);
+    setSelectedCell(null);
     setYAxis(updatedList);
-  }, [yAxis, setYAxis]);
+  }, [
+    yAxis,
+    setYAxis,
+    getExpandedIds,
+    updateWidgetExpandedState,
+    setSelectedCell,
+  ]);
 
   const handleCellClick = (x: number, y: number) => {
     if (yAxisData.expanded[y]) {

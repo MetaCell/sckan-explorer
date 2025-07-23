@@ -14,6 +14,7 @@ import {
   getNonEmptyColumns,
   filterYAxis,
   filterKnowledgeStatements,
+  assignExpandedState,
 } from '../services/heatmapService.ts';
 import FiltersDropdowns from './FiltersDropdowns.tsx';
 import { DetailedHeatmapData, HierarchicalItem } from './common/Types.ts';
@@ -131,22 +132,25 @@ function ConnectivityGrid() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hierarchicalNodes, organizedFilters]); // Add organizedFilters as dependency
 
-
   useEffect(() => {
-    const assignExpandedState = (yAxis: HierarchicalItem[], expandedState: string[]) => {
-      return yAxis.map((item) => ({
-        ...item,
-        expanded: expandedState.includes(item.id),
-        children: item.children ? assignExpandedState(item.children, expandedState) : item.children,
-      }));
-    };
     const freshYAxis = getYAxis(hierarchicalNodes);
-    if (widgetState.heatmapExpandedState && widgetState.heatmapExpandedState.length > 0 && yAxis.length === 0) {
-      const yAxisWithExpandedState = assignExpandedState(freshYAxis, widgetState.heatmapExpandedState);
-      const yAxisWithExpandedStateApplied = applyExpandedState(freshYAxis, yAxisWithExpandedState);
+    if (
+      widgetState.heatmapExpandedState &&
+      widgetState.heatmapExpandedState.length > 0 &&
+      yAxis.length === 0
+    ) {
+      const yAxisWithExpandedState = assignExpandedState(
+        freshYAxis,
+        widgetState.heatmapExpandedState,
+      );
+      const yAxisWithExpandedStateApplied = applyExpandedState(
+        freshYAxis,
+        yAxisWithExpandedState,
+      );
       setYAxis(yAxisWithExpandedStateApplied);
     }
-  }, [widgetState.heatmapExpandedState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [widgetState.heatmapExpandedState, hierarchicalNodes]);
 
   useEffect(() => {
     if (connectionsMap.size > 0 && yAxis.length > 0) {
@@ -177,7 +181,13 @@ function ConnectivityGrid() {
   }, [filteredYAxis, filteredConnectionsMap]);
 
   const handleClick = useCallback(
-    (x: number, y: number, yId: string, isConnectionView?: boolean, removeSummaryFilters: boolean = false): void => {
+    (
+      x: number,
+      y: number,
+      yId: string,
+      isConnectionView?: boolean,
+      removeSummaryFilters: boolean = false,
+    ): void => {
       // When the primary heatmap cell is clicked - this sets the react-context state for Connections in SummaryType.summary
       setSelectedCell({ x, y });
       const row = filteredConnectionsMap.get(yId);
@@ -199,7 +209,9 @@ function ConnectivityGrid() {
             : widgetState.rightWidgetConnectionId,
           leftWidgetConnectionId: leftSideHeatmapCoordinates,
           filters: widgetState.filters,
-          summaryFilters: removeSummaryFilters ? null : widgetState.summaryFilters,
+          summaryFilters: removeSummaryFilters
+            ? null
+            : widgetState.summaryFilters,
           connectionPage: isConnectionView ? null : widgetState.connectionPage,
         });
 
@@ -388,11 +400,11 @@ function ConnectivityGrid() {
         yAxis={filteredYAxis}
         setYAxis={handleYAxisUpdate}
         heatmapData={heatmapData}
-          setSelectedCell={setSelectedCell}
+        setSelectedCell={setSelectedCell}
         xAxis={filteredXOrgans.map((organ) => organ.name)}
         xAxisLabel={'End organ'}
         yAxisLabel={'Connection Origin'}
-          onCellClick={(x, y, yId) => handleClick(x, y, yId, true, true)}
+        onCellClick={(x, y, yId) => handleClick(x, y, yId, true, true)}
         selectedCell={selectedCell}
       />
 

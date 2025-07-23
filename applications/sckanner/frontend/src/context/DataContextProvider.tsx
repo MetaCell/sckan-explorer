@@ -57,14 +57,14 @@ export const DataContextProvider = ({
       urlState && urlState.filters
         ? urlState.filters
         : {
-          Origin: [],
-          EndOrgan: [],
-          Species: [],
-          Phenotype: [],
-          apiNATOMY: [],
-          Via: [],
-          Entities: [],
-        },
+            Origin: [],
+            EndOrgan: [],
+            Species: [],
+            Phenotype: [],
+            apiNATOMY: [],
+            Via: [],
+            Entities: [],
+          },
     [urlState],
   );
   const [filters, setFilters] = useState<Filters>(initialFilters);
@@ -139,13 +139,16 @@ export const DataContextProvider = ({
       ? `${window.location.pathname}?${encodedURLState}`
       : window.location.pathname;
     window.history.replaceState(null, '', newURL);
-  }, [widgetState, filters]);
+  }, [widgetState]);
 
   useEffect(() => {
-    if (urlState.datasnapshot === selectedDatasnapshot || urlState.datasnapshot === null) {
+    if (
+      urlState.datasnapshot === selectedDatasnapshot ||
+      urlState.datasnapshot === null
+    ) {
       updateURLState();
     }
-  }, [updateURLState, widgetState]);
+  }, [updateURLState, selectedDatasnapshot, urlState]);
 
   const phenotypes = useMemo(() => {
     const allPhenotypes = Object.values(knowledgeStatements).map(
