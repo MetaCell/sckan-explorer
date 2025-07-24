@@ -217,13 +217,6 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
     const model = engine.getModel();
     if (model) {
       model.setLocked(false);
-
-      // Debug logging for node interactions
-      model.registerListener({
-        selectionChanged: (event) => {
-          console.log('Selection changed:', event);
-        },
-      });
     }
   }, [engine]);
 
@@ -511,9 +504,11 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
     }
   }, [modelUpdated, modelFitted, engine, isFirstLoad]);
 
-  if (isFirstLoad) {
-    customZoomToFit();
-  }
+  useEffect(() => {
+    if (isFirstLoad) {
+      customZoomToFit();
+    }
+  }, [isFirstLoad]);
 
   return modelUpdated ? (
     <Box sx={{ height: '50rem', width: '100%' }}>

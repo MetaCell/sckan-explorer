@@ -225,7 +225,7 @@ export const useWidgetStateActions = (): UseWidgetStateActionsReturn => {
     goToConnectionDetailsView,
     clearView,
 
-    // Connection managemen
+    // Connection management
     updateConnectionPageInWidgetState,
 
     updateFilterDropdownSelect,
