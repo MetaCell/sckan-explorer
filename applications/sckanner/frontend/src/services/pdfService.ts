@@ -36,6 +36,7 @@ type ConnectionDetailType = {
   Laterality?: string;
   'Circuit Type'?: string;
   References?: string;
+  'Statement Alerts'?: string;
 };
 
 const convertEntitiesJourneyType = (
@@ -407,6 +408,12 @@ export const generatePDFService = (
               .filter((uri) => uri !== ks.id)
               .map((provenance) => provenance)
               .join(', ') || '-',
+          'Statement Alerts':
+            ks.statement_alerts && ks.statement_alerts.length > 0
+              ? ks.statement_alerts
+                  .map((alert) => `${alert.alert}: ${alert.text}`)
+                  .join('; ')
+              : '-',
         };
         Object.keys(details).forEach((key) => {
           if (details[key] === '-') {
