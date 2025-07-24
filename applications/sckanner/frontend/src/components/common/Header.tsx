@@ -15,6 +15,7 @@ import About from './About';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ReleaseDropdown from './ReleaseDropdown';
 import { Datasnapshot } from '../../models/json';
+import { useDataContext } from '../../context/DataContext';
 
 const pages = [
   {
@@ -45,12 +46,15 @@ function Header({
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
   };
-
+  const { resetWidgetState } = useDataContext();
   const handleCloseNavMenu = (link: string) => {
     setAnchorElNav(null);
     navigate(link);
   };
-
+  const handleChangeDatasnapshot = (datasnapshot: string) => {
+    resetWidgetState(datasnapshot);
+    setSelectedDatasnaphshot(datasnapshot);
+  };
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -151,7 +155,7 @@ function Header({
               <ReleaseDropdown
                 datasnapshots={datasnapshots}
                 selectedDatasnaphshot={selectedDatasnaphshot}
-                setSelectedDatasnaphshot={setSelectedDatasnaphshot}
+                setSelectedDatasnaphshot={handleChangeDatasnapshot}
               />
             )}
             <Box sx={{ flexGrow: 0 }}>

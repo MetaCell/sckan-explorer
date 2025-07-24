@@ -2,6 +2,7 @@ import { Box } from '@mui/material';
 import CustomFilterDropdown from './common/CustomFilterDropdown.tsx';
 import React, { useMemo } from 'react';
 import { Filters, useDataContext } from '../context/DataContext.ts';
+import { useWidgetStateActions } from '../hooks/useWidgetStateActions.ts';
 import { HierarchicalItem, Option } from './common/Types.ts';
 import {
   getUniqueApinatomies,
@@ -87,6 +88,8 @@ const FiltersDropdowns: React.FC<{
     organs,
   } = useDataContext();
 
+  const { updateFilterDropdownSelect } = useWidgetStateActions();
+
   const { initialFilterOptions } = useDataContext();
 
   const filteredKnowledgeStatements = useMemo(() => {
@@ -167,10 +170,12 @@ const FiltersDropdowns: React.FC<{
     filterKey: keyof typeof filters,
     selectedOptions: Option[],
   ) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
+    const newFilter = {
+      ...filters,
       [filterKey]: selectedOptions,
-    }));
+    };
+    setFilters(newFilter);
+    updateFilterDropdownSelect(newFilter);
   };
 
   const searchFunctions = useMemo(() => {

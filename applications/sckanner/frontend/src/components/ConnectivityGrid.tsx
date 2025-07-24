@@ -1,8 +1,9 @@
 import { Box, Button, Divider, Typography } from '@mui/material';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { vars } from '../theme/variables.ts';
 import HeatmapGrid from './common/Heatmap.tsx';
 import { useDataContext } from '../context/DataContext.ts';
+import { useWidgetStateActions } from '../hooks/useWidgetStateActions.ts';
 import {
   calculateConnections,
   getMinMaxConnections,
@@ -14,12 +15,14 @@ import {
   getNonEmptyColumns,
   filterYAxis,
   filterKnowledgeStatements,
+  assignExpandedState,
 } from '../services/heatmapService.ts';
 import FiltersDropdowns from './FiltersDropdowns.tsx';
-import { HierarchicalItem } from './common/Types.ts';
+import { DetailedHeatmapData, HierarchicalItem } from './common/Types.ts';
 import { Organ } from '../models/explorer.ts';
 import LoaderSpinner from './common/LoaderSpinner.tsx';
 import { extractEndOrganFiltersFromEntities } from '../services/summaryHeatmapService.ts';
+import { COORDINATE_SEPARATOR } from '../utils/urlStateManager.ts';
 
 const { gray500, white: white, gray25, gray100, gray400, gray600A } = vars;
 
@@ -31,7 +34,11 @@ function ConnectivityGrid() {
     filters,
     setFilters,
     setSelectedConnectionSummary,
+    widgetState,
   } = useDataContext();
+
+  const { updateConnectivityGridCellClick, resetAllWidgetState } =
+    useWidgetStateActions();
 
   const organizedFilters = useMemo(
     () => extractEndOrganFiltersFromEntities(filters, organs),
@@ -108,7 +115,6 @@ function ConnectivityGrid() {
 
     // Collect the expanded state from existing yAxis
     collectExpandedState(existingYAxis);
-
     // Apply the expanded state to fresh yAxis
     return applyExpandedStateRecursive(freshYAxis);
   };
@@ -128,6 +134,26 @@ function ConnectivityGrid() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hierarchicalNodes, organizedFilters]); // Add organizedFilters as dependency
+
+  useEffect(() => {
+    const freshYAxis = getYAxis(hierarchicalNodes);
+    if (
+      widgetState.heatmapExpandedState &&
+      widgetState.heatmapExpandedState.length > 0 &&
+      yAxis.length === 0
+    ) {
+      const yAxisWithExpandedState = assignExpandedState(
+        freshYAxis,
+        widgetState.heatmapExpandedState,
+      );
+      const yAxisWithExpandedStateApplied = applyExpandedState(
+        freshYAxis,
+        yAxisWithExpandedState,
+      );
+      setYAxis(yAxisWithExpandedStateApplied);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [widgetState.heatmapExpandedState, hierarchicalNodes]);
 
   useEffect(() => {
     if (connectionsMap.size > 0 && yAxis.length > 0) {
@@ -157,23 +183,97 @@ function ConnectivityGrid() {
     };
   }, [filteredYAxis, filteredConnectionsMap]);
 
-  const handleClick = (x: number, y: number, yId: string): void => {
-    // When the primary heatmap cell is clicked - this sets the react-context state for Connections in SummaryType.summary
-    setSelectedCell({ x, y });
-    const row = filteredConnectionsMap.get(yId);
-    if (row) {
-      const endOrgan = filteredXOrgans[x];
-      const nodeData = detailedHeatmapData[y];
-      const hierarchicalNode = hierarchicalNodes[nodeData.id];
-      const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
+  const handleClick = useCallback(
+    (
+      x: number,
+      y: number,
+      yId: string,
+      isConnectionView?: boolean,
+      removeSummaryFilters: boolean = false,
+    ): void => {
+      // When the primary heatmap cell is clicked - this sets the react-context state for Connections in SummaryType.summary
+      setSelectedCell({ x, y });
+      const row = filteredConnectionsMap.get(yId);
+      if (row) {
+        const endOrgan = filteredXOrgans[x];
+        const nodeData = detailedHeatmapData[y];
+        const hierarchicalNode = hierarchicalNodes[nodeData.id];
+        const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
 
-      setSelectedConnectionSummary({
-        connections: ksMap,
-        endOrgan: endOrgan,
-        hierarchicalNode: hierarchicalNode,
-      });
+        const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
+        updateConnectivityGridCellClick(
+          removeSummaryFilters,
+          isConnectionView ?? false,
+          leftSideHeatmapCoordinates,
+        );
+
+        setSelectedConnectionSummary({
+          connections: ksMap,
+          endOrgan: endOrgan,
+          hierarchicalNode: hierarchicalNode,
+        });
+      }
+    },
+    [
+      filteredConnectionsMap,
+      filteredXOrgans,
+      detailedHeatmapData,
+      hierarchicalNodes,
+      knowledgeStatements,
+      updateConnectivityGridCellClick,
+      setSelectedCell,
+      setSelectedConnectionSummary,
+    ],
+  );
+
+  const validateIfCoordinatesAreInBounds = (
+    x: number,
+    y: number,
+    filteredXOrgans: Organ[],
+    detailedHeatmapData: DetailedHeatmapData,
+  ): boolean => {
+    if (
+      x >= 0 &&
+      x < filteredXOrgans.length &&
+      y >= 0 &&
+      y < detailedHeatmapData.length
+    ) {
+      return true;
     }
+    return false;
   };
+
+  useEffect(() => {
+    if (
+      widgetState.leftWidgetConnectionId &&
+      filteredConnectionsMap.size > 0 &&
+      detailedHeatmapData.length > 0 &&
+      yAxis.length > 0
+    ) {
+      const [x, y] = widgetState.leftWidgetConnectionId
+        .split(COORDINATE_SEPARATOR)
+        .map(Number);
+      if (
+        validateIfCoordinatesAreInBounds(
+          x,
+          y,
+          filteredXOrgans,
+          detailedHeatmapData,
+        )
+      ) {
+        const nodeData = detailedHeatmapData[y];
+        const yId = nodeData.id;
+        handleClick(x, y, yId, widgetState.view === 'connectionView');
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    widgetState.leftWidgetConnectionId,
+    filteredConnectionsMap,
+    filteredXOrgans,
+    detailedHeatmapData,
+    yAxis,
+  ]);
 
   // Custom handler for updating yAxis from the heatmap collapsible list
   const handleYAxisUpdate = (updatedFilteredYAxis: HierarchicalItem[]) => {
@@ -196,6 +296,7 @@ function ConnectivityGrid() {
     });
     setSelectedCell(null);
     setSelectedConnectionSummary(null);
+    resetAllWidgetState();
   };
 
   const isLoading = yAxis.length == 0;
@@ -280,10 +381,11 @@ function ConnectivityGrid() {
         yAxis={filteredYAxis}
         setYAxis={handleYAxisUpdate}
         heatmapData={heatmapData}
+        setSelectedCell={setSelectedCell}
         xAxis={filteredXOrgans.map((organ) => organ.name)}
         xAxisLabel={'End organ'}
         yAxisLabel={'Connection Origin'}
-        onCellClick={handleClick}
+        onCellClick={(x, y, yId) => handleClick(x, y, yId, true, true)}
         selectedCell={selectedCell}
       />
 

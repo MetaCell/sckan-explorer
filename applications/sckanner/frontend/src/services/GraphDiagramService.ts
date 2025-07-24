@@ -219,7 +219,6 @@ function collectEntityMap(
         entity,
         NodeTypes.Destination,
       );
-      console.log(entityInfo);
       entityInfo.anatomicalType = anatomicalType;
     });
   });

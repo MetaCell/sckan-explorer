@@ -5,7 +5,13 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { DataContext, Filters, ConnectionSummary } from './DataContext';
+import {
+  DataContext,
+  Filters,
+  ConnectionSummary,
+  WidgetState,
+  URLState,
+} from './DataContext';
 import {
   HierarchicalNode,
   KnowledgeStatement,
@@ -25,36 +31,107 @@ import {
   getUniqueAllEntities,
 } from '../services/filterValuesService.ts';
 import { getYAxis } from '../services/heatmapService.ts';
+import { encodeURLState } from '../utils/urlStateManager.ts';
 
 export const DataContextProvider = ({
   hierarchicalNodes,
   organs,
   majorNerves,
   knowledgeStatements,
+  urlState,
+  setUrlState,
+  selectedDatasnapshot,
   children,
 }: PropsWithChildren<{
   hierarchicalNodes: Record<string, HierarchicalNode>;
   organs: Record<string, Organ>;
   majorNerves: Set<string>;
   knowledgeStatements: Record<string, KnowledgeStatement>;
+  urlState: URLState;
+  setUrlState: (urlState: URLState) => void;
+  selectedDatasnapshot: string;
 }>) => {
   const initialFilters = useMemo<Filters>(
-    () => ({
-      Origin: [],
-      EndOrgan: [],
-      Species: [],
-      Phenotype: [],
-      apiNATOMY: [],
-      Via: [],
-      Entities: [],
-    }),
-    [],
+    () =>
+      urlState && urlState.filters
+        ? urlState.filters
+        : {
+            Origin: [],
+            EndOrgan: [],
+            Species: [],
+            Phenotype: [],
+            apiNATOMY: [],
+            Via: [],
+            Entities: [],
+          },
+    [urlState],
   );
-
   const [filters, setFilters] = useState<Filters>(initialFilters);
 
   const [selectedConnectionSummary, setSelectedConnectionSummary] =
     useState<ConnectionSummary | null>(null);
+
+  const [widgetState, setWidgetState] = useState<WidgetState>(
+    urlState || {
+      datasnapshot: selectedDatasnapshot,
+      view: null,
+      leftWidgetConnectionId: null,
+      rightWidgetConnectionId: null,
+      filters: initialFilters,
+      summaryFilters: null,
+      heatmapExpandedState: null,
+      secondaryHeatmapExpandedState: null,
+    },
+  );
+
+  const resetWidgetState = (datasnapshot: string) => {
+    const resetURL: URLState = {
+      datasnapshot: datasnapshot,
+      view: null,
+      leftWidgetConnectionId: null,
+      rightWidgetConnectionId: null,
+      filters: null,
+      summaryFilters: null,
+      connectionPage: null,
+      heatmapExpandedState: null,
+      secondaryHeatmapExpandedState: null,
+    };
+    const encodedURLState = encodeURLState(resetURL);
+    const newURL = encodedURLState
+      ? `${window.location.pathname}?${encodedURLState}`
+      : window.location.pathname;
+    window.history.replaceState(null, '', newURL);
+    setWidgetState(resetURL);
+    setUrlState(resetURL);
+  };
+
+  const updateURLState = useCallback(() => {
+    const urlState: URLState = {
+      datasnapshot: widgetState.datasnapshot || selectedDatasnapshot,
+      filters: widgetState.filters,
+      leftWidgetConnectionId: widgetState.leftWidgetConnectionId,
+      rightWidgetConnectionId: widgetState.rightWidgetConnectionId,
+      view: widgetState.view,
+      summaryFilters: widgetState?.summaryFilters,
+      connectionPage: widgetState?.connectionPage,
+      heatmapExpandedState: widgetState?.heatmapExpandedState,
+      secondaryHeatmapExpandedState: widgetState?.secondaryHeatmapExpandedState,
+    };
+    const encodedURLState = encodeURLState(urlState);
+    const newURL = encodedURLState
+      ? `${window.location.pathname}?${encodedURLState}`
+      : window.location.pathname;
+    window.history.replaceState(null, '', newURL);
+  }, [widgetState, selectedDatasnapshot]);
+
+  useEffect(() => {
+    if (
+      urlState.datasnapshot === selectedDatasnapshot ||
+      urlState.datasnapshot === null
+    ) {
+      updateURLState();
+    }
+  }, [updateURLState, selectedDatasnapshot, urlState]);
 
   const phenotypes = useMemo(() => {
     const allPhenotypes = Object.values(knowledgeStatements).map(
@@ -185,6 +262,9 @@ export const DataContextProvider = ({
     selectedConnectionSummary,
     setSelectedConnectionSummary: handleSetSelectedConnectionSummary,
     phenotypesColorMap,
+    widgetState,
+    setWidgetState,
+    resetWidgetState,
     resetApplicationState,
     isDataLoading: false,
     setIsDataLoading: () => {},

@@ -477,3 +477,16 @@ export const filterConnectionsMap = <T>(
   });
   return filteredMap;
 };
+
+export const assignExpandedState = (
+  yAxis: HierarchicalItem[],
+  expandedState: string[],
+): HierarchicalItem[] => {
+  return yAxis.map((item: HierarchicalItem) => ({
+    ...item,
+    expanded: expandedState.includes(item.id),
+    children: item.children
+      ? assignExpandedState(item.children, expandedState)
+      : item.children,
+  }));
+};

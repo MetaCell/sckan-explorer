@@ -20,6 +20,7 @@ import {
   AsapFontItalic,
   AsapFontRegular,
 } from '../../theme/AsapFontBase64.ts';
+import { useWidgetStateActions } from '../../hooks/useWidgetStateActions.ts';
 
 const { gray100, gray600A, gray500, primaryPurple600 } = vars;
 pdfMake.vfs = {};
@@ -59,16 +60,22 @@ const SummaryHeader = ({
 }: SummaryHeaderProps) => {
   const totalUniqueKS = Object.keys(knowledgeStatementsMap).length;
   const { selectedConnectionSummary, majorNerves } = useDataContext();
+  const { updateConnectionPageInWidgetState, goToConnectionView } =
+    useWidgetStateActions();
 
   const handleUpClick = () => {
     if (connectionPage < totalUniqueKS) {
-      setConnectionPage(connectionPage + 1);
+      const newConnectionPage = connectionPage + 1;
+      setConnectionPage(newConnectionPage);
+      updateConnectionPageInWidgetState(newConnectionPage);
     }
   };
 
   const handleDownClick = () => {
     if (connectionPage > 1) {
-      setConnectionPage(connectionPage - 1);
+      const newConnectionPage = connectionPage - 1;
+      setConnectionPage(newConnectionPage);
+      updateConnectionPageInWidgetState(newConnectionPage);
     }
   };
 
@@ -83,6 +90,14 @@ const SummaryHeader = ({
       majorNerves,
     );
     pdfMake.createPdf(pdfDefinition).download();
+  };
+
+  const handleBackToSummary = () => {
+    setShowDetails(SummaryType.Summary);
+    goToConnectionView({
+      rightWidgetConnectionId: null,
+      connectionPage: null,
+    });
   };
 
   if (showDetails === SummaryType.Instruction) {
@@ -120,7 +135,7 @@ const SummaryHeader = ({
               },
             }}
           >
-            <Button onClick={() => setShowDetails(SummaryType.Summary)}>
+            <Button onClick={() => handleBackToSummary()}>
               Back to Summary
             </Button>
           </ButtonGroup>

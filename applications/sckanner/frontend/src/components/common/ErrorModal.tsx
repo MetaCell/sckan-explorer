@@ -40,6 +40,7 @@ const ErrorModal: FC<ErrorModalProps> = ({
       open={open}
       maxWidth="sm"
       fullWidth
+      sx={{ zIndex: 9999 }}
     >
       <DialogTitle
         id="error-dialog-title"

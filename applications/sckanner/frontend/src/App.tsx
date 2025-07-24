@@ -13,10 +13,11 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Header from './components/common/Header.tsx';
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
   useLocation,
+  BrowserRouter,
+  useSearchParams,
 } from 'react-router-dom';
 import SummaryPage from './components/SummaryPage.tsx';
 import Loader from './components/common/Loader.tsx';
@@ -43,6 +44,12 @@ import { Datasnapshot, OrderJson } from './models/json.ts';
 import { useDataContext } from './context/DataContext.ts';
 import LoadingOverlay from './components/common/LoadingOverlay.tsx';
 import ErrorModal from './components/common/ErrorModal.tsx';
+import {
+  decodeURLState,
+  getDatasnapshotFromURLStateOrDefault,
+} from './utils/urlStateManager.ts';
+import { validateURLState } from './utils/validateURL.ts';
+import { URLState } from './context/DataContext.ts';
 
 const AppWithReset = ({
   selectedDatasnaphshot,
@@ -71,6 +78,18 @@ const AppWithReset = ({
 };
 
 const App = () => {
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <BrowserRouter>
+        <AppContent />
+        <GoogleAnalyticsTracker />
+      </BrowserRouter>
+    </ThemeProvider>
+  );
+};
+
+const AppContent = () => {
   const store = useStore();
   const dispatch = useDispatch();
   const [LayoutComponent, setLayoutComponent] = useState<
@@ -87,11 +106,13 @@ const App = () => {
   const [datasnapshots, setdatasnapshots] = useState<Datasnapshot[]>([]);
   const [selectedDatasnaphshot, setSelectedDatasnaphshot] =
     useState<string>('');
+  const [hasValidatedInitialURL, setHasValidatedInitialURL] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [fetchError, setFetchError] = useState<{
     show: boolean;
     message: string;
     details: string;
+    title?: string;
   }>({
     show: false,
     message: '',
@@ -99,7 +120,18 @@ const App = () => {
   });
   const previousDatasnaphshot = useRef<string>('');
   const [orderData, setOrderData] = useState<OrderJson>({});
-
+  const [searchParams] = useSearchParams();
+  const [urlState, setUrlState] = useState<URLState>({
+    datasnapshot: null,
+    view: null,
+    leftWidgetConnectionId: null,
+    rightWidgetConnectionId: null,
+    filters: null,
+    summaryFilters: null,
+    connectionPage: null,
+    heatmapExpandedState: null,
+    secondaryHeatmapExpandedState: null,
+  });
   useEffect(() => {
     if (LayoutComponent === undefined) {
       const myManager = getLayoutManagerInstance();
@@ -125,7 +157,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchInitialData = async () => {
       try {
         const [orderDataFetched, majorNervesData, datasnapshots] =
           await Promise.all([
@@ -137,17 +169,82 @@ const App = () => {
         setOrderData(orderDataFetched);
         setMajorNerves(getUniqueMajorNerves(majorNervesData));
         setdatasnapshots(datasnapshots);
-        setSelectedDatasnaphshot(datasnapshots[0].id.toString());
-        fetchJSONAndSetHierarchicalNodes(datasnapshots[0], orderDataFetched);
       } catch (error) {
-        // TODO: We should give feedback to the user
-        console.error('Failed to fetch data:', error);
+        console.error('Failed to fetch initial data:', error);
+        setFetchError({
+          show: true,
+          title: 'Data Loading Error',
+          message:
+            'Failed to load initial application data. Please refresh the page.',
+          details:
+            error instanceof Error ? error.message : 'Unknown error occurred',
+        });
         setMajorNerves(undefined);
       }
     };
 
-    fetchData();
-  }, []);
+    fetchInitialData();
+  }, []); // Empty dependency array - runs only once
+
+  useEffect(() => {
+    if (datasnapshots.length === 0 || hasValidatedInitialURL) return; // Wait for datasnapshots and validate only once
+
+    const urlValidationResult = validateURLState(urlState, datasnapshots);
+
+    setHasValidatedInitialURL(true);
+
+    if (urlValidationResult.errors.length > 0) {
+      setFetchError({
+        show: true,
+        title: 'Invalid Data Reference',
+        message:
+          'Some URL parameters are no longer valid. The application will use corrected values.',
+        details: urlValidationResult.errors.join('; '),
+      });
+
+      // Update the URL state with validated values
+      if (urlValidationResult.validatedState) {
+        // Update the URL immediately by modifying the current search params
+        const currentParams = new URLSearchParams(window.location.search);
+        if (urlValidationResult.validatedState.datasnapshot) {
+          currentParams.set(
+            'ds',
+            urlValidationResult.validatedState.datasnapshot,
+          );
+        }
+        const newSearch = currentParams.toString();
+
+        // Update browser URL
+        window.history.replaceState(null, '', `?${newSearch}`);
+
+        // Update the URL state
+        setUrlState((prev) => ({
+          ...prev,
+          ...urlValidationResult.validatedState,
+        }));
+      }
+    }
+  }, [urlState, datasnapshots, setUrlState, hasValidatedInitialURL]);
+
+  useEffect(() => {
+    if (datasnapshots.length === 0) return; // Wait for datasnapshots to be loaded
+
+    const newSelectedDatasnapshot = getDatasnapshotFromURLStateOrDefault(
+      urlState,
+      datasnapshots,
+    );
+    setSelectedDatasnaphshot(newSelectedDatasnapshot);
+  }, [urlState, datasnapshots]);
+
+  // 4. Hierarchical nodes fetching - runs when selected datasnapshot or orderData changes
+  useEffect(() => {
+    const selectedSnapshotObj = datasnapshots.find(
+      (ds: Datasnapshot) => ds.id === parseInt(selectedDatasnaphshot),
+    );
+    if (selectedSnapshotObj && Object.keys(orderData).length > 0) {
+      fetchJSONAndSetHierarchicalNodes(selectedSnapshotObj, orderData);
+    }
+  }, [selectedDatasnaphshot, orderData, datasnapshots]);
 
   useEffect(() => {
     if (Object.keys(hierarchicalNodes).length > 0 && selectedDatasnaphshot) {
@@ -157,7 +254,12 @@ const App = () => {
         previousDatasnaphshot.current !== selectedDatasnaphshot
       ) {
         setIsDataLoading(true);
-        setFetchError({ show: false, message: '', details: '' });
+        // Only clear non-URL validation errors
+        setFetchError((prev) =>
+          prev.title === 'Invalid Data Reference'
+            ? prev // Keep URL validation errors
+            : { show: false, message: '', details: '' },
+        );
       }
 
       const neuronIDsSet = new Set<string>();
@@ -195,21 +297,13 @@ const App = () => {
           setIsDataLoading(false);
           setFetchError({
             show: true,
+            title: 'Data Loading Error',
             message: `Failed to load data snapshot "${selectedDatasnaphshot}". Please try again or select a different snapshot.`,
             details: error.message || 'Unknown error occurred',
           });
         });
     }
   }, [hierarchicalNodes, selectedDatasnaphshot]);
-
-  useEffect(() => {
-    const selectedSnapshotObj = datasnapshots.find(
-      (ds: Datasnapshot) => ds.id === parseInt(selectedDatasnaphshot),
-    );
-    if (selectedSnapshotObj) {
-      fetchJSONAndSetHierarchicalNodes(selectedSnapshotObj, orderData);
-    }
-  }, [selectedDatasnaphshot, orderData, datasnapshots]);
 
   const handleErrorModalClose = () => {
     setFetchError({ show: false, message: '', details: '' });
@@ -237,66 +331,83 @@ const App = () => {
   const loadingInfo =
     loadingLabels[loadingConditions.findIndex((c) => c)] ?? '';
 
+  useEffect(() => {
+    const urlParsingResult = decodeURLState(searchParams);
+    setUrlState(urlParsingResult.state);
+
+    if (urlParsingResult.errors.length > 0) {
+      setFetchError({
+        show: true,
+        title: 'URL Parameter Error',
+        message:
+          'Invalid URL parameters detected. The application will continue with default values.',
+        details: urlParsingResult.errors.join('; '),
+      });
+    } else {
+      // Clear any previous URL-related errors
+      setFetchError((prev) =>
+        prev.title === 'URL Parameter Error'
+          ? { show: false, message: '', details: '' }
+          : prev,
+      );
+    }
+  }, [searchParams]);
+
   return (
     <>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Router>
-          <GoogleAnalyticsTracker />
-          <Box>
-            <Header
-              datasnapshots={datasnapshots}
-              selectedDatasnaphshot={selectedDatasnaphshot}
-              setSelectedDatasnaphshot={setSelectedDatasnaphshot}
-            />
-            <Box className="MuiContainer">
-              <Routes>
-                <Route path="/summary" element={<SummaryPage />} />
-                <Route
-                  path="/"
-                  element={
-                    isLoading ? (
-                      <Loader
-                        progress={loadingProgress}
-                        text={`Loading ${loadingInfo}...`}
+      <DataContextProvider
+        key={selectedDatasnaphshot}
+        selectedDatasnapshot={selectedDatasnaphshot}
+        urlState={urlState}
+        setUrlState={setUrlState}
+        majorNerves={majorNerves ? majorNerves : new Set<string>()}
+        hierarchicalNodes={hierarchicalNodes}
+        organs={organs}
+        knowledgeStatements={knowledgeStatements}
+      >
+        <Box>
+          <Header
+            datasnapshots={datasnapshots}
+            selectedDatasnaphshot={selectedDatasnaphshot}
+            setSelectedDatasnaphshot={setSelectedDatasnaphshot}
+          />
+          <Box className="MuiContainer">
+            <Routes>
+              <Route path="/summary" element={<SummaryPage />} />
+              <Route
+                path="/"
+                element={
+                  isLoading ? (
+                    <Loader
+                      progress={loadingProgress}
+                      text={`Loading ${loadingInfo}...`}
+                    />
+                  ) : (
+                    <>
+                      <AppWithReset
+                        selectedDatasnaphshot={selectedDatasnaphshot}
+                      >
+                        {LayoutComponent && <LayoutComponent />}
+                      </AppWithReset>
+                      <LoadingOverlay
+                        open={isDataLoading}
+                        message="Loading new data snapshot..."
                       />
-                    ) : (
-                      <>
-                        <DataContextProvider
-                          key={selectedDatasnaphshot}
-                          majorNerves={
-                            majorNerves ? majorNerves : new Set<string>()
-                          }
-                          hierarchicalNodes={hierarchicalNodes}
-                          organs={organs}
-                          knowledgeStatements={knowledgeStatements}
-                        >
-                          <AppWithReset
-                            selectedDatasnaphshot={selectedDatasnaphshot}
-                          >
-                            {LayoutComponent && <LayoutComponent />}
-                          </AppWithReset>
-                        </DataContextProvider>
-                        <LoadingOverlay
-                          open={isDataLoading}
-                          message="Loading new data snapshot..."
-                        />
-                        <ErrorModal
-                          open={fetchError.show}
-                          handleClose={handleErrorModalClose}
-                          title="Data Loading Error"
-                          message={fetchError.message}
-                          details={fetchError.details}
-                        />
-                      </>
-                    )
-                  }
-                />
-              </Routes>
-            </Box>
+                      <ErrorModal
+                        open={fetchError.show}
+                        handleClose={handleErrorModalClose}
+                        title={fetchError.title || 'Error'}
+                        message={fetchError.message}
+                        details={fetchError.details}
+                      />
+                    </>
+                  )
+                }
+              />
+            </Routes>
           </Box>
-        </Router>
-      </ThemeProvider>
+        </Box>
+      </DataContextProvider>
     </>
   );
 };
