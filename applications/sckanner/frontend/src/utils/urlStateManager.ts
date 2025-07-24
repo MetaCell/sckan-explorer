@@ -1,12 +1,77 @@
 import { URLState, WidgetState } from '../context/DataContext';
-import { Filters, SummaryFilters } from '../context/DataContext';
+import {
+  Filters,
+  SummaryFilters,
+  InitialFilterOptions,
+} from '../context/DataContext';
 import { Datasnapshot } from '../models/json';
+import { Option } from '../components/common/Types';
 
 // Utility to check if any filter is set
 export function hasActiveFilters(filters: Filters | SummaryFilters): boolean {
   return Object.values(filters).some(
     (arr) => Array.isArray(arr) && arr.length > 0,
   );
+}
+
+// Utility to validate and filter options against available options
+export function validateFilterOptions(
+  filterValue: Option[],
+  availableOptions: Option[],
+): { validOptions: Option[]; invalidOptions: Option[] } {
+  const validOptions: Option[] = [];
+  const invalidOptions: Option[] = [];
+
+  filterValue.forEach((option) => {
+    const isValid = availableOptions.some(
+      (available) =>
+        available.id === option.id && available.label === option.label,
+    );
+
+    if (isValid) {
+      validOptions.push(option);
+    } else {
+      invalidOptions.push(option);
+    }
+  });
+
+  return { validOptions, invalidOptions };
+}
+
+// Utility to validate filters against available filter options
+export function validateFilters(
+  filters: Filters,
+  initialFilterOptions: InitialFilterOptions,
+): { validFilters: Filters; invalidFilters: Record<string, Option[]> } {
+  const validFilters: Filters = {
+    Origin: [],
+    EndOrgan: [],
+    Species: [],
+    Phenotype: [],
+    apiNATOMY: [],
+    Via: [],
+    Entities: [],
+  };
+
+  const invalidFilters: Record<string, Option[]> = {};
+
+  Object.keys(filters).forEach((filterKey) => {
+    const key = filterKey as keyof Filters;
+    if (filters[key] && initialFilterOptions[key]) {
+      const { validOptions, invalidOptions } = validateFilterOptions(
+        filters[key],
+        initialFilterOptions[key],
+      );
+
+      validFilters[key] = validOptions;
+
+      if (invalidOptions.length > 0) {
+        invalidFilters[key] = invalidOptions;
+      }
+    }
+  });
+
+  return { validFilters, invalidFilters };
 }
 
 export const encodeURLState = (state: URLState): string => {

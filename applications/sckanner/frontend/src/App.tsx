@@ -106,6 +106,7 @@ const AppContent = () => {
   const [datasnapshots, setdatasnapshots] = useState<Datasnapshot[]>([]);
   const [selectedDatasnaphshot, setSelectedDatasnaphshot] =
     useState<string>('');
+  const [hasValidatedInitialURL, setHasValidatedInitialURL] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [fetchError, setFetchError] = useState<{
     show: boolean;
@@ -186,26 +187,44 @@ const AppContent = () => {
   }, []); // Empty dependency array - runs only once
 
   useEffect(() => {
-    if (datasnapshots.length === 0) return; // Wait for datasnapshots to be loaded
+    if (datasnapshots.length === 0 || hasValidatedInitialURL) return; // Wait for datasnapshots and validate only once
 
-    const urlValidationErrors = validateURLState(urlState, datasnapshots);
-    if (urlValidationErrors.length > 0) {
+    const urlValidationResult = validateURLState(urlState, datasnapshots);
+
+    setHasValidatedInitialURL(true);
+
+    if (urlValidationResult.errors.length > 0) {
       setFetchError({
         show: true,
-        title: 'URL Parameter Error',
+        title: 'Invalid Data Reference',
         message:
-          'Invalid URL parameters detected. The application will use default values.',
-        details: urlValidationErrors.join('; '),
+          'Some URL parameters are no longer valid. The application will use corrected values.',
+        details: urlValidationResult.errors.join('; '),
       });
-    } else {
-      // Clear any previous URL validation errors
-      setFetchError((prev) =>
-        prev.title === 'URL Parameter Error'
-          ? { show: false, message: '', details: '' }
-          : prev,
-      );
+
+      // Update the URL state with validated values
+      if (urlValidationResult.validatedState) {
+        // Update the URL immediately by modifying the current search params
+        const currentParams = new URLSearchParams(window.location.search);
+        if (urlValidationResult.validatedState.datasnapshot) {
+          currentParams.set(
+            'ds',
+            urlValidationResult.validatedState.datasnapshot,
+          );
+        }
+        const newSearch = currentParams.toString();
+
+        // Update browser URL
+        window.history.replaceState(null, '', `?${newSearch}`);
+
+        // Update the URL state
+        setUrlState((prev) => ({
+          ...prev,
+          ...urlValidationResult.validatedState,
+        }));
+      }
     }
-  }, [urlState, datasnapshots]);
+  }, [urlState, datasnapshots, setUrlState, hasValidatedInitialURL]);
 
   useEffect(() => {
     if (datasnapshots.length === 0) return; // Wait for datasnapshots to be loaded
@@ -235,7 +254,12 @@ const AppContent = () => {
         previousDatasnaphshot.current !== selectedDatasnaphshot
       ) {
         setIsDataLoading(true);
-        setFetchError({ show: false, message: '', details: '' });
+        // Only clear non-URL validation errors
+        setFetchError((prev) =>
+          prev.title === 'Invalid Data Reference'
+            ? prev // Keep URL validation errors
+            : { show: false, message: '', details: '' },
+        );
       }
 
       const neuronIDsSet = new Set<string>();
