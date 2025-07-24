@@ -24,7 +24,7 @@ export const validateURLState = (
     const snapshotExists = datasnapshots.some(
       (ds) => ds.id.toString() === urlState.datasnapshot,
     );
-    
+
     if (!snapshotExists) {
       hasInvalidDatasnapshot = true;
       const availableIds = datasnapshots
