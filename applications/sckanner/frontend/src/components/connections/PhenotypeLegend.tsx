@@ -58,7 +58,7 @@ const PhenotypeLegend = ({ phenotypes }: { phenotypes: string[] }) => {
                   width: '1.4794rem',
                   height: '1rem',
                   borderRadius: '0.125rem',
-                  background: `${phenotypesColorMap[phenotype]?.color}`,
+                  background: `${phenotypesColorMap[phenotype]?.color || gray100}`,
                 }}
               />
               <Typography
