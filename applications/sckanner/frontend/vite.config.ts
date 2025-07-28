@@ -5,7 +5,10 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
 
-  const API_URL = process.env.VITE_API_URL;
+  const API_URL =
+    mode === 'production'
+      ? process.env.VITE_API_URL
+      : 'https://sckanner.dev.metacell.us';
 
   return {
     plugins: [react()],

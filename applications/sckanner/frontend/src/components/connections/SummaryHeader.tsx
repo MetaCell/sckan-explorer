@@ -89,7 +89,11 @@ const SummaryHeader = ({
         ({} as KsRecord),
       majorNerves,
     );
-    pdfMake.createPdf(pdfDefinition).download();
+    pdfMake
+      .createPdf(pdfDefinition)
+      .download(
+        `${selectedConnectionSummary?.hierarchicalNode.name} TO ${selectedConnectionSummary?.endOrgan?.name} SUMMARY.pdf`,
+      );
   };
 
   const handleBackToSummary = () => {
