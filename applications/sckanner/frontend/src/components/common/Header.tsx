@@ -8,6 +8,8 @@ import Menu from '@mui/material/Menu';
 import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import Logo from '../assets/svg/Logo_beta.svg';
 import AboutScannerLogo from '../assets/svg/actions.svg';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -56,6 +58,27 @@ function Header({
     setSelectedDatasnaphshot(datasnapshot);
   };
   const [open, setOpen] = React.useState(false);
+  const [showCopyFeedback, setShowCopyFeedback] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
+
+  const handleShareClick = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setShowCopyFeedback(true);
+
+      // Reset the copied state after 2 seconds
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to copy URL:', error);
+    }
+  };
+
+  const handleCloseCopyFeedback = () => {
+    setShowCopyFeedback(false);
+  };
 
   return (
     <>
@@ -158,6 +181,15 @@ function Header({
                 setSelectedDatasnaphshot={handleChangeDatasnapshot}
               />
             )}
+            <Box sx={{ flexGrow: 0, mr: 2 }}>
+              <Button
+                variant="contained"
+                onClick={handleShareClick}
+                color={copied ? 'success' : 'primary'}
+              >
+                {copied ? 'Copied!' : 'Share Sckanner'}
+              </Button>
+            </Box>
             <Box sx={{ flexGrow: 0 }}>
               <IconButton sx={{ p: 0 }} onClick={() => setOpen(!open)}>
                 <img src={AboutScannerLogo} />
@@ -168,6 +200,21 @@ function Header({
       </AppBar>
 
       <About open={open} handleClose={() => setOpen(false)} />
+
+      <Snackbar
+        open={showCopyFeedback}
+        autoHideDuration={3000}
+        onClose={handleCloseCopyFeedback}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleCloseCopyFeedback}
+          severity="success"
+          sx={{ width: '100%' }}
+        >
+          URL copied to clipboard!
+        </Alert>
+      </Snackbar>
     </>
   );
 }
