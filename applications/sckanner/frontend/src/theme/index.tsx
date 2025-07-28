@@ -159,6 +159,7 @@ const theme = createTheme({
           margin-bottom: 0.1rem !important;
           transform: rotate(180deg);
           width: .875rem !important;
+          min-height: 10rem;
         }
         #y-label-empty {
             background-image: linear-gradient(${gray400}, ${gray100});
