@@ -73,38 +73,14 @@ class DataSnapshotCreateForm(forms.Form):
         return cleaned_data
 
 
-class DataSnapshotChangeForm(forms.ModelForm):
-    class Meta:
-        model = DataSnapshot
-        fields = ['snapshot_visible']
-
-
 class DataSnapshotAdmin(admin.ModelAdmin):
-    form = DataSnapshotChangeForm
     list_display = ("id", "source", "version", "timestamp", "status", "snapshot_visible", "a_b_via_c_json_file")
     list_editable = ("snapshot_visible",)
     list_filter = ("status", "snapshot_visible", "source")
     ordering = ("-timestamp",)
     exclude = ("status",)
-    fields = ('snapshot_info', 'snapshot_visible',)  # Show info and editable field
-    readonly_fields = ('snapshot_info',)
-
-    def snapshot_info(self, obj):
-        """Display readonly information about the snapshot"""
-        if obj:
-            info = f"<strong>ID:</strong> {obj.id}<br>"
-            info += f"<strong>Source:</strong> {obj.source}<br>"
-            info += f"<strong>Version:</strong> {obj.version}<br>"
-            info += f"<strong>Timestamp:</strong> {obj.timestamp}<br>"
-            info += f"<strong>Status:</strong> {obj.get_status_display()}<br>"
-            if obj.a_b_via_c_json_file:
-                info += f"<strong>JSON File:</strong> {obj.a_b_via_c_json_file.name}<br>"
-            if obj.message:
-                info += f"<strong>Message:</strong> {obj.message}"
-            return info
-        return ""
-    snapshot_info.allow_tags = True
-    snapshot_info.short_description = "Snapshot Information"
+    fields = ("source", "version", "timestamp", "status", "a_b_via_c_json_file", "snapshot_visible", "message")
+    readonly_fields = ("source", "version", "timestamp", "status", "a_b_via_c_json_file", "message")
 
     def add_view(self, request, form_url="", extra_context=None):
         import datetime
@@ -137,7 +113,6 @@ class DataSnapshotAdmin(admin.ModelAdmin):
         )
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
-        # Enable save functionality for snapshot_visible field
         extra_context = extra_context or {}
         extra_context["show_delete"] = True
         extra_context["show_save"] = True
