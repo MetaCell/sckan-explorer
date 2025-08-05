@@ -65,7 +65,7 @@ steps:
     stage: qa
     title: Api tests
     working_directory: /home/test
-    image: '${{test-api}}'
+    image: '${{REGISTRY}}/cloud-harness/test-api:latest'
     fail_fast: false
     commands:
     - echo $APP_NAME
