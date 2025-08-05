@@ -80,7 +80,7 @@ class DataSnapshotAdmin(admin.ModelAdmin):
     ordering = ("-timestamp",)
     exclude = ("status",)
     fields = ("source", "version", "timestamp", "status", "a_b_via_c_json_file", "snapshot_visible", "message")
-    readonly_fields = ("source", "version", "timestamp", "status", "a_b_via_c_json_file", "message")
+    readonly_fields = ("source", "version", "timestamp", "status", "a_b_via_c_json_file")
 
     def add_view(self, request, form_url="", extra_context=None):
         import datetime
