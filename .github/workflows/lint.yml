@@ -40,17 +40,6 @@ jobs:
         working-directory: ./applications/sckanner/backend/cloud-harness/infrastructure/common-images/cloudharness-django/libraries/cloudharness-django
         run: |
           pip install -e .
-      - name: Harness Deployment command
-        working-directory: ./applications/sckanner/backend
-        run: |
-          cd ../../..
-          # Create a test values file without hard dependencies for CI
-          cp applications/sckanner/deploy/values.yaml applications/sckanner/deploy/values-test.yaml
-          sed -i 's/hard: \[accounts\]/hard: []/' applications/sckanner/deploy/values-test.yaml
-          # Override the values file location
-          rm applications/sckanner/deploy/values.yaml
-          mv applications/sckanner/deploy/values-test.yaml applications/sckanner/deploy/values.yaml
-          harness-deployment cloud-harness . -i sckanner -d sckanner.local -n sckanner -u -dtls --no-cd -l -e test
       - name: Copy values.yaml
         run: |
           mkdir -p /opt/cloudharness/resources/
