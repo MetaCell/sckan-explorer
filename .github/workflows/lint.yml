@@ -40,10 +40,11 @@ jobs:
         working-directory: ./applications/sckanner/backend/cloud-harness/infrastructure/common-images/cloudharness-django/libraries/cloudharness-django
         run: |
           pip install -e .
-      - name: Copy values.yaml
+      - working-directory: ./
+        name: Copy values.yaml
         run: |
+          ls -l
           mkdir -p /opt/cloudharness/resources/
-          cd ../../..
           cp deployment/helm/values.yaml /opt/cloudharness/resources/allvalues.yaml
       - working-directory: ./applications/sckanner/backend
         name: Run tests
