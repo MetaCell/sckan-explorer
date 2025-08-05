@@ -31,7 +31,6 @@ type ConnectionDetailType = {
   Species?: string;
   Sex?: string;
   Phenotype?: string;
-  Projection?: string;
   'Connectivity Model'?: string;
   Laterality?: string;
   'Circuit Type'?: string;
@@ -399,7 +398,6 @@ export const generatePDFService = (
           Species: ks.species.map((specie) => specie.name).join(', ') || '-',
           Sex: ks.sex.name || '-',
           Phenotype: ks.phenotype || '-',
-          Projection: ks.projection || '-',
           'Connectivity Model': ks.apinatomy || '-',
           Laterality: ks.laterality || '-',
           'Circuit Type': ks.circuit_type || '-',

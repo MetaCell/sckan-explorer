@@ -198,6 +198,9 @@ export const getUniquePhenotypes = (
     if (ks.circuit_type) {
       phenotypes.add(ks.circuit_type);
     }
+    if (ks.projection) {
+      phenotypes.add(ks.projection);
+    }
   });
   return mapNameToOption(phenotypes).sort((a, b) =>
     a.label.localeCompare(b.label),

@@ -263,7 +263,8 @@ export function filterKnowledgeStatements(
       const phenotypeMatch =
         !phenotypeIds.length ||
         phenotypeIds.includes(ks.phenotype) ||
-        phenotypeIds.includes(ks.circuit_type);
+        phenotypeIds.includes(ks.circuit_type) ||
+        phenotypeIds.includes(ks.projection);
       const apiNATOMYMatch =
         !apiNATOMYIds.length || apiNATOMYIds.includes(ks.apinatomy);
       const speciesMatch =
