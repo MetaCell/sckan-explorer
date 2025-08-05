@@ -1,0 +1,315 @@
+apps:
+  accounts:
+    admin: {pass: metacell, role: administrator, user: admin}
+    build: true
+    client: {id: rest-client, secret: 5678eb6e-9e2c-4ee5-bd54-34e7411339e8}
+    enabled: true
+    harness:
+      aliases: []
+      database:
+        auto: true
+        expose: false
+        image_ref: null
+        name: keycloak-postgres
+        pass: password
+        postgres:
+          image: postgres:17
+          initialdb: auth_db
+          ports:
+          - {name: http, port: 5432}
+        resources:
+          limits: {cpu: 1000m, memory: 2Gi}
+          requests: {cpu: 100m, memory: 512Mi}
+        size: 2Gi
+        type: postgres
+        user: user
+      dependencies:
+        build: []
+        hard: []
+        soft: []
+      deployment:
+        auto: true
+        image: cloud-harness/accounts
+        name: accounts
+        port: 8080
+        replicas: 1
+        resources: &id001
+          limits: {cpu: 2000m, memory: 1024Mi}
+          requests: {cpu: 10m, memory: 512Mi}
+        volume: null
+      domain: null
+      env:
+      - {name: KC_BOOTSTRAP_ADMIN_USERNAME, value: admin}
+      - {name: KC_BOOTSTRAP_ADMIN_PASSWORD, value: metacell}
+      - {name: KC_PROXY_HEADERS, value: xforwarded}
+      - {name: KC_DB, value: postgres}
+      - {name: KC_DB_URL_HOST, value: keycloak-postgres}
+      - {name: KC_DB_URL_DATABASE, value: auth_db}
+      - {name: KC_DB_USERNAME, value: user}
+      - {name: KC_DB_PASSWORD, value: password}
+      - {name: JAVA_OPTS, value: '-server -Xms64m -Xmx896m -XX:MetaspaceSize=96M -XX:MaxMetaspaceSize=256m
+          -Djava.net.preferIPv4Stack=true -Djboss.modules.system.pkgs=org.jboss.byteman
+          -Djava.awt.headless=true  --add-exports=java.base/sun.nio.ch=ALL-UNNAMED
+          --add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED --add-exports=jdk.unsupported/sun.reflect=ALL-UNNAMED'}
+      livenessProbe: {path: /health/live, port: 9000}
+      name: accounts
+      proxy:
+        payload: {max: null}
+        timeout: {keepalive: null, read: null, send: null}
+      readinessProbe: {path: /health/ready, port: 9000}
+      resources:
+      - {dst: /opt/keycloak/data/import/realm.json, name: realm-config, src: realm.json}
+      secrets: {api_user_password: ''}
+      secured: false
+      sentry: false
+      service: {auto: true, name: accounts, port: 8080}
+      startupProbe: {path: /health/started, port: 9000}
+      subdomain: accounts
+      test:
+        api:
+          autotest: true
+          checks: [all]
+          enabled: false
+          runParams: []
+        e2e: {enabled: false, ignoreConsoleErrors: false, ignoreRequestErrors: false,
+          smoketest: true}
+        unit:
+          commands: []
+          enabled: true
+      uri_role_mapping:
+      - roles: [administrator]
+        uri: /*
+      - {uri: /api/openapi.json, white-listed: true}
+      - {uri: /openapi.json, white-listed: true}
+      use_services: []
+    harvest: true
+    image: cloud-harness/accounts
+    name: accounts
+    port: 8080
+    resources: *id001
+    task-images: {}
+    webclient: {id: web-client, secret: 452952ae-922c-4766-b912-7b106271e34b}
+  argo:
+    build: true
+    harness:
+      aliases: []
+      dependencies:
+        build: []
+        hard: []
+        soft: []
+      deployment:
+        auto: false
+        image: null
+        name: argo
+        port: 8080
+        replicas: 1
+        resources: &id002
+          limits: {cpu: 500m, memory: 500Mi}
+          requests: {cpu: 10m, memory: 32Mi}
+        volume: null
+      domain: null
+      name: argo
+      proxy:
+        payload: {max: null}
+        timeout: {keepalive: null, read: null, send: null}
+      secrets: {}
+      secured: true
+      sentry: false
+      service: {auto: false, name: argo-server, port: 2746}
+      subdomain: argo
+      test:
+        api:
+          autotest: true
+          checks: [all]
+          enabled: false
+          runParams: []
+        e2e: {enabled: false, ignoreConsoleErrors: false, ignoreRequestErrors: false,
+          smoketest: true}
+        unit:
+          commands: []
+          enabled: true
+      uri_role_mapping:
+      - roles: [administrator]
+        uri: /*
+      - {uri: /api/openapi.json, white-listed: true}
+      - {uri: /openapi.json, white-listed: true}
+      use_services: []
+    image: null
+    name: argo
+    port: 8080
+    resources: *id002
+    serviceaccount: argo-workflows
+    task-images: {}
+  sckanner:
+    build: true
+    harness:
+      aliases: []
+      database:
+        auto: true
+        expose: false
+        image_ref: null
+        name: sckanner-db
+        pass: metacell
+        postgres:
+          image: postgres:14
+          initialdb: cloudharness
+          ports:
+          - {name: http, port: 5432}
+        resources:
+          limits: {cpu: 1000m, memory: 2Gi}
+          requests: {cpu: 100m, memory: 512Mi}
+        size: 1Gi
+        type: postgres
+        user: mnp
+      dependencies:
+        build: [cloudharness-base, cloudharness-frontend-build, cloudharness-django]
+        hard: [accounts]
+        soft: [argo, workflows]
+      deployment:
+        auto: true
+        image: cloud-harness/sckanner
+        name: sckanner
+        port: 8080
+        replicas: 1
+        resources: &id003
+          limits: {cpu: 500m, memory: 500Mi}
+          requests: {cpu: 10m, memory: 32Mi}
+        volume: {auto: true, mountpath: /usr/src/app/persistent, name: sckanner-ingestion-files,
+          size: 100Mi, usenfs: false}
+      domain: null
+      livenessProbe: {path: /api/live}
+      name: sckanner
+      proxy:
+        payload: {max: null}
+        timeout: {keepalive: null, read: null, send: null}
+      readinessProbe: {path: /api/ready}
+      secrets: {}
+      secured: true
+      sentry: false
+      service: {auto: true, name: sckanner, port: 8080}
+      subdomain: www
+      test:
+        api:
+          autotest: true
+          checks: [all]
+          enabled: false
+          runParams: []
+        e2e: {enabled: false, ignoreConsoleErrors: false, ignoreRequestErrors: false,
+          smoketest: true}
+        unit:
+          commands: []
+          enabled: true
+      uri_role_mapping:
+      - {uri: /*, white-listed: true}
+      use_services: []
+    image: cloud-harness/sckanner
+    name: sckanner
+    port: 8080
+    resources: *id003
+    task-images: {cloudharness-base: cloud-harness/cloudharness-base, cloudharness-django: cloud-harness/cloudharness-django,
+      cloudharness-frontend-build: cloud-harness/cloudharness-frontend-build}
+  workflows:
+    build: true
+    harness:
+      aliases: []
+      dependencies:
+        build: [cloudharness-flask]
+        hard: [argo]
+        soft: []
+      deployment:
+        auto: true
+        image: cloud-harness/workflows
+        name: workflows
+        port: 8080
+        replicas: 1
+        resources: &id004
+          limits: {cpu: 500m, memory: 500Mi}
+          requests: {cpu: 10m, memory: 32Mi}
+        volume: null
+      domain: null
+      name: workflows
+      proxy:
+        payload: {max: null}
+        timeout: {keepalive: null, read: null, send: null}
+      secrets: {}
+      secured: false
+      sentry: false
+      service: {auto: true, name: workflows, port: 8080}
+      subdomain: workflows
+      test:
+        api:
+          autotest: true
+          checks: [all]
+          enabled: true
+          runParams: []
+        e2e: {enabled: false, ignoreConsoleErrors: false, ignoreRequestErrors: false,
+          smoketest: true}
+        unit:
+          commands: []
+          enabled: true
+      uri_role_mapping:
+      - roles: [administrator]
+        uri: /*
+      - {uri: /api/openapi.json, white-listed: true}
+      - {uri: /openapi.json, white-listed: true}
+      use_services: []
+    image: cloud-harness/workflows
+    name: workflows
+    port: 8080
+    resources: *id004
+    task-images: {cloudharness-flask: cloud-harness/cloudharness-flask, workflows-extract-download: cloud-harness/workflows-extract-download,
+      workflows-notify-queue: cloud-harness/workflows-notify-queue, workflows-send-result-event: cloud-harness/workflows-send-result-event}
+backup:
+  active: false
+  dir: /backups
+  keep_days: '7'
+  keep_months: '6'
+  keep_weeks: '4'
+  resources:
+    limits: {cpu: 50m, memory: 64Mi}
+    requests: {cpu: 25m, memory: 32Mi}
+  schedule: '*/5 * * * *'
+  suffix: .gz
+  volumesize: 2Gi
+build_hash: aae3a85
+debug: false
+domain: sckanner
+env:
+- {name: CH_VERSION, value: 2.5.0}
+- {name: CH_ACCOUNTS_SUBDOMAIN, value: accounts}
+- {name: CH_ACCOUNTS_NAME, value: accounts}
+- {name: CH_SCKANNER_SUBDOMAIN, value: www}
+- {name: CH_SCKANNER_NAME, value: sckanner}
+- {name: CH_WORKFLOWS_SUBDOMAIN, value: workflows}
+- {name: CH_WORKFLOWS_NAME, value: workflows}
+- {name: CH_ARGO_SUBDOMAIN, value: argo}
+- {name: CH_ARGO_NAME, value: argo}
+- {name: CH_DOMAIN, value: sckanner}
+- {name: CH_IMAGE_REGISTRY, value: ''}
+- {name: CH_IMAGE_TAG, value: null}
+ingress:
+  enabled: true
+  letsencrypt: {email: cloudharness@metacell.us}
+  name: cloudharness-ingress
+  ssl_redirect: false
+local: true
+localIp: 34.59.126.133
+mainapp: sckanner
+name: cloud-harness
+namespace: sckanner
+privenv:
+- {name: CH_SECRET, value: In God we trust; all others must bring data. ― W. Edwards
+    Deming}
+proxy:
+  forwardedHeaders: true
+  payload: {max: 250}
+  timeout: {keepalive: 60, read: 60, send: 60}
+registry: {name: '', secret: ''}
+secured_gatekeepers: true
+tag: null
+task-images: {cloudharness-base: cloud-harness/cloudharness-base, cloudharness-django: cloud-harness/cloudharness-django,
+  cloudharness-flask: cloud-harness/cloudharness-flask, cloudharness-frontend-build: cloud-harness/cloudharness-frontend-build,
+  workflows-extract-download: cloud-harness/workflows-extract-download, workflows-notify-queue: cloud-harness/workflows-notify-queue,
+  workflows-send-result-event: cloud-harness/workflows-send-result-event}
+test-images: {test-api: cloud-harness/test-api, test-e2e: cloud-harness/test-e2e}
+tls: false

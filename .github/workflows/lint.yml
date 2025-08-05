@@ -43,9 +43,8 @@ jobs:
       - working-directory: ./
         name: Copy values.yaml
         run: |
-          ls -l
           mkdir -p /opt/cloudharness/resources/
-          cp deployment/helm/values.yaml /opt/cloudharness/resources/allvalues.yaml
+          cp applications/sckanner/test/values.yaml /opt/cloudharness/resources/allvalues.yaml
       - working-directory: ./applications/sckanner/backend
         name: Run tests
         run: |
