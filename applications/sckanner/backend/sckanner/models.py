@@ -32,7 +32,10 @@ class DataSnapshotStatus(models.TextChoices):
 
 class DataSnapshotManager(models.Manager):
     def completed(self):
-        return self.get_queryset().filter(status=DataSnapshotStatus.COMPLETED).order_by('source__name', '-timestamp')
+        return self.get_queryset().filter(
+            status=DataSnapshotStatus.COMPLETED, 
+            snapshot_visible=True
+        ).order_by('source__name', '-timestamp')
 
 
 class DataSnapshot(models.Model):
@@ -45,6 +48,7 @@ class DataSnapshot(models.Model):
     version = models.CharField(max_length=255, db_index=True)
     status = models.CharField(max_length=255, choices=DataSnapshotStatus.choices, db_index=True, default=DataSnapshotStatus.TO_START)
     message = models.TextField(null=True, blank=True)
+    snapshot_visible = models.BooleanField(default=True, db_index=True, help_text="Whether this snapshot is visible to users")
 
     objects = DataSnapshotManager()
 
