@@ -74,9 +74,13 @@ class DataSnapshotCreateForm(forms.Form):
 
 
 class DataSnapshotAdmin(admin.ModelAdmin):
-    list_display = ("id", "source", "version", "timestamp", "status", "a_b_via_c_json_file")
+    list_display = ("id", "source", "version", "timestamp", "status", "snapshot_visible", "a_b_via_c_json_file")
+    list_editable = ("snapshot_visible",)
+    list_filter = ("status", "snapshot_visible", "source")
     ordering = ("-timestamp",)
     exclude = ("status",)
+    fields = ("source", "version", "timestamp", "status", "a_b_via_c_json_file", "snapshot_visible", "message")
+    readonly_fields = ("source", "version", "timestamp", "status", "a_b_via_c_json_file")
 
     def add_view(self, request, form_url="", extra_context=None):
         import datetime
@@ -109,12 +113,11 @@ class DataSnapshotAdmin(admin.ModelAdmin):
         )
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
-        self.readonly_fields = [f.name for f in self.model._meta.fields]
         extra_context = extra_context or {}
         extra_context["show_delete"] = True
-        extra_context["show_save"] = False
+        extra_context["show_save"] = True
         extra_context["show_save_and_add_another"] = False
-        extra_context["show_save_and_continue"] = False
+        extra_context["show_save_and_continue"] = True
         extra_context["show_save_as_new"] = False
         return super().change_view(
             request, object_id, form_url, extra_context=extra_context
