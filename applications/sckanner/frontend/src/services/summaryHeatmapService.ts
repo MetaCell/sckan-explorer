@@ -79,6 +79,9 @@ export function getAllPhenotypes(connections: KsRecord): string[] {
     if (!ks.phenotype && !ks.circuit_type) {
       phenotypeNames.add(OTHER_PHENOTYPE_LABEL);
     }
+    if (ks.projection) {
+      phenotypeNames.add(ks.projection);
+    }
   });
 
   return Array.from(phenotypeNames).sort();
@@ -108,7 +111,8 @@ export function summaryFilterKnowledgeStatements(
       const phenotypeMatch =
         !phenotypeIds.length ||
         phenotypeIds.includes(ks.phenotype) ||
-        (ks.circuit_type && phenotypeIds.includes(ks.circuit_type));
+        (ks.circuit_type && phenotypeIds.includes(ks.circuit_type)) ||
+        (ks.projection && phenotypeIds.includes(ks.projection));
       const nerveMatch =
         !nerveIds.length ||
         ks.vias?.some((via) =>
@@ -233,8 +237,10 @@ export function calculateSecondaryConnections(
             const phenotype =
               knowledgeStatements[ksId].phenotype ||
               knowledgeStatements[ksId].circuit_type ||
+              knowledgeStatements[ksId].projection ||
               OTHER_PHENOTYPE_LABEL;
             const circuit_type = knowledgeStatements[ksId].circuit_type;
+            const projection = knowledgeStatements[ksId].projection;
             if (!result[index][phenotype]) {
               result[index][phenotype] = { ksIds: [] };
             }
@@ -244,6 +250,12 @@ export function calculateSecondaryConnections(
                 result[index][circuit_type] = { ksIds: [] };
               }
               result[index][circuit_type].ksIds.push(ksId);
+            }
+            if (projection !== '') {
+              if (!result[index][projection]) {
+                result[index][projection] = { ksIds: [] };
+              }
+              result[index][projection].ksIds.push(ksId);
             }
           });
         });

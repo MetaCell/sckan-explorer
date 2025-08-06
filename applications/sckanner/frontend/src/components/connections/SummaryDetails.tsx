@@ -69,6 +69,7 @@ const SummaryDetails = ({
   );
   const phenotype = connectionDetails?.phenotype || '';
   const circuit_type = connectionDetails?.circuit_type || '';
+  const projection = connectionDetails?.projection || '';
 
   // Details shown in the dropdown - from composer
   const detailsObject = [
@@ -80,11 +81,6 @@ const SummaryDetails = ({
     {
       label: 'Laterality',
       value: connectionDetails?.laterality || '-',
-      icon: undefined,
-    },
-    {
-      label: 'Projection',
-      value: connectionDetails?.projection || '-',
       icon: undefined,
     },
     {
@@ -101,6 +97,7 @@ const SummaryDetails = ({
       value: [
         connectionDetails?.phenotype,
         connectionDetails?.circuit_type,
+        connectionDetails?.projection,
       ].filter(Boolean),
       icon: undefined,
     },
@@ -169,6 +166,9 @@ const SummaryDetails = ({
                 label={circuit_type.toLowerCase()}
                 variant="outlined"
               />
+            )}
+            {projection && (
+              <CommonChip label={projection.toLowerCase()} variant="outlined" />
             )}
           </Box>
           <CommonAccordion
