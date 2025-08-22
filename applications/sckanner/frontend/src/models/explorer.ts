@@ -286,6 +286,13 @@ export interface KnowledgeStatement {
 
   /**
    *
+   * @type {string}
+   * @memberof KnowledgeStatement
+   */
+  reference_uri?: string;
+
+  /**
+   *
    * @type {Array<string>}
    * @memberof KnowledgeStatement
    */

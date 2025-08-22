@@ -17,7 +17,7 @@ import {
   KnowledgeStatement,
   Organ,
 } from '../models/explorer.ts';
-import { PhenotypeDetail } from '../components/common/Types.ts';
+import { PhenotypeDetail, HeatmapMode } from '../components/common/Types.ts';
 import { generatePhenotypeColors } from '../services/summaryHeatmapService.ts';
 import { OTHER_PHENOTYPE_LABEL } from '../settings.ts';
 import { filterKnowledgeStatements } from '../services/heatmapService.ts';
@@ -273,6 +273,7 @@ export const DataContextProvider = ({
     isDataLoading: false,
     setIsDataLoading: () => {},
     initialFilterOptions,
+    heatmapMode: HeatmapMode.Default || 'default',
   };
 
   return (

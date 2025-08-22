@@ -16,6 +16,7 @@ import {
   filterYAxis,
   filterKnowledgeStatements,
   assignExpandedState,
+  filterOrgans,
 } from '../services/heatmapService.ts';
 import FiltersDropdowns from './FiltersDropdowns.tsx';
 import { DetailedHeatmapData, HierarchicalItem } from './common/Types.ts';
@@ -35,6 +36,7 @@ function ConnectivityGrid() {
     setFilters,
     setSelectedConnectionSummary,
     widgetState,
+    heatmapMode,
   } = useDataContext();
 
   const { updateConnectivityGridCellClick, resetAllWidgetState } =
@@ -176,12 +178,38 @@ function ConnectivityGrid() {
   }, [yAxis, connectionsMap, xAxisOrgans]);
 
   const { heatmapData, detailedHeatmapData } = useMemo(() => {
-    const heatmapData = getHeatmapData(filteredYAxis, filteredConnectionsMap);
+    const filteredKSs = filterKnowledgeStatements(
+      knowledgeStatements,
+      hierarchicalNodes,
+      organizedFilters,
+      organs,
+    );
+
+    const filteredOrgans = filterOrgans(organs, filters.EndOrgan || []);
+
+    const heatmapData = getHeatmapData(
+      filteredYAxis,
+      filteredConnectionsMap,
+      filteredKSs,
+      filteredOrgans,
+      heatmapMode,
+    );
+
+    // TODO change the return based on the type of heatmapMode
     return {
       heatmapData: heatmapData.heatmapMatrix,
       detailedHeatmapData: heatmapData.detailedHeatmap,
     };
-  }, [filteredYAxis, filteredConnectionsMap]);
+  }, [
+    filteredYAxis,
+    filteredConnectionsMap,
+    heatmapMode,
+    knowledgeStatements,
+    hierarchicalNodes,
+    organizedFilters,
+    organs,
+    filters,
+  ]);
 
   const handleClick = useCallback(
     (

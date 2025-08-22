@@ -10,6 +10,7 @@ import {
   Option,
   KsRecord,
   LabelIdPair,
+  HeatmapMode,
 } from '../components/common/Types.ts';
 import { Filters } from '../context/DataContext.ts';
 
@@ -45,6 +46,30 @@ export function getXAxisOrgans(organs: Record<string, Organ>): Organ[] {
   return Object.values(organs)
     .sort((a, b) => a.order - b.order)
     .map((organ) => organ);
+}
+
+export function mapForwardConnections(
+  allKnowledgeStatements: Record<string, KnowledgeStatement>,
+): Map<string, Set<string>> {
+  const forwardMap = new Map<string, Set<string>>();
+  Object.entries(allKnowledgeStatements).forEach(([ksId, ks]) => {
+    ks.forwardConnections.forEach((fwNode) => {
+      const fwId = fwNode.reference_uri;
+      // first check if the fwId exists in the allKnowledgeStatements since it might have been filtered out
+      // if it does not exist, we skip adding it to the forwardMap
+      if (!fwId || !allKnowledgeStatements[fwId]) return;
+      // if the fwId does not exist in the forwardMap, we create a new Set
+      // if it exists, we add the ksId to the Set
+      // this way we can keep track of all knowledge statements that forward to a specific fwId
+      if (fwId && !forwardMap.has(fwId)) {
+        forwardMap.set(fwId, new Set());
+      } else if (fwId) {
+        forwardMap.get(fwId)!.add(ksId);
+      }
+    });
+  });
+
+  return forwardMap;
 }
 
 export function calculateConnections(
@@ -127,10 +152,15 @@ export function calculateConnections(
 export function getHeatmapData(
   yAxis: HierarchicalItem[],
   connections: Map<string, string[][]>,
+  knowledgeStatements: Record<string, KnowledgeStatement>,
+  organs: Record<string, Organ>,
+  heatmapMode: HeatmapMode = HeatmapMode.Default,
 ) {
   const heatmapInformation: HeatmapMatrixInformation = {
     heatmapMatrix: [],
+    synapticHeatmapMatrix: [],
     detailedHeatmap: [],
+    synapticConnections: [],
   };
 
   function addDataForItem(item: HierarchicalItem) {
@@ -164,6 +194,32 @@ export function getHeatmapData(
 
   // Start traversal with the initial yAxis, allowing to fetch immediate children of the root if expanded
   traverseItems(yAxis, true);
+
+  const fwsMap = mapForwardConnections(knowledgeStatements);
+  heatmapInformation.synapticConnections =
+    heatmapInformation.detailedHeatmap.map((item) => {
+      const id = item.id || '';
+      const label = item.label;
+      const synapticData = item.data.map((ksIds) => {
+        const cellResults: string[][] = [];
+        ksIds.forEach((ksId) => {
+          if (fwsMap.has(ksId)) return;
+          if (knowledgeStatements[ksId].forwardConnections.length === 0) return;
+          knowledgeStatements[ksId].forwardConnections.forEach((fwNode) => {
+            const singleSynaptic: string[] = [];
+            singleSynaptic.push(ksId);
+            let fwId = fwNode.reference_uri;
+          });
+        });
+        return cellResults;
+      });
+      return {
+        id,
+        label,
+        synapticConnections: synapticData,
+        directConnections: item.data,
+      };
+    });
 
   return heatmapInformation;
 }

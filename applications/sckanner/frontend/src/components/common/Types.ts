@@ -39,9 +39,16 @@ export type DetailedHeatmapData = {
   id: string;
 }[];
 
+export type SynapticConnectionsData = {
+  label: string;
+  data: string[][];
+  id: string;
+}[];
+
 export interface HeatmapMatrixInformation {
   heatmapMatrix: number[][];
   detailedHeatmap: DetailedHeatmapData;
+  synapticConnections: SynapticConnectionsData;
 }
 export interface HierarchicalItem {
   id: string;
@@ -54,3 +61,8 @@ export type PhenotypeDetail = {
   label: string;
   color: string;
 };
+
+export enum HeatmapMode {
+  Default = 'default',
+  Synaptic = 'synaptic',
+}
