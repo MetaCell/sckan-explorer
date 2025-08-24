@@ -41,12 +41,14 @@ export type DetailedHeatmapData = {
 
 export type SynapticConnectionsData = {
   label: string;
-  data: string[][];
+  directConnections: string[][];
+  synapticConnections: string[][][];
   id: string;
 }[];
 
 export interface HeatmapMatrixInformation {
   heatmapMatrix: number[][];
+  synapticHeatmapMatrix: number[][];
   detailedHeatmap: DetailedHeatmapData;
   synapticConnections: SynapticConnectionsData;
 }

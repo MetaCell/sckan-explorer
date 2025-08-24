@@ -16,7 +16,6 @@ import {
   filterYAxis,
   filterKnowledgeStatements,
   assignExpandedState,
-  filterOrgans,
 } from '../services/heatmapService.ts';
 import FiltersDropdowns from './FiltersDropdowns.tsx';
 import { DetailedHeatmapData, HierarchicalItem } from './common/Types.ts';
@@ -185,13 +184,11 @@ function ConnectivityGrid() {
       organs,
     );
 
-    const filteredOrgans = filterOrgans(organs, filters.EndOrgan || []);
-
     const heatmapData = getHeatmapData(
       filteredYAxis,
       filteredConnectionsMap,
       filteredKSs,
-      filteredOrgans,
+      filteredXOrgans,
       heatmapMode,
     );
 
@@ -201,14 +198,14 @@ function ConnectivityGrid() {
       detailedHeatmapData: heatmapData.detailedHeatmap,
     };
   }, [
-    filteredYAxis,
-    filteredConnectionsMap,
-    heatmapMode,
     knowledgeStatements,
     hierarchicalNodes,
     organizedFilters,
     organs,
-    filters,
+    filteredYAxis,
+    filteredConnectionsMap,
+    filteredXOrgans,
+    heatmapMode,
   ]);
 
   const handleClick = useCallback(
@@ -217,7 +214,9 @@ function ConnectivityGrid() {
       y: number,
       yId: string,
       isConnectionView?: boolean,
+      // AI-GENERATED: 2025-08-23
       removeSummaryFilters: boolean = false,
+      // AI-GENERATED: 2025-08-23
     ): void => {
       // When the primary heatmap cell is clicked - this sets the react-context state for Connections in SummaryType.summary
       setSelectedCell({ x, y });

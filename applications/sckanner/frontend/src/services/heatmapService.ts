@@ -48,6 +48,52 @@ export function getXAxisOrgans(organs: Record<string, Organ>): Organ[] {
     .map((organ) => organ);
 }
 
+export function traceForwardConnectionPaths(
+  startKsId: string,
+  knowledgeStatements: Record<string, KnowledgeStatement>,
+): string[][] {
+  const paths: string[][] = [];
+
+  function tracePath(currentKsId: string, currentPath: string[]): void {
+    // Avoid infinite loops by checking if we've already visited this node in the current path
+    if (currentPath.includes(currentKsId)) {
+      return;
+    }
+
+    const currentKs = knowledgeStatements[currentKsId];
+    if (!currentKs) {
+      return;
+    }
+
+    const newPath = [...currentPath, currentKsId];
+
+    // If this knowledge statement has no forward connections, it's the end of a path
+    if (
+      !currentKs.forwardConnections ||
+      currentKs.forwardConnections.length === 0
+    ) {
+      if (newPath.length > 1) {
+        // Only add paths with more than just the starting node
+        paths.push(newPath);
+      }
+      return;
+    }
+
+    // Follow each forward connection
+    currentKs.forwardConnections.forEach((fwNode) => {
+      const fwId = fwNode.reference_uri;
+      if (fwId && knowledgeStatements[fwId]) {
+        tracePath(fwId, newPath);
+      }
+    });
+  }
+
+  // Start tracing from the initial knowledge statement
+  tracePath(startKsId, []);
+
+  return paths;
+}
+
 export function mapForwardConnections(
   allKnowledgeStatements: Record<string, KnowledgeStatement>,
 ): Map<string, Set<string>> {
@@ -62,7 +108,7 @@ export function mapForwardConnections(
       // if it exists, we add the ksId to the Set
       // this way we can keep track of all knowledge statements that forward to a specific fwId
       if (fwId && !forwardMap.has(fwId)) {
-        forwardMap.set(fwId, new Set());
+        forwardMap.set(fwId, new Set([ksId]));
       } else if (fwId) {
         forwardMap.get(fwId)!.add(ksId);
       }
@@ -153,7 +199,7 @@ export function getHeatmapData(
   yAxis: HierarchicalItem[],
   connections: Map<string, string[][]>,
   knowledgeStatements: Record<string, KnowledgeStatement>,
-  organs: Record<string, Organ>,
+  filteredOrgans: Organ[],
   heatmapMode: HeatmapMode = HeatmapMode.Default,
 ) {
   const heatmapInformation: HeatmapMatrixInformation = {
@@ -195,23 +241,84 @@ export function getHeatmapData(
   // Start traversal with the initial yAxis, allowing to fetch immediate children of the root if expanded
   traverseItems(yAxis, true);
 
+  // iterate all the organs and all their children to create a map where from the children id we can get the index of the organ in the sortedOrgans array
+  const childToParentMap = new Map<string, string>();
+  Object.values(filteredOrgans).forEach((organ) => {
+    if (organ.children instanceof Map) {
+      organ.children.forEach((childOrgan) => {
+        childToParentMap.set(childOrgan.id, organ.id);
+      });
+    }
+  });
+
+  const organIndexMap = filteredOrgans.reduce<Record<string, number>>(
+    (map, organ, index) => {
+      map[organ.id] = index;
+      return map;
+    },
+    {},
+  );
+
   const fwsMap = mapForwardConnections(knowledgeStatements);
   heatmapInformation.synapticConnections =
     heatmapInformation.detailedHeatmap.map((item) => {
       const id = item.id || '';
       const label = item.label;
-      const synapticData = item.data.map((ksIds) => {
-        const cellResults: string[][] = [];
+      const synapticData: string[][][] = Array.from(
+        { length: item.data.length },
+        () => [],
+      );
+      item.data.forEach((ksIds) => {
         ksIds.forEach((ksId) => {
           if (fwsMap.has(ksId)) return;
           if (knowledgeStatements[ksId].forwardConnections.length === 0) return;
-          knowledgeStatements[ksId].forwardConnections.forEach((fwNode) => {
-            const singleSynaptic: string[] = [];
-            singleSynaptic.push(ksId);
-            let fwId = fwNode.reference_uri;
+
+          // Use the new function to trace all forward connection paths
+          const connectionPaths = traceForwardConnectionPaths(
+            ksId,
+            knowledgeStatements,
+          );
+
+          // Iterate through each connectivity path
+          connectionPaths.forEach((path: string[]) => {
+            // Get the last knowledge statement ID (end of the connectivity path)
+            const endKsId = path[path.length - 1];
+            const endKs = knowledgeStatements[endKsId];
+
+            if (endKs && endKs.destinations) {
+              // Process each destination to find the corresponding organ
+              endKs.destinations.forEach((destination) => {
+                destination.anatomical_entities.forEach((entity) => {
+                  const entityId = entity.id.split(' ')[0];
+                  // Check if this entity belongs to any organ or if it's a child of an organ
+                  let organIndex = organIndexMap[entityId];
+
+                  // If not found directly, check if it's a child organ
+                  if (organIndex === undefined) {
+                    const parentOrganId = childToParentMap.get(entityId);
+                    if (parentOrganId) {
+                      organIndex = organIndexMap[parentOrganId];
+                    }
+                  }
+
+                  // If we found a matching organ, push the path to that organ's cell (avoid duplicates)
+                  if (organIndex !== undefined) {
+                    const existingPaths = synapticData[organIndex];
+                    const pathExists = existingPaths.some(
+                      (existingPath: string[]) =>
+                        existingPath.length === path.length &&
+                        existingPath.every((id, index) => id === path[index]),
+                    );
+
+                    if (!pathExists) {
+                      synapticData[organIndex].push(path);
+                    }
+                  }
+                });
+              });
+            }
           });
         });
-        return cellResults;
       });
       return {
         id,
