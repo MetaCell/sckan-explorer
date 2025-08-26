@@ -272,7 +272,10 @@ export function getHeatmapData(
         item.data.forEach((ksIds) => {
           ksIds.forEach((ksId) => {
             if (fwsMap.has(ksId)) return;
-            if (knowledgeStatements[ksId].forwardConnections.length === 0)
+            if (
+              !knowledgeStatements[ksId] ||
+              knowledgeStatements[ksId].forwardConnections.length === 0
+            )
               return;
 
             // Use the new function to trace all forward connection paths
@@ -338,7 +341,12 @@ export function getHeatmapData(
           ].forEach((path) => {
             path.forEach((uri) => uniqueUris.add(uri));
           });
-          const connections = cell + uniqueUris.size;
+          heatmapInformation.synapticConnections[rowIndex].directConnections[
+            colIndex
+          ].forEach((path) => {
+            uniqueUris.add(path);
+          });
+          const connections = uniqueUris.size;
           return connections;
         });
         return _row;
@@ -367,6 +375,29 @@ export function getMinMaxConnections(connectionsMap: Map<string, string[][]>): {
       });
     }
   });
+
+  return { min, max };
+}
+
+export function getMinMaxKnowledgeStatements(
+  connectionsMap: Map<string, string[][]>,
+): {
+  min: number;
+  max: number;
+} {
+  let min = Infinity;
+  let max = -Infinity;
+
+  const uniqueStrings = new Set<string>();
+  // iterate all the items of the connectionsMap, each item contains an array of array of string. With these strings build
+  // a set so that we get the unique list of strings contained in the connections map.
+  connectionsMap.forEach((connectionArray) => {
+    connectionArray.forEach((column) => {
+      column.forEach((connection) => uniqueStrings.add(connection));
+    });
+  });
+  min = 0;
+  max = uniqueStrings.size;
 
   return { min, max };
 }

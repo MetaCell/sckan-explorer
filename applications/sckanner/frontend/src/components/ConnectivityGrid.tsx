@@ -6,7 +6,6 @@ import { useDataContext } from '../context/DataContext.ts';
 import { useWidgetStateActions } from '../hooks/useWidgetStateActions.ts';
 import {
   calculateConnections,
-  getMinMaxConnections,
   getXAxisOrgans,
   getYAxis,
   getHeatmapData,
@@ -16,6 +15,7 @@ import {
   filterYAxis,
   filterKnowledgeStatements,
   assignExpandedState,
+  getMinMaxKnowledgeStatements,
 } from '../services/heatmapService.ts';
 import FiltersDropdowns from './FiltersDropdowns.tsx';
 import {
@@ -80,7 +80,7 @@ function ConnectivityGrid() {
   }, [hierarchicalNodes, organs, knowledgeStatements, organizedFilters]);
 
   const { min, max } = useMemo(() => {
-    return getMinMaxConnections(connectionsMap);
+    return getMinMaxKnowledgeStatements(connectionsMap);
   }, [connectionsMap]);
 
   useEffect(() => {
@@ -252,12 +252,27 @@ function ConnectivityGrid() {
         }
       } else {
         const endOrgan = filteredXOrgans[x];
+        // synaptic connections might be developed over other destinations, so I will pass all the possible
+        // destinations and then purge the empty columns in the connections component or the summaryheatmapservice
+        const allChildren = new Map();
+        filteredXOrgans.forEach((org) => {
+          org.children.forEach((child) => {
+            allChildren.set(child.id, child);
+          });
+        });
+        const endOrganWithChildren = {
+          ...endOrgan,
+          children: allChildren,
+        };
         const nodeData = detailedHeatmapData[y];
         const hierarchicalNode = hierarchicalNodes[nodeData.id];
         const allUris = new Set<string>();
         if (synapticConnections) {
           synapticConnections[y].synapticConnections[x].forEach((path) => {
             path.forEach((uri) => allUris.add(uri));
+          });
+          synapticConnections[y].directConnections[x].forEach((path) => {
+            allUris.add(path);
           });
         }
 
@@ -275,7 +290,7 @@ function ConnectivityGrid() {
 
         setSelectedConnectionSummary({
           connections: ksMap,
-          endOrgan: endOrgan,
+          endOrgan: endOrganWithChildren,
           hierarchicalNode: hierarchicalNode,
         });
       }
@@ -491,7 +506,7 @@ function ConnectivityGrid() {
               color: gray500,
             }}
           >
-            Connections
+            Populations
           </Typography>
 
           <Box
