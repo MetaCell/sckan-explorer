@@ -483,80 +483,209 @@ function ConnectivityGrid() {
         justifyContent="start"
         sx={{ background: white }}
       >
-        <Box
-          position="sticky"
-          left={0}
-          bottom={0}
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            height: '1.875rem',
-            padding: '0 0.75rem',
-            borderRadius: '0.25rem',
-            background: gray25,
-            border: `0.0625rem solid ${gray100}`,
-            gap: '0.75rem',
-          }}
-        >
-          <Typography
-            sx={{
-              fontSize: '0.75rem',
-              fontWeight: 500,
-              lineHeight: '1.125rem',
-              color: gray500,
-            }}
-          >
-            Populations
-          </Typography>
-
+        {heatmapMode === HeatmapMode.Default ? (
           <Box
+            position="sticky"
+            left={0}
+            bottom={0}
             sx={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.25rem',
+              height: '1.875rem',
+              padding: '0 0.75rem',
+              borderRadius: '0.25rem',
+              background: gray25,
+              border: `0.0625rem solid ${gray100}`,
+              gap: '0.75rem',
             }}
           >
             <Typography
               sx={{
                 fontSize: '0.75rem',
-                fontWeight: 400,
+                fontWeight: 500,
                 lineHeight: '1.125rem',
-                color: gray400,
+                color: gray500,
               }}
             >
-              {min}
+              Populations
             </Typography>
 
             <Box
               sx={{
                 display: 'flex',
                 alignItems: 'center',
+                gap: '0.25rem',
               }}
             >
-              {[1, 2, 3, 4, 5, 6].reverse().map((el: number) => (
-                <Box
-                  key={el}
-                  sx={{
-                    width: '1.5rem',
-                    height: '1rem',
-                    background: `rgba(131, 0, 191, ${1 - el / 6.5})`,
-                  }}
-                />
-              ))}
+              <Typography
+                sx={{
+                  fontSize: '0.75rem',
+                  fontWeight: 400,
+                  lineHeight: '1.125rem',
+                  color: gray400,
+                }}
+              >
+                {min}
+              </Typography>
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                {[1, 2, 3, 4, 5, 6].reverse().map((el: number) => (
+                  <Box
+                    key={el}
+                    sx={{
+                      width: '1.5rem',
+                      height: '1rem',
+                      background: `rgba(131, 0, 191, ${1 - el / 6.5})`,
+                    }}
+                  />
+                ))}
+              </Box>
+
+              <Typography
+                sx={{
+                  fontSize: '0.75rem',
+                  fontWeight: 400,
+                  lineHeight: '1.125rem',
+                  color: gray400,
+                }}
+              >
+                {max}
+              </Typography>
+            </Box>
+          </Box>
+        ) : (
+          <Box
+            position="sticky"
+            left={0}
+            bottom={0}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              height: '1.875rem',
+              padding: '0 0.75rem',
+              borderRadius: '0.25rem',
+              background: gray25,
+              border: `0.0625rem solid ${gray100}`,
+              gap: '1rem',
+            }}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: '0.75rem',
+                  fontWeight: 400,
+                  lineHeight: '1.125rem',
+                  color: gray500,
+                }}
+              >
+                Populations
+              </Typography>
+            </Box>
+            {/* Direct connections */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}
+            >
+              <Box
+                sx={{
+                  width: '1rem',
+                  height: '1rem',
+                  background: '#8300BF',
+                  borderRadius: '0.125rem',
+                }}
+              />
+              <Typography
+                sx={{
+                  fontSize: '0.75rem',
+                  fontWeight: 400,
+                  lineHeight: '1.125rem',
+                  color: gray500,
+                }}
+              >
+                Direct
+              </Typography>
             </Box>
 
-            <Typography
+            {/* Synaptic connections */}
+            <Box
               sx={{
-                fontSize: '0.75rem',
-                fontWeight: 400,
-                lineHeight: '1.125rem',
-                color: gray400,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
               }}
             >
-              {max}
-            </Typography>
+              <Box
+                sx={{
+                  width: '1rem',
+                  height: '1rem',
+                  background: 'white',
+                  border: `0.0625rem solid ${gray100}`,
+                  borderRadius: '0.125rem',
+                  backgroundImage: `url(/src/components/assets/svg/synaptic.svg)`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center',
+                  backgroundSize: '90% 90%',
+                }}
+              />
+              <Typography
+                sx={{
+                  fontSize: '0.75rem',
+                  fontWeight: 400,
+                  lineHeight: '1.125rem',
+                  color: gray500,
+                }}
+              >
+                Synaptic
+              </Typography>
+            </Box>
+
+            {/* Synaptic + Direct connections */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}
+            >
+              <Box
+                sx={{
+                  width: '1rem',
+                  height: '1rem',
+                  background: '#8300BF',
+                  borderRadius: '0.125rem',
+                  backgroundImage: `url(/src/components/assets/svg/synapticWhite.svg)`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center',
+                  backgroundSize: '90% 90%',
+                }}
+              />
+              <Typography
+                sx={{
+                  fontSize: '0.75rem',
+                  fontWeight: 400,
+                  lineHeight: '1.125rem',
+                  color: gray500,
+                }}
+              >
+                Synaptic + Direct
+              </Typography>
+            </Box>
           </Box>
-        </Box>
+        )}
       </Box>
     </Box>
   );
