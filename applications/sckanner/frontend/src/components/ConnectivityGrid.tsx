@@ -1,4 +1,11 @@
-import { Box, Button, Divider, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Divider,
+  Typography,
+  Switch,
+  FormControlLabel,
+} from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { vars } from '../theme/variables.ts';
 import HeatmapGrid from './common/Heatmap.tsx';
@@ -40,6 +47,7 @@ function ConnectivityGrid() {
     setSelectedConnectionSummary,
     widgetState,
     heatmapMode,
+    switchHeatmapMode,
   } = useDataContext();
 
   const { updateConnectivityGridCellClick, resetAllWidgetState } =
@@ -458,6 +466,56 @@ function ConnectivityGrid() {
         filteredYAxis={filteredYAxis}
         filteredXOrgans={filteredXOrgans}
       />
+
+      {/* Heatmap Mode Toggle */}
+      <Box
+        px={3}
+        py={2}
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        borderBottom={`0.0625rem solid ${gray100}`}
+      >
+        <Box display="flex" alignItems="center" gap={2}>
+          <Typography
+            sx={{
+              fontSize: '0.75rem',
+              fontWeight: 400,
+              color: heatmapMode === HeatmapMode.Default ? gray600A : gray400,
+            }}
+          >
+            Heatmap
+          </Typography>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={heatmapMode === HeatmapMode.Synaptic}
+                onChange={() => switchHeatmapMode()}
+                size="small"
+                sx={{
+                  '& .MuiSwitch-switchBase.Mui-checked': {
+                    color: '#8300BF',
+                  },
+                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                    backgroundColor: '#8300BF',
+                  },
+                }}
+              />
+            }
+            label=""
+            sx={{ margin: 0 }}
+          />
+          <Typography
+            sx={{
+              fontSize: '0.75rem',
+              fontWeight: 400,
+              color: heatmapMode === HeatmapMode.Synaptic ? gray600A : gray400,
+            }}
+          >
+            Synaptic connections
+          </Typography>
+        </Box>
+      </Box>
 
       <HeatmapGrid
         yAxis={filteredYAxis}
