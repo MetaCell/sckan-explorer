@@ -48,7 +48,7 @@ export type SynapticConnectionsData = {
 
 export interface HeatmapMatrixInformation {
   heatmapMatrix: number[][];
-  synapticHeatmapMatrix: number[][];
+  synapticData: number[][];
   detailedHeatmap: DetailedHeatmapData;
   synapticConnections: SynapticConnectionsData;
 }

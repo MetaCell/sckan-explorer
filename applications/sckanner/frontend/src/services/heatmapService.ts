@@ -204,7 +204,7 @@ export function getHeatmapData(
 ) {
   const heatmapInformation: HeatmapMatrixInformation = {
     heatmapMatrix: [],
-    synapticHeatmapMatrix: [],
+    synapticData: [],
     detailedHeatmap: [],
     synapticConnections: [],
   };
@@ -259,74 +259,92 @@ export function getHeatmapData(
     {},
   );
 
-  const fwsMap = mapForwardConnections(knowledgeStatements);
-  heatmapInformation.synapticConnections =
-    heatmapInformation.detailedHeatmap.map((item) => {
-      const id = item.id || '';
-      const label = item.label;
-      const synapticData: string[][][] = Array.from(
-        { length: item.data.length },
-        () => [],
-      );
-      item.data.forEach((ksIds) => {
-        ksIds.forEach((ksId) => {
-          if (fwsMap.has(ksId)) return;
-          if (knowledgeStatements[ksId].forwardConnections.length === 0) return;
+  if (heatmapMode === HeatmapMode.Synaptic) {
+    const fwsMap = mapForwardConnections(knowledgeStatements);
+    heatmapInformation.synapticConnections =
+      heatmapInformation.detailedHeatmap.map((item) => {
+        const id = item.id || '';
+        const label = item.label;
+        const synapticData: string[][][] = Array.from(
+          { length: item.data.length },
+          () => [],
+        );
+        item.data.forEach((ksIds) => {
+          ksIds.forEach((ksId) => {
+            if (fwsMap.has(ksId)) return;
+            if (knowledgeStatements[ksId].forwardConnections.length === 0)
+              return;
 
-          // Use the new function to trace all forward connection paths
-          const connectionPaths = traceForwardConnectionPaths(
-            ksId,
-            knowledgeStatements,
-          );
+            // Use the new function to trace all forward connection paths
+            const connectionPaths = traceForwardConnectionPaths(
+              ksId,
+              knowledgeStatements,
+            );
 
-          // Iterate through each connectivity path
-          connectionPaths.forEach((path: string[]) => {
-            // Get the last knowledge statement ID (end of the connectivity path)
-            const endKsId = path[path.length - 1];
-            const endKs = knowledgeStatements[endKsId];
+            // Iterate through each connectivity path
+            connectionPaths.forEach((path: string[]) => {
+              // Get the last knowledge statement ID (end of the connectivity path)
+              const endKsId = path[path.length - 1];
+              const endKs = knowledgeStatements[endKsId];
 
-            if (endKs && endKs.destinations) {
-              // Process each destination to find the corresponding organ
-              endKs.destinations.forEach((destination) => {
-                destination.anatomical_entities.forEach((entity) => {
-                  const entityId = entity.id.split(' ')[0];
-                  // Check if this entity belongs to any organ or if it's a child of an organ
-                  let organIndex = organIndexMap[entityId];
+              if (endKs && endKs.destinations) {
+                // Process each destination to find the corresponding organ
+                endKs.destinations.forEach((destination) => {
+                  destination.anatomical_entities.forEach((entity) => {
+                    const entityId = entity.id.split(' ')[0];
+                    // Check if this entity belongs to any organ or if it's a child of an organ
+                    let organIndex = organIndexMap[entityId];
 
-                  // If not found directly, check if it's a child organ
-                  if (organIndex === undefined) {
-                    const parentOrganId = childToParentMap.get(entityId);
-                    if (parentOrganId) {
-                      organIndex = organIndexMap[parentOrganId];
+                    // If not found directly, check if it's a child organ
+                    if (organIndex === undefined) {
+                      const parentOrganId = childToParentMap.get(entityId);
+                      if (parentOrganId) {
+                        organIndex = organIndexMap[parentOrganId];
+                      }
                     }
-                  }
 
-                  // If we found a matching organ, push the path to that organ's cell (avoid duplicates)
-                  if (organIndex !== undefined) {
-                    const existingPaths = synapticData[organIndex];
-                    const pathExists = existingPaths.some(
-                      (existingPath: string[]) =>
-                        existingPath.length === path.length &&
-                        existingPath.every((id, index) => id === path[index]),
-                    );
+                    // If we found a matching organ, push the path to that organ's cell (avoid duplicates)
+                    if (organIndex !== undefined) {
+                      const existingPaths = synapticData[organIndex];
+                      const pathExists = existingPaths.some(
+                        (existingPath: string[]) =>
+                          existingPath.length === path.length &&
+                          existingPath.every((id, index) => id === path[index]),
+                      );
 
-                    if (!pathExists) {
-                      synapticData[organIndex].push(path);
+                      if (!pathExists) {
+                        synapticData[organIndex].push(path);
+                      }
                     }
-                  }
+                  });
                 });
-              });
-            }
+              }
+            });
           });
         });
+        return {
+          id,
+          label,
+          synapticConnections: synapticData,
+          directConnections: item.data,
+        };
       });
-      return {
-        id,
-        label,
-        synapticConnections: synapticData,
-        directConnections: item.data,
-      };
-    });
+    heatmapInformation.synapticData = heatmapInformation.heatmapMatrix.map(
+      (row, rowIndex) => {
+        const _row = row.map((cell, colIndex) => {
+          const uniqueUris = new Set<string>();
+          heatmapInformation.synapticConnections[rowIndex].synapticConnections[
+            colIndex
+          ].forEach((path) => {
+            path.forEach((uri) => uniqueUris.add(uri));
+          });
+          const connections = cell + uniqueUris.size;
+          return connections;
+        });
+        return _row;
+      },
+    );
+  }
 
   return heatmapInformation;
 }

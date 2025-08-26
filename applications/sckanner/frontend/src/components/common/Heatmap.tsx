@@ -4,7 +4,12 @@ import { vars } from '../../theme/variables.ts';
 import CollapsibleList from './CollapsibleList.tsx';
 import HeatMap from 'react-heatmap-fork';
 import HeatmapTooltip, { HeatmapTooltipRow } from './HeatmapTooltip.tsx';
-import { HierarchicalItem, KsPerPhenotype } from './Types.ts';
+// AI-GENERATED: 2025-08-25
+import {
+  HierarchicalItem,
+  KsPerPhenotype,
+  SynapticConnectionsData,
+} from './Types.ts';
 import { getNormalizedValueForMinMax } from '../../services/summaryHeatmapService.ts';
 import {
   generateYLabelsAndIds,
@@ -13,6 +18,8 @@ import {
 import { OTHER_PHENOTYPE_LABEL } from '../../settings.ts';
 import { useDataContext } from '../../context/DataContext.ts';
 import { useWidgetStateActions } from '../../hooks/useWidgetStateActions.ts';
+import SynapticSVG from '../assets/svg/synaptic.svg?url';
+import SynapticWhiteSVG from '../assets/svg/synapticWhite.svg?url';
 
 const { gray50, primaryPurple500, gray100A, gray500, primaryPurple600 } = vars;
 
@@ -27,6 +34,7 @@ interface HeatmapGridProps {
   setSelectedCell: (cell: { x: number; y: number } | null) => void;
   heatmapData?: number[][];
   secondaryHeatmapData?: KsPerPhenotype[][];
+  synapticConnections?: SynapticConnectionsData;
 }
 
 const prepareSecondaryHeatmapData = (data?: KsPerPhenotype[][]): number[][] => {
@@ -52,8 +60,9 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
   setSelectedCell,
   heatmapData,
   secondaryHeatmapData,
+  synapticConnections,
 }) => {
-  const { phenotypesColorMap } = useDataContext();
+  const { phenotypesColorMap, heatmapMode } = useDataContext();
   const { updateHeatmapExpandedState, updateSecondaryHeatmapExpandedState } =
     useWidgetStateActions();
 
@@ -459,11 +468,40 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                     return {
                       ...commonStyles,
                       borderColor: gray100A,
+                      backgroundSize: '100% 100% !important',
                       background: getCellBgColorFromPhenotype(
                         safeNormalizedValue,
                         _x,
                         _y,
                       ),
+                    };
+                  } else if (
+                    heatmapMode === 'synaptic' &&
+                    synapticConnections
+                  ) {
+                    const directConnections =
+                      synapticConnections[_y].directConnections[_x];
+                    const synapticValue =
+                      synapticConnections[_y].synapticConnections[_x];
+                    return {
+                      ...commonStyles,
+                      background:
+                        directConnections.length > 0
+                          ? '#8300BF'
+                          : 'transparent',
+                      backgroundImage:
+                        synapticValue.length > 0 &&
+                        directConnections.length === 0
+                          ? `url(${SynapticSVG})`
+                          : synapticValue.length > 0 &&
+                              directConnections.length > 0
+                            ? `url(${SynapticWhiteSVG})`
+                            : undefined,
+                      // backgroundSize: '60% 60%',
+                      borderColor:
+                        synapticValue.length > 0 || directConnections.length > 0
+                          ? '#edeff2'
+                          : 'transparent',
                     };
                   } else {
                     safeNormalizedValue =

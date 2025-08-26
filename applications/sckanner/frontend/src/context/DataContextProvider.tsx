@@ -67,6 +67,9 @@ export const DataContextProvider = ({
     [urlState],
   );
   const [filters, setFilters] = useState<Filters>(initialFilters);
+  const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>(
+    urlState?.heatmapMode || HeatmapMode.Synaptic,
+  );
 
   const [selectedConnectionSummary, setSelectedConnectionSummary] =
     useState<ConnectionSummary | null>(null);
@@ -83,6 +86,14 @@ export const DataContextProvider = ({
       secondaryHeatmapExpandedState: null,
     },
   );
+
+  const switchHeatmapMode = () => {
+    const mode =
+      heatmapMode === HeatmapMode.Default
+        ? HeatmapMode.Synaptic
+        : HeatmapMode.Default;
+    setHeatmapMode(mode);
+  };
 
   const resetWidgetState = (datasnapshot: string) => {
     const resetURL: URLState = {
@@ -273,7 +284,8 @@ export const DataContextProvider = ({
     isDataLoading: false,
     setIsDataLoading: () => {},
     initialFilterOptions,
-    heatmapMode: HeatmapMode.Default || 'default',
+    heatmapMode: heatmapMode,
+    switchHeatmapMode,
   };
 
   return (

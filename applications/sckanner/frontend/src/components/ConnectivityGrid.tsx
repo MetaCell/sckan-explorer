@@ -18,7 +18,11 @@ import {
   assignExpandedState,
 } from '../services/heatmapService.ts';
 import FiltersDropdowns from './FiltersDropdowns.tsx';
-import { DetailedHeatmapData, HierarchicalItem } from './common/Types.ts';
+import {
+  DetailedHeatmapData,
+  HierarchicalItem,
+  HeatmapMode,
+} from './common/Types.ts';
 import { Organ } from '../models/explorer.ts';
 import LoaderSpinner from './common/LoaderSpinner.tsx';
 import { extractEndOrganFiltersFromEntities } from '../services/summaryHeatmapService.ts';
@@ -176,7 +180,12 @@ function ConnectivityGrid() {
     }
   }, [yAxis, connectionsMap, xAxisOrgans]);
 
-  const { heatmapData, detailedHeatmapData } = useMemo(() => {
+  const {
+    heatmapData,
+    detailedHeatmapData,
+    synapticConnections,
+    synapticData,
+  } = useMemo(() => {
     const filteredKSs = filterKnowledgeStatements(
       knowledgeStatements,
       hierarchicalNodes,
@@ -196,6 +205,8 @@ function ConnectivityGrid() {
     return {
       heatmapData: heatmapData.heatmapMatrix,
       detailedHeatmapData: heatmapData.detailedHeatmap,
+      synapticConnections: heatmapData.synapticConnections,
+      synapticData: heatmapData.synapticData,
     };
   }, [
     knowledgeStatements,
@@ -214,18 +225,46 @@ function ConnectivityGrid() {
       y: number,
       yId: string,
       isConnectionView?: boolean,
-      // AI-GENERATED: 2025-08-23
       removeSummaryFilters: boolean = false,
-      // AI-GENERATED: 2025-08-23
     ): void => {
       // When the primary heatmap cell is clicked - this sets the react-context state for Connections in SummaryType.summary
       setSelectedCell({ x, y });
-      const row = filteredConnectionsMap.get(yId);
-      if (row) {
+      if (heatmapMode === HeatmapMode.Default) {
+        const row = filteredConnectionsMap.get(yId);
+        if (row) {
+          const endOrgan = filteredXOrgans[x];
+          const nodeData = detailedHeatmapData[y];
+          const hierarchicalNode = hierarchicalNodes[nodeData.id];
+          const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
+
+          const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
+          updateConnectivityGridCellClick(
+            removeSummaryFilters,
+            isConnectionView ?? false,
+            leftSideHeatmapCoordinates,
+          );
+
+          setSelectedConnectionSummary({
+            connections: ksMap,
+            endOrgan: endOrgan,
+            hierarchicalNode: hierarchicalNode,
+          });
+        }
+      } else {
         const endOrgan = filteredXOrgans[x];
         const nodeData = detailedHeatmapData[y];
         const hierarchicalNode = hierarchicalNodes[nodeData.id];
-        const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
+        const allUris = new Set<string>();
+        if (synapticConnections) {
+          synapticConnections[y].synapticConnections[x].forEach((path) => {
+            path.forEach((uri) => allUris.add(uri));
+          });
+        }
+
+        const ksMap = getKnowledgeStatementMap(
+          Array.from(allUris),
+          knowledgeStatements,
+        );
 
         const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
         updateConnectivityGridCellClick(
@@ -242,14 +281,15 @@ function ConnectivityGrid() {
       }
     },
     [
+      heatmapMode,
       filteredConnectionsMap,
       filteredXOrgans,
       detailedHeatmapData,
       hierarchicalNodes,
       knowledgeStatements,
       updateConnectivityGridCellClick,
-      setSelectedCell,
       setSelectedConnectionSummary,
+      synapticConnections,
     ],
   );
 
@@ -407,13 +447,16 @@ function ConnectivityGrid() {
       <HeatmapGrid
         yAxis={filteredYAxis}
         setYAxis={handleYAxisUpdate}
-        heatmapData={heatmapData}
+        heatmapData={
+          heatmapMode === HeatmapMode.Default ? heatmapData : synapticData
+        }
         setSelectedCell={setSelectedCell}
         xAxis={filteredXOrgans.map((organ) => organ.name)}
         xAxisLabel={'End organ'}
         yAxisLabel={'Connection Origin'}
         onCellClick={(x, y, yId) => handleClick(x, y, yId, true, true)}
         selectedCell={selectedCell}
+        synapticConnections={synapticConnections}
       />
 
       <Box

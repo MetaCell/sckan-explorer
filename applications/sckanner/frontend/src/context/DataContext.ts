@@ -52,6 +52,7 @@ export interface WidgetState {
 
 export interface URLState extends WidgetState {
   fullUrlState?: URLState | null;
+  heatmapMode?: HeatmapMode | null;
 }
 
 export interface DataContext {
@@ -74,6 +75,7 @@ export interface DataContext {
   setWidgetState: (state: WidgetState) => void;
   resetWidgetState: (datasnapshot: string) => void;
   heatmapMode: HeatmapMode;
+  switchHeatmapMode: () => void;
 }
 
 export const DataContext = createContext<DataContext>({
@@ -121,6 +123,7 @@ export const DataContext = createContext<DataContext>({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   resetWidgetState: (_datasnapshot: string) => {},
   heatmapMode: HeatmapMode.Default,
+  switchHeatmapMode: () => {},
 });
 
 export const useDataContext = () => useContext(DataContext);

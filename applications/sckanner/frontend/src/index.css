@@ -146,3 +146,9 @@ button:focus-visible {
   top: 100%;
   left: 100%;
 }
+
+#single-heatmap-cell {
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  /* background-size: 60% 60% !important; */
+}
