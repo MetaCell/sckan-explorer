@@ -539,13 +539,15 @@ function ConnectivityGrid() {
         display="flex"
         alignItems="center"
         justifyContent="start"
-        sx={{ background: white }}
+        sx={{
+          background: white,
+          position: 'sticky',
+          bottom: 0,
+          zIndex: 10,
+        }}
       >
         {heatmapMode === HeatmapMode.Default ? (
           <Box
-            position="sticky"
-            left={0}
-            bottom={0}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -618,9 +620,6 @@ function ConnectivityGrid() {
           </Box>
         ) : (
           <Box
-            position="sticky"
-            left={0}
-            bottom={0}
             sx={{
               display: 'flex',
               alignItems: 'center',
