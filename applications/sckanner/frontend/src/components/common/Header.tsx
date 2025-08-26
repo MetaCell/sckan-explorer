@@ -18,6 +18,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import ReleaseDropdown from './ReleaseDropdown';
 import { Datasnapshot } from '../../models/json';
 import { useDataContext } from '../../context/DataContext';
+import ShareSVG from '../assets/svg/share.svg';
 
 const pages = [
   {
@@ -186,8 +187,16 @@ function Header({
                 variant="contained"
                 onClick={handleShareClick}
                 color={copied ? 'success' : 'primary'}
+                sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
               >
-                {copied ? 'Copied!' : 'Share Sckanner'}
+                {!copied && (
+                  <img
+                    src={ShareSVG}
+                    alt="Share"
+                    style={{ width: 16, height: 16 }}
+                  />
+                )}
+                {copied ? 'URL copied!' : 'Share'}
               </Button>
             </Box>
             <Box sx={{ flexGrow: 0 }}>

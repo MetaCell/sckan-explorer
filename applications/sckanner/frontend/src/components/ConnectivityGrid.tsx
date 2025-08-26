@@ -6,7 +6,13 @@ import {
   Switch,
   FormControlLabel,
 } from '@mui/material';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from 'react';
 import { vars } from '../theme/variables.ts';
 import HeatmapGrid from './common/Heatmap.tsx';
 import { useDataContext } from '../context/DataContext.ts';
@@ -76,6 +82,8 @@ function ConnectivityGrid() {
     x: number;
     y: number;
   } | null>(null);
+
+  const prevHeatmapModeRef = useRef<HeatmapMode>(heatmapMode);
 
   useEffect(() => {
     const connections = calculateConnections(
@@ -187,6 +195,17 @@ function ConnectivityGrid() {
       setFilteredConnectionsMap(filteredConnectionsMap);
     }
   }, [yAxis, connectionsMap, xAxisOrgans]);
+
+  // Reset summary widget when heatmap mode changes
+  useEffect(() => {
+    if (prevHeatmapModeRef.current !== heatmapMode) {
+      setSelectedCell(null);
+      setSelectedConnectionSummary(null);
+      // Also reset the widget state to ensure complete reset
+      resetAllWidgetState();
+      prevHeatmapModeRef.current = heatmapMode;
+    }
+  }, [heatmapMode, setSelectedConnectionSummary, resetAllWidgetState]);
 
   const {
     heatmapData,
@@ -405,6 +424,16 @@ function ConnectivityGrid() {
     return Object.values(organizedFilters).every((arr) => arr.length === 0);
   };
 
+  const handleHeatmapModeToggle = () => {
+    // Reset summary widget before switching mode
+    setSelectedCell(null);
+    setSelectedConnectionSummary(null);
+    resetAllWidgetState();
+
+    // Switch the heatmap mode
+    switchHeatmapMode();
+  };
+
   return isLoading ? (
     <LoaderSpinner />
   ) : (
@@ -490,7 +519,7 @@ function ConnectivityGrid() {
             control={
               <Switch
                 checked={heatmapMode === HeatmapMode.Synaptic}
-                onChange={() => switchHeatmapMode()}
+                onChange={() => handleHeatmapModeToggle()}
                 size="small"
                 sx={{
                   '& .MuiSwitch-switchBase.Mui-checked': {

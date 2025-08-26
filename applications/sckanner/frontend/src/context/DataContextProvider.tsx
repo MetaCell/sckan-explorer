@@ -68,7 +68,7 @@ export const DataContextProvider = ({
   );
   const [filters, setFilters] = useState<Filters>(initialFilters);
   const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>(
-    urlState?.heatmapMode || HeatmapMode.Synaptic,
+    urlState?.heatmapMode || HeatmapMode.Default,
   );
 
   const [selectedConnectionSummary, setSelectedConnectionSummary] =

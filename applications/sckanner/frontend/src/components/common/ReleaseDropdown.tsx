@@ -184,6 +184,7 @@ const ReleaseDropdown = ({
           minWidth: 220,
           maxWidth: 275,
           width: '100%',
+          paddingRight: '0.5rem',
         }}
       >
         <Tooltip
