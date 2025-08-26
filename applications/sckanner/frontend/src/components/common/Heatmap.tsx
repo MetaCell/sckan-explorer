@@ -1,4 +1,11 @@
-import React, { FC, useCallback, useMemo } from 'react';
+import React, {
+  FC,
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+  useState,
+} from 'react';
 import { Box, Button, Typography, Tooltip } from '@mui/material';
 import { vars } from '../../theme/variables.ts';
 import CollapsibleList from './CollapsibleList.tsx';
@@ -68,6 +75,9 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
   const { updateHeatmapExpandedState, updateSecondaryHeatmapExpandedState } =
     useWidgetStateActions();
 
+  const heatmapContainerRef = useRef<HTMLDivElement>(null);
+  const [xAxisHeight, setXAxisHeight] = useState(0);
+
   const secondary = !!secondaryHeatmapData;
   const yAxisData = generateYLabelsAndIds(yAxis);
 
@@ -92,6 +102,19 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     });
     return lookup;
   }, [yAxisData.labels]);
+
+  // Calculate X-axis height dynamically
+  useEffect(() => {
+    if (heatmapContainerRef.current) {
+      const heatmapElement = heatmapContainerRef.current.querySelector(
+        '& > div:first-of-type > div:first-of-type',
+      );
+      if (heatmapElement) {
+        const height = heatmapElement.getBoundingClientRect().height;
+        setXAxisHeight(height);
+      }
+    }
+  }, [xAxis, yAxisData, heatmapMatrixData]);
 
   const getExpandedIds = useCallback((list: HierarchicalItem[]): string[] => {
     return list.reduce((acc, item) => {
@@ -309,8 +332,8 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         {/* Tree hierarchy controls positioned in top-left empty cell */}
         <Box
           position="absolute"
-          top="0rem"
-          left=".5rem"
+          top={`${xAxisHeight - 50}px`}
+          left="1.5rem"
           zIndex={10}
           width="15.625rem"
           height="2.6875rem"
@@ -318,7 +341,6 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
           alignItems="center"
           justifyContent="space-between"
           sx={{
-            background: gray50,
             padding: '0.5rem',
           }}
         >
@@ -400,8 +422,10 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         <Box
           width={1}
           position="relative"
+          ref={heatmapContainerRef}
           sx={{
             '& > div:first-of-type': {
+              position: 'relative',
               '& > div:last-of-type': {
                 '& > div': {
                   '& > div': {
