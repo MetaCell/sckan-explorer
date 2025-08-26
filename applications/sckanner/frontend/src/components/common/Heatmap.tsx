@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useMemo } from 'react';
-import { Box, Button, ButtonGroup, Typography } from '@mui/material';
+import { Box, Button, Typography, Tooltip } from '@mui/material';
 import { vars } from '../../theme/variables.ts';
 import CollapsibleList from './CollapsibleList.tsx';
 import HeatMap from 'react-heatmap-fork';
@@ -20,8 +20,10 @@ import { useDataContext } from '../../context/DataContext.ts';
 import { useWidgetStateActions } from '../../hooks/useWidgetStateActions.ts';
 import SynapticSVG from '../assets/svg/synaptic.svg?url';
 import SynapticWhiteSVG from '../assets/svg/synapticWhite.svg?url';
+import CompressSVG from '../assets/svg/compress.svg?url';
+import ExpandSVG from '../assets/svg/expand.svg?url';
 
-const { gray50, primaryPurple500, gray100A, gray500, primaryPurple600 } = vars;
+const { gray50, primaryPurple500, gray100A, gray500, gray600 } = vars;
 
 interface HeatmapGridProps {
   xAxis: string[];
@@ -282,29 +284,6 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
 
   return (
     <Box flex={1} my={3} display="inline-flex" flexDirection="column" px={3}>
-      <Box display="flex" alignItems="center" gap={2}>
-        <Typography variant="subtitle1" color={gray500}>
-          Tree hierarchy:
-        </Typography>
-        <ButtonGroup
-          variant="outlined"
-          sx={{
-            display: 'flex',
-            '& .MuiButtonBase-root': {
-              width: '4.5rem',
-              height: '2rem',
-              marginRight: '0.5rem',
-              borderRadius: '0.25rem',
-              border: `0.0625rem solid ${primaryPurple600}`,
-              color: primaryPurple600,
-            },
-          }}
-        >
-          <Button onClick={() => handleExpandAll()}>Open All</Button>
-          <Button onClick={() => handleCompressAll()}>Close All</Button>
-        </ButtonGroup>
-      </Box>
-
       <Box mb={1.5} pl="17.375rem">
         <Typography
           sx={{
@@ -327,6 +306,97 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         position="relative"
         flexDirection="row-reverse"
       >
+        {/* Tree hierarchy controls positioned in top-left empty cell */}
+        <Box
+          position="absolute"
+          top="0rem"
+          left=".5rem"
+          zIndex={10}
+          width="15.625rem"
+          height="2.6875rem"
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{
+            background: gray50,
+            padding: '0.5rem',
+          }}
+        >
+          <Typography
+            variant="caption"
+            color={gray600}
+            sx={{
+              fontSize: '0.975rem',
+              fontWeight: 800,
+            }}
+          >
+            Tree hierarchy
+          </Typography>
+          <Box display="flex" gap="0.25rem">
+            <Tooltip
+              title="Expand all"
+              arrow
+              slotProps={{
+                tooltip: {
+                  sx: {
+                    backgroundColor: '#333',
+                    color: '#fff',
+                    fontSize: '0.75rem',
+                  },
+                },
+              }}
+            >
+              <Button
+                onClick={() => handleExpandAll()}
+                sx={{
+                  width: '2rem',
+                  height: '2rem',
+                  minWidth: '1.5rem',
+                  padding: 0,
+                  border: 'none',
+                  background: 'transparent',
+                  backgroundImage: `url(${ExpandSVG})`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center',
+                  backgroundSize: '1rem 1rem',
+                  filter:
+                    'brightness(0) saturate(100%) invert(47%) sepia(10%) saturate(373%) hue-rotate(202deg) brightness(97%) contrast(87%)',
+                }}
+              />
+            </Tooltip>
+            <Tooltip
+              title="Compress all"
+              arrow
+              slotProps={{
+                tooltip: {
+                  sx: {
+                    backgroundColor: '#333',
+                    color: '#fff',
+                    fontSize: '0.75rem',
+                  },
+                },
+              }}
+            >
+              <Button
+                onClick={() => handleCompressAll()}
+                sx={{
+                  width: '2rem',
+                  height: '2rem',
+                  minWidth: '1.5rem',
+                  padding: 0,
+                  border: 'none',
+                  background: 'transparent',
+                  backgroundImage: `url(${CompressSVG})`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center',
+                  backgroundSize: '1rem 1rem',
+                  filter:
+                    'brightness(0) saturate(100%) invert(47%) sepia(10%) saturate(373%) hue-rotate(202deg) brightness(97%) contrast(87%)',
+                }}
+              />
+            </Tooltip>
+          </Box>
+        </Box>
         <Box
           width={1}
           position="relative"
