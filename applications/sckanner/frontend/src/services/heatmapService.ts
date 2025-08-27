@@ -334,7 +334,7 @@ export function getHeatmapData(
       });
     heatmapInformation.synapticData = heatmapInformation.heatmapMatrix.map(
       (row, rowIndex) => {
-        const _row = row.map((cell, colIndex) => {
+        const _row = row.map((_cell, colIndex) => {
           const uniqueUris = new Set<string>();
           heatmapInformation.synapticConnections[rowIndex].synapticConnections[
             colIndex
