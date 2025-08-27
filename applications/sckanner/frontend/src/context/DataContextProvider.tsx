@@ -67,9 +67,11 @@ export const DataContextProvider = ({
     [urlState],
   );
   const [filters, setFilters] = useState<Filters>(initialFilters);
-  const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>(
-    urlState?.heatmapMode || HeatmapMode.Default,
-  );
+  const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>(() => {
+    const mode = urlState?.heatmapMode || HeatmapMode.Default;
+    console.log('Initial heatmap mode:', mode);
+    return mode;
+  });
 
   const [selectedConnectionSummary, setSelectedConnectionSummary] =
     useState<ConnectionSummary | null>(null);
@@ -92,6 +94,7 @@ export const DataContextProvider = ({
       heatmapMode === HeatmapMode.Default
         ? HeatmapMode.Synaptic
         : HeatmapMode.Default;
+    console.log('Switching heatmap mode from', heatmapMode, 'to', mode);
     setHeatmapMode(mode);
   };
 
@@ -106,6 +109,7 @@ export const DataContextProvider = ({
       connectionPage: null,
       heatmapExpandedState: null,
       secondaryHeatmapExpandedState: null,
+      heatmapMode: urlState?.heatmapMode || HeatmapMode.Default, // Preserve URL heatmap mode or use default
     };
     const encodedURLState = encodeURLState(resetURL);
     const newURL = encodedURLState
@@ -114,6 +118,11 @@ export const DataContextProvider = ({
     window.history.replaceState(null, '', newURL);
     setWidgetState(resetURL);
     setUrlState(resetURL);
+    // Only reset heatmapMode if it wasn't specified in the URL
+    if (!urlState?.heatmapMode) {
+      console.log('Resetting heatmap mode to default');
+      setHeatmapMode(HeatmapMode.Default);
+    }
   };
 
   const updateURLState = useCallback(() => {
@@ -127,13 +136,26 @@ export const DataContextProvider = ({
       connectionPage: widgetState?.connectionPage,
       heatmapExpandedState: widgetState?.heatmapExpandedState,
       secondaryHeatmapExpandedState: widgetState?.secondaryHeatmapExpandedState,
+      heatmapMode: heatmapMode,
     };
     const encodedURLState = encodeURLState(urlState);
     const newURL = encodedURLState
       ? `${window.location.pathname}?${encodedURLState}`
       : window.location.pathname;
     window.history.replaceState(null, '', newURL);
-  }, [widgetState, selectedDatasnapshot]);
+  }, [
+    widgetState.datasnapshot,
+    widgetState.filters,
+    widgetState.leftWidgetConnectionId,
+    widgetState.rightWidgetConnectionId,
+    widgetState.view,
+    widgetState?.summaryFilters,
+    widgetState?.connectionPage,
+    widgetState?.heatmapExpandedState,
+    widgetState?.secondaryHeatmapExpandedState,
+    selectedDatasnapshot,
+    heatmapMode,
+  ]);
 
   useEffect(() => {
     if (
@@ -143,6 +165,11 @@ export const DataContextProvider = ({
       updateURLState();
     }
   }, [updateURLState, selectedDatasnapshot, urlState]);
+
+  // Update URL when heatmapMode changes (from toggle or other state changes)
+  useEffect(() => {
+    updateURLState();
+  }, [heatmapMode, updateURLState]);
 
   const phenotypes = useMemo(() => {
     const allPhenotypes = Object.values(knowledgeStatements).map(

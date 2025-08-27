@@ -5,7 +5,7 @@ import {
   InitialFilterOptions,
 } from '../context/DataContext';
 import { Datasnapshot } from '../models/json';
-import { Option } from '../components/common/Types';
+import { Option, HeatmapMode } from '../components/common/Types';
 
 // Utility to check if any filter is set
 export function hasActiveFilters(filters: Filters | SummaryFilters): boolean {
@@ -115,6 +115,10 @@ export const encodeURLState = (state: URLState): string => {
     params.set('sf', btoa(summaryFiltersStr));
   }
 
+  if (state?.heatmapMode) {
+    params.set('hm', state.heatmapMode);
+  }
+
   return params.toString();
 };
 
@@ -208,6 +212,16 @@ export const decodeURLState = (
     } catch (error) {
       console.warn('Failed to parse summary filters from URL:', error);
       errors.push('Invalid summary filters in URL');
+    }
+  }
+  const heatmapMode = searchParams.get('hm');
+  if (heatmapMode) {
+    // Match the enum value directly since it stores the string values
+    if (
+      heatmapMode === HeatmapMode.Default ||
+      heatmapMode === HeatmapMode.Synaptic
+    ) {
+      state.heatmapMode = heatmapMode as HeatmapMode;
     }
   }
 

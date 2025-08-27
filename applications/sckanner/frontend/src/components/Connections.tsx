@@ -8,6 +8,7 @@ import {
   SummaryType,
   KsRecord,
   Option,
+  HeatmapMode,
 } from './common/Types.ts';
 import { useDataContext } from '../context/DataContext.ts';
 import { useWidgetStateActions } from '../hooks/useWidgetStateActions.ts';
@@ -22,13 +23,13 @@ import {
   getXAxisForHeatmap,
   reorderXAxis,
   sortHeatmapData,
+  filterConnectionsMap,
 } from '../services/summaryHeatmapService.ts';
 import {
   getYAxis,
   getKnowledgeStatementMap,
   filterYAxis,
   getNonEmptyColumns,
-  filterConnectionsMap,
   assignExpandedState,
 } from '../services/heatmapService.ts';
 import SummaryHeader from './connections/SummaryHeader.tsx';
@@ -66,6 +67,7 @@ function Connections() {
     knowledgeStatements,
     filters,
     widgetState,
+    heatmapMode,
   } = useDataContext();
 
   const { goToConnectionDetailsView, updateSummaryFilters } =
@@ -82,6 +84,7 @@ function Connections() {
   const [connectionPage, setConnectionPage] = useState(1); // represents the page number / index of the connections - if (x,y) has 4 connections, then connectionPage will be 1, 2, 3, 4
   const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
   const [xAxis, setXAxis] = useState<string[]>([]);
+  const [filteredKsIds, setFilteredKsIds] = useState<Set<string>>(new Set());
   const [filteredYAxis, setFilteredYAxis] = useState<HierarchicalItem[]>([]);
   const [filteredXAxis, setFilteredXAxis] = useState<string[]>([]);
   const [reorderedAxis, setReorderedAxis] = useState<string[]>([]);
@@ -265,7 +268,7 @@ function Connections() {
     const columnsWithData = getNonEmptyColumns(filteredYAxis, connectionsMap);
 
     // Filter connections map
-    const filteredConnectionsMap = filterConnectionsMap(
+    const filteredConnectionsResults = filterConnectionsMap(
       filteredYAxis,
       connectionsMap,
       columnsWithData,
@@ -276,10 +279,11 @@ function Connections() {
       columnsWithData.has(index),
     );
 
+    setFilteredKsIds(filteredConnectionsResults.ksIds);
     setFilteredYAxis(filteredYAxis);
     setFilteredXAxis(filteredXAxis);
     setReorderedAxis(reorderXAxis([...filteredXAxis].sort()));
-    setFilteredConnectionsMap(filteredConnectionsMap);
+    setFilteredConnectionsMap(filteredConnectionsResults.filteredMap);
   }, [yAxis, xAxis, connectionsMap]);
 
   // Helper function to apply expand/collapse state to fresh yAxis
@@ -395,6 +399,56 @@ function Connections() {
   const sortedData = sortedResults.data;
   const connectionsCounter = sortedResults.total;
 
+  const getPostSynapticConnections = () => {
+    if (!selectedConnectionSummary?.filteredKnowledgeStatements) {
+      return [];
+    }
+
+    // Get all knowledge statement IDs from selectedConnectionSummary
+    const allKsIds = new Set(
+      Object.keys(selectedConnectionSummary.filteredKnowledgeStatements),
+    );
+
+    // Compute the delta: knowledge statements in selectedConnectionSummary but not in filteredKsIds
+    const postSynapticKsIds = Array.from(allKsIds).filter(
+      (ksId) => !filteredKsIds.has(ksId),
+    );
+
+    const handleChipClick = (clickedKsId: string) => {
+      // Build knowledge statements map with all post synaptic IDs
+      const ksMap = getKnowledgeStatementMap(
+        postSynapticKsIds,
+        knowledgeStatements,
+      );
+      setKnowledgeStatementsMap(ksMap);
+
+      // Set connection page based on which chip was clicked (1-indexed)
+      const connectionPageIndex = postSynapticKsIds.indexOf(clickedKsId) + 1;
+      setConnectionPage(connectionPageIndex);
+
+      // Show connection details
+      setShowConnectionDetails(SummaryType.DetailedSummary);
+    };
+
+    // Return clickable chips
+    return postSynapticKsIds.map((ksId) => (
+      <Chip
+        key={ksId}
+        label={ksId}
+        variant="outlined"
+        color="primary"
+        onClick={() => handleChipClick(ksId)}
+        sx={{
+          margin: '0.25rem',
+          cursor: 'pointer',
+          '&:hover': {
+            backgroundColor: 'primary.light',
+          },
+        }}
+      />
+    ));
+  };
+
   return (
     <Box display="flex" flexDirection="column" minHeight={1}>
       <SummaryHeader
@@ -460,6 +514,16 @@ function Connections() {
               </Typography>
               <Typography sx={styles.text}>{viasStatement}</Typography>
             </Box>
+            {heatmapMode === HeatmapMode.Synaptic && (
+              <Box>
+                <Typography sx={styles.heading}>
+                  Post synaptic connections not fitting the summary heatmap
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                  {getPostSynapticConnections()}
+                </Box>
+              </Box>
+            )}
           </Box>
 
           <Box

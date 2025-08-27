@@ -414,3 +414,50 @@ export const extractEndOrganFiltersFromEntities = (
 
   return updatedFilters;
 };
+
+type ConnectionsMap<T> = Map<string, T[]>;
+
+type FilterConnectionsMapResult<T> = {
+  ksIds: Set<string>;
+  filteredMap: Map<string, T[]>;
+};
+
+// Recursive function to filter connections map
+export const filterConnectionsMap = <T>(
+  items: HierarchicalItem[],
+  map: ConnectionsMap<T>,
+  columnsWithData: Set<number>,
+): FilterConnectionsMapResult<T> => {
+  const ksIds = new Set<string>();
+  const filteredMap = new Map<string, T[]>();
+  items.forEach((item) => {
+    const row = map.get(item.id);
+    if (row) {
+      const filteredRow = row.filter((_, index) => columnsWithData.has(index));
+      filteredMap.set(item.id, filteredRow);
+    }
+    if (item.children) {
+      const childResult = filterConnectionsMap(
+        item.children,
+        map,
+        columnsWithData,
+      );
+      childResult.filteredMap.forEach((value, key) => {
+        filteredMap.set(key, value);
+        value.forEach((valueChild) => {
+          if (typeof valueChild === 'object' && valueChild !== null) {
+            Object.keys(valueChild).forEach((phenotype) => {
+              const phenoObj = valueChild as {
+                [key: string]: { ksIds: string[] };
+              };
+              phenoObj[phenotype].ksIds.forEach((ksId) => ksIds.add(ksId));
+            });
+          }
+        });
+      });
+      childResult.ksIds.forEach((ksId) => ksIds.add(ksId));
+    }
+  });
+  // return both ksIds and filteredMap
+  return { ksIds, filteredMap };
+};
