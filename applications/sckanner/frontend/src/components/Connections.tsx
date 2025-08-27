@@ -70,7 +70,7 @@ function Connections() {
     heatmapMode,
   } = useDataContext();
 
-  const { goToConnectionDetailsView, updateSummaryFilters } =
+  const { goToConnectionDetailsView, updateSummaryFilters, updateWidgetState } =
     useWidgetStateActions();
 
   const [showConnectionDetails, setShowConnectionDetails] =
@@ -129,11 +129,12 @@ function Connections() {
     } else if (
       widgetState.view === 'connectionDetailsView' &&
       selectedConnectionSummary &&
-      widgetState.rightWidgetConnectionId &&
-      widgetState.connectionPage
+      (widgetState.rightWidgetConnectionId || widgetState.connectionPage)
     ) {
       setShowConnectionDetails(SummaryType.DetailedSummary);
-      setConnectionPage(widgetState.connectionPage);
+      if (widgetState.connectionPage) {
+        setConnectionPage(widgetState.connectionPage);
+      }
     } else {
       setShowConnectionDetails(SummaryType.Instruction);
     }
@@ -425,6 +426,13 @@ function Connections() {
       // Set connection page based on which chip was clicked (1-indexed)
       const connectionPageIndex = postSynapticKsIds.indexOf(clickedKsId) + 1;
       setConnectionPage(connectionPageIndex);
+
+      // Update widget state to maintain the detailed view without coordinates
+      updateWidgetState({
+        view: 'connectionDetailsView',
+        rightWidgetConnectionId: 'postSynaptic', // Special identifier for post-synaptic connections
+        connectionPage: connectionPageIndex,
+      });
 
       // Show connection details
       setShowConnectionDetails(SummaryType.DetailedSummary);
