@@ -65,8 +65,8 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({ model, engine }) => {
       style={{
         position: 'relative',
         display: 'flex',
-        width: '6.25rem',
-        height: '6.25rem',
+        width: '9.25rem',
+        height: '9.25rem',
         marginTop: '1.5rem',
         marginLeft: '1.5rem',
         padding: '1.25rem 0.75rem',
@@ -91,8 +91,8 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({ model, engine }) => {
           lineHeight: '1.25rem',
         }}
       >
-        {model?.name?.length > 35
-          ? model.name.slice(0, 35) + '...'
+        {model?.name?.length > 70
+          ? model.name.slice(0, 70) + '...'
           : model.name}
       </Typography>
 
