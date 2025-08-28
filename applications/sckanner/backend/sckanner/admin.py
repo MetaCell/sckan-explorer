@@ -84,17 +84,30 @@ class DataSnapshotAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         """Override save to provide user feedback when setting default"""
-        if obj.default and change:
-            # Check if there was another default
-            current_default = DataSnapshot.objects.filter(default=True).exclude(pk=obj.pk).first()
+        if obj.default:
+            # Check if there was another default (for both new and existing objects)
+            query = DataSnapshot.objects.filter(default=True)
+            if obj.pk:  # If object exists, exclude it from the query
+                query = query.exclude(pk=obj.pk)
+            current_default = query.first()
+            
             if current_default:
-                self.message_user(
-                    request, 
-                    _("Default snapshot changed from {old} to {new}").format(
-                        old=current_default, new=obj
-                    ), 
-                    messages.INFO
-                )
+                if change:
+                    self.message_user(
+                        request, 
+                        _("Default snapshot changed from {old} to {new}").format(
+                            old=current_default, new=obj
+                        ), 
+                        messages.INFO
+                    )
+                else:
+                    self.message_user(
+                        request, 
+                        _("New default snapshot created. Previous default {old} has been unset.").format(
+                            old=current_default
+                        ), 
+                        messages.INFO
+                    )
         super().save_model(request, obj, form, change)
 
     def set_as_default(self, request, queryset):
