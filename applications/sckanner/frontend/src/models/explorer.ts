@@ -289,7 +289,7 @@ export interface KnowledgeStatement {
    * @type {string}
    * @memberof KnowledgeStatement
    */
-  curie_id: string;
+  curie_id?: string;
 
   /**
    *
