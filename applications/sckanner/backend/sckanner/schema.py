@@ -11,3 +11,4 @@ class DataSnapshotSchema(Schema):
     source: str
     version: str
     a_b_via_c_json_file: str
+    default: bool

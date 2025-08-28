@@ -71,4 +71,5 @@ export interface Datasnapshot {
   source: string;
   version: string;
   a_b_via_c_json_file: string;
+  default: boolean;
 }

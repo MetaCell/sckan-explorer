@@ -245,5 +245,9 @@ export const getDatasnapshotFromURLStateOrDefault = (
   }
 
   // Return default if URL datasnapshot is invalid or not found
-  return datasnapshots[0]?.id.toString() || '';
+  // iterate all the datasnapshots and return the one marked as default true, otherwise if they are all false do the same as now
+  const defaultSnapshot = datasnapshots.find((ds) => ds.default);
+  return defaultSnapshot
+    ? defaultSnapshot.id.toString()
+    : datasnapshots[0]?.id.toString() || '';
 };
