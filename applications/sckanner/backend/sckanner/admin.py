@@ -74,13 +74,76 @@ class DataSnapshotCreateForm(forms.Form):
 
 
 class DataSnapshotAdmin(admin.ModelAdmin):
-    list_display = ("id", "source", "version", "timestamp", "status", "snapshot_visible", "a_b_via_c_json_file")
-    list_editable = ("snapshot_visible",)
-    list_filter = ("status", "snapshot_visible", "source")
+    list_display = ("id", "source", "version", "timestamp", "status", "snapshot_visible", "default", "a_b_via_c_json_file")
+    list_editable = ("snapshot_visible", "default")
+    list_filter = ("status", "snapshot_visible", "default", "source")
     ordering = ("-timestamp",)
     exclude = ("status",)
-    fields = ("source", "version", "timestamp", "status", "a_b_via_c_json_file", "snapshot_visible", "message")
+    fields = ("source", "version", "timestamp", "status", "a_b_via_c_json_file", "snapshot_visible", "default", "message")
     readonly_fields = ("source", "version", "timestamp", "status", "a_b_via_c_json_file")
+
+    def save_model(self, request, obj, form, change):
+        """Override save to provide user feedback when setting default"""
+        if obj.default:
+            # Check if there was another default (for both new and existing objects)
+            query = DataSnapshot.objects.filter(default=True)
+            if obj.pk:  # If object exists, exclude it from the query
+                query = query.exclude(pk=obj.pk)
+            current_default = query.first()
+            
+            if current_default:
+                if change:
+                    self.message_user(
+                        request, 
+                        _("Default snapshot changed from {old} to {new}").format(
+                            old=current_default, new=obj
+                        ), 
+                        messages.INFO
+                    )
+                else:
+                    self.message_user(
+                        request, 
+                        _("New default snapshot created. Previous default {old} has been unset.").format(
+                            old=current_default
+                        ), 
+                        messages.INFO
+                    )
+        super().save_model(request, obj, form, change)
+
+    def set_as_default(self, request, queryset):
+        """Admin action to set selected snapshot as default"""
+        if queryset.count() != 1:
+            self.message_user(
+                request,
+                _("Please select exactly one snapshot to set as default."),
+                messages.ERROR
+            )
+            return
+
+        snapshot = queryset.first()
+        current_default = DataSnapshot.objects.filter(default=True).first()
+        
+        # Set the selected snapshot as default
+        snapshot.default = True
+        snapshot.save()
+        
+        if current_default and current_default != snapshot:
+            self.message_user(
+                request,
+                _("Default snapshot changed from {old} to {new}").format(
+                    old=current_default, new=snapshot
+                ),
+                messages.SUCCESS
+            )
+        else:
+            self.message_user(
+                request,
+                _("Set {snapshot} as default").format(snapshot=snapshot),
+                messages.SUCCESS
+            )
+
+    set_as_default.short_description = _("Set selected snapshot as default")
+    actions = ["set_as_default"]
 
     def add_view(self, request, form_url="", extra_context=None):
         import datetime

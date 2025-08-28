@@ -67,8 +67,8 @@ export const OriginNodeWidget: React.FC<OriginNodeProps> = ({
       style={{
         position: 'relative',
         display: 'flex',
-        width: '9.25rem',
-        height: '9.25rem',
+        width: '11.25rem',
+        height: '11.25rem',
         padding: '0.5rem 0.75rem',
         flexDirection: 'column',
         justifyContent: 'center',

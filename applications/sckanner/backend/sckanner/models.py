@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from treebeard.mp_tree import MP_Node
 from django.db.models import Q
 from django.core.exceptions import ValidationError
@@ -33,9 +33,22 @@ class DataSnapshotStatus(models.TextChoices):
 class DataSnapshotManager(models.Manager):
     def completed(self):
         return self.get_queryset().filter(
-            status=DataSnapshotStatus.COMPLETED, 
+            status=DataSnapshotStatus.COMPLETED,
             snapshot_visible=True
         ).order_by('source__name', '-timestamp')
+    
+    def get_default(self):
+        """Get the default snapshot, or None if no default is set"""
+        try:
+            return self.get(default=True)
+        except DataSnapshot.DoesNotExist:
+            return None
+        except DataSnapshot.MultipleObjectsReturned:
+            # This shouldn't happen, but if it does, return the first one and fix the data
+            defaults = self.filter(default=True)
+            first_default = defaults.first()
+            defaults.exclude(pk=first_default.pk).update(default=False)
+            return first_default
 
 
 class DataSnapshot(models.Model):
@@ -49,8 +62,23 @@ class DataSnapshot(models.Model):
     status = models.CharField(max_length=255, choices=DataSnapshotStatus.choices, db_index=True, default=DataSnapshotStatus.TO_START)
     message = models.TextField(null=True, blank=True)
     snapshot_visible = models.BooleanField(default=True, db_index=True, help_text="Whether this snapshot is visible to users")
+    default = models.BooleanField(default=False, db_index=True, help_text="Whether this is the default snapshot")
 
     objects = DataSnapshotManager()
+
+    def save(self, *args, **kwargs):
+        # If this snapshot is being set as default, unset all others
+        if self.default:
+            with transaction.atomic():
+                DataSnapshot.objects.exclude(pk=self.pk).update(default=False)
+                super().save(*args, **kwargs)
+        else:
+            super().save(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+        # Additional validation can be added here if needed
+        pass
 
     def __str__(self):
         return f"DataSnapshot {self.id} - source: {self.source} - version: {self.version}"

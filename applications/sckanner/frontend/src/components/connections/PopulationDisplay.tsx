@@ -50,6 +50,15 @@ const PopulationDisplay = ({
   const destinationDetails: DestinationExplorerSerializerDetails[] =
     connectionDetails?.destinations || [];
   const origins = connectionDetails?.origins || [];
+  const forward_connections =
+    connectionDetails?.forwardConnections.map((conn) => {
+      return {
+        id: conn.reference_uri ?? '',
+        knowledge_statement: conn.curie_id || conn.knowledge_statement,
+        type: '',
+        origins: conn.origins,
+      };
+    }) || [];
 
   const getTabularData = (connectionDetails: KnowledgeStatement): Row[] => {
     const rowData: Row[] = [];
@@ -105,6 +114,7 @@ const PopulationDisplay = ({
           origins={origins}
           vias={viaDetails}
           destinations={destinationDetails}
+          forward_connection={forward_connections}
         />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
