@@ -11,7 +11,6 @@ import { vars } from '../../theme/variables.ts';
 import CollapsibleList from './CollapsibleList.tsx';
 import HeatMap from 'react-heatmap-fork';
 import HeatmapTooltip, { HeatmapTooltipRow } from './HeatmapTooltip.tsx';
-// AI-GENERATED: 2025-08-25
 import {
   HierarchicalItem,
   KsPerPhenotype,

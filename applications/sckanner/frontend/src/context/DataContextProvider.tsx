@@ -69,7 +69,6 @@ export const DataContextProvider = ({
   const [filters, setFilters] = useState<Filters>(initialFilters);
   const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>(() => {
     const mode = urlState?.heatmapMode || HeatmapMode.Default;
-    console.log('Initial heatmap mode:', mode);
     return mode;
   });
 
@@ -94,7 +93,6 @@ export const DataContextProvider = ({
       heatmapMode === HeatmapMode.Default
         ? HeatmapMode.Synaptic
         : HeatmapMode.Default;
-    console.log('Switching heatmap mode from', heatmapMode, 'to', mode);
     setHeatmapMode(mode);
   };
 
@@ -120,7 +118,6 @@ export const DataContextProvider = ({
     setUrlState(resetURL);
     // Only reset heatmapMode if it wasn't specified in the URL
     if (!urlState?.heatmapMode) {
-      console.log('Resetting heatmap mode to default');
       setHeatmapMode(HeatmapMode.Default);
     }
   };
