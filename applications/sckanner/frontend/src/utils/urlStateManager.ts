@@ -5,7 +5,7 @@ import {
   InitialFilterOptions,
 } from '../context/DataContext';
 import { Datasnapshot } from '../models/json';
-import { Option } from '../components/common/Types';
+import { Option, HeatmapMode } from '../components/common/Types';
 
 // Utility to check if any filter is set
 export function hasActiveFilters(filters: Filters | SummaryFilters): boolean {
@@ -115,6 +115,10 @@ export const encodeURLState = (state: URLState): string => {
     params.set('sf', btoa(summaryFiltersStr));
   }
 
+  if (state?.heatmapMode) {
+    params.set('hm', state.heatmapMode);
+  }
+
   return params.toString();
 };
 
@@ -210,6 +214,16 @@ export const decodeURLState = (
       errors.push('Invalid summary filters in URL');
     }
   }
+  const heatmapMode = searchParams.get('hm');
+  if (heatmapMode) {
+    // Match the enum value directly since it stores the string values
+    if (
+      heatmapMode === HeatmapMode.Default ||
+      heatmapMode === HeatmapMode.Synaptic
+    ) {
+      state.heatmapMode = heatmapMode as HeatmapMode;
+    }
+  }
 
   return { state, errors };
 };
@@ -231,5 +245,9 @@ export const getDatasnapshotFromURLStateOrDefault = (
   }
 
   // Return default if URL datasnapshot is invalid or not found
-  return datasnapshots[0]?.id.toString() || '';
+  // iterate all the datasnapshots and return the one marked as default true, otherwise if they are all false do the same as now
+  const defaultSnapshot = datasnapshots.find((ds) => ds.default);
+  return defaultSnapshot
+    ? defaultSnapshot.id.toString()
+    : datasnapshots[0]?.id.toString() || '';
 };

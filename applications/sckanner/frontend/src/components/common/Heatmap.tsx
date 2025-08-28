@@ -1,10 +1,21 @@
-import React, { FC, useCallback, useMemo } from 'react';
-import { Box, Button, ButtonGroup, Typography } from '@mui/material';
+import React, {
+  FC,
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+  useState,
+} from 'react';
+import { Box, Button, Typography, Tooltip } from '@mui/material';
 import { vars } from '../../theme/variables.ts';
 import CollapsibleList from './CollapsibleList.tsx';
 import HeatMap from 'react-heatmap-fork';
 import HeatmapTooltip, { HeatmapTooltipRow } from './HeatmapTooltip.tsx';
-import { HierarchicalItem, KsPerPhenotype } from './Types.ts';
+import {
+  HierarchicalItem,
+  KsPerPhenotype,
+  SynapticConnectionsData,
+} from './Types.ts';
 import { getNormalizedValueForMinMax } from '../../services/summaryHeatmapService.ts';
 import {
   generateYLabelsAndIds,
@@ -13,8 +24,12 @@ import {
 import { OTHER_PHENOTYPE_LABEL } from '../../settings.ts';
 import { useDataContext } from '../../context/DataContext.ts';
 import { useWidgetStateActions } from '../../hooks/useWidgetStateActions.ts';
+import SynapticSVG from '../assets/svg/synaptic.svg?url';
+import SynapticWhiteSVG from '../assets/svg/synapticWhite.svg?url';
+import CompressSVG from '../assets/svg/compress.svg?url';
+import ExpandSVG from '../assets/svg/expand.svg?url';
 
-const { gray50, primaryPurple500, gray100A, gray500, primaryPurple600 } = vars;
+const { gray50, primaryPurple500, gray100A, gray500, gray600 } = vars;
 
 interface HeatmapGridProps {
   xAxis: string[];
@@ -27,6 +42,7 @@ interface HeatmapGridProps {
   setSelectedCell: (cell: { x: number; y: number } | null) => void;
   heatmapData?: number[][];
   secondaryHeatmapData?: KsPerPhenotype[][];
+  synapticConnections?: SynapticConnectionsData;
 }
 
 const prepareSecondaryHeatmapData = (data?: KsPerPhenotype[][]): number[][] => {
@@ -52,10 +68,14 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
   setSelectedCell,
   heatmapData,
   secondaryHeatmapData,
+  synapticConnections,
 }) => {
-  const { phenotypesColorMap } = useDataContext();
+  const { phenotypesColorMap, heatmapMode } = useDataContext();
   const { updateHeatmapExpandedState, updateSecondaryHeatmapExpandedState } =
     useWidgetStateActions();
+
+  const heatmapContainerRef = useRef<HTMLDivElement>(null);
+  const [xAxisHeight, setXAxisHeight] = useState(0);
 
   const secondary = !!secondaryHeatmapData;
   const yAxisData = generateYLabelsAndIds(yAxis);
@@ -81,6 +101,19 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     });
     return lookup;
   }, [yAxisData.labels]);
+
+  // Calculate X-axis height dynamically
+  useEffect(() => {
+    if (heatmapContainerRef.current) {
+      const heatmapElement = heatmapContainerRef.current.querySelector(
+        '& > div:first-of-type > div:first-of-type',
+      );
+      if (heatmapElement) {
+        const height = heatmapElement.getBoundingClientRect().height;
+        setXAxisHeight(height);
+      }
+    }
+  }, [xAxis, yAxisData, heatmapMatrixData]);
 
   const getExpandedIds = useCallback((list: HierarchicalItem[]): string[] => {
     return list.reduce((acc, item) => {
@@ -273,29 +306,6 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
 
   return (
     <Box flex={1} my={3} display="inline-flex" flexDirection="column" px={3}>
-      <Box display="flex" alignItems="center" gap={2}>
-        <Typography variant="subtitle1" color={gray500}>
-          Tree hierarchy:
-        </Typography>
-        <ButtonGroup
-          variant="outlined"
-          sx={{
-            display: 'flex',
-            '& .MuiButtonBase-root': {
-              width: '4.5rem',
-              height: '2rem',
-              marginRight: '0.5rem',
-              borderRadius: '0.25rem',
-              border: `0.0625rem solid ${primaryPurple600}`,
-              color: primaryPurple600,
-            },
-          }}
-        >
-          <Button onClick={() => handleExpandAll()}>Open All</Button>
-          <Button onClick={() => handleCompressAll()}>Close All</Button>
-        </ButtonGroup>
-      </Box>
-
       <Box mb={1.5} pl="17.375rem">
         <Typography
           sx={{
@@ -318,11 +328,103 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         position="relative"
         flexDirection="row-reverse"
       >
+        {/* Tree hierarchy controls positioned in top-left empty cell */}
+        <Box
+          position="absolute"
+          top={`${xAxisHeight - 50}px`}
+          left="1.5rem"
+          zIndex={10}
+          width="15.625rem"
+          height="2.6875rem"
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{
+            padding: '0.5rem',
+          }}
+        >
+          <Typography
+            variant="caption"
+            color={gray600}
+            sx={{
+              fontSize: '0.975rem',
+              fontWeight: 800,
+            }}
+          >
+            Tree hierarchy
+          </Typography>
+          <Box display="flex" gap="0.25rem">
+            <Tooltip
+              title="Expand all"
+              arrow
+              slotProps={{
+                tooltip: {
+                  sx: {
+                    backgroundColor: '#333',
+                    color: '#fff',
+                    fontSize: '0.75rem',
+                  },
+                },
+              }}
+            >
+              <Button
+                onClick={() => handleExpandAll()}
+                sx={{
+                  width: '2rem',
+                  height: '2rem',
+                  minWidth: '1.5rem',
+                  padding: 0,
+                  border: 'none',
+                  background: 'transparent',
+                  backgroundImage: `url(${ExpandSVG})`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center',
+                  backgroundSize: '1rem 1rem',
+                  filter:
+                    'brightness(0) saturate(100%) invert(47%) sepia(10%) saturate(373%) hue-rotate(202deg) brightness(97%) contrast(87%)',
+                }}
+              />
+            </Tooltip>
+            <Tooltip
+              title="Compress all"
+              arrow
+              slotProps={{
+                tooltip: {
+                  sx: {
+                    backgroundColor: '#333',
+                    color: '#fff',
+                    fontSize: '0.75rem',
+                  },
+                },
+              }}
+            >
+              <Button
+                onClick={() => handleCompressAll()}
+                sx={{
+                  width: '2rem',
+                  height: '2rem',
+                  minWidth: '1.5rem',
+                  padding: 0,
+                  border: 'none',
+                  background: 'transparent',
+                  backgroundImage: `url(${CompressSVG})`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center',
+                  backgroundSize: '1rem 1rem',
+                  filter:
+                    'brightness(0) saturate(100%) invert(47%) sepia(10%) saturate(373%) hue-rotate(202deg) brightness(97%) contrast(87%)',
+                }}
+              />
+            </Tooltip>
+          </Box>
+        </Box>
         <Box
           width={1}
           position="relative"
+          ref={heatmapContainerRef}
           sx={{
             '& > div:first-of-type': {
+              position: 'relative',
               '& > div:last-of-type': {
                 '& > div': {
                   '& > div': {
@@ -459,11 +561,40 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                     return {
                       ...commonStyles,
                       borderColor: gray100A,
+                      backgroundSize: '100% 100% !important',
                       background: getCellBgColorFromPhenotype(
                         safeNormalizedValue,
                         _x,
                         _y,
                       ),
+                    };
+                  } else if (
+                    heatmapMode === 'synaptic' &&
+                    synapticConnections
+                  ) {
+                    const directConnections =
+                      synapticConnections[_y].directConnections[_x];
+                    const synapticValue =
+                      synapticConnections[_y].synapticConnections[_x];
+                    return {
+                      ...commonStyles,
+                      background:
+                        directConnections.length > 0
+                          ? '#8300BF'
+                          : 'transparent',
+                      backgroundImage:
+                        synapticValue.length > 0 &&
+                        directConnections.length === 0
+                          ? `url(${SynapticSVG})`
+                          : synapticValue.length > 0 &&
+                              directConnections.length > 0
+                            ? `url(${SynapticWhiteSVG})`
+                            : undefined,
+                      // backgroundSize: '60% 60%',
+                      borderColor:
+                        synapticValue.length > 0 || directConnections.length > 0
+                          ? '#edeff2'
+                          : 'transparent',
                     };
                   } else {
                     safeNormalizedValue =

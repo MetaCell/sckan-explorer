@@ -5,7 +5,7 @@ import {
   KnowledgeStatement,
 } from '../models/explorer.ts';
 import { Option, PhenotypeDetail } from '../components/common/Types.ts';
-import { KsRecord } from '../components/common/Types.ts';
+import { KsRecord, HeatmapMode } from '../components/common/Types.ts';
 
 export interface Filters {
   Origin: Option[];
@@ -52,6 +52,7 @@ export interface WidgetState {
 
 export interface URLState extends WidgetState {
   fullUrlState?: URLState | null;
+  heatmapMode?: HeatmapMode | null;
 }
 
 export interface DataContext {
@@ -73,6 +74,8 @@ export interface DataContext {
   widgetState: WidgetState;
   setWidgetState: (state: WidgetState) => void;
   resetWidgetState: (datasnapshot: string) => void;
+  heatmapMode: HeatmapMode;
+  switchHeatmapMode: () => void;
 }
 
 export const DataContext = createContext<DataContext>({
@@ -119,6 +122,8 @@ export const DataContext = createContext<DataContext>({
   setWidgetState: () => {},
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   resetWidgetState: (_datasnapshot: string) => {},
+  heatmapMode: HeatmapMode.Default,
+  switchHeatmapMode: () => {},
 });
 
 export const useDataContext = () => useContext(DataContext);

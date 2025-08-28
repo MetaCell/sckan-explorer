@@ -62,6 +62,7 @@ def get_datasnapshots(request):
             source=snapshot.source.name,
             version=snapshot.version,
             a_b_via_c_json_file=snapshot.a_b_via_c_json_file.url,
+            default=snapshot.default,
         )
         for snapshot in filter_datasnapshot_by_if_a_b_via_c_json_file_exists(
             datasnapshots

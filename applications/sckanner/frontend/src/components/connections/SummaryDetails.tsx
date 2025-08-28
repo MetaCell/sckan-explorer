@@ -71,6 +71,16 @@ const SummaryDetails = ({
   const circuit_type = connectionDetails?.circuit_type || '';
   const projection = connectionDetails?.projection || '';
 
+  const getForwardConnections = () => {
+    const forwardConnections: string[] = [];
+    connectionDetails?.forwardConnections.forEach((conn) => {
+      if (conn?.reference_uri !== undefined) {
+        forwardConnections.push(conn.reference_uri);
+      }
+    });
+    return forwardConnections;
+  };
+
   // Details shown in the dropdown - from composer
   const detailsObject = [
     {
@@ -105,6 +115,11 @@ const SummaryDetails = ({
       label: 'Sex',
       value: connectionDetails?.sex.name || '-',
       icon: undefined,
+    },
+    {
+      label: 'Forward Connections',
+      value: getForwardConnections(),
+      // icon: ArrowOutwardRoundedIcon,
     },
   ];
 

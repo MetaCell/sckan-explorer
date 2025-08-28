@@ -34,7 +34,7 @@ const styles = {
     },
   },
   popper: {
-    minWidth: 260,
+    minWidth: 270,
     maxHeight: 320,
     borderRadius: '0.5rem',
     overflow: 'hidden',
@@ -184,6 +184,7 @@ const ReleaseDropdown = ({
           minWidth: 220,
           maxWidth: 275,
           width: '100%',
+          paddingRight: '0.5rem',
         }}
       >
         <Tooltip
@@ -205,30 +206,50 @@ const ReleaseDropdown = ({
               if (e.key === 'Enter' || e.key === ' ') setOpen((v) => !v);
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-              <Typography
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                width: '100%',
+              }}
+            >
+              <Box
                 sx={{
-                  color: gray50,
-                  mr: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  flex: 1,
+                  justifyContent: 'center',
                 }}
               >
-                {getGroupNameForSelected(groupedOptions, selectedDatasnaphshot)}
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: gray400,
-                  fontWeight: 600,
-                  mr: 1,
-                  maxWidth: '150px',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  display: 'block',
-                }}
-              >
-                {`Data Snapshot ${selectedOption?.version}`}
-              </Typography>
+                <Typography
+                  sx={{
+                    color: gray50,
+                    mr: 1,
+                  }}
+                >
+                  {getGroupNameForSelected(
+                    groupedOptions,
+                    selectedDatasnaphshot,
+                  )}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: gray400,
+                    fontWeight: 600,
+                    mr: 1,
+                    maxWidth: '150px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    display: 'block',
+                  }}
+                >
+                  {`Version ${selectedOption?.version}`}
+                </Typography>
+              </Box>
               <Box
                 sx={{
                   width: 16,
@@ -281,7 +302,8 @@ const ReleaseDropdown = ({
                   }}
                 >
                   <Typography sx={styles.groupHeader}>
-                    {group.group.toUpperCase()}
+                    {group.group.charAt(0).toUpperCase() +
+                      group.group.slice(1).toLowerCase()}
                   </Typography>
                   {group.options.map((option) => (
                     <Box
@@ -307,7 +329,7 @@ const ReleaseDropdown = ({
                             color: gray100,
                           }}
                         >
-                          {`Data Snapshot ${option.version}`}
+                          {`${group.group.charAt(0).toUpperCase() + group.group.slice(1).toLowerCase()} version ${option.version}`}
                         </Typography>
                         <Typography
                           sx={{

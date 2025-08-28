@@ -12,6 +12,10 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    assetsInclude: ['**/*.svg'],
+    build: {
+      assetsInlineLimit: 0, // This prevents small assets from being inlined
+    },
     server: {
       ...(API_URL && {
         proxy: {

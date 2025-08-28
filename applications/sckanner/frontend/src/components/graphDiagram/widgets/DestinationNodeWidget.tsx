@@ -8,7 +8,7 @@ import { CustomNodeModel } from '../models/CustomNodeModel.tsx';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
 import {
   ArrowDownwardIcon,
-  ArrowOutward,
+  // ArrowOutward,
   DestinationIcon,
   OriginIcon,
   ViaIcon,
@@ -69,8 +69,8 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
       style={{
         position: 'relative',
         display: 'flex',
-        width: '7rem',
-        height: '7rem',
+        width: '9rem',
+        height: '9rem',
         marginTop: '1rem',
         marginLeft: '1rem',
         padding: '0',
@@ -226,7 +226,7 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                           ? `${item.knowledge_statement.slice(0, 25)}...`
                           : item.knowledge_statement}
                       </Typography>
-                      <span
+                      {/* <span
                         style={{ cursor: 'pointer' }}
                         onClick={() =>
                           window.open(
@@ -235,7 +235,7 @@ export const DestinationNodeWidget: React.FC<DestinationNodeProps> = ({
                         }
                       >
                         <ArrowOutward />
-                      </span>
+                      </span> */}
                     </Stack>
                   </React.Fragment>
                 ),

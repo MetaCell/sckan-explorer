@@ -533,11 +533,10 @@ function processForwardConnections(
     // Find forward connections where this node's externalId is in the origins
     const relevantForwardConnections = forwardConnections.filter(
       (single_fw) => {
-        const origins = single_fw.origins.map(
-          (destination: { id: string } | string) =>
-            typeof destination === 'object'
-              ? destination.id.toString()
-              : destination.toString(),
+        const origins = single_fw.origins.map((destination: any) =>
+          destination.region_layer === null
+            ? destination.simple_entity.ontology_uri.toString()
+            : `${destination.region_layer.region.ontology_uri} (${destination.region_layer.layer.ontology_uri})`,
         );
         return origins.includes(externalId);
       },

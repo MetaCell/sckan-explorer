@@ -17,7 +17,7 @@ import {
   KnowledgeStatement,
   Organ,
 } from '../models/explorer.ts';
-import { PhenotypeDetail } from '../components/common/Types.ts';
+import { PhenotypeDetail, HeatmapMode } from '../components/common/Types.ts';
 import { generatePhenotypeColors } from '../services/summaryHeatmapService.ts';
 import { OTHER_PHENOTYPE_LABEL } from '../settings.ts';
 import { filterKnowledgeStatements } from '../services/heatmapService.ts';
@@ -67,6 +67,10 @@ export const DataContextProvider = ({
     [urlState],
   );
   const [filters, setFilters] = useState<Filters>(initialFilters);
+  const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>(() => {
+    const mode = urlState?.heatmapMode || HeatmapMode.Default;
+    return mode;
+  });
 
   const [selectedConnectionSummary, setSelectedConnectionSummary] =
     useState<ConnectionSummary | null>(null);
@@ -84,6 +88,14 @@ export const DataContextProvider = ({
     },
   );
 
+  const switchHeatmapMode = () => {
+    const mode =
+      heatmapMode === HeatmapMode.Default
+        ? HeatmapMode.Synaptic
+        : HeatmapMode.Default;
+    setHeatmapMode(mode);
+  };
+
   const resetWidgetState = (datasnapshot: string) => {
     const resetURL: URLState = {
       datasnapshot: datasnapshot,
@@ -95,6 +107,7 @@ export const DataContextProvider = ({
       connectionPage: null,
       heatmapExpandedState: null,
       secondaryHeatmapExpandedState: null,
+      heatmapMode: urlState?.heatmapMode || HeatmapMode.Default, // Preserve URL heatmap mode or use default
     };
     const encodedURLState = encodeURLState(resetURL);
     const newURL = encodedURLState
@@ -103,6 +116,10 @@ export const DataContextProvider = ({
     window.history.replaceState(null, '', newURL);
     setWidgetState(resetURL);
     setUrlState(resetURL);
+    // Only reset heatmapMode if it wasn't specified in the URL
+    if (!urlState?.heatmapMode) {
+      setHeatmapMode(HeatmapMode.Default);
+    }
   };
 
   const updateURLState = useCallback(() => {
@@ -116,13 +133,26 @@ export const DataContextProvider = ({
       connectionPage: widgetState?.connectionPage,
       heatmapExpandedState: widgetState?.heatmapExpandedState,
       secondaryHeatmapExpandedState: widgetState?.secondaryHeatmapExpandedState,
+      heatmapMode: heatmapMode,
     };
     const encodedURLState = encodeURLState(urlState);
     const newURL = encodedURLState
       ? `${window.location.pathname}?${encodedURLState}`
       : window.location.pathname;
     window.history.replaceState(null, '', newURL);
-  }, [widgetState, selectedDatasnapshot]);
+  }, [
+    widgetState.datasnapshot,
+    widgetState.filters,
+    widgetState.leftWidgetConnectionId,
+    widgetState.rightWidgetConnectionId,
+    widgetState.view,
+    widgetState?.summaryFilters,
+    widgetState?.connectionPage,
+    widgetState?.heatmapExpandedState,
+    widgetState?.secondaryHeatmapExpandedState,
+    selectedDatasnapshot,
+    heatmapMode,
+  ]);
 
   useEffect(() => {
     if (
@@ -132,6 +162,11 @@ export const DataContextProvider = ({
       updateURLState();
     }
   }, [updateURLState, selectedDatasnapshot, urlState]);
+
+  // Update URL when heatmapMode changes (from toggle or other state changes)
+  useEffect(() => {
+    updateURLState();
+  }, [heatmapMode, updateURLState]);
 
   const phenotypes = useMemo(() => {
     const allPhenotypes = Object.values(knowledgeStatements).map(
@@ -273,6 +308,8 @@ export const DataContextProvider = ({
     isDataLoading: false,
     setIsDataLoading: () => {},
     initialFilterOptions,
+    heatmapMode: heatmapMode,
+    switchHeatmapMode,
   };
 
   return (

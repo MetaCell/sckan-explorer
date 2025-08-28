@@ -1,12 +1,24 @@
-import { Box, Button, Divider, Typography } from '@mui/material';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  Box,
+  Button,
+  Divider,
+  Typography,
+  Switch,
+  FormControlLabel,
+} from '@mui/material';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from 'react';
 import { vars } from '../theme/variables.ts';
 import HeatmapGrid from './common/Heatmap.tsx';
 import { useDataContext } from '../context/DataContext.ts';
 import { useWidgetStateActions } from '../hooks/useWidgetStateActions.ts';
 import {
   calculateConnections,
-  getMinMaxConnections,
   getXAxisOrgans,
   getYAxis,
   getHeatmapData,
@@ -16,13 +28,20 @@ import {
   filterYAxis,
   filterKnowledgeStatements,
   assignExpandedState,
+  getMinMaxKnowledgeStatements,
 } from '../services/heatmapService.ts';
 import FiltersDropdowns from './FiltersDropdowns.tsx';
-import { DetailedHeatmapData, HierarchicalItem } from './common/Types.ts';
+import {
+  DetailedHeatmapData,
+  HierarchicalItem,
+  HeatmapMode,
+} from './common/Types.ts';
 import { Organ } from '../models/explorer.ts';
 import LoaderSpinner from './common/LoaderSpinner.tsx';
 import { extractEndOrganFiltersFromEntities } from '../services/summaryHeatmapService.ts';
 import { COORDINATE_SEPARATOR } from '../utils/urlStateManager.ts';
+import SynapticSVG from './assets/svg/synaptic.svg?url';
+import SynapticWhiteSVG from './assets/svg/synapticWhite.svg?url';
 
 const { gray500, white: white, gray25, gray100, gray400, gray600A } = vars;
 
@@ -35,6 +54,8 @@ function ConnectivityGrid() {
     setFilters,
     setSelectedConnectionSummary,
     widgetState,
+    heatmapMode,
+    switchHeatmapMode,
   } = useDataContext();
 
   const { updateConnectivityGridCellClick, resetAllWidgetState } =
@@ -64,6 +85,8 @@ function ConnectivityGrid() {
     y: number;
   } | null>(null);
 
+  const prevHeatmapModeRef = useRef<HeatmapMode>(heatmapMode);
+
   useEffect(() => {
     const connections = calculateConnections(
       hierarchicalNodes,
@@ -75,7 +98,7 @@ function ConnectivityGrid() {
   }, [hierarchicalNodes, organs, knowledgeStatements, organizedFilters]);
 
   const { min, max } = useMemo(() => {
-    return getMinMaxConnections(connectionsMap);
+    return getMinMaxKnowledgeStatements(connectionsMap);
   }, [connectionsMap]);
 
   useEffect(() => {
@@ -175,13 +198,55 @@ function ConnectivityGrid() {
     }
   }, [yAxis, connectionsMap, xAxisOrgans]);
 
-  const { heatmapData, detailedHeatmapData } = useMemo(() => {
-    const heatmapData = getHeatmapData(filteredYAxis, filteredConnectionsMap);
+  // Reset summary widget when heatmap mode changes
+  useEffect(() => {
+    if (prevHeatmapModeRef.current !== heatmapMode) {
+      setSelectedCell(null);
+      setSelectedConnectionSummary(null);
+      // Also reset the widget state to ensure complete reset
+      resetAllWidgetState();
+      prevHeatmapModeRef.current = heatmapMode;
+    }
+  }, [heatmapMode, setSelectedConnectionSummary, resetAllWidgetState]);
+
+  const {
+    heatmapData,
+    detailedHeatmapData,
+    synapticConnections,
+    synapticData,
+  } = useMemo(() => {
+    const filteredKSs = filterKnowledgeStatements(
+      knowledgeStatements,
+      hierarchicalNodes,
+      organizedFilters,
+      organs,
+    );
+
+    const heatmapData = getHeatmapData(
+      filteredYAxis,
+      filteredConnectionsMap,
+      filteredKSs,
+      filteredXOrgans,
+      heatmapMode,
+    );
+
+    // TODO change the return based on the type of heatmapMode
     return {
       heatmapData: heatmapData.heatmapMatrix,
       detailedHeatmapData: heatmapData.detailedHeatmap,
+      synapticConnections: heatmapData.synapticConnections,
+      synapticData: heatmapData.synapticData,
     };
-  }, [filteredYAxis, filteredConnectionsMap]);
+  }, [
+    knowledgeStatements,
+    hierarchicalNodes,
+    organizedFilters,
+    organs,
+    filteredYAxis,
+    filteredConnectionsMap,
+    filteredXOrgans,
+    heatmapMode,
+  ]);
 
   const handleClick = useCallback(
     (
@@ -193,12 +258,57 @@ function ConnectivityGrid() {
     ): void => {
       // When the primary heatmap cell is clicked - this sets the react-context state for Connections in SummaryType.summary
       setSelectedCell({ x, y });
-      const row = filteredConnectionsMap.get(yId);
-      if (row) {
+      if (heatmapMode === HeatmapMode.Default) {
+        const row = filteredConnectionsMap.get(yId);
+        if (row) {
+          const endOrgan = filteredXOrgans[x];
+          const nodeData = detailedHeatmapData[y];
+          const hierarchicalNode = hierarchicalNodes[nodeData.id];
+          const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
+
+          const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
+          updateConnectivityGridCellClick(
+            removeSummaryFilters,
+            isConnectionView ?? false,
+            leftSideHeatmapCoordinates,
+          );
+
+          setSelectedConnectionSummary({
+            connections: ksMap,
+            endOrgan: endOrgan,
+            hierarchicalNode: hierarchicalNode,
+          });
+        }
+      } else {
         const endOrgan = filteredXOrgans[x];
+        // synaptic connections might be developed over other destinations, so I will pass all the possible
+        // destinations and then purge the empty columns in the connections component or the summaryheatmapservice
+        const allChildren = new Map();
+        filteredXOrgans.forEach((org) => {
+          org.children.forEach((child) => {
+            allChildren.set(child.id, child);
+          });
+        });
+        const endOrganWithChildren = {
+          ...endOrgan,
+          children: allChildren,
+        };
         const nodeData = detailedHeatmapData[y];
         const hierarchicalNode = hierarchicalNodes[nodeData.id];
-        const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
+        const allUris = new Set<string>();
+        if (synapticConnections) {
+          synapticConnections[y].synapticConnections[x].forEach((path) => {
+            path.forEach((uri) => allUris.add(uri));
+          });
+          synapticConnections[y].directConnections[x].forEach((path) => {
+            allUris.add(path);
+          });
+        }
+
+        const ksMap = getKnowledgeStatementMap(
+          Array.from(allUris),
+          knowledgeStatements,
+        );
 
         const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
         updateConnectivityGridCellClick(
@@ -209,20 +319,21 @@ function ConnectivityGrid() {
 
         setSelectedConnectionSummary({
           connections: ksMap,
-          endOrgan: endOrgan,
+          endOrgan: endOrganWithChildren,
           hierarchicalNode: hierarchicalNode,
         });
       }
     },
     [
+      heatmapMode,
       filteredConnectionsMap,
       filteredXOrgans,
       detailedHeatmapData,
       hierarchicalNodes,
       knowledgeStatements,
       updateConnectivityGridCellClick,
-      setSelectedCell,
       setSelectedConnectionSummary,
+      synapticConnections,
     ],
   );
 
@@ -315,6 +426,16 @@ function ConnectivityGrid() {
     return Object.values(organizedFilters).every((arr) => arr.length === 0);
   };
 
+  const handleHeatmapModeToggle = () => {
+    // Reset summary widget before switching mode
+    setSelectedCell(null);
+    setSelectedConnectionSummary(null);
+    resetAllWidgetState();
+
+    // Switch the heatmap mode
+    switchHeatmapMode();
+  };
+
   return isLoading ? (
     <LoaderSpinner />
   ) : (
@@ -377,16 +498,69 @@ function ConnectivityGrid() {
         filteredXOrgans={filteredXOrgans}
       />
 
+      {/* Heatmap Mode Toggle */}
+      <Box
+        px={3}
+        py={2}
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+        borderBottom={`0.0625rem solid ${gray100}`}
+      >
+        <Box display="flex" alignItems="center" gap={2}>
+          <Typography
+            sx={{
+              fontSize: '0.75rem',
+              fontWeight: 400,
+              color: heatmapMode === HeatmapMode.Default ? gray600A : gray400,
+            }}
+          >
+            Heatmap
+          </Typography>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={heatmapMode === HeatmapMode.Synaptic}
+                onChange={() => handleHeatmapModeToggle()}
+                size="small"
+                sx={{
+                  '& .MuiSwitch-switchBase.Mui-checked': {
+                    color: '#8300BF',
+                  },
+                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                    backgroundColor: '#8300BF',
+                  },
+                }}
+              />
+            }
+            label=""
+            sx={{ margin: 0 }}
+          />
+          <Typography
+            sx={{
+              fontSize: '0.75rem',
+              fontWeight: 400,
+              color: heatmapMode === HeatmapMode.Synaptic ? gray600A : gray400,
+            }}
+          >
+            Synaptic connections
+          </Typography>
+        </Box>
+      </Box>
+
       <HeatmapGrid
         yAxis={filteredYAxis}
         setYAxis={handleYAxisUpdate}
-        heatmapData={heatmapData}
+        heatmapData={
+          heatmapMode === HeatmapMode.Default ? heatmapData : synapticData
+        }
         setSelectedCell={setSelectedCell}
         xAxis={filteredXOrgans.map((organ) => organ.name)}
         xAxisLabel={'End organ'}
         yAxisLabel={'Connection Origin'}
         onCellClick={(x, y, yId) => handleClick(x, y, yId, true, true)}
         selectedCell={selectedCell}
+        synapticConnections={synapticConnections}
       />
 
       <Box
@@ -396,82 +570,210 @@ function ConnectivityGrid() {
         display="flex"
         alignItems="center"
         justifyContent="start"
-        sx={{ background: white }}
+        sx={{
+          background: white,
+          position: 'sticky',
+          bottom: 0,
+          zIndex: 10,
+        }}
       >
-        <Box
-          position="sticky"
-          left={0}
-          bottom={0}
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            height: '1.875rem',
-            padding: '0 0.75rem',
-            borderRadius: '0.25rem',
-            background: gray25,
-            border: `0.0625rem solid ${gray100}`,
-            gap: '0.75rem',
-          }}
-        >
-          <Typography
-            sx={{
-              fontSize: '0.75rem',
-              fontWeight: 500,
-              lineHeight: '1.125rem',
-              color: gray500,
-            }}
-          >
-            Connections
-          </Typography>
-
+        {heatmapMode === HeatmapMode.Default ? (
           <Box
             sx={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.25rem',
+              height: '1.875rem',
+              padding: '0 0.75rem',
+              borderRadius: '0.25rem',
+              background: gray25,
+              border: `0.0625rem solid ${gray100}`,
+              gap: '0.75rem',
             }}
           >
             <Typography
               sx={{
                 fontSize: '0.75rem',
-                fontWeight: 400,
+                fontWeight: 500,
                 lineHeight: '1.125rem',
-                color: gray400,
+                color: gray500,
               }}
             >
-              {min}
+              Populations
             </Typography>
 
             <Box
               sx={{
                 display: 'flex',
                 alignItems: 'center',
+                gap: '0.25rem',
               }}
             >
-              {[1, 2, 3, 4, 5, 6].reverse().map((el: number) => (
-                <Box
-                  key={el}
-                  sx={{
-                    width: '1.5rem',
-                    height: '1rem',
-                    background: `rgba(131, 0, 191, ${1 - el / 6.5})`,
-                  }}
-                />
-              ))}
+              <Typography
+                sx={{
+                  fontSize: '0.75rem',
+                  fontWeight: 400,
+                  lineHeight: '1.125rem',
+                  color: gray400,
+                }}
+              >
+                {min}
+              </Typography>
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                {[1, 2, 3, 4, 5, 6].reverse().map((el: number) => (
+                  <Box
+                    key={el}
+                    sx={{
+                      width: '1.5rem',
+                      height: '1rem',
+                      background: `rgba(131, 0, 191, ${1 - el / 6.5})`,
+                    }}
+                  />
+                ))}
+              </Box>
+
+              <Typography
+                sx={{
+                  fontSize: '0.75rem',
+                  fontWeight: 400,
+                  lineHeight: '1.125rem',
+                  color: gray400,
+                }}
+              >
+                {max}
+              </Typography>
+            </Box>
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              height: '1.875rem',
+              padding: '0 0.75rem',
+              borderRadius: '0.25rem',
+              background: gray25,
+              border: `0.0625rem solid ${gray100}`,
+              gap: '1rem',
+            }}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: '0.75rem',
+                  fontWeight: 400,
+                  lineHeight: '1.125rem',
+                  color: gray500,
+                }}
+              >
+                Populations
+              </Typography>
+            </Box>
+            {/* Direct connections */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}
+            >
+              <Box
+                sx={{
+                  width: '1rem',
+                  height: '1rem',
+                  background: '#8300BF',
+                  borderRadius: '0.125rem',
+                }}
+              />
+              <Typography
+                sx={{
+                  fontSize: '0.75rem',
+                  fontWeight: 400,
+                  lineHeight: '1.125rem',
+                  color: gray500,
+                }}
+              >
+                Direct
+              </Typography>
             </Box>
 
-            <Typography
+            {/* Synaptic connections */}
+            <Box
               sx={{
-                fontSize: '0.75rem',
-                fontWeight: 400,
-                lineHeight: '1.125rem',
-                color: gray400,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
               }}
             >
-              {max}
-            </Typography>
+              <Box
+                sx={{
+                  width: '1rem',
+                  height: '1rem',
+                  background: 'white',
+                  border: `0.0625rem solid ${gray100}`,
+                  borderRadius: '0.125rem',
+                  backgroundImage: `url(${SynapticSVG})`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center',
+                  backgroundSize: '90% 90%',
+                }}
+              />
+              <Typography
+                sx={{
+                  fontSize: '0.75rem',
+                  fontWeight: 400,
+                  lineHeight: '1.125rem',
+                  color: gray500,
+                }}
+              >
+                Synaptic
+              </Typography>
+            </Box>
+
+            {/* Synaptic + Direct connections */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}
+            >
+              <Box
+                sx={{
+                  width: '1rem',
+                  height: '1rem',
+                  background: '#8300BF',
+                  borderRadius: '0.125rem',
+                  backgroundImage: `url(${SynapticWhiteSVG})`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center',
+                  backgroundSize: '90% 90%',
+                }}
+              />
+              <Typography
+                sx={{
+                  fontSize: '0.75rem',
+                  fontWeight: 400,
+                  lineHeight: '1.125rem',
+                  color: gray500,
+                }}
+              >
+                Synaptic + Direct
+              </Typography>
+            </Box>
           </Box>
-        </Box>
+        )}
       </Box>
     </Box>
   );
