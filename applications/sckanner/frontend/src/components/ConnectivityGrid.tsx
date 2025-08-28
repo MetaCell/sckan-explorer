@@ -40,6 +40,8 @@ import { Organ } from '../models/explorer.ts';
 import LoaderSpinner from './common/LoaderSpinner.tsx';
 import { extractEndOrganFiltersFromEntities } from '../services/summaryHeatmapService.ts';
 import { COORDINATE_SEPARATOR } from '../utils/urlStateManager.ts';
+import SynapticSVG from './assets/svg/synaptic.svg?url';
+import SynapticWhiteSVG from './assets/svg/synapticWhite.svg?url';
 
 const { gray500, white: white, gray25, gray100, gray400, gray600A } = vars;
 
@@ -721,7 +723,7 @@ function ConnectivityGrid() {
                   background: 'white',
                   border: `0.0625rem solid ${gray100}`,
                   borderRadius: '0.125rem',
-                  backgroundImage: `url(/src/components/assets/svg/synaptic.svg)`,
+                  backgroundImage: `url(${SynapticSVG})`,
                   backgroundRepeat: 'no-repeat',
                   backgroundPosition: 'center',
                   backgroundSize: '90% 90%',
@@ -753,7 +755,7 @@ function ConnectivityGrid() {
                   height: '1rem',
                   background: '#8300BF',
                   borderRadius: '0.125rem',
-                  backgroundImage: `url(/src/components/assets/svg/synapticWhite.svg)`,
+                  backgroundImage: `url(${SynapticWhiteSVG})`,
                   backgroundRepeat: 'no-repeat',
                   backgroundPosition: 'center',
                   backgroundSize: '90% 90%',

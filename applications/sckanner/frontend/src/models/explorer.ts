@@ -289,6 +289,13 @@ export interface KnowledgeStatement {
    * @type {string}
    * @memberof KnowledgeStatement
    */
+  curie_id: string;
+
+  /**
+   *
+   * @type {string}
+   * @memberof KnowledgeStatement
+   */
   reference_uri?: string;
 
   /**
