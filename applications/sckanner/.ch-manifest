@@ -1,0 +1,4 @@
+app-name: sckanner
+inferred: false
+templates: [base, webapp, db-postgres, django-ninja]
+version: '1'

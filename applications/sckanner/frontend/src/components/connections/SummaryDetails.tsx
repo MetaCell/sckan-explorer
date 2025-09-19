@@ -1,0 +1,282 @@
+import React from 'react';
+import { Typography, Button, Stack, Divider, Box } from '@mui/material';
+import ArrowOutwardRoundedIcon from '@mui/icons-material/ArrowOutwardRounded';
+import { vars } from '../../theme/variables.ts';
+import PopulationDisplay from './PopulationDisplay.tsx';
+import CommonAccordion from '../common/Accordion.tsx';
+import CommonChip from '../common/CommonChip.tsx';
+// import { ArrowOutward } from '../icons/index.tsx';
+import { KsRecord } from '../common/Types.ts';
+import { getConnectionDetails } from '../../services/summaryHeatmapService.ts';
+import { generateJourneyCsvService } from '../../services/csvService.ts';
+import { useDataContext } from '../../context/DataContext.ts';
+import MAPSButton from './shared/ButtonDropDown.tsx';
+
+const { gray500, gray700, gray800 } = vars;
+
+const RowStack = ({
+  label,
+  value,
+  Icon,
+}: {
+  label: string;
+  value: string;
+  Icon?: React.ElementType;
+}) => (
+  <Stack
+    direction="row"
+    gap=".75rem"
+    sx={{
+      '& .MuiSvgIcon-root': {
+        height: '1rem',
+        width: '1rem',
+        marginLeft: '.5rem',
+      },
+    }}
+  >
+    <Typography variant="subtitle1" width="6rem" flexShrink={0}>
+      {label}
+    </Typography>
+    <Typography
+      variant="subtitle1"
+      fontWeight={400}
+      sx={{
+        wordBreak: 'break-word',
+        flex: 1,
+        minWidth: 0,
+      }}
+    >
+      {value}
+      {Icon && <Icon />}
+    </Typography>
+  </Stack>
+);
+
+type SummaryDetailsProps = {
+  knowledgeStatementsMap: KsRecord;
+  connectionPage: number;
+};
+
+const SummaryDetails = ({
+  knowledgeStatementsMap,
+  connectionPage,
+}: SummaryDetailsProps) => {
+  const { selectedConnectionSummary, filters } = useDataContext();
+
+  const connectionDetails = getConnectionDetails(
+    knowledgeStatementsMap,
+    connectionPage,
+  );
+  const phenotype = connectionDetails?.phenotype || '';
+  const circuit_type = connectionDetails?.circuit_type || '';
+  const projection = connectionDetails?.projection || '';
+
+  const getForwardConnections = () => {
+    const forwardConnections: string[] = [];
+    connectionDetails?.forwardConnections.forEach((conn) => {
+      if (conn?.reference_uri !== undefined) {
+        forwardConnections.push(conn.reference_uri);
+      }
+    });
+    return forwardConnections;
+  };
+
+  // Details shown in the dropdown - from composer
+  const detailsObject = [
+    {
+      label: 'Connection Id',
+      value: connectionDetails?.id || '-',
+      icon: undefined,
+    },
+    {
+      label: 'Laterality',
+      value: connectionDetails?.laterality || '-',
+      icon: undefined,
+    },
+    {
+      label: 'References',
+      value:
+        connectionDetails?.provenances.filter(
+          (uri) => uri !== connectionDetails?.id,
+        ) || [],
+      icon: undefined,
+    },
+    {
+      label: 'Phenotype',
+      // in value array showing phenotype and circuit_type
+      value: [
+        connectionDetails?.phenotype,
+        connectionDetails?.circuit_type,
+        connectionDetails?.projection,
+      ].filter(Boolean),
+      icon: undefined,
+    },
+    {
+      label: 'Sex',
+      value: connectionDetails?.sex.name || '-',
+      icon: undefined,
+    },
+    {
+      label: 'Forward Connections',
+      value: getForwardConnections(),
+      // icon: ArrowOutwardRoundedIcon,
+    },
+  ];
+
+  const statementAlerts = connectionDetails?.statement_alerts || [];
+
+  const generateCSV = () => {
+    const blob = generateJourneyCsvService(
+      { [connectionDetails.id]: knowledgeStatementsMap[connectionDetails.id] },
+      selectedConnectionSummary?.endOrgan?.name ?? '',
+      filters,
+    );
+    const objUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', objUrl);
+    link.setAttribute('download', 'connections.csv');
+    document.body.appendChild(link);
+    link.click();
+  };
+
+  return (
+    <Stack spacing="1.5rem">
+      <Box pl="1.5rem" pr="1.5rem">
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          mt=".75rem"
+        >
+          <Typography variant="h5" color={gray800}>
+            Details
+          </Typography>
+          <Stack direction="row" alignItems="center" spacing=".5rem">
+            <MAPSButton connectionDetails={connectionDetails} />
+            {/* <Button
+              variant="outlined"
+              startIcon={<ArrowOutward />}
+              // disabled={true}
+            >
+              View on SPARC Portal
+            </Button> */}
+            <Button variant="contained" onClick={generateCSV}>
+              Download (.csv)
+            </Button>
+          </Stack>
+        </Stack>
+        <Stack mt="1.75rem" spacing=".5rem">
+          <Typography variant="subtitle2" color={gray700} lineHeight={1.25}>
+            Connection summary
+          </Typography>
+          <Typography variant="body1" color={gray500}>
+            {connectionDetails?.statement_preview || '-'}
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {phenotype && (
+              <CommonChip label={phenotype.toLowerCase()} variant="outlined" />
+            )}
+            {circuit_type && (
+              <CommonChip
+                label={circuit_type.toLowerCase()}
+                variant="outlined"
+              />
+            )}
+            {projection && (
+              <CommonChip label={projection.toLowerCase()} variant="outlined" />
+            )}
+          </Box>
+          <CommonAccordion
+            summary="Connection Details"
+            details={
+              <>
+                <Stack spacing={1}>
+                  {detailsObject.map((row) =>
+                    !Array.isArray(row.value) ? (
+                      <RowStack
+                        label={row.label}
+                        value={row.value}
+                        Icon={row.icon}
+                      />
+                    ) : (
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing=".75rem"
+                      >
+                        <Typography variant="subtitle1" width="6rem">
+                          {row.label}
+                        </Typography>
+                        <Stack
+                          direction="row"
+                          alignItems="center"
+                          flexWrap={'wrap'}
+                          spacing={'.5rem'}
+                        >
+                          {row.value.map((row, index) => (
+                            <CommonChip
+                              key={index}
+                              label={row}
+                              variant="outlined"
+                              className="link"
+                              style={
+                                row.includes('http')
+                                  ? { cursor: 'pointer' }
+                                  : {}
+                              }
+                              onClick={() => {
+                                if (row.includes('http')) {
+                                  window.open(row, '_blank');
+                                }
+                              }}
+                              icon={
+                                row.includes('http') ? (
+                                  <ArrowOutwardRoundedIcon fontSize="small" />
+                                ) : undefined
+                              }
+                            />
+                          ))}
+                        </Stack>
+                      </Stack>
+                    ),
+                  )}
+                </Stack>
+
+                {statementAlerts.length > 0 && (
+                  <>
+                    <Typography variant="subtitle2" color={gray700}>
+                      Statement Alerts
+                    </Typography>
+                    <Stack
+                      spacing={1}
+                      sx={{
+                        paddingLeft: '2.5rem',
+                        marginLeft: '0.5rem',
+                        paddingTop: '0.5rem',
+                        backgroundColor: 'rgba(0, 0, 0, 0.08)',
+                      }}
+                    >
+                      {statementAlerts.map((alert, index) => (
+                        <RowStack
+                          key={index}
+                          label={alert.alert || `Alert ${index + 1}`}
+                          value={alert.text || '-'}
+                          Icon={undefined}
+                        />
+                      ))}
+                    </Stack>
+                  </>
+                )}
+              </>
+            }
+          />
+        </Stack>
+      </Box>
+
+      <Divider />
+      <PopulationDisplay connectionDetails={connectionDetails} />
+    </Stack>
+  );
+};
+
+export default SummaryDetails;

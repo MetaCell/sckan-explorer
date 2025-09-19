@@ -1,0 +1,323 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+import { KnowledgeStatement } from '../models/explorer';
+import { Filters } from '../context/DataContext';
+import { NEURONDM_VERSION, COMPOSER_VERSION } from '../settings';
+import { KsRecord } from '../components/common/Types';
+
+type csvData = {
+  [key: string]: KnowledgeStatement;
+};
+
+export const generateCsvService = (data: csvData) => {
+  const properties = [
+    'id',
+    'statement_preview',
+    'provenances',
+    'phenotype',
+    'laterality',
+    'projection',
+    'circuit_type',
+    'sex',
+    'species',
+    'apinatomy',
+    'journey',
+    'origins',
+    'vias',
+    'destinations',
+    'statement_alerts',
+  ];
+  const keys = Object.keys(data);
+  const rows = [properties];
+  keys.forEach((key) => {
+    const ks = data[key];
+    const row = properties.map((property) => {
+      if (property === 'origins') {
+        const node = [] as string[];
+        ks[property].forEach((origin) => {
+          node.push(
+            '[ URIs: ' +
+              origin['ontology_uri'] +
+              '; Label: ' +
+              origin['name'] +
+              ' ]',
+          );
+        });
+        const toReturn = node
+          .join(' & ')
+          .replaceAll('\n', '. ')
+          .replaceAll('\r', '')
+          .replaceAll('\t', ' ')
+          .replaceAll(',', ';');
+        return toReturn;
+      } else if (property === 'vias') {
+        const node = [];
+        ks[property].forEach((via) => {
+          node.push(
+            '[ (' +
+              via['anatomical_entities']
+                .map(
+                  (e) => 'URI: ' + e['ontology_uri'] + '; Label: ' + e['name'],
+                )
+                .join(' & ') +
+              '); Type: ' +
+              via['type'] +
+              '; From: ' +
+              via['from_entities'].map((e) => e['ontology_uri']).join('; ') +
+              ' ]',
+          );
+        });
+        const toReturn = node
+          .join(' & ')
+          .replaceAll('\n', '. ')
+          .replaceAll('\r', '')
+          .replaceAll('\t', ' ')
+          .replaceAll(',', ';');
+        return toReturn;
+      } else if (property === 'destinations') {
+        const node = [];
+        ks[property].forEach((dest) => {
+          node.push(
+            '[ (' +
+              dest['anatomical_entities']
+                .map(
+                  (e) => 'URI: ' + e['ontology_uri'] + '; Label: ' + e['name'],
+                )
+                .join(' & ') +
+              '); Type: ' +
+              dest['type'] +
+              '; From: ' +
+              dest['from_entities'].map((e) => e['ontology_uri']).join('; ') +
+              ' ]',
+          );
+        });
+        const toReturn = node
+          .join(' & ')
+          .replaceAll('\n', '. ')
+          .replaceAll('\r', '')
+          .replaceAll('\t', ' ')
+          .replaceAll(',', ';');
+        return toReturn;
+      } else if (property === 'sex') {
+        if (ks[property].name && ks[property].ontology_uri) {
+          return (
+            '[ URI: ' +
+            ks[property].ontology_uri +
+            '; Label: ' +
+            ks[property].name +
+            ' ]'
+          );
+        } else {
+          return '';
+        }
+      } else if (property === 'species') {
+        if (ks[property].length) {
+          return ks[property]
+            .map((e) => '[ URI: ' + e.id + '; Label: ' + e.name + ' ]')
+            .join(' & ');
+        } else {
+          return '';
+        }
+      } else if (property === 'statement_alerts') {
+        if (ks[property] && ks[property].length) {
+          return ks[property]
+            .map(
+              (alert) =>
+                '[ Alert: ' + alert.alert + '; Text: ' + alert.text + ' ]',
+            )
+            .join(' & ')
+            .replaceAll('\n', '. ')
+            .replaceAll('\r', '')
+            .replaceAll('\t', ' ')
+            .replaceAll(',', ';');
+        } else {
+          return '';
+        }
+      } else if (Array.isArray(ks[property])) {
+        // @ts-expect-error - TS doesn't know that ks[property] exists
+        const toReturn = ks[property]
+          .map((v) => '[ ' + v + ' ]')
+          .join(' & ')
+          .replaceAll('\n', '. ')
+          .replaceAll('\r', '')
+          .replaceAll('\t', ' ')
+          .replaceAll(',', ';');
+        return toReturn;
+      } else {
+        // @ts-expect-error - TS doesn't know that ks[property] exists
+        const toReturn = ks[property]
+          .replaceAll('\n', '. ')
+          .replaceAll('\r', '')
+          .replaceAll('\t', ' ')
+          .replaceAll(',', ';');
+        return toReturn;
+      }
+    });
+    rows.push(row);
+  });
+
+  let csvData = '';
+  rows.forEach((e) => {
+    const toReturn = e
+      .map(String)
+      .map((v) => v.replaceAll('"', '""'))
+      .map((v) => `"${v}"`)
+      .join(',');
+    csvData += toReturn + '\n';
+  });
+  const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8,' });
+  return blob;
+};
+
+export const generateJourneyCsvService = (
+  data: KsRecord,
+  targetOrgan: string,
+  filters: Filters,
+) => {
+  const metadata = [
+    ['# SCKANNER Version 1.0.0-beta'],
+    ['# Composer Version ', COMPOSER_VERSION],
+    ['# SCKAN Version ', NEURONDM_VERSION],
+    ['# Date and Time', new Date().toISOString()],
+    [
+      '# Search parameter - origin',
+      filters.Origin.map((o) => o.label).join(', '),
+    ],
+    [
+      '# Search parameter - end organ',
+      filters.EndOrgan.map((o) => o.label).join(', '),
+    ],
+    [
+      '# Search parameter - species',
+      filters.Species.map((s) => s.label).join(', '),
+    ],
+    [
+      '# Search parameter - phenotype',
+      filters.Phenotype.map((p) => p.label).join(', '),
+    ],
+    [
+      '# Search parameter - connectivity models',
+      filters.apiNATOMY.map((a) => a.label).join(', '),
+    ],
+    ['# Search parameter - via', filters.Via.map((v) => v.label).join(', ')],
+    ['', ''], // Empty row for separation
+  ];
+
+  const headers = [
+    'Connectivity Result',
+    'ID',
+    'Connection summary/Knowledge Statement',
+    'Species',
+    'Species ID',
+    'Sex',
+    'Sex ID',
+    'Origin',
+    'Origin ID',
+    'Destination',
+    'Destination IDs',
+    'Journey',
+    'Via ID',
+    'Phenotype',
+    'Laterality',
+    'Forward Connection(s)',
+    'Synapses on (between first population and second)',
+    'TARGET Organ (final organ after forward connections)',
+    'Provenances',
+    'Statement Alerts',
+  ];
+
+  const rows = [...metadata, headers];
+
+  Object.values(data).forEach((entry) => {
+    entry.journey.forEach((journey, index) => {
+      const row = [
+        index + 1,
+        entry.id,
+        entry.knowledge_statement,
+        entry.species.map((s) => s.name).join('; '),
+        entry.species.map((s) => s.id).join('; '),
+        entry.sex.name || '',
+        entry.sex.ontology_uri || '',
+        [...new Set(entry.origins.map((o) => o.name))].join('; '),
+        [...new Set(entry.origins.map((o) => o.id))].join('; '),
+        [
+          ...new Set(
+            entry.destinations.flatMap((d) =>
+              d.anatomical_entities.map((ae) => ae.name),
+            ),
+          ),
+        ].join('; '),
+        [
+          ...new Set(
+            entry.destinations.flatMap((d) =>
+              d.anatomical_entities.map((ae) => ae.id),
+            ),
+          ),
+        ].join('; '),
+        journey,
+        [
+          ...new Set(
+            entry.vias.flatMap((via) =>
+              via.anatomical_entities.map((ae) => ae.id),
+            ),
+          ),
+        ].join('; '),
+        entry.phenotype,
+        entry.laterality,
+        entry.forwardConnections.map((fc) => fc.reference_uri).join('; '),
+        _getCommonSynapsesOn(entry),
+        targetOrgan,
+        entry.provenances.join('; '),
+        entry.statement_alerts && entry.statement_alerts.length > 0
+          ? entry.statement_alerts
+              .map((alert) => `${alert.alert}: ${alert.text}`)
+              .join('; ')
+          : '',
+      ];
+      rows.push(row);
+    });
+  });
+
+  let csvData = '';
+  rows.forEach((row) => {
+    const formattedRow = row
+      .map(String)
+      .map((v) => v.replaceAll('"', '""'))
+      .map((v) => `"${v}"`)
+      .join(',');
+    csvData += formattedRow + '\n';
+  });
+
+  const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8,' });
+  return blob;
+};
+
+const _getCommonSynapsesOn = (entry: KnowledgeStatement) => {
+  const destinationUris = new Set(
+    entry.destinations.flatMap((d) =>
+      d.anatomical_entities.map((ae) => ae.ontology_uri),
+    ),
+  );
+  const forwardConnectionUris = new Set(
+    entry.forwardConnections
+      .flatMap((fc) =>
+        fc.origins.map(
+          (origin) =>
+            origin.simple_entity?.ontology_uri ||
+            origin.region_layer?.ontology_uri,
+        ),
+      )
+      .filter((uri) => uri !== undefined),
+  );
+
+  const commonUris = [...destinationUris].filter((uri) =>
+    forwardConnectionUris.has(uri),
+  );
+
+  const commonNames = entry.destinations
+    .flatMap((d) => d.anatomical_entities)
+    .filter((ae) => commonUris.includes(ae.ontology_uri))
+    .map((ae) => ae.name);
+
+  return [...new Set(commonNames)].join('; ');
+};

@@ -1,0 +1,11 @@
+{
+    "descriptions": {
+        "Species": "Count of populations observed across different species. Note that some populations with shared connectivity patterns may be observed in multiple species. For example, a subset of populations identified in rats may also be present in humans.",
+        "Sex": "Count of populations explicitly observed in male and female species. Populations without any sex-specific annotation should be considered applicable to both sexes by default.",
+        "ANS Phenotype": "Count of SCKAN populations based on their phenotypes associated with distinct subdivisions of the autonomic nervous system (ANS). These phenotypes indicate whether the projection pathway is classified as sympathetic, parasympathetic, or enteric.",
+        "Functional Circuit Role": "Count of populations based on their immediate effect on post-synaptic cells. This phenotype indicates whether a population has an excitatory or inhibitory effect.",
+        "Circuit Role": "Count of populations based on the circuit roles of their connections. This phenotype is used to indicate one of the following circuit roles: \n\t   - Motor: efferent connection, carrying signals from the central nervous system (CNS) to muscles and glands, causing movement or secretion.\n\t   - Sensory: afferent connection,  carrying signals from sensory receptors to the CNS.\n\t   - Intrinsic: connection forming a local circuit within a specific region of the CNS.",
+        "Projection": "Count of populations based on the characterizations of their projection directions.",
+        "Count of Neuron Populations by Locational Phenotype": "Count of distinct anatomical locations covered by the SCKAN neuron population segments. This phenotype is used to specify the locations of the neural parts, such as the soma, axon, axon terminal, axon sensory terminals, and dendrite."
+    }
+}

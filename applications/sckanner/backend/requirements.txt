@@ -1,0 +1,6 @@
+pydantic==2.9.2
+django-treebeard==4.7.1
+django-ninja
+pyontutils==0.1.38
+neurondm==0.1.8
+jsonschema==4.24.0

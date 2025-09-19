@@ -1,0 +1,26 @@
+{
+  "sparc_neuron_populations": {
+    "total_sparc_neuron_populations": 700,
+    "sparc_neuron_populations_apinatomy_models": 288,
+    "sparc_neuron_populations_sparc_nlp_curated": 114,
+    "sparc_neuron_populations_sparc_nlp_curated_changes": "21",
+    "sparc_neuron_populations_cut": 122,
+    "sparc_neuron_populations_markram": 77,
+    "sparc_neuron_populations_huang": 18,
+    "notes": "SPARC connectivity only includes populations from ApINATOMY and NLP curated neuron populations. Neuron types from CUT and other evidence based models (EBM) are not considered for the SPARC project."
+  },
+  "locational_phenotypes": {
+    "total_count_of_locational_phenotypes": 700,
+    "locational_phenotypes_apinatomy_models": 288,
+    "locational_phenotypes_sparc_nlp_curated": 114,
+    "locational_phenotypes_sparc_nlp_curated_changes": "21",
+    "notes": "SPARC connectivity only includes populations from ApINATOMY and NLP curated neuron populations. Neuron types from CUT and other evidence based models (EBM) are not considered for the SPARC project."
+  },
+  "sparc_connections": {
+    "total_number_of_a_to_b_via_nerve_c_sparc_connections": 700,
+    "sparc_connections_apinatomy_models": 288,
+    "sparc_connections_apinatomy_models_changes": "21",
+    "sparc_connections_sparc_nlp_curated": 114,
+    "sparc_connections_sparc_nlp_curated_changes": "21"
+  }
+}

@@ -1,0 +1,6 @@
+cloud-harness
+.vscode
+libraries
+*.pyc
+deployment/helm
+skaffold.yaml

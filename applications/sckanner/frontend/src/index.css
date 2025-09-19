@@ -1,0 +1,154 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  height: 100vh;
+  width: 100vw;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+/* Custom scrollbar styling for better visibility */
+.graphContainer::-webkit-scrollbar,
+.flexlayout__tab::-webkit-scrollbar,
+.flexlayout__tabset_content::-webkit-scrollbar,
+.flexlayout__border::-webkit-scrollbar {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.graphContainer::-webkit-scrollbar-track,
+.flexlayout__tab::-webkit-scrollbar-track,
+.flexlayout__tabset_content::-webkit-scrollbar-track,
+.flexlayout__border::-webkit-scrollbar-track {
+  background: #f1f1f1 !important;
+  border-radius: 8px !important;
+}
+
+.graphContainer::-webkit-scrollbar-thumb,
+.flexlayout__tab::-webkit-scrollbar-thumb,
+.flexlayout__tabset_content::-webkit-scrollbar-thumb,
+.flexlayout__border::-webkit-scrollbar-thumb {
+  background: #888 !important;
+  border-radius: 8px !important;
+}
+
+.graphContainer::-webkit-scrollbar-thumb:hover,
+.flexlayout__tab::-webkit-scrollbar-thumb:hover,
+.flexlayout__tabset_content::-webkit-scrollbar-thumb:hover,
+.flexlayout__border::-webkit-scrollbar-thumb:hover {
+  background: #555 !important;
+}
+
+/* Force scrollbars to always be visible */
+.graphContainer,
+.flexlayout__tab,
+.flexlayout__tabset_content,
+.flexlayout__border {
+  overflow: auto !important;
+  scrollbar-width: thick !important;
+  scrollbar-color: #888 #f1f1f1 !important;
+}
+
+.graphContainer {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  background: #edeff2;
+}
+
+/* Vertical graph */
+
+.outPort {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+}
+
+.inPort {
+  position: absolute;
+  top: 0%;
+  left: 50%;
+}
+
+.inPortDestination {
+  position: absolute;
+  top: 0%;
+  left: 0%;
+}
+
+.inPortAfferentTDestination {
+  position: absolute;
+  top: 100%;
+  left: 100%;
+}
+
+#single-heatmap-cell {
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  /* background-size: 60% 60% !important; */
+}
