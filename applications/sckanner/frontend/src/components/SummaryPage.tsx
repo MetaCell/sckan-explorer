@@ -13,6 +13,7 @@ import {
   FILES,
   DATABASE_FILES,
 } from '../settings.ts';
+import descriptionsData from '../data/descriptions.json';
 
 const { primaryPurple600, gray500, white } = vars;
 
@@ -235,8 +236,10 @@ const SummaryPage = () => {
       const filteredItems = section.filter(
         (item: any) => item.category === category,
       );
+      const description =
+        (descriptionsData.descriptions as any)[category] || null;
       return (
-        <SubSection title={category}>
+        <SubSection title={category} description={description}>
           {getDataPerSection(filteredItems)}
           <Divider sx={{ borderColor: gray500 }} />
         </SubSection>
@@ -313,7 +316,14 @@ const SummaryPage = () => {
           <Section title="Count of Neuron Populations by Category">
             {getSubcategories(data[FILES.SPECIES])}
           </Section>
-          <Section title="Count of Neuron Population by Locational Phenotype">
+          <Section
+            title="Count of Neuron Population by Locational Phenotype"
+            description={
+              (descriptionsData.descriptions as any)[
+                'Count of Neuron Populations by Locational Phenotype'
+              ] || null
+            }
+          >
             {getDataPerSection(
               getDataByFilter(data[FILES.PHENOTYPE], 'Location'),
             )}
