@@ -499,7 +499,7 @@ function ConnectivityGrid() {
       />
 
       {/* Heatmap Mode Toggle */}
-      <Box
+      {/* <Box
         px={3}
         py={2}
         display="flex"
@@ -546,7 +546,7 @@ function ConnectivityGrid() {
             Synaptic connections
           </Typography>
         </Box>
-      </Box>
+      </Box> */}
 
       <HeatmapGrid
         yAxis={filteredYAxis}
