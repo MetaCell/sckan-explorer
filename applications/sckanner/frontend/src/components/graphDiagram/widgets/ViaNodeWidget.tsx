@@ -239,7 +239,9 @@ export const ViaNodeWidget: React.FC<ViaNodeProps> = ({ model, engine }) => {
               label={
                 model.getOptions().anatomicalType === TypeB60Enum.Axon
                   ? 'Axon'
-                  : 'Dendrite'
+                  : model.getOptions().anatomicalType === TypeB60Enum.Dendrite
+                    ? 'Dendrite'
+                    : 'Axon to PNS'
               }
               variant="filled"
               sx={{
