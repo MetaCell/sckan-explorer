@@ -3,8 +3,8 @@ import {
   Button,
   Divider,
   Typography,
-  // Switch,
-  // FormControlLabel,
+  Switch,
+  FormControlLabel,
 } from '@mui/material';
 import React, {
   useCallback,
@@ -55,7 +55,7 @@ function ConnectivityGrid() {
     setSelectedConnectionSummary,
     widgetState,
     heatmapMode,
-    // switchHeatmapMode,
+    switchHeatmapMode,
   } = useDataContext();
 
   const { updateConnectivityGridCellClick, resetAllWidgetState } =
@@ -426,15 +426,15 @@ function ConnectivityGrid() {
     return Object.values(organizedFilters).every((arr) => arr.length === 0);
   };
 
-  // const handleHeatmapModeToggle = () => {
-  //   // Reset summary widget before switching mode
-  //   setSelectedCell(null);
-  //   setSelectedConnectionSummary(null);
-  //   resetAllWidgetState();
+  const handleHeatmapModeToggle = () => {
+    // Reset summary widget before switching mode
+    setSelectedCell(null);
+    setSelectedConnectionSummary(null);
+    resetAllWidgetState();
 
-  //   // Switch the heatmap mode
-  //   switchHeatmapMode();
-  // };
+    // Switch the heatmap mode
+    switchHeatmapMode();
+  };
 
   return isLoading ? (
     <LoaderSpinner />
@@ -499,7 +499,7 @@ function ConnectivityGrid() {
       />
 
       {/* Heatmap Mode Toggle */}
-      {/* <Box
+      <Box
         px={3}
         py={2}
         display="flex"
@@ -546,7 +546,7 @@ function ConnectivityGrid() {
             Synaptic connections
           </Typography>
         </Box>
-      </Box> */}
+      </Box>
 
       <HeatmapGrid
         yAxis={filteredYAxis}
