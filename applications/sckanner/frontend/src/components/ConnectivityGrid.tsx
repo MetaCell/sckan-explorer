@@ -20,6 +20,7 @@ import { useWidgetStateActions } from '../hooks/useWidgetStateActions.ts';
 import {
   calculateConnections,
   getXAxisOrgans,
+  getXAxisHierarchy,
   getYAxis,
   getHeatmapData,
   getKnowledgeStatementMap,
@@ -34,6 +35,7 @@ import FiltersDropdowns from './FiltersDropdowns.tsx';
 import {
   DetailedHeatmapData,
   HierarchicalItem,
+  HierarchicalXItem,
   HeatmapMode,
 } from './common/Types.ts';
 import { Organ } from '../models/explorer.ts';
@@ -67,6 +69,7 @@ function ConnectivityGrid() {
   );
   const [xAxisOrgans, setXAxisOrgans] = useState<Organ[]>([]);
   const [filteredXOrgans, setFilteredXOrgans] = useState<Organ[]>([]);
+  const [xAxisHierarchy, setXAxisHierarchy] = useState<HierarchicalXItem[]>([]);
   const [initialYAxis, setInitialYAxis] = useState<HierarchicalItem[]>([]);
 
   const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
@@ -104,6 +107,10 @@ function ConnectivityGrid() {
   useEffect(() => {
     const organList = getXAxisOrgans(organs);
     setXAxisOrgans(organList);
+
+    // Initialize X-axis hierarchy
+    const hierarchy = getXAxisHierarchy(organs);
+    setXAxisHierarchy(hierarchy);
   }, [organs]);
 
   // Helper function to apply expand/collapse state to fresh yAxis
@@ -556,6 +563,8 @@ function ConnectivityGrid() {
         }
         setSelectedCell={setSelectedCell}
         xAxis={filteredXOrgans.map((organ) => organ.name)}
+        xAxisHierarchy={xAxisHierarchy}
+        setXAxisHierarchy={setXAxisHierarchy}
         xAxisLabel={'End organ'}
         yAxisLabel={'Connection Origin'}
         onCellClick={(x, y, yId) => handleClick(x, y, yId, true, true)}

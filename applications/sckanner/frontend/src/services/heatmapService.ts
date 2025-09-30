@@ -6,6 +6,8 @@ import {
 import { ROOTS } from './hierarchyService.ts';
 import {
   HierarchicalItem,
+  HierarchicalXItem,
+  XLabelIdPair,
   HeatmapMatrixInformation,
   Option,
   KsRecord,
@@ -13,6 +15,7 @@ import {
   HeatmapMode,
 } from '../components/common/Types.ts';
 import { Filters } from '../context/DataContext.ts';
+import endOrganCategories from '../data/endOrganCategories.json';
 
 export function getYAxis(
   hierarchicalNodes: Record<string, HierarchicalNode>,
@@ -46,6 +49,85 @@ export function getXAxisOrgans(organs: Record<string, Organ>): Organ[] {
   return Object.values(organs)
     .sort((a, b) => a.order - b.order)
     .map((organ) => organ);
+}
+
+// X-axis hierarchy functions
+export function getXAxisHierarchy(
+  organs: Record<string, Organ>,
+): HierarchicalXItem[] {
+  // Use the imported categories
+  const categories = Object.values(endOrganCategories) as {
+    id: string;
+    label: string;
+    children: string[];
+  }[];
+
+  // Create hierarchy based on actual organs data
+  const organsByName: Record<string, Organ> = {};
+  Object.values(organs).forEach((organ) => {
+    organsByName[organ.name.toLowerCase()] = organ;
+  });
+
+  return categories
+    .map((category) => ({
+      id: category.id,
+      label: category.label,
+      expanded: false,
+      children: category.children
+        .map((organName) => {
+          const organ = organsByName[organName.toLowerCase()];
+          return organ
+            ? {
+                id: organ.id,
+                label: organ.name,
+                expanded: false,
+                children: [] as HierarchicalXItem[],
+              }
+            : null;
+        })
+        .filter((item): item is HierarchicalXItem => item !== null)
+        .sort((a, b) => {
+          const organA = organsByName[a.label.toLowerCase()];
+          const organB = organsByName[b.label.toLowerCase()];
+          return (organA?.order || 0) - (organB?.order || 0);
+        }),
+    }))
+    .filter((category) => category.children.length > 0);
+}
+
+export function generateXLabelsAndIds(
+  xAxis: HierarchicalXItem[],
+): XLabelIdPair {
+  const labels: string[] = [];
+  const ids: string[] = [];
+  const expanded: boolean[] = [];
+  const parentLabels: string[] = [];
+  const isChild: boolean[] = [];
+
+  function processItem(item: HierarchicalXItem) {
+    if (item.expanded && item.children.length > 0) {
+      // When expanded, add only children individually as vertical labels
+      // The parent will be shown as a horizontal overlay, not in the heatmap
+      item.children.forEach((child) => {
+        labels.push(child.label);
+        ids.push(child.id);
+        expanded.push(false); // Children are not expandable in 2-level hierarchy
+        parentLabels.push(item.label);
+        isChild.push(true);
+      });
+    } else {
+      // When collapsed, add the parent item as vertical label
+      labels.push(item.label);
+      ids.push(item.id);
+      expanded.push(item.expanded);
+      parentLabels.push('');
+      isChild.push(false);
+    }
+  }
+
+  xAxis.forEach((item) => processItem(item));
+
+  return { labels, ids, expanded, parentLabels, isChild };
 }
 
 export function traceForwardConnectionPaths(

@@ -59,6 +59,21 @@ export interface HierarchicalItem {
   expanded: boolean;
 }
 
+export interface HierarchicalXItem {
+  id: string;
+  label: string;
+  children: HierarchicalXItem[];
+  expanded: boolean;
+}
+
+export type XLabelIdPair = {
+  labels: string[];
+  ids: string[];
+  expanded: boolean[];
+  parentLabels: string[];
+  isChild: boolean[];
+};
+
 export type PhenotypeDetail = {
   label: string;
   color: string;

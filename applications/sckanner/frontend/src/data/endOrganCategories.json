@@ -1,0 +1,71 @@
+{
+  "category1": {
+    "id": "cardiovascular-respiratory",
+    "label": "Cardiovascular & Respiratory",
+    "children": [
+      "heart",
+      "arterial system", 
+      "lung",
+      "respiratory tract",
+      "lower respiratory tract",
+      "upper respiratory tract"
+    ]
+  },
+  "category2": {
+    "id": "nervous-endocrine",
+    "label": "Nervous & Endocrine",
+    "children": [
+      "brain",
+      "spinal cord",
+      "paravertebral ganglion",
+      "prevertebral ganglion",
+      "adrenal gland",
+      "pancreas",
+      "endocrine gland"
+    ]
+  },
+  "category3": {
+    "id": "digestive-excretory",
+    "label": "Digestive & Excretory",
+    "children": [
+      "digestive tract",
+      "colon",
+      "descending colon",
+      "large intestine",
+      "stomach",
+      "esophagus",
+      "liver",
+      "kidney",
+      "lower urinary tract",
+      "urinary bladder",
+      "urethra"
+    ]
+  },
+  "category4": {
+    "id": "reproductive",
+    "label": "Reproductive System",
+    "children": [
+      "vagina",
+      "uterus",
+      "clitoris",
+      "ovary",
+      "penis",
+      "prostate gland",
+      "seminal vesicle"
+    ]
+  },
+  "category5": {
+    "id": "other-organs",
+    "label": "Other Organs & Tissues",
+    "children": [
+      "tongue",
+      "muscle organ",
+      "hemopoietic organ",
+      "spleen",
+      "eye gland",
+      "oral gland",
+      "buttock"
+    ]
+  }
+  
+}

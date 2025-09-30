@@ -13,12 +13,14 @@ import HeatMap from 'react-heatmap-fork';
 import HeatmapTooltip, { HeatmapTooltipRow } from './HeatmapTooltip.tsx';
 import {
   HierarchicalItem,
+  HierarchicalXItem,
   KsPerPhenotype,
   SynapticConnectionsData,
 } from './Types.ts';
 import { getNormalizedValueForMinMax } from '../../services/summaryHeatmapService.ts';
 import {
   generateYLabelsAndIds,
+  generateXLabelsAndIds,
   getPhenotypeColors,
 } from '../../services/heatmapService.ts';
 import { OTHER_PHENOTYPE_LABEL } from '../../settings.ts';
@@ -35,6 +37,8 @@ interface HeatmapGridProps {
   xAxis: string[];
   yAxis: HierarchicalItem[];
   setYAxis: (yAxis: HierarchicalItem[]) => void;
+  xAxisHierarchy?: HierarchicalXItem[];
+  setXAxisHierarchy?: (xAxis: HierarchicalXItem[]) => void;
   onCellClick?: (x: number, y: number, yId: string) => void;
   xAxisLabel?: string;
   yAxisLabel?: string;
@@ -61,6 +65,8 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
   xAxis,
   yAxis,
   setYAxis,
+  xAxisHierarchy,
+  setXAxisHierarchy,
   xAxisLabel,
   yAxisLabel,
   onCellClick,
@@ -76,9 +82,33 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
 
   const heatmapContainerRef = useRef<HTMLDivElement>(null);
   const [xAxisHeight, setXAxisHeight] = useState(0);
+  const [horizontalParents, setHorizontalParents] = useState<
+    Array<{
+      label: string;
+      left: number;
+      width: number;
+      categoryIndex: number;
+    }>
+  >([]);
 
   const secondary = !!secondaryHeatmapData;
   const yAxisData = generateYLabelsAndIds(yAxis);
+
+  // X-axis hierarchy support
+  const isXAxisHierarchical = !!xAxisHierarchy;
+  const xAxisData = useMemo(() => {
+    return isXAxisHierarchical
+      ? generateXLabelsAndIds(xAxisHierarchy)
+      : {
+          labels: xAxis,
+          ids: xAxis,
+          expanded: [],
+          parentLabels: [],
+          isChild: [],
+        };
+  }, [isXAxisHierarchical, xAxisHierarchy, xAxis]);
+
+  const displayXAxis = isXAxisHierarchical ? xAxisData.labels : xAxis;
 
   const heatmapMatrixData = useMemo(() => {
     return secondary
@@ -142,6 +172,179 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     ],
   );
 
+  // X-axis hierarchy handlers
+  const handleXAxisLabelClick = useCallback(
+    (labelIndex: number) => {
+      if (!setXAxisHierarchy || !xAxisHierarchy || !isXAxisHierarchical) return;
+
+      // Find which category this label belongs to
+      let currentIndex = 0;
+      for (let i = 0; i < xAxisHierarchy.length; i++) {
+        const category = xAxisHierarchy[i];
+        if (category.expanded) {
+          // When expanded: only children are in the label array
+          if (
+            currentIndex <= labelIndex &&
+            labelIndex < currentIndex + category.children.length
+          ) {
+            // This is a child label, don't do anything (children are not clickable)
+            return;
+          }
+
+          // Move past all children
+          currentIndex += category.children.length;
+        } else {
+          // When collapsed: category takes one slot
+          if (currentIndex === labelIndex) {
+            // Toggle this category to expanded
+            const updatedList = xAxisHierarchy.map((item, idx) =>
+              idx === i ? { ...item, expanded: true } : item,
+            );
+            setSelectedCell(null);
+            setXAxisHierarchy(updatedList);
+            return;
+          }
+          currentIndex += 1;
+        }
+      }
+    },
+    [xAxisHierarchy, setXAxisHierarchy, setSelectedCell, isXAxisHierarchical],
+  );
+
+  // Add click event listeners to X-axis labels when hierarchical
+  useEffect(() => {
+    if (!isXAxisHierarchical || !heatmapContainerRef.current) return;
+
+    const handleXLabelClick = (event: Event) => {
+      const target = event.target as HTMLElement;
+
+      // Check if click is on horizontal parent overlay
+      if (target.closest('[data-horizontal-parent]')) {
+        return; // Let the overlay handle it
+      }
+
+      const xLabelContainer = heatmapContainerRef.current?.querySelector(
+        '& > div:first-of-type > div:first-of-type',
+      );
+
+      if (!xLabelContainer || !xLabelContainer.contains(target)) return;
+
+      // Find the index of the clicked label
+      const labelElements = Array.from(
+        xLabelContainer.children,
+      ) as HTMLElement[];
+
+      const clickedIndex = labelElements.findIndex((el) => el.contains(target));
+
+      // Skip the first element (empty cell) and adjust index
+      if (clickedIndex > 0) {
+        handleXAxisLabelClick(clickedIndex - 1);
+      }
+    };
+
+    const container = heatmapContainerRef.current;
+    container.addEventListener('click', handleXLabelClick);
+
+    return () => {
+      container.removeEventListener('click', handleXLabelClick);
+    };
+  }, [isXAxisHierarchical, handleXAxisLabelClick]);
+
+  // Update X-axis label attributes for styling
+  useEffect(() => {
+    if (!isXAxisHierarchical || !heatmapContainerRef.current || !xAxisData) {
+      return;
+    }
+
+    // Small delay to ensure DOM is fully rendered
+    const timer = setTimeout(() => {
+      const xLabelContainer = heatmapContainerRef.current?.querySelector(
+        '& > div:first-of-type > div:first-of-type',
+      );
+
+      if (!xLabelContainer) return;
+
+      const labelElements = Array.from(
+        xLabelContainer.children,
+      ) as HTMLElement[];
+
+      // Clear horizontal parents first
+      setHorizontalParents([]);
+
+      // Skip the first element (empty cell)
+      labelElements.slice(1).forEach((element, index) => {
+        if (!xAxisData.labels[index]) return;
+
+        const isChild = xAxisData.isChild[index];
+
+        // Determine if this label should be clickable (only collapsed parents)
+        const isClickable =
+          !isChild &&
+          xAxisHierarchy?.some(
+            (item) =>
+              item.label === xAxisData.labels[index] &&
+              item.children.length > 0 &&
+              !item.expanded,
+          );
+
+        // Set data attributes for styling
+        element.setAttribute('data-clickable', isClickable ? 'true' : 'false');
+        element.setAttribute('data-is-child', isChild ? 'true' : 'false');
+        element.setAttribute(
+          'data-is-collapsed',
+          isClickable ? 'true' : 'false',
+        );
+      });
+
+      // Calculate horizontal parent positions for expanded categories
+      if (xAxisHierarchy) {
+        let currentIndex = 0;
+
+        xAxisHierarchy.forEach((category, categoryIndex) => {
+          if (category.expanded && category.children.length > 0) {
+            // Find the range of child elements
+            const firstChildIndex = currentIndex;
+            const lastChildIndex = currentIndex + category.children.length - 1;
+
+            // Get child elements (skip first element which is empty cell)
+            const firstChildElement = labelElements[firstChildIndex + 1];
+            const lastChildElement = labelElements[lastChildIndex + 1];
+
+            if (firstChildElement && lastChildElement) {
+              setTimeout(() => {
+                const firstChildRect =
+                  firstChildElement.getBoundingClientRect();
+                const lastChildRect = lastChildElement.getBoundingClientRect();
+                const containerRect = xLabelContainer.getBoundingClientRect();
+
+                // Calculate position to center over all children relative to the x-label container
+                const leftOffset = firstChildRect.left - containerRect.left;
+                const rightOffset = lastChildRect.right - containerRect.left;
+                const totalWidth = rightOffset - leftOffset;
+
+                setHorizontalParents((prev) => [
+                  ...prev,
+                  {
+                    label: category.label,
+                    left: leftOffset, // Remove offset since positioning is already relative
+                    width: totalWidth,
+                    categoryIndex,
+                  },
+                ]);
+              }, 50);
+            }
+
+            currentIndex += category.children.length;
+          } else {
+            currentIndex += 1;
+          }
+        });
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [isXAxisHierarchical, xAxisData, xAxisHierarchy, displayXAxis]);
+
   const handleCollapseClick = useCallback(
     (item: HierarchicalItem) => {
       const updateList = (
@@ -180,6 +383,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
   );
 
   const handleExpandAll = useCallback(() => {
+    // Expand Y-axis hierarchy
     const updateList = (list: HierarchicalItem[]): HierarchicalItem[] => {
       return list?.map((listItem) => {
         if (listItem.children && listItem.children.length > 0) {
@@ -197,15 +401,27 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     updateWidgetExpandedState(expandedIds);
     setSelectedCell(null);
     setYAxis(updatedList);
+
+    // Expand X-axis hierarchy
+    if (setXAxisHierarchy && xAxisHierarchy) {
+      const updatedXList = xAxisHierarchy.map((item) => ({
+        ...item,
+        expanded: true,
+      }));
+      setXAxisHierarchy(updatedXList);
+    }
   }, [
     yAxis,
     setYAxis,
     setSelectedCell,
     getExpandedIds,
     updateWidgetExpandedState,
+    xAxisHierarchy,
+    setXAxisHierarchy,
   ]);
 
   const handleCompressAll = useCallback(() => {
+    // Compress Y-axis hierarchy
     const updateList = (list: HierarchicalItem[]): HierarchicalItem[] => {
       return list?.map((listItem) => {
         if (listItem.children) {
@@ -225,12 +441,23 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     updateWidgetExpandedState(expandedIds);
     setSelectedCell(null);
     setYAxis(updatedList);
+
+    // Compress X-axis hierarchy
+    if (setXAxisHierarchy && xAxisHierarchy) {
+      const updatedXList = xAxisHierarchy.map((item) => ({
+        ...item,
+        expanded: false,
+      }));
+      setXAxisHierarchy(updatedXList);
+    }
   }, [
     yAxis,
     setYAxis,
     getExpandedIds,
     updateWidgetExpandedState,
     setSelectedCell,
+    xAxisHierarchy,
+    setXAxisHierarchy,
   ]);
 
   const handleCellClick = (x: number, y: number) => {
@@ -469,24 +696,47 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                   position: 'relative',
                   borderRadius: '0.25rem',
                   minWidth: '2rem !important',
+                  // Default cursor for non-hierarchical or non-clickable labels
+                  cursor: 'default',
 
-                  '&:hover': {
-                    background: gray50,
-                    '&:before': {
-                      content: '""',
-                      width: '100%',
-                      height: '0.0625rem',
-                      background: primaryPurple500,
-                      position: 'absolute',
-                      top: '-0.25rem',
-                      left: 0,
+                  // Dynamic styling based on hierarchy state
+                  ...(isXAxisHierarchical && {
+                    '&[data-clickable="true"]': {
+                      cursor: 'pointer',
+                      '&:hover': {
+                        background: gray50,
+                        '&:before': {
+                          content: '""',
+                          width: '100%',
+                          height: '0.0625rem',
+                          background: primaryPurple500,
+                          position: 'absolute',
+                          top: '-0.25rem',
+                          left: 0,
+                        },
+                      },
                     },
-                  },
+                    // Child labels with reduced top padding to make room for horizontal parent
+                    '&[data-is-child="true"]': {
+                      paddingTop: '0.25rem',
+                      marginTop: '1.5rem',
+                    },
+                    // Collapsed parent labels with plus icon
+                    '&[data-is-collapsed="true"]': {
+                      '&:after': {
+                        content: '"+"', // Plus sign for collapsed
+                        marginLeft: '0.5rem',
+                        fontWeight: 'bold',
+                        color: primaryPurple500,
+                      },
+                    },
+                  }),
 
                   '&:first-of-type': {
                     marginLeft: 0,
                     width: '15.625rem',
                     flex: 'none !important',
+                    cursor: 'default',
                     '&:hover': {
                       background: 'none',
                       '&:before': {
@@ -504,10 +754,10 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
             heatmapMatrixData.length > 0 &&
             heatmapMatrixData[0].length > 0 && (
               <HeatMap
-                xLabels={xAxis}
+                xLabels={displayXAxis}
                 yLabels={yAxisData.labels}
                 xLabelsLocation={'top'}
-                xLabelsVisibility={xAxis?.map(() => true)}
+                xLabelsVisibility={displayXAxis?.map(() => true)}
                 xLabelWidth={100}
                 yLabelWidth={100}
                 data={heatmapMatrixData}
@@ -632,6 +882,67 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                 }}
               />
             )}
+          {/* Horizontal parent labels overlay */}
+          {isXAxisHierarchical && horizontalParents.length > 0 && (
+            <Box
+              position="absolute"
+              top="-2rem"
+              left="0"
+              zIndex={15}
+              sx={{
+                pointerEvents: 'none',
+              }}
+            >
+              {horizontalParents.map((parent) => (
+                <Box
+                  key={`${parent.categoryIndex}-${parent.label}`}
+                  data-horizontal-parent="true"
+                  onClick={() => {
+                    // Directly collapse the category
+                    if (setXAxisHierarchy && xAxisHierarchy) {
+                      const updatedList = xAxisHierarchy.map((item, idx) =>
+                        idx === parent.categoryIndex
+                          ? { ...item, expanded: false }
+                          : item,
+                      );
+                      setSelectedCell(null);
+                      setXAxisHierarchy(updatedList);
+                    }
+                  }}
+                  sx={{
+                    position: 'absolute',
+                    left: `${parent.left}px`,
+                    width: `${parent.width}px`,
+                    backgroundColor: gray50,
+                    borderBottom: `1px solid ${primaryPurple500}`,
+                    borderRadius: '0.25rem 0.25rem 0 0',
+                    padding: '0.25rem 0.5rem',
+                    fontSize: '0.75rem',
+                    fontWeight: '600',
+                    textAlign: 'center',
+                    whiteSpace: 'nowrap',
+                    cursor: 'pointer',
+                    pointerEvents: 'auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    '&:hover': {
+                      backgroundColor: primaryPurple500,
+                      color: 'white',
+                    },
+                    '&:after': {
+                      content: '"−"',
+                      marginLeft: '0.5rem',
+                      fontWeight: 'bold',
+                      color: 'currentColor',
+                    },
+                  }}
+                >
+                  {parent.label}
+                </Box>
+              ))}
+            </Box>
+          )}
         </Box>
 
         <CollapsibleList list={yAxis} onItemClick={handleCollapseClick} />
