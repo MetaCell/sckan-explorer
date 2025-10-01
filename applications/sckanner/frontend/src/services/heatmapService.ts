@@ -13,6 +13,7 @@ import {
   KsRecord,
   LabelIdPair,
   HeatmapMode,
+  KsPerPhenotype,
 } from '../components/common/Types.ts';
 import { Filters } from '../context/DataContext.ts';
 import endOrganCategories from '../data/endOrganCategories.json';
@@ -68,7 +69,11 @@ export function getXAxisHierarchy(
     organsByName[organ.name.toLowerCase()] = organ;
   });
 
-  return categories
+  // Keep track of which organs are already categorized
+  const categorizedOrgans = new Set<string>();
+
+  // Create hierarchical categories
+  const hierarchicalCategories = categories
     .map((category) => ({
       id: category.id,
       label: category.label,
@@ -76,14 +81,16 @@ export function getXAxisHierarchy(
       children: category.children
         .map((organName) => {
           const organ = organsByName[organName.toLowerCase()];
-          return organ
-            ? {
-                id: organ.id,
-                label: organ.name,
-                expanded: false,
-                children: [] as HierarchicalXItem[],
-              }
-            : null;
+          if (organ) {
+            categorizedOrgans.add(organ.name.toLowerCase());
+            return {
+              id: organ.id,
+              label: organ.name,
+              expanded: false,
+              children: [] as HierarchicalXItem[],
+            };
+          }
+          return null;
         })
         .filter((item): item is HierarchicalXItem => item !== null)
         .sort((a, b) => {
@@ -93,6 +100,20 @@ export function getXAxisHierarchy(
         }),
     }))
     .filter((category) => category.children.length > 0);
+
+  // Find uncategorized organs and add them as standalone items
+  const uncategorizedOrgans = Object.values(organs)
+    .filter((organ) => !categorizedOrgans.has(organ.name.toLowerCase()))
+    .sort((a, b) => a.order - b.order)
+    .map((organ) => ({
+      id: organ.id,
+      label: organ.name,
+      expanded: false,
+      children: [] as HierarchicalXItem[],
+    }));
+
+  // Combine categorized and uncategorized organs
+  return [...hierarchicalCategories, ...uncategorizedOrgans];
 }
 
 export function generateXLabelsAndIds(
@@ -128,6 +149,176 @@ export function generateXLabelsAndIds(
   xAxis.forEach((item) => processItem(item));
 
   return { labels, ids, expanded, parentLabels, isChild };
+}
+
+export function reorganizeHeatmapDataForHierarchy(
+  originalHeatmapData: number[][],
+  originalXAxis: string[],
+  xAxisHierarchy: HierarchicalXItem[],
+): number[][] {
+  if (!originalHeatmapData || originalHeatmapData.length === 0) {
+    return originalHeatmapData;
+  }
+
+  // Create mapping from original organ names to their column indices
+  const originalIndexMap = new Map<string, number>();
+  originalXAxis.forEach((organName, index) => {
+    originalIndexMap.set(organName, index);
+  });
+
+  // Create reorganized data structure
+  const reorganizedData: number[][] = [];
+
+  originalHeatmapData.forEach((row) => {
+    const newRow: number[] = [];
+
+    // Process each position in the new hierarchical X-axis
+    xAxisHierarchy.forEach((category) => {
+      if (category.expanded && category.children.length > 0) {
+        // When expanded, add each child's data
+        category.children.forEach((child) => {
+          const originalIndex = originalIndexMap.get(child.label);
+          if (originalIndex !== undefined && originalIndex < row.length) {
+            newRow.push(row[originalIndex]);
+          } else {
+            newRow.push(0); // Default value if organ not found
+          }
+        });
+      } else if (category.children.length > 0) {
+        // When collapsed category with children, aggregate all children's data into parent total
+        let aggregatedValue = 0;
+        category.children.forEach((child) => {
+          const originalIndex = originalIndexMap.get(child.label);
+          if (originalIndex !== undefined && originalIndex < row.length) {
+            aggregatedValue += row[originalIndex];
+          }
+        });
+        newRow.push(aggregatedValue);
+      } else {
+        // Standalone organ (no children) - use its own data directly
+        const originalIndex = originalIndexMap.get(category.label);
+        if (originalIndex !== undefined && originalIndex < row.length) {
+          newRow.push(row[originalIndex]);
+        } else {
+          newRow.push(0); // Default value if organ not found
+        }
+      }
+    });
+
+    reorganizedData.push(newRow);
+  });
+
+  return reorganizedData;
+}
+
+export function createHierarchicalToOriginalMapping(
+  originalXAxis: string[],
+  xAxisHierarchy: HierarchicalXItem[],
+): number[] {
+  // Create mapping from original organ names to their indices
+  const originalIndexMap = new Map<string, number>();
+  originalXAxis.forEach((organName, index) => {
+    originalIndexMap.set(organName, index);
+  });
+
+  // Create array that maps hierarchical position to original position
+  const hierarchicalToOriginalMap: number[] = [];
+
+  xAxisHierarchy.forEach((category) => {
+    if (category.expanded && category.children.length > 0) {
+      // When expanded, add each child's original index
+      category.children.forEach((child) => {
+        const originalIndex = originalIndexMap.get(child.label);
+        if (originalIndex !== undefined) {
+          hierarchicalToOriginalMap.push(originalIndex);
+        }
+      });
+    } else if (category.children.length > 0) {
+      // When collapsed category with children, we need to use the first child's index as representative
+      // This is a limitation - collapsed categories can't map to a single original organ
+      // In this case, we'll use -1 to indicate this is a collapsed category
+      hierarchicalToOriginalMap.push(-1);
+    } else {
+      // Standalone organ (no children) - use its own original index
+      const originalIndex = originalIndexMap.get(category.label);
+      if (originalIndex !== undefined) {
+        hierarchicalToOriginalMap.push(originalIndex);
+      } else {
+        hierarchicalToOriginalMap.push(-1);
+      }
+    }
+  });
+
+  return hierarchicalToOriginalMap;
+}
+
+export function reorganizeSecondaryHeatmapDataForHierarchy(
+  originalSecondaryData: KsPerPhenotype[][],
+  originalXAxis: string[],
+  xAxisHierarchy: HierarchicalXItem[],
+): KsPerPhenotype[][] {
+  if (!originalSecondaryData || originalSecondaryData.length === 0) {
+    return originalSecondaryData;
+  }
+
+  // Create mapping from original organ names to their column indices
+  const originalIndexMap = new Map<string, number>();
+  originalXAxis.forEach((organName, index) => {
+    originalIndexMap.set(organName, index);
+  });
+
+  // Create reorganized data structure
+  const reorganizedData: KsPerPhenotype[][] = [];
+
+  originalSecondaryData.forEach((row) => {
+    const newRow: KsPerPhenotype[] = [];
+
+    // Process each position in the new hierarchical X-axis
+    xAxisHierarchy.forEach((category) => {
+      if (category.expanded && category.children.length > 0) {
+        // When expanded, add each child's data
+        category.children.forEach((child) => {
+          const originalIndex = originalIndexMap.get(child.label);
+          if (originalIndex !== undefined && originalIndex < row.length) {
+            newRow.push(row[originalIndex]);
+          } else {
+            newRow.push({}); // Default empty object if organ not found
+          }
+        });
+      } else if (category.children.length > 0) {
+        // When collapsed category with children, aggregate all children's data into parent total
+        const aggregatedData: KsPerPhenotype = {};
+        category.children.forEach((child) => {
+          const originalIndex = originalIndexMap.get(child.label);
+          if (originalIndex !== undefined && originalIndex < row.length) {
+            const childData = row[originalIndex];
+            // Merge phenotype data
+            Object.keys(childData).forEach((phenotype) => {
+              if (!aggregatedData[phenotype]) {
+                aggregatedData[phenotype] = { ksIds: [] };
+              }
+              aggregatedData[phenotype].ksIds.push(
+                ...childData[phenotype].ksIds,
+              );
+            });
+          }
+        });
+        newRow.push(aggregatedData);
+      } else {
+        // Standalone organ (no children) - use its own data directly
+        const originalIndex = originalIndexMap.get(category.label);
+        if (originalIndex !== undefined && originalIndex < row.length) {
+          newRow.push(row[originalIndex]);
+        } else {
+          newRow.push({}); // Default empty object if organ not found
+        }
+      }
+    });
+
+    reorganizedData.push(newRow);
+  });
+
+  return reorganizedData;
 }
 
 export function traceForwardConnectionPaths(

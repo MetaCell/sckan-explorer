@@ -22,6 +22,9 @@ import {
   generateYLabelsAndIds,
   generateXLabelsAndIds,
   getPhenotypeColors,
+  reorganizeHeatmapDataForHierarchy,
+  reorganizeSecondaryHeatmapDataForHierarchy,
+  createHierarchicalToOriginalMapping,
 } from '../../services/heatmapService.ts';
 import { OTHER_PHENOTYPE_LABEL } from '../../settings.ts';
 import { useDataContext } from '../../context/DataContext.ts';
@@ -110,11 +113,47 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
 
   const displayXAxis = isXAxisHierarchical ? xAxisData.labels : xAxis;
 
+  // Create mapping from hierarchical X position to original organ index
+  const hierarchicalToOriginalMapping = useMemo(() => {
+    return isXAxisHierarchical && xAxisHierarchy
+      ? createHierarchicalToOriginalMapping(xAxis, xAxisHierarchy)
+      : [];
+  }, [isXAxisHierarchical, xAxisHierarchy, xAxis]);
+
   const heatmapMatrixData = useMemo(() => {
-    return secondary
-      ? prepareSecondaryHeatmapData(secondaryHeatmapData)
-      : heatmapData;
-  }, [secondary, secondaryHeatmapData, heatmapData]);
+    if (secondary) {
+      let secondaryData = prepareSecondaryHeatmapData(secondaryHeatmapData);
+      // If using X-axis hierarchy, reorganize the secondary data to match the hierarchical structure
+      if (isXAxisHierarchical && xAxisHierarchy && secondaryHeatmapData) {
+        const reorganizedSecondaryData =
+          reorganizeSecondaryHeatmapDataForHierarchy(
+            secondaryHeatmapData,
+            xAxis,
+            xAxisHierarchy,
+          );
+        secondaryData = prepareSecondaryHeatmapData(reorganizedSecondaryData);
+      }
+      return secondaryData;
+    } else {
+      let baseData = heatmapData;
+      // If using X-axis hierarchy, reorganize the data to match the hierarchical structure
+      if (isXAxisHierarchical && xAxisHierarchy && baseData) {
+        baseData = reorganizeHeatmapDataForHierarchy(
+          baseData,
+          xAxis,
+          xAxisHierarchy,
+        );
+      }
+      return baseData;
+    }
+  }, [
+    secondary,
+    secondaryHeatmapData,
+    heatmapData,
+    isXAxisHierarchical,
+    xAxisHierarchy,
+    xAxis,
+  ]);
 
   const xLabelToIndex = useMemo(() => {
     const lookup: { [key: string]: number } = {};
@@ -466,7 +505,16 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     }
     const ids = yAxisData.ids;
     if (onCellClick) {
-      onCellClick(x, y, ids[y]);
+      // Convert hierarchical X position to original organ index if using hierarchy
+      let originalX = x;
+      if (isXAxisHierarchical && hierarchicalToOriginalMapping.length > 0) {
+        originalX = hierarchicalToOriginalMapping[x];
+        // If it's a collapsed category (mapped to -1), don't handle the click
+        if (originalX === -1) {
+          return;
+        }
+      }
+      onCellClick(originalX, y, ids[y]);
     }
   };
 
@@ -711,7 +759,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                           height: '0.0625rem',
                           background: primaryPurple500,
                           position: 'absolute',
-                          top: '-0.25rem',
+                          bottom: '-0.25rem',
                           left: 0,
                         },
                       },
@@ -723,11 +771,17 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                     },
                     // Collapsed parent labels with plus icon
                     '&[data-is-collapsed="true"]': {
+                      paddingTop: '2.5rem', // Make room for the plus icon at the top
                       '&:after': {
                         content: '"+"', // Plus sign for collapsed
-                        marginLeft: '0.5rem',
+                        position: 'absolute',
+                        top: '0.75rem',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
                         fontWeight: 'bold',
                         color: primaryPurple500,
+                        fontSize: '1rem',
+                        writingMode: 'horizontal-tb',
                       },
                     },
                   }),
