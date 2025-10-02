@@ -28,11 +28,9 @@ WORKDIR ${APP_DIR}
 RUN mkdir -p ${APP_DIR}/static/www
 
 # Update system packages to fix:
-# CVE-2023-45853 (zlib), CVE-2024-38428 (wget), CVE-2023-52425 (libexpat), CVE-2021-3575 (openjpeg),
-# CVE-2024-25062 (libxml2), CVE-2023-52355 (libtiff), and CVE-2025-57807 (imagemagick)
+# CVE-2025-57807 (imagemagick), and CVE-2023-44431 (bluez)
 RUN apt-get update && \
-    # apt-get upgrade -y zlib1g wget libexpat1 libopenjp2-7 libxml2 libtiff5 imagemagick && \
-    apt-get upgrade -y imagemagick && \
+    apt-get upgrade -y imagemagick bluez && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
