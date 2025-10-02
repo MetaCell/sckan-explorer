@@ -85,21 +85,23 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
     nodes: CustomNodeModel[],
     links: DefaultLinkModel[],
     preserveUserPositions = false,
+    overrideRankdir?: string,
   ) => {
     g = new dagre.graphlib.Graph();
 
+    const currentRankdir = overrideRankdir || rankdir;
     g.setGraph({
-      rankdir: rankdir,
-      ranksep: rankdir === 'TB' ? 250 : 100,
+      rankdir: currentRankdir,
+      ranksep: currentRankdir === 'TB' ? 250 : 100,
       marginx:
-        rankdir === 'TB'
+        currentRankdir === 'TB'
           ? marginCondition
             ? 10
             : 250
           : marginCondition
             ? 10
             : 50,
-      marginy: rankdir === 'TB' ? 50 : marginCondition ? 10 : 250,
+      marginy: currentRankdir === 'TB' ? 50 : marginCondition ? 10 : 250,
       edgesep: 50,
       nodesep: 150,
     });
@@ -160,53 +162,18 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
     const currentModel = engine.getModel();
     if (!currentModel) return;
 
-    g = new dagre.graphlib.Graph();
-    let newDir = rankdir === 'TB' ? 'LR' : 'TB';
     const nodes = currentModel.getNodes();
-    const links = currentModel.getLinks();
-
     if (nodes.length === 0) return;
 
-    const firstPos = nodes[0].getPosition();
-    const lastPos = nodes[nodes.length - 1].getPosition();
-    g.setGraph({
-      rankdir: newDir,
-      ranksep: newDir === 'TB' ? 150 : 100,
-      marginx: newDir === 'TB' ? 10 : 100,
-      marginy: newDir === 'TB' ? 100 : 150,
-      edgesep: 50,
-      nodesep: 150,
-    });
-    g.setDefaultEdgeLabel(() => ({}));
-    nodes.forEach((node) => {
-      g.setNode(node.getID(), { width: 100, height: 50 });
-    });
-
-    links.forEach((link) => {
-      g.setEdge(
-        link.getSourcePort().getNode().getID(),
-        link.getTargetPort().getNode().getID(),
-      );
-    });
-
-    dagre.layout(g);
-
-    const newFirst = g.node(nodes[0].getID());
-    const newLast = g.node(nodes[nodes.length - 1].getID());
-
-    if (
-      firstPos.x === newFirst.x &&
-      firstPos.y === newFirst.y &&
-      lastPos.x === newLast.x &&
-      lastPos.y === newLast.y
-    ) {
-      newDir = newDir === 'TB' ? 'LR' : 'TB';
-    }
-
+    // Simply toggle the rankdir state - the useEffect will handle the re-layout
+    const newDir = rankdir === 'TB' ? 'LR' : 'TB';
     setRankdir(newDir);
-    setModelUpdated(true);
-    // Don't trigger auto-scaling when changing rank direction
+    
+    // Ensure we're not in first load state which might interfere with layout
     setIsFirstLoad(false);
+    
+    // Ensure model is marked as updated to trigger any dependent effects
+    setModelUpdated(true);
   };
 
   // This effect runs once to set up the engine
@@ -311,6 +278,32 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
       }
     }
   }, [origins, vias, destinations, forward_connection]);
+
+  // Effect to handle rankdir changes and re-layout existing nodes
+  useEffect(() => {
+    const currentModel = engine.getModel();
+    if (currentModel && currentModel.getNodes().length > 0) {
+      // Re-layout existing nodes with new direction
+      const existingNodes = currentModel.getNodes() as CustomNodeModel[];
+      const existingLinks = currentModel.getLinks() as DefaultLinkModel[];
+      
+      if (existingNodes.length > 0) {
+        // Don't preserve user positions for orientation changes - we want all nodes to be repositioned
+        // Pass the current rankdir explicitly to ensure it uses the updated value
+        layoutNodes(existingNodes, existingLinks, false, rankdir);
+        
+        // Clear selection and trigger repaint
+        currentModel.clearSelection();
+        engine.repaintCanvas();
+        
+        // Force a model update to trigger re-rendering
+        setModelUpdated(true);
+        
+        // Reset model fitted state so auto-fit can work if needed
+        setModelFitted(false);
+      }
+    }
+  }, [rankdir]);
 
   // Cleanup effect to prevent memory leaks
   useEffect(() => {
