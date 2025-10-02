@@ -5,3 +5,4 @@ pyontutils==0.1.38
 neurondm==0.1.8
 jsonschema==4.24.0
 h11>=0.16.0  # Fix CVE-2025-43859 (HTTP request smuggling vulnerability)
+setuptools>=78.1.1  # Fix CVE-2025-47273 (path traversal vulnerability)
