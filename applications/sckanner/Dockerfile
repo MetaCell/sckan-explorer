@@ -27,6 +27,12 @@ FROM $CLOUDHARNESS_DJANGO
 WORKDIR ${APP_DIR}
 RUN mkdir -p ${APP_DIR}/static/www
 
+# Update system packages to fix CVE-2023-45853 (zlib vulnerability)
+RUN apt-get update && \
+    apt-get upgrade -y zlib1g && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY backend/requirements.txt ${APP_DIR}
 RUN --mount=type=cache,target=/root/.cache python -m pip install --upgrade pip &&\
     pip3 install --no-cache-dir -r requirements.txt --prefer-binary
