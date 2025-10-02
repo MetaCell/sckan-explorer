@@ -208,7 +208,13 @@ function Header({
         </Container>
       </AppBar>
 
-      <About open={open} handleClose={() => setOpen(false)} />
+      <About
+        open={open}
+        handleClose={() => setOpen(false)}
+        currentDatasnapshot={datasnapshots.find(
+          (ds) => ds.id.toString() === selectedDatasnaphshot,
+        )}
+      />
 
       <Snackbar
         open={showCopyFeedback}
