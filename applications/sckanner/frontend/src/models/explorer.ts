@@ -20,6 +20,9 @@ export interface Organ extends BaseEntity {
   children: Map<string, BaseEntity>;
 
   order: number;
+  
+  // Optional marker for virtual category organs
+  isVirtualCategory?: boolean;
 }
 
 export interface AnatomicalEntity extends BaseEntity {

@@ -180,6 +180,10 @@ function Connections() {
         summaryFilters,
         selectedConnectionSummary.hierarchicalNode,
       );
+      console.log('Connections useEffect - setting connectionsMap:', {
+        connectionsSize: connections.size,
+        connectionsKeys: Array.from(connections.keys()),
+      });
       setConnectionsMap(connections);
     }
   }, [
@@ -192,9 +196,26 @@ function Connections() {
   useEffect(() => {
     // set the xAxis for the heatmap
     if (selectedConnectionSummary) {
-      const xAxis = getXAxisForHeatmap(
-        selectedConnectionSummary?.endOrgan || ({} as Organ),
-      );
+      let xAxis: string[];
+      
+      if (selectedConnectionSummary.endOrgan?.isVirtualCategory) {
+        // For virtual categories, build X-axis from actual destination organs in knowledge statements
+        const destinationOrgans = getDestinations(selectedConnectionSummary);
+        xAxis = Object.keys(destinationOrgans).map((organId) => {
+          const organ = destinationOrgans[organId];
+          return organ.name;
+        });
+        console.log('Virtual category X-axis built from actual destinations:', {
+          destinationCount: Object.keys(destinationOrgans).length,
+          xAxisSample: xAxis.slice(0, 3),
+        });
+      } else {
+        // For regular organs, use existing logic
+        xAxis = getXAxisForHeatmap(
+          selectedConnectionSummary?.endOrgan || ({} as Organ),
+        );
+      }
+      
       setXAxis(xAxis);
     }
   }, [selectedConnectionSummary]);
@@ -218,14 +239,41 @@ function Connections() {
       yId: string,
       updateWidgetState: boolean = true,
     ): void => {
+      console.log('Summary heatmap cell click:', {
+        x,
+        y,
+        yId,
+        isVirtualCategory:
+          !!selectedConnectionSummary?.endOrgan?.isVirtualCategory,
+        filteredXAxisLength: filteredXAxis.length,
+        reorderedAxisLength: reorderedAxis.length,
+        filteredXAxisSample: filteredXAxis.slice(0, 3),
+        reorderedAxisSample: reorderedAxis.slice(0, 3),
+      });
+      
       setSelectedCell({ x, y });
       const row = filteredConnectionsMap.get(yId);
       if (row) {
         setConnectionPage(widgetState.connectionPage ?? 1);
         const newX = filteredXAxis.indexOf(reorderedAxis[x]);
+        
+        console.log('Summary heatmap coordinate mapping:', {
+          originalX: x,
+          reorderedAxisAtX: reorderedAxis[x],
+          newX,
+          newXExists: newX !== -1,
+        });
+        
         const ksIds = Object.values(row[newX]).reduce((acc, phenotypeData) => {
           return acc.concat(phenotypeData.ksIds);
         }, [] as string[]);
+
+        console.log('Summary heatmap ksIds extraction:', {
+          rowExists: !!row,
+          rowNewXExists: !!(row && row[newX]),
+          ksIdsLength: ksIds.length,
+          ksIdsSample: ksIds.slice(0, 3),
+        });
 
         if (
           selectedConnectionSummary &&
@@ -262,11 +310,38 @@ function Connections() {
   );
 
   useEffect(() => {
-    // Filter yAxis
-    const filteredYAxis = filterYAxis(yAxis, connectionsMap);
+    console.log('Connections filtering useEffect called with:', {
+      yAxisLength: yAxis.length,
+      xAxisLength: xAxis.length,
+      connectionsMapSize: connectionsMap.size,
+      yAxisItems: yAxis.map((item) => ({
+        id: item.id,
+        expanded: item.expanded,
+      })),
+      xAxisItems: xAxis,
+      connectionsMapKeys: Array.from(connectionsMap.keys()).slice(0, 5), // First 5 keys
+    });
+    
+    // Filter yAxis - skip filtering for virtual category summaries
+    const isVirtualCategory =
+      !!selectedConnectionSummary?.endOrgan?.isVirtualCategory;
+    const filteredYAxis = isVirtualCategory
+      ? yAxis
+      : filterYAxis(yAxis, connectionsMap);
+    console.log('After filterYAxis:', {
+      originalLength: yAxis.length,
+      filteredLength: filteredYAxis.length,
+      filteredIds: filteredYAxis.map((item) => item.id),
+      isVirtualCategory,
+      skippedFiltering: isVirtualCategory,
+    });
 
     // Determine columns with data
     const columnsWithData = getNonEmptyColumns(filteredYAxis, connectionsMap);
+    console.log('After getNonEmptyColumns:', {
+      columnsWithDataSize: columnsWithData.size,
+      columnsWithDataArray: Array.from(columnsWithData),
+    });
 
     // Filter connections map
     const filteredConnectionsResults = filterConnectionsMap(
@@ -274,18 +349,33 @@ function Connections() {
       connectionsMap,
       columnsWithData,
     );
+    console.log('After filterConnectionsMap:', {
+      originalMapSize: connectionsMap.size,
+      filteredMapSize: filteredConnectionsResults.filteredMap.size,
+      ksIdsSize: filteredConnectionsResults.ksIds.size,
+    });
 
     // Filter xAxis
     const filteredXAxis = xAxis.filter((_, index) =>
       columnsWithData.has(index),
     );
+    console.log('After xAxis filtering:', {
+      originalXAxisLength: xAxis.length,
+      filteredXAxisLength: filteredXAxis.length,
+      filteredXAxis,
+    });
 
     setFilteredKsIds(filteredConnectionsResults.ksIds);
     setFilteredYAxis(filteredYAxis);
     setFilteredXAxis(filteredXAxis);
     setReorderedAxis(reorderXAxis([...filteredXAxis].sort()));
     setFilteredConnectionsMap(filteredConnectionsResults.filteredMap);
-  }, [yAxis, xAxis, connectionsMap]);
+  }, [
+    yAxis,
+    xAxis,
+    connectionsMap,
+    selectedConnectionSummary?.endOrgan?.isVirtualCategory,
+  ]);
 
   // Helper function to apply expand/collapse state to fresh yAxis
   const applyExpandedState = (
@@ -389,7 +479,22 @@ function Connections() {
   ]);
 
   const heatmapData = useMemo(() => {
-    return getSecondaryHeatmapData(filteredYAxis, filteredConnectionsMap);
+    console.log('getSecondaryHeatmapData called with:', {
+      filteredYAxisLength: filteredYAxis.length,
+      filteredConnectionsMapSize: filteredConnectionsMap.size,
+      filteredYAxisIds: filteredYAxis.map((item) => item.id),
+      filteredConnectionsMapKeys: Array.from(filteredConnectionsMap.keys()),
+    });
+    const result = getSecondaryHeatmapData(
+      filteredYAxis,
+      filteredConnectionsMap,
+    );
+    console.log('getSecondaryHeatmapData result:', {
+      resultLength: result.length,
+      resultFirstRow: result[0]?.length || 0,
+      resultStructure: result.map((row) => row?.length || 0),
+    });
+    return result;
   }, [filteredYAxis, filteredConnectionsMap]);
 
   const sortedResults = sortHeatmapData(

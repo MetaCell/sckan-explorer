@@ -509,8 +509,44 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
       let originalX = x;
       if (isXAxisHierarchical && hierarchicalToOriginalMapping.length > 0) {
         originalX = hierarchicalToOriginalMapping[x];
-        // If it's a collapsed category (mapped to -1), don't handle the click
+        // If it's a collapsed category (mapped to -1), handle it specially
         if (originalX === -1) {
+          // This is a collapsed category - we need to find which category it represents
+          // and pass information about the category for aggregated summary
+          let currentIndex = 0;
+          for (let i = 0; i < (xAxisHierarchy?.length || 0); i++) {
+            const category = xAxisHierarchy![i];
+            if (!category.expanded) {
+              if (currentIndex === x) {
+                // Found the category that was clicked
+                // Use the first organ in the category as the representative,
+                // but mark it specially so the parent can handle aggregation
+                const firstOrganInCategory = xAxis.findIndex((organName) =>
+                  category.children.some((child) => child.label === organName),
+                );
+                if (firstOrganInCategory !== -1) {
+                  // Call with special marker in yId to indicate this is a category click
+                  // Pass the hierarchical position (x) instead of the first organ position
+                  onCellClick(
+                    x, // Use hierarchical position, not first organ position
+                    y,
+                    `${ids[y]}:category:${category.label}`,
+                  );
+                } else {
+                  console.log(
+                    'No first organ found for category:',
+                    category.label,
+                  );
+                }
+                // Always return here to prevent normal click processing
+                return;
+              }
+              currentIndex += 1;
+            } else {
+              currentIndex += category.children.length;
+            }
+          }
+          // If we get here, it means we couldn't find the category - still return to prevent normal processing
           return;
         }
       }

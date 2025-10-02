@@ -174,18 +174,42 @@ export function getSecondaryHeatmapData(
   yAxis: HierarchicalItem[],
   connections: Map<string, KsPerPhenotype[]>,
 ) {
+  console.log('getSecondaryHeatmapData function called with:', {
+    yAxisLength: yAxis.length,
+    connectionsSize: connections.size,
+    yAxisItems: yAxis.map((item) => ({
+      id: item.id,
+      expanded: item.expanded,
+      hasChildren: !!item.children,
+    })),
+  });
+  
   const newData: KsPerPhenotype[][] = [];
 
   function addDataForItem(item: HierarchicalItem) {
     const itemData = connections.get(item.id);
+    console.log('addDataForItem called for:', {
+      itemId: item.id,
+      hasData: !!itemData,
+      dataLength: itemData?.length || 0,
+    });
     if (itemData) {
       newData.push(itemData);
     }
   }
 
   function traverseItems(items: HierarchicalItem[], fetchNextLevel: boolean) {
+    console.log('traverseItems called with:', {
+      itemsLength: items?.length || 0,
+      fetchNextLevel,
+      itemsData:
+        items?.map((item) => ({ id: item.id, expanded: item.expanded })) ||
+        [],
+    });
+    
     items?.forEach((item) => {
       if (item.expanded) {
+        console.log('Processing expanded item:', item.id);
         // Fetch data for the current expanded item
         addDataForItem(item);
         // Traverse further into the expanded item
@@ -193,6 +217,10 @@ export function getSecondaryHeatmapData(
           traverseItems(item.children as HierarchicalItem[], true);
         }
       } else if (fetchNextLevel) {
+        console.log(
+          'Processing non-expanded item with fetchNextLevel:',
+          item.id,
+        );
         // Fetch data for the immediate children of the last expanded item
         addDataForItem(item);
       }
@@ -201,6 +229,11 @@ export function getSecondaryHeatmapData(
 
   // Start traversal with the initial yAxis, allowing to fetch immediate children of the root if expanded
   traverseItems(yAxis, true);
+
+  console.log('getSecondaryHeatmapData returning:', {
+    newDataLength: newData.length,
+    newDataStructure: newData.map((row) => row?.length || 0),
+  });
 
   return newData;
 }
@@ -212,12 +245,35 @@ export function calculateSecondaryConnections(
   summaryFilters: SummaryFilters,
   hierarchyNode: HierarchicalNode,
 ): Map<string, KsPerPhenotype[]> {
+  console.log('🔥 calculateSecondaryConnections ENTRY POINT:', {
+    hierarchyNodeId: hierarchyNode.id,
+    hierarchyNodeName: hierarchyNode.name,
+    destinationsCount: Object.keys(destinationsRecord).length,
+    allKsCount: Object.keys(allKnowledgeStatements).length,
+  });
+  
+  console.log('calculateSecondaryConnections called with:', {
+    hierarchyNodeId: hierarchyNode.id,
+    hierarchyNodeName: hierarchyNode.name,
+    destinationsCount: Object.keys(destinationsRecord).length,
+    destinationNames: Object.values(destinationsRecord)
+      .slice(0, 3)
+      .map((organ) => organ.name),
+    allKsCount: Object.keys(allKnowledgeStatements).length,
+    summaryFiltersNerve: summaryFilters.Nerve.length,
+    summaryFiltersPhenotype: summaryFilters.Phenotype.length,
+  });
+  
   // Apply filters to organs and knowledge statements
-
   const knowledgeStatements = summaryFilterKnowledgeStatements(
     allKnowledgeStatements,
     summaryFilters,
   );
+
+  console.log('After summaryFilterKnowledgeStatements:', {
+    originalCount: Object.keys(allKnowledgeStatements).length,
+    filteredCount: Object.keys(knowledgeStatements).length,
+  });
 
   const organIndexMap = Object.values(destinationsRecord).reduce<
     Record<string, number>
@@ -226,21 +282,61 @@ export function calculateSecondaryConnections(
     return map;
   }, {});
 
+  console.log('calculateSecondaryConnections organIndexMap:', {
+    destinationsCount: Object.keys(destinationsRecord).length,
+    organIndexMapSize: Object.keys(organIndexMap).length,
+    organIndexMapSample: Object.entries(organIndexMap).slice(0, 3),
+    organIndexMapAllKeys: Object.keys(organIndexMap),
+    destinationsSample: Object.values(destinationsRecord)
+      .slice(0, 3)
+      .map((organ) => ({ id: organ.id, name: organ.name })),
+    destinationsAllIds: Object.values(destinationsRecord).map(
+      (organ) => organ.id,
+    ),
+  });
+
   // Memoization map to store computed results for nodes
   const memo = new Map<string, KsPerPhenotype[]>();
 
   // Function to compute node connections with memoization
   function computeNodeConnections(nodeId: string): KsPerPhenotype[] {
+    console.log('computeNodeConnections called for nodeId:', nodeId);
+    
     if (memo.has(nodeId)) {
-      return memo.get(nodeId)!;
+      const memoResult = memo.get(nodeId)!;
+      console.log('computeNodeConnections returning memoized result for:', {
+        nodeId,
+        resultLength: memoResult.length,
+        resultSample: memoResult[0] ? Object.keys(memoResult[0]) : 'empty',
+      });
+      return memoResult;
     }
 
     const node = hierarchicalNodes[nodeId];
+    if (!node) {
+      console.log('computeNodeConnections - node not found:', nodeId);
+      return [];
+    }
+    
     const result: KsPerPhenotype[] = Object.values(destinationsRecord).map(
       () => ({}),
     );
+    
+    console.log('computeNodeConnections initialized result:', {
+      nodeId,
+      nodeName: node.name,
+      resultLength: result.length,
+      hasChildren: !!(node.children && node.children.size > 0),
+      hasConnectionDetails: !!node.connectionDetails,
+    });
 
     if (node.children && node.children.size > 0) {
+      console.log('computeNodeConnections - processing children for node:', {
+        nodeId,
+        childrenCount: node.children.size,
+        childrenIds: Array.from(node.children),
+      });
+      
       node.children.forEach((childId) => {
         const childConnections = computeNodeConnections(childId);
         childConnections.forEach((child, index) => {
@@ -255,18 +351,50 @@ export function calculateSecondaryConnections(
         });
       });
     } else if (node.connectionDetails) {
+      console.log(
+        'computeNodeConnections - processing connectionDetails for node:',
+        {
+          nodeId,
+          connectionDetailsKeys: Object.keys(node.connectionDetails),
+          connectionDetailsCount: Object.keys(node.connectionDetails).length,
+        },
+      );
+      
       // Add the sub end organs to the connection details
       Object.keys(node.connectionDetails).forEach((endOrganIRI) => {
         const subOrgans = node.connectionDetails![endOrganIRI];
         if (subOrgans === undefined) return;
+        
+        console.log('computeNodeConnections - processing endOrganIRI:', {
+          endOrganIRI,
+          subOrgansKeys: Object.keys(subOrgans),
+          subOrgansCount: Object.keys(subOrgans).length,
+        });
 
         Object.keys(subOrgans).forEach((subOrgan) => {
           const index = organIndexMap[subOrgan];
+          // console.log('computeNodeConnections - processing subOrgan:', {
+          //   subOrgan,
+          //   index,
+          //   indexFound: index !== undefined,
+          //   organIndexMapHasKey: subOrgan in organIndexMap,
+          //   ksIds: subOrgans[subOrgan],
+          //   ksIdsCount: subOrgans[subOrgan].length,
+          // });
+          
           if (index === undefined) return;
 
           const knowledgeStatementIds = subOrgans[subOrgan].filter(
             (ksId) => ksId in knowledgeStatements,
           );
+          
+          // console.log('computeNodeConnections - filtered ksIds:', {
+          //   subOrgan,
+          //   index,
+          //   originalKsIdsCount: subOrgans[subOrgan].length,
+          //   filteredKsIdsCount: knowledgeStatementIds.length,
+          //   filteredKsIds: knowledgeStatementIds,
+          // });
 
           knowledgeStatementIds.forEach((ksId) => {
             const phenotype =
@@ -302,6 +430,14 @@ export function calculateSecondaryConnections(
   }
 
   computeNodeConnections(hierarchyNode.id);
+  
+  console.log('calculateSecondaryConnections returning:', {
+    memoSize: memo.size,
+    memoKeys: Array.from(memo.keys()),
+    hierarchyNodeIdInMemo: memo.has(hierarchyNode.id),
+    hierarchyNodeConnections: memo.get(hierarchyNode.id)?.length || 0,
+  });
+  
   return memo;
 }
 
@@ -318,19 +454,71 @@ export const getNormalizedValueForMinMax = (
 };
 
 export function getXAxisForHeatmap(endorgan: Organ) {
+  console.log('getXAxisForHeatmap called with:', {
+    endOrganName: endorgan?.name,
+    endOrganId: endorgan?.id,
+    hasChildren: !!endorgan?.children,
+    childrenSize: endorgan?.children?.size || 0,
+    isVirtualCategory: endorgan?.isVirtualCategory,
+  });
+  
   if (endorgan?.children) {
     const results = Array.from(endorgan.children.values()).map(
       (endOrgan) => endOrgan.name,
     );
+    console.log('getXAxisForHeatmap results:', results);
     return results;
   }
+  console.log('getXAxisForHeatmap returning empty array');
   return [];
 }
 
 export const getDestinations = (
   connection: ConnectionSummary,
 ): Record<string, Organ> => {
-  return Array.from(connection.endOrgan?.children?.values()).reduce(
+  console.log('getDestinations called with:', {
+    endOrganName: connection.endOrgan?.name,
+    endOrganId: connection.endOrgan?.id,
+    hasChildren: !!connection.endOrgan?.children,
+    childrenSize: connection.endOrgan?.children?.size || 0,
+    isVirtualCategory: connection.endOrgan?.isVirtualCategory,
+    ksCount: Object.keys(connection.filteredKnowledgeStatements || {}).length,
+  });
+  
+  // For virtual category organs, build destinations from actual knowledge statement destinations
+  if (connection.endOrgan?.isVirtualCategory) {
+    const destinationOrgans: Record<string, Organ> = {};
+    let destinationIndex = 0;
+    
+    // Extract all unique destination organ IDs from knowledge statements
+    Object.values(connection.filteredKnowledgeStatements || {}).forEach(
+      (ks) => {
+        ks.destinations.forEach((dest) => {
+          dest.anatomical_entities.forEach((entity) => {
+            if (!destinationOrgans[entity.id]) {
+              destinationOrgans[entity.id] = {
+                id: entity.id,
+                name: entity.name,
+                children: new Map<string, BaseEntity>(),
+                order: destinationIndex++,
+              };
+            }
+          });
+        });
+      },
+    );
+    
+    console.log('getDestinations virtual category result:', {
+      resultKeys: Object.keys(destinationOrgans),
+      resultCount: Object.keys(destinationOrgans).length,
+      sampleDestinations: Object.keys(destinationOrgans).slice(0, 3),
+    });
+    
+    return destinationOrgans;
+  }
+  
+  // For regular organs, use the existing logic
+  const result = Array.from(connection.endOrgan?.children?.values()).reduce(
     (acc, organ, index) => {
       acc[organ.id] = {
         ...organ,
@@ -341,6 +529,13 @@ export const getDestinations = (
     },
     {} as Record<string, Organ>,
   );
+  
+  console.log('getDestinations regular result:', {
+    resultKeys: Object.keys(result),
+    resultCount: Object.keys(result).length,
+  });
+  
+  return result;
 };
 
 export const getConnectionDetails = (

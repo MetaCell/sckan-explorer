@@ -37,6 +37,7 @@ import {
   HierarchicalItem,
   HierarchicalXItem,
   HeatmapMode,
+  KsRecord,
 } from './common/Types.ts';
 import { Organ } from '../models/explorer.ts';
 import LoaderSpinner from './common/LoaderSpinner.tsx';
@@ -265,15 +266,224 @@ function ConnectivityGrid() {
     ): void => {
       // When the primary heatmap cell is clicked - this sets the react-context state for Connections in SummaryType.summary
       setSelectedCell({ x, y });
+      
+      // Check if this is a category click (collapsed X-axis hierarchy)
+      const isCategoryClick = yId.includes(':category:');
+      let actualYId = yId;
+      let categoryLabel = '';
+      
+      console.log('handleClick debug:', {
+        x,
+        y,
+        yId,
+        isCategoryClick,
+        heatmapMode,
+        hasSynapticConnections: !!synapticConnections,
+        synapticConnectionsLength: synapticConnections?.length || 0,
+      });
+      
+      if (isCategoryClick) {
+        const parts = yId.split(':category:');
+        actualYId = parts[0];
+        categoryLabel = parts[1];
+        console.log('Category click detected:', {
+          actualYId,
+          categoryLabel,
+          parts,
+        });
+      }
+      
       if (heatmapMode === HeatmapMode.Default) {
-        const row = filteredConnectionsMap.get(yId);
+        const row = filteredConnectionsMap.get(actualYId);
         if (row) {
-          const endOrgan = filteredXOrgans[x];
+          let endOrgan = filteredXOrgans[x];
+          let ksMap: KsRecord;
+          
+          if (isCategoryClick) {
+            // Handle category click - aggregate data from all organs in the category
+            const category = xAxisHierarchy.find(
+              (cat) => cat.label === categoryLabel,
+            );
+            if (category) {
+              console.log('Category found, starting aggregation:', {
+                categoryLabel,
+                categoryChildrenCount: category.children.length,
+                hasSynapticConnections: !!synapticConnections,
+                yIndex: y,
+              });
+              // We need to find the original indices of organs in this category
+              // The filteredConnectionsMap is organized by original organ order, not hierarchical order
+              const categoryOrganIndices: number[] = [];
+              
+              // Find original organ indices for all children in this category
+              category.children.forEach((child) => {
+                // Find the index in the filtered organs array
+                // The filteredConnectionsMap corresponds to filteredXOrgans, not xAxisOrgans
+                const filteredIndex = filteredXOrgans.findIndex(
+                  (organ) => organ.name === child.label,
+                );
+                if (filteredIndex !== -1) {
+                  categoryOrganIndices.push(filteredIndex);
+                }
+              });
+              
+              // Aggregate knowledge statements from all organs in the category
+              // Use the same approach as individual organ clicks to get complete data
+              const allKsIds = new Set<string>();
+              let totalBeforeDedup = 0;
+              
+              categoryOrganIndices.forEach((organIndex) => {
+                if (synapticConnections && synapticConnections[y]) {
+                  // Get all synaptic and direct connections for this organ
+                  const synapticUris =
+                    synapticConnections[y].synapticConnections[organIndex] ||
+                    [];
+                  const directUris =
+                    synapticConnections[y].directConnections[organIndex] || [];
+                  
+                  // Add synaptic connection URIs
+                  synapticUris.forEach((path) => {
+                    path.forEach((uri) => {
+                      allKsIds.add(uri);
+                      totalBeforeDedup++;
+                    });
+                  });
+                  
+                  // Add direct connection URIs
+                  directUris.forEach((uri) => {
+                    allKsIds.add(uri);
+                    totalBeforeDedup++;
+                  });
+                } else {
+                  // Fallback to original method if synapticConnections not available
+                  console.log(
+                    'Fallback: using row[organIndex] method for organIndex:',
+                    organIndex,
+                  );
+                  if (row && row[organIndex]) {
+                    const organKsIds = row[organIndex];
+                    totalBeforeDedup += organKsIds.length;
+                    organKsIds.forEach((ksId) => allKsIds.add(ksId));
+                  }
+                }
+              });
+              
+              console.log('Knowledge statement aggregation:', {
+                totalBeforeDedup,
+                totalAfterDedup: allKsIds.size,
+                categoryLabel,
+                organCount: categoryOrganIndices.length,
+                aggregationMethod: synapticConnections
+                  ? 'synapticConnections'
+                  : 'row[organIndex]',
+                categoryOrganIndices,
+                hasSynapticConnections: !!synapticConnections,
+              });
+              
+              // Only proceed if we have knowledge statements
+              if (allKsIds.size === 0) {
+                console.warn(
+                  'No knowledge statements found for category:',
+                  categoryLabel,
+                );
+                return;
+              }
+              
+              // Create aggregated knowledge statement map
+              ksMap = getKnowledgeStatementMap(
+                Array.from(allKsIds),
+                knowledgeStatements,
+              );
+              
+              console.log('Final ksMap size:', Object.keys(ksMap).length);
+              
+              // Create a virtual end organ representing the category
+              // Use the first organ in the category as the base to ensure filtering works correctly
+              const firstOrganInCategory = category.children[0];
+              const baseOrgan = filteredXOrgans.find(
+                (organ) => organ.name === firstOrganInCategory.label,
+              ) ||
+                filteredXOrgans[0] || {
+                  name: '',
+                  id: '',
+                  children: new Map(),
+                  order: 0,
+                };
+              
+              // Create children map with all organs in the category
+              const categoryChildren = new Map();
+              category.children.forEach((child) => {
+                const organ = filteredXOrgans.find(
+                  (organ) => organ.name === child.label,
+                );
+                if (organ) {
+                  categoryChildren.set(organ.id, {
+                    id: organ.id,
+                    name: organ.name,
+                  });
+                }
+              });
+              
+              endOrgan = {
+                ...baseOrgan,
+                name: categoryLabel,
+                children: categoryChildren,
+                // Mark this as a virtual category organ
+                isVirtualCategory: true,
+                // Keep the original organ's ID to ensure filtering works correctly
+                // The name change will be visible in the UI
+              };
+              
+              console.log('Created virtual category organ:', {
+                categoryName: categoryLabel,
+                childrenCount: categoryChildren.size,
+                baseOrganId: baseOrgan.id,
+                categoryChildrenIds: Array.from(categoryChildren.keys()),
+                categoryChildrenSample: Array.from(
+                  categoryChildren.entries(),
+                ).slice(0, 3),
+              });
+            } else {
+              ksMap = {};
+              // Fallback virtual organ if category not found - use first organ to avoid filtering issues
+              const fallbackOrgan = filteredXOrgans[0] || {
+                name: '',
+                id: '',
+                children: new Map(),
+                order: 0,
+              };
+              
+              // Create empty children map for fallback
+              const fallbackChildren = new Map();
+              
+              endOrgan = {
+                ...fallbackOrgan,
+                name: categoryLabel,
+                children: fallbackChildren,
+                isVirtualCategory: true,
+              };
+            }
+          } else {
+            // Normal single organ click
+            ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
+          }
+          
           const nodeData = detailedHeatmapData[y];
           const hierarchicalNode = hierarchicalNodes[nodeData.id];
-          const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
 
-          const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
+          const leftSideHeatmapCoordinates = isCategoryClick
+            ? `${x}${COORDINATE_SEPARATOR}${y}${COORDINATE_SEPARATOR}category${COORDINATE_SEPARATOR}${categoryLabel}`
+            : `${x}${COORDINATE_SEPARATOR}${y}`;
+          console.log('Setting coordinates and summary:', {
+            x,
+            y,
+            leftSideHeatmapCoordinates,
+            isCategoryClick,
+            endOrganName: endOrgan.name,
+            endOrganId: endOrgan.id,
+            ksMapSize: Object.keys(ksMap).length,
+          });
+          
           updateConnectivityGridCellClick(
             removeSummaryFilters,
             isConnectionView ?? false,
@@ -285,6 +495,10 @@ function ConnectivityGrid() {
             endOrgan: endOrgan,
             hierarchicalNode: hierarchicalNode,
           });
+          
+          console.log(
+            'Summary set successfully - check filteredKnowledgeStatements in next update',
+          );
         }
       } else {
         const endOrgan = filteredXOrgans[x];
@@ -303,13 +517,38 @@ function ConnectivityGrid() {
         const nodeData = detailedHeatmapData[y];
         const hierarchicalNode = hierarchicalNodes[nodeData.id];
         const allUris = new Set<string>();
-        if (synapticConnections) {
+        
+        if (synapticConnections && synapticConnections[y]) {
           synapticConnections[y].synapticConnections[x].forEach((path) => {
             path.forEach((uri) => allUris.add(uri));
           });
           synapticConnections[y].directConnections[x].forEach((path) => {
             allUris.add(path);
           });
+        } else {
+          // Fallback: use filteredConnectionsMap data if synapticConnections not available
+          console.log(
+            'Individual organ fallback: using filteredConnectionsMap',
+          );
+          const row = filteredConnectionsMap.get(nodeData.id);
+          if (row && row[x]) {
+            row[x].forEach((ksId) => allUris.add(ksId));
+            console.log('Individual organ fallback data:', {
+              nodeDataId: nodeData.id,
+              xIndex: x,
+              rowExists: !!row,
+              rowXExists: !!(row && row[x]),
+              rowXLength: row && row[x] ? row[x].length : 0,
+              allUrisSize: allUris.size,
+            });
+          } else {
+            console.log('Individual organ fallback: no data found', {
+              nodeDataId: nodeData.id,
+              xIndex: x,
+              rowExists: !!row,
+              rowXExists: !!(row && row[x]),
+            });
+          }
         }
 
         const ksMap = getKnowledgeStatementMap(
@@ -341,6 +580,7 @@ function ConnectivityGrid() {
       updateConnectivityGridCellClick,
       setSelectedConnectionSummary,
       synapticConnections,
+      xAxisHierarchy,
     ],
   );
 
@@ -368,9 +608,22 @@ function ConnectivityGrid() {
       detailedHeatmapData.length > 0 &&
       yAxis.length > 0
     ) {
-      const [x, y] = widgetState.leftWidgetConnectionId
-        .split(COORDINATE_SEPARATOR)
-        .map(Number);
+      const parts =
+        widgetState.leftWidgetConnectionId.split(COORDINATE_SEPARATOR);
+      const [x, y] = parts.map(Number);
+      
+      // Check if this is a category coordinate
+      const isCategoryCoordinate = parts.length > 2 && parts[2] === 'category';
+      const categoryLabel = isCategoryCoordinate ? parts[3] : '';
+      
+      console.log('useEffect processing coordinates:', {
+        parts,
+        x,
+        y,
+        isCategoryCoordinate,
+        categoryLabel,
+      });
+      
       if (
         validateIfCoordinatesAreInBounds(
           x,
@@ -380,7 +633,16 @@ function ConnectivityGrid() {
         )
       ) {
         const nodeData = detailedHeatmapData[y];
-        const yId = nodeData.id;
+        const yId = isCategoryCoordinate
+          ? `${nodeData.id}:category:${categoryLabel}`
+          : nodeData.id;
+          
+        console.log('useEffect calling handleClick with:', {
+          x,
+          y,
+          yId,
+          isCategoryCoordinate,
+        });
         handleClick(x, y, yId, widgetState.view === 'connectionView');
       }
     }

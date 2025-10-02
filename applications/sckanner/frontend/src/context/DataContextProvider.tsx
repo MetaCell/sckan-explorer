@@ -224,12 +224,39 @@ export const DataContextProvider = ({
       hierarchicalNodes: Record<string, HierarchicalNode>,
     ) => {
       if (summary) {
+        console.log('updateSelectedConnectionSummary called with:', {
+          connectionsCount: Object.keys(summary.connections).length,
+          endOrganName: summary.endOrgan.name,
+          endOrganId: summary.endOrgan.id,
+          endOrganChildrenCount: summary.endOrgan.children.size,
+          filtersEndOrgan: filters.EndOrgan.length,
+          isVirtualOrgan: summary.endOrgan.isVirtualCategory,
+        });
+
+        // For virtual category organs, temporarily disable EndOrgan filtering
+        // to prevent filtering out knowledge statements that belong to the category
+        const isVirtualCategoryOrgan = !!summary.endOrgan.isVirtualCategory;
+        const adjustedFilters = isVirtualCategoryOrgan
+          ? { ...filters, EndOrgan: [] }
+          : filters;
+
+        console.log('Using filters:', {
+          originalEndOrgan: filters.EndOrgan.length,
+          adjustedEndOrgan: adjustedFilters.EndOrgan.length,
+          isVirtual: isVirtualCategoryOrgan,
+        });
+
         let filteredKnowledgeStatements = filterKnowledgeStatements(
           summary.connections,
           hierarchicalNodes,
-          filters,
+          adjustedFilters,
           organs,
         );
+
+        console.log('After filterKnowledgeStatements:', {
+          originalCount: Object.keys(summary.connections).length,
+          filteredCount: Object.keys(filteredKnowledgeStatements).length,
+        });
 
         filteredKnowledgeStatements = Object.fromEntries(
           Object.entries(filteredKnowledgeStatements).map(
@@ -247,6 +274,10 @@ export const DataContextProvider = ({
             ],
           ),
         );
+
+        console.log('After via filtering:', {
+          finalCount: Object.keys(filteredKnowledgeStatements).length,
+        });
 
         return {
           ...summary,

@@ -900,20 +900,54 @@ export const filterYAxis = <T extends object>(
   items: HierarchicalItem[],
   connectionsMap: ConnectionsMap<T>,
 ): HierarchicalItem[] => {
+  console.log('filterYAxis called with:', {
+    itemsLength: items.length,
+    itemsData: items.map((item) => ({ id: item.id, label: item.label })),
+    connectionsMapSize: connectionsMap.size,
+    firstFewKeys: Array.from(connectionsMap.keys()).slice(0, 3),
+  });
+
   return items
     .map((item) => {
       const row = connectionsMap.get(item.id);
+      // console.log('filterYAxis checking item:', {
+      //   itemId: item.id,
+      //   itemLabel: item.label,
+      //   hasRow: !!row,
+      //   rowType: row ? typeof row : 'undefined',
+      //   rowIsArray: Array.isArray(row),
+      //   rowLength: Array.isArray(row) ? row.length : 'not array',
+      //   rowSample: row ? (Array.isArray(row) ? row[0] : row) : 'no row',
+      // });
+      
       const hasConnections =
         row && row.some((connections) => Object.keys(connections).length > 0);
+      
+      // console.log('filterYAxis hasConnections check:', {
+      //   itemId: item.id,
+      //   hasConnections,
+      //   rowExists: !!row,
+      // });
 
       if (item.children) {
         const filteredChildren = filterYAxis(item.children, connectionsMap);
-        return filteredChildren.length > 0 || hasConnections
-          ? { ...item, children: filteredChildren }
-          : null;
+        const shouldInclude = filteredChildren.length > 0 || hasConnections;
+        // console.log('filterYAxis item with children:', {
+        //   itemId: item.id,
+        //   filteredChildrenLength: filteredChildren.length,
+        //   hasConnections,
+        //   shouldInclude,
+        // });
+        return shouldInclude ? { ...item, children: filteredChildren } : null;
       }
 
-      return hasConnections ? item : null;
+      const shouldInclude = hasConnections;
+      // console.log('filterYAxis leaf item:', {
+      //   itemId: item.id,
+      //   hasConnections,
+      //   shouldInclude,
+      // });
+      return shouldInclude ? item : null;
     })
     .filter((item): item is HierarchicalItem => item !== null);
 };
