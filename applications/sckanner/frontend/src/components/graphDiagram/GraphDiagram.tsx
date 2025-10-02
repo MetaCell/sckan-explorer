@@ -168,10 +168,10 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
     // Simply toggle the rankdir state - the useEffect will handle the re-layout
     const newDir = rankdir === 'TB' ? 'LR' : 'TB';
     setRankdir(newDir);
-    
+
     // Ensure we're not in first load state which might interfere with layout
     setIsFirstLoad(false);
-    
+
     // Ensure model is marked as updated to trigger any dependent effects
     setModelUpdated(true);
   };
@@ -286,19 +286,19 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
       // Re-layout existing nodes with new direction
       const existingNodes = currentModel.getNodes() as CustomNodeModel[];
       const existingLinks = currentModel.getLinks() as DefaultLinkModel[];
-      
+
       if (existingNodes.length > 0) {
         // Don't preserve user positions for orientation changes - we want all nodes to be repositioned
         // Pass the current rankdir explicitly to ensure it uses the updated value
         layoutNodes(existingNodes, existingLinks, false, rankdir);
-        
+
         // Clear selection and trigger repaint
         currentModel.clearSelection();
         engine.repaintCanvas();
-        
+
         // Force a model update to trigger re-rendering
         setModelUpdated(true);
-        
+
         // Reset model fitted state so auto-fit can work if needed
         setModelFitted(false);
       }
