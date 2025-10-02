@@ -27,9 +27,9 @@ FROM $CLOUDHARNESS_DJANGO
 WORKDIR ${APP_DIR}
 RUN mkdir -p ${APP_DIR}/static/www
 
-# Update system packages to fix CVE-2023-45853 (zlib vulnerability)
+# Update system packages to fix CVE-2023-45853 (zlib vulnerability) and CVE-2024-38428 (wget vulnerability)
 RUN apt-get update && \
-    apt-get upgrade -y zlib1g && \
+    apt-get upgrade -y zlib1g wget && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
