@@ -19,6 +19,7 @@ export const mapEntityToOption = (entities: BaseEntity[]): Option[] =>
       label: entity.name,
       group: '',
       content: [],
+      fullPath: entity?.fullPath ? entity.fullPath : '',
     };
 
     if (isAnatomicalEntity(entity) && entity.synonyms) {
@@ -64,6 +65,7 @@ const getAllNodes = (nodes: HierarchicalItem[]): BaseEntity[] => {
       nodeMap.set(baseId, {
         id: baseId,
         name: node.label,
+        fullPath: node.id,
       });
     }
 
@@ -161,6 +163,7 @@ export const getUniqueOrgans = (filteredXOrgans: Organ[]): Option[] => {
     label: organ.name,
     group: '',
     content: [],
+    fullPath: '',
   }));
 };
 
@@ -170,6 +173,7 @@ function mapNameToOption(items: Set<string>) {
     label: item.toLowerCase(),
     group: '',
     content: [],
+    fullPath: '',
   }));
 }
 
