@@ -15,6 +15,7 @@ export const mockEntities: Option[] = [
         value: 'http://purl.obolibrary.org/obo/UBERON_0001508',
       },
     ],
+    fullPath: '',
   },
   {
     id: '32845',
@@ -30,6 +31,7 @@ export const mockEntities: Option[] = [
         value: 'http://purl.obolibrary.org/obo/UBERON_0005820',
       },
     ],
+    fullPath: '',
   },
   {
     id: '47428',
@@ -45,6 +47,7 @@ export const mockEntities: Option[] = [
         value: 'http://purl.obolibrary.org/obo/UBERON_0014899',
       },
     ],
+    fullPath: '',
   },
   {
     id: '12822',
@@ -60,6 +63,7 @@ export const mockEntities: Option[] = [
         value: 'http://purl.obolibrary.org/obo/UBERON_0002590',
       },
     ],
+    fullPath: '',
   },
   {
     id: '1798',
@@ -75,6 +79,7 @@ export const mockEntities: Option[] = [
         value: 'http://purl.obolibrary.org/obo/UBERON_0000941',
       },
     ],
+    fullPath: '',
   },
   {
     id: '53259',
@@ -90,6 +95,7 @@ export const mockEntities: Option[] = [
         value: 'http://purl.obolibrary.org/obo/UBERON_0039167',
       },
     ],
+    fullPath: '',
   },
   {
     id: '6604',
@@ -105,6 +111,7 @@ export const mockEntities: Option[] = [
         value: 'http://purl.obolibrary.org/obo/UBERON_0001759',
       },
     ],
+    fullPath: '',
   },
   {
     id: '52948',
@@ -120,6 +127,7 @@ export const mockEntities: Option[] = [
         value: 'http://purl.obolibrary.org/obo/UBERON_0038635',
       },
     ],
+    fullPath: '',
   },
   {
     id: '52950',
@@ -135,6 +143,7 @@ export const mockEntities: Option[] = [
         value: 'http://purl.obolibrary.org/obo/UBERON_0038635',
       },
     ],
+    fullPath: '',
   },
   {
     id: '52956',
@@ -150,6 +159,7 @@ export const mockEntities: Option[] = [
         value: 'http://purl.obolibrary.org/obo/UBERON_0038638',
       },
     ],
+    fullPath: '',
   },
   {
     id: '6050',
@@ -165,5 +175,6 @@ export const mockEntities: Option[] = [
         value: 'http://purl.obolibrary.org/obo/UBERON_0001650',
       },
     ],
+    fullPath: '',
   },
 ];

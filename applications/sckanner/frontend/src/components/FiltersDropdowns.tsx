@@ -11,6 +11,7 @@ import {
   getUniqueSpecies,
   getUniqueVias,
   getUniqueAllEntities,
+  getUniquePhenotypes,
 } from '../services/filterValuesService.ts';
 import {
   searchApiNATOMY,
@@ -115,6 +116,7 @@ const FiltersDropdowns: React.FC<{
       filteredYAxis,
     ],
   );
+
   const speciesOptions = useMemo(
     () =>
       isReset
@@ -122,10 +124,15 @@ const FiltersDropdowns: React.FC<{
         : getUniqueSpecies(filteredKnowledgeStatements),
     [isReset, initialFilterOptions.Species, filteredKnowledgeStatements],
   );
+
   const phenotypesOptions = useMemo(
-    () => initialFilterOptions.Phenotype,
-    [initialFilterOptions.Phenotype],
+    () =>
+      isReset
+        ? initialFilterOptions.Phenotype
+        : getUniquePhenotypes(filteredKnowledgeStatements),
+    [isReset, initialFilterOptions.Phenotype, filteredKnowledgeStatements],
   );
+
   const apinatomiesOptions = useMemo(
     () =>
       isReset
@@ -133,6 +140,7 @@ const FiltersDropdowns: React.FC<{
         : getUniqueApinatomies(filteredKnowledgeStatements),
     [isReset, initialFilterOptions.apiNATOMY, filteredKnowledgeStatements],
   );
+
   const viasOptions = useMemo(
     () =>
       isReset
@@ -140,6 +148,7 @@ const FiltersDropdowns: React.FC<{
         : getUniqueVias(filteredKnowledgeStatements),
     [isReset, initialFilterOptions.Via, filteredKnowledgeStatements],
   );
+
   const organsOptions = useMemo(
     () =>
       isReset

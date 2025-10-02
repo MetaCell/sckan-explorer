@@ -14,6 +14,12 @@ export interface BaseEntity {
    * @memberof BaseEntity
    */
   name: string;
+  /**
+   *
+   * @type {string}
+   * @memberof BaseEntity
+   */
+  fullPath?: string;
 }
 
 export interface Organ extends BaseEntity {
