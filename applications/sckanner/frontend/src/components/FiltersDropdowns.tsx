@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
 import CustomFilterDropdown from './common/CustomFilterDropdown.tsx';
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { Filters, useDataContext } from '../context/DataContext.ts';
 import { useWidgetStateActions } from '../hooks/useWidgetStateActions.ts';
 import { HierarchicalItem, Option } from './common/Types.ts';
@@ -11,6 +11,7 @@ import {
   getUniqueSpecies,
   getUniqueVias,
   getUniqueAllEntities,
+  getUniquePhenotypes,
 } from '../services/filterValuesService.ts';
 import {
   searchApiNATOMY,
@@ -90,6 +91,91 @@ const FiltersDropdowns: React.FC<{
 
   const { updateFilterDropdownSelect } = useWidgetStateActions();
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [availableWidth, setAvailableWidth] = useState<number>(0);
+
+  // Calculate how to arrange filters in rows based on available width
+  const filterRows = useMemo(() => {
+    if (!availableWidth || availableWidth === 0) {
+      // If no width detected yet, show all in one row (fallback)
+      return [filterConfig];
+    }
+
+    const rows: FilterConfig[][] = [];
+    let currentRow: FilterConfig[] = [];
+    let currentRowWidth = 48; // Account for padding (24px * 2)
+    const gapSize = 8; // MUI gap={1} = 8px
+    // Use a more aggressive estimate based on the debug data
+    // With 635px available and 3 filters fitting at 544px, that's ~181px per filter+gap
+    // But let's try 150px to see if we can fit 4 filters per row
+    const estimatedFilterWidth = 120;
+
+    filterConfig.forEach((filter) => {
+      const filterWidthWithGap =
+        estimatedFilterWidth + (currentRow.length > 0 ? gapSize : 0);
+
+      if (currentRowWidth + filterWidthWithGap <= availableWidth) {
+        // Filter fits in current row
+        currentRow.push(filter);
+        currentRowWidth += filterWidthWithGap;
+      } else {
+        // Start new row
+        if (currentRow.length > 0) {
+          rows.push(currentRow);
+        }
+        currentRow = [filter];
+        currentRowWidth = 48 + estimatedFilterWidth; // padding + filter width
+      }
+    });
+
+    // Add the last row if it has filters
+    if (currentRow.length > 0) {
+      rows.push(currentRow);
+    }
+
+    return rows;
+  }, [availableWidth]);
+
+  // Find the flexlayout__tab container and measure its width
+  useEffect(() => {
+    const findFlexLayoutTab = () => {
+      const container = containerRef.current;
+      if (!container) return null;
+      // Traverse up the DOM to find the flexlayout__tab element
+      let element = container.parentElement;
+      while (element) {
+        if (element.classList.contains('flexlayout__tab')) {
+          return element;
+        }
+        element = element.parentElement;
+      }
+      return null;
+    };
+
+    const updateWidth = () => {
+      const tabContainer = findFlexLayoutTab();
+      if (tabContainer) {
+        const width = tabContainer.getBoundingClientRect().width;
+        setAvailableWidth(width);
+      }
+    };
+
+    // Initial width measurement
+    updateWidth();
+
+    // Set up ResizeObserver to track width changes
+    const tabContainer = findFlexLayoutTab();
+    if (tabContainer) {
+      const resizeObserver = new ResizeObserver(() => {
+        updateWidth();
+      });
+      resizeObserver.observe(tabContainer);
+      return () => {
+        resizeObserver.disconnect();
+      };
+    }
+  }, []);
+
   const { initialFilterOptions } = useDataContext();
 
   const filteredKnowledgeStatements = useMemo(() => {
@@ -115,6 +201,7 @@ const FiltersDropdowns: React.FC<{
       filteredYAxis,
     ],
   );
+
   const speciesOptions = useMemo(
     () =>
       isReset
@@ -122,10 +209,15 @@ const FiltersDropdowns: React.FC<{
         : getUniqueSpecies(filteredKnowledgeStatements),
     [isReset, initialFilterOptions.Species, filteredKnowledgeStatements],
   );
+
   const phenotypesOptions = useMemo(
-    () => initialFilterOptions.Phenotype,
-    [initialFilterOptions.Phenotype],
+    () =>
+      isReset
+        ? initialFilterOptions.Phenotype
+        : getUniquePhenotypes(filteredKnowledgeStatements),
+    [isReset, initialFilterOptions.Phenotype, filteredKnowledgeStatements],
   );
+
   const apinatomiesOptions = useMemo(
     () =>
       isReset
@@ -133,6 +225,7 @@ const FiltersDropdowns: React.FC<{
         : getUniqueApinatomies(filteredKnowledgeStatements),
     [isReset, initialFilterOptions.apiNATOMY, filteredKnowledgeStatements],
   );
+
   const viasOptions = useMemo(
     () =>
       isReset
@@ -140,6 +233,7 @@ const FiltersDropdowns: React.FC<{
         : getUniqueVias(filteredKnowledgeStatements),
     [isReset, initialFilterOptions.Via, filteredKnowledgeStatements],
   );
+
   const organsOptions = useMemo(
     () =>
       isReset
@@ -199,22 +293,32 @@ const FiltersDropdowns: React.FC<{
   ]);
 
   return (
-    <Box display="flex" gap={1} flexWrap="wrap" p={3}>
-      {filterConfig.map((filter) => (
-        <CustomFilterDropdown
-          key={filter.id}
-          id={filter.id}
-          placeholder={filter.placeholder}
-          tooltip={filter.tooltip}
-          searchPlaceholder={filter.searchPlaceholder}
-          selectedOptions={filters[filter.id]}
-          onSearch={(searchValue: string) =>
-            searchFunctions[filter.id](searchValue)
-          }
-          onSelect={(options: Option[]) =>
-            handleSelect(filter.id as keyof Filters, options)
-          }
-        />
+    <Box ref={containerRef} p={3}>
+      {filterRows.map((row, rowIndex) => (
+        <Box
+          key={rowIndex}
+          display="flex"
+          gap={1}
+          mb={rowIndex < filterRows.length - 1 ? 1 : 0}
+          flexWrap="nowrap" // Don't wrap within a row since we pre-calculated
+        >
+          {row.map((filter) => (
+            <CustomFilterDropdown
+              key={filter.id}
+              id={filter.id}
+              placeholder={filter.placeholder}
+              tooltip={filter.tooltip}
+              searchPlaceholder={filter.searchPlaceholder}
+              selectedOptions={filters[filter.id]}
+              onSearch={(searchValue: string) =>
+                searchFunctions[filter.id](searchValue)
+              }
+              onSelect={(options: Option[]) =>
+                handleSelect(filter.id as keyof Filters, options)
+              }
+            />
+          ))}
+        </Box>
       ))}
     </Box>
   );
