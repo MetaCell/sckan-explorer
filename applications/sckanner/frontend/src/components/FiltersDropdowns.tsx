@@ -132,10 +132,8 @@ const FiltersDropdowns: React.FC<{
     // Add the last row if it has filters
     if (currentRow.length > 0) {
       rows.push(currentRow);
-      console.log(`Final row completed with ${currentRow.length} filters`);
     }
 
-    console.log('Total rows created:', rows.length);
     return rows;
   }, [availableWidth]);
 
