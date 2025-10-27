@@ -75,7 +75,7 @@ export const STRINGS_NUMBERS = [
 ];
 
 // Get version from Vite environment variable (set at build time)
-export const SCKANNER_VERSION = import.meta.env.VITE_APP_VERSION || '2.0.1';
-export const COMPOSER_VERSION = '4.1.0';
-export const NEURONDM_VERSION = '2024-09-21';
+export const SCKANNER_VERSION = import.meta.env.VITE_APP_VERSION || '3.0.0';
+export const COMPOSER_VERSION = '6.0.0';
+export const NEURONDM_VERSION = '2025-10-27';
 export const KNOWLEDGE_STATEMENTS_BATCH_SIZE = 15;
