@@ -110,8 +110,7 @@ const FiltersDropdowns: React.FC<{
     // But let's try 150px to see if we can fit 4 filters per row
     const estimatedFilterWidth = 120;
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    filterConfig.forEach((filter, _index) => {
+    filterConfig.forEach((filter) => {
       const filterWidthWithGap =
         estimatedFilterWidth + (currentRow.length > 0 ? gapSize : 0);
 
