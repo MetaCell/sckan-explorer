@@ -5,7 +5,7 @@ import sys
 from setuptools import find_packages, setup
 
 NAME = "sckanner"
-VERSION = "3.0.0"
+VERSION = "3.0.1"
 
 # To install the library, run the following
 #
