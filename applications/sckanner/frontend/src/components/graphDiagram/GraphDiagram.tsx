@@ -188,11 +188,6 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
   }, [engine]);
 
   const initializeGraph = () => {
-    // Check if we already have a model with nodes that might have been moved
-    const existingModel = engine.getModel();
-    const hasExistingNodes =
-      existingModel && existingModel.getNodes().length > 0;
-
     const model = new DiagramModel();
 
     const { nodes, links } = processData({
@@ -202,8 +197,11 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
       forwardConnection: forward_connection,
     });
 
-    // Only preserve user positions if this is a re-initialization and we had existing nodes
-    layoutNodes(nodes, links, hasExistingNodes);
+    // Always reset layout on initialization (don't preserve user positions)
+    layoutNodes(nodes, links, false);
+    
+    // Reset first load state to trigger zoom to fit
+    setIsFirstLoad(true);
 
     // Ensure nodes are movable and track when they're moved
     nodes.forEach((node) => {

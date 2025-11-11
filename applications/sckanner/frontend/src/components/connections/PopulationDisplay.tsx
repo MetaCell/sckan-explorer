@@ -3,6 +3,7 @@ import { Box, Typography, Stack, Tabs, Tab } from '@mui/material';
 import { vars } from '../../theme/variables.ts';
 import ConnectionsTableView, { Row } from './ConnectionsTableView.tsx';
 import GraphDiagram from '../graphDiagram/GraphDiagram.tsx';
+import GraphOverlay from '../graphDiagram/GraphOverlay.tsx';
 import {
   DestinationExplorerSerializerDetails,
   KnowledgeStatement,
@@ -44,6 +45,7 @@ const PopulationDisplay = ({
   connectionDetails: KnowledgeStatement;
 }) => {
   const [value, setValue] = React.useState(0);
+  const [overlayKey, setOverlayKey] = React.useState(0);
 
   const viaDetails: ViaExplorerSerializerDetails[] =
     connectionDetails?.vias || [];
@@ -59,6 +61,11 @@ const PopulationDisplay = ({
         origins: conn.origins,
       };
     }) || [];
+
+  // Increment overlay key when connection details change to force remount
+  React.useEffect(() => {
+    setOverlayKey((prev) => prev + 1);
+  }, [connectionDetails]);
 
   const getTabularData = (connectionDetails: KnowledgeStatement): Row[] => {
     const rowData: Row[] = [];
@@ -110,12 +117,15 @@ const PopulationDisplay = ({
         </Tabs>
       </Stack>
       <CustomTabPanel value={value} index={0}>
-        <GraphDiagram
-          origins={origins}
-          vias={viaDetails}
-          destinations={destinationDetails}
-          forward_connection={forward_connections}
-        />
+        <Box position="relative" minHeight="50rem">
+          <GraphOverlay key={overlayKey} duration={2000} />
+          <GraphDiagram
+            origins={origins}
+            vias={viaDetails}
+            destinations={destinationDetails}
+            forward_connection={forward_connections}
+          />
+        </Box>
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
         <ConnectionsTableView tableData={tableData} />
