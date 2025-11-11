@@ -364,6 +364,7 @@ function ConnectivityGrid() {
       const [x, y] = widgetState.leftWidgetConnectionId
         .split(COORDINATE_SEPARATOR)
         .map(Number);
+
       if (
         validateIfCoordinatesAreInBounds(
           x,

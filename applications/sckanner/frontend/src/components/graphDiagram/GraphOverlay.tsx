@@ -43,7 +43,7 @@ const GraphOverlay: React.FC<GraphOverlayProps> = ({
       bgcolor="rgba(255, 255, 255, 0.98)"
       zIndex={1000}
       sx={{
-        minHeight: '50rem',
+        minHeight: '60rem',
         width: '100%',
       }}
     >

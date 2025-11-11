@@ -199,7 +199,7 @@ const GraphDiagram: React.FC<GraphDiagramProps> = ({
 
     // Always reset layout on initialization (don't preserve user positions)
     layoutNodes(nodes, links, false);
-    
+
     // Reset first load state to trigger zoom to fit
     setIsFirstLoad(true);
 
