@@ -43,6 +43,7 @@ export interface WidgetState {
   view: 'connectionView' | 'connectionDetailsView' | null;
   leftWidgetConnectionId?: string | null;
   rightWidgetConnectionId?: string | null;
+  connectionKsIds?: string[] | null;
   filters?: Filters | null;
   summaryFilters?: SummaryFilters | null;
   connectionPage?: number | null;

@@ -448,23 +448,23 @@ export function filterKnowledgeStatements(
 
   const viaIds =
     filters.Via?.flatMap((option) =>
-      isLeaf(option.id, hierarchicalNodes)
+      isLeaf(option?.fullPath, hierarchicalNodes)
         ? option.id
-        : getLeafDescendants(option.id, hierarchicalNodes),
+        : getLeafDescendants(option.fullPath, hierarchicalNodes),
     ) || [];
 
   const originIds =
     filters.Origin?.flatMap((option) =>
-      isLeaf(option.id, hierarchicalNodes)
+      isLeaf(option?.fullPath, hierarchicalNodes)
         ? option.id
-        : getLeafDescendants(option.id, hierarchicalNodes),
+        : getLeafDescendants(option.fullPath, hierarchicalNodes),
     ) || [];
 
   const entityIds =
     filters.Entities?.flatMap((option) =>
-      isLeaf(option.id, hierarchicalNodes)
+      isLeaf(option?.fullPath, hierarchicalNodes)
         ? option.id
-        : getLeafDescendants(option.id, hierarchicalNodes),
+        : getLeafDescendants(option.fullPath, hierarchicalNodes),
     ) || [];
 
   const organs = filterOrgans(allOrgans, filters.EndOrgan);

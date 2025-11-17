@@ -7,11 +7,13 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import CloseIcon from '@mui/icons-material/Close';
 import { FC } from 'react';
-import { NEURONDM_VERSION, COMPOSER_VERSION } from '../../settings';
+import { SCKANNER_VERSION } from '../../settings';
+import { Datasnapshot } from '../../models/json';
 
 interface ModalProps {
   open: boolean;
   handleClose: () => void;
+  currentDatasnapshot?: Datasnapshot;
 }
 
 interface DetailsItemProps {
@@ -44,54 +46,57 @@ const DetailsUI: FC<DetailsItemProps> = ({
   </Box>
 );
 
-const AboutContent = [
-  {
-    heading: 'About SCKANNER',
-    description:
-      'A key component of the SPARC Program is SCKAN. It is a semantic store housing a comprehensive knowledge base of autonomic nervous system (ANS) and peripheral nervous system (PNS) nerve to end organ connectivity. Connectivity information is derived from SPARC experts, SPARC data, literature and textbooks. SCKAN supports reasoning and offers powerful query and visualization capabilities.',
-    buttonText: 'Learn more about SCKAN',
-    buttonURL:
-      'https://sparc.science/tools-and-resources/6eg3VpJbwQR4B84CjrvmyD',
-  },
-  {
-    heading: 'Sckanner Documentation',
-    buttonText: 'Click here for additional documentation and tutorials',
-    buttonURL: 'https://docs.sparc.science/docs/sckanner',
-  },
-  {
-    heading: 'Feedback form',
-    buttonText: 'Provide your feedback using this form.',
-    buttonURL: 'https://forms.gle/4YUjMa5Hx2KPzM8i6',
-  },
-  {
-    heading: 'Owner',
-    description: 'SPARC Knowledge Core (K-CORE)',
-  },
-  {
-    heading: 'Funding Program',
-    description: 'SPARC',
-    buttonText: '',
-  },
-  {
-    heading: 'Contact',
-    buttonText: 'kcore@sparc.science',
-    buttonURL: 'mailto:kcore@sparc.science',
-  },
-  {
-    heading: 'SCKANNER Version',
-    description: '1.0.0-beta',
-  },
-  {
-    heading: 'Composer Version',
-    description: COMPOSER_VERSION,
-  },
-  {
-    heading: 'SCKAN Version',
-    description: NEURONDM_VERSION,
-  },
-];
-
-const About: FC<ModalProps> = ({ open, handleClose }) => {
+const About: FC<ModalProps> = ({ open, handleClose, currentDatasnapshot }) => {
+  // Create AboutContent dynamically based on current datasnapshot
+  const AboutContent = [
+    {
+      heading: 'About SCKANNER',
+      description:
+        'A key component of the SPARC Program is SCKAN. It is a semantic store housing a comprehensive knowledge base of autonomic nervous system (ANS) and peripheral nervous system (PNS) nerve to end organ connectivity. Connectivity information is derived from SPARC experts, SPARC data, literature and textbooks. SCKAN supports reasoning and offers powerful query and visualization capabilities.',
+      buttonText: 'Learn more about SCKAN',
+      buttonURL:
+        'https://sparc.science/tools-and-resources/6eg3VpJbwQR4B84CjrvmyD',
+    },
+    {
+      heading: 'Sckanner Documentation',
+      buttonText: 'Click here for additional documentation and tutorials',
+      buttonURL: 'https://docs.sparc.science/docs/sckanner',
+    },
+    {
+      heading: 'Feedback form',
+      buttonText: 'Provide your feedback using this form.',
+      buttonURL: 'https://forms.gle/4YUjMa5Hx2KPzM8i6',
+    },
+    {
+      heading: 'Owner',
+      description: 'SPARC Knowledge Core (K-CORE)',
+    },
+    {
+      heading: 'Funding Program',
+      description: 'SPARC',
+      buttonText: '',
+    },
+    {
+      heading: 'Contact',
+      buttonText: 'kcore@sparc.science',
+      buttonURL: 'mailto:kcore@sparc.science',
+    },
+    {
+      heading: 'SCKANNER Version',
+      description: SCKANNER_VERSION,
+    },
+    // Add datasnapshot information if available
+    ...(currentDatasnapshot
+      ? [
+          {
+            heading:
+              currentDatasnapshot.source.charAt(0).toUpperCase() +
+              currentDatasnapshot.source.slice(1).toLowerCase(),
+            description: `Version ${currentDatasnapshot.version}`,
+          },
+        ]
+      : []),
+  ];
   return (
     <Dialog
       onClose={handleClose}

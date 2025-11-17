@@ -33,7 +33,7 @@ function generateOptions(
       );
       options.push({
         label: `View on MAPS for ${species?.name}`,
-        value: `https://sparc.science/apps/maps?type=flatmap&taxo=${specieURI}&uberonid=${popID}`,
+        value: `https://sparc.science/apps/maps?type=flatmap&taxon=${specieURI}&anatomy=${popID}`,
       });
     }
   }

@@ -182,14 +182,9 @@ export const DataContextProvider = ({
   const phenotypesColorMap = useMemo(() => {
     const colors = generatePhenotypeColors(phenotypes.length);
     const phenotypesList = [
-      'sympathetic pre-ganglionic',
+      ...phenotypes,
       'not specified',
-      'parasympathetic',
-      'parasympathetic post-ganglionic',
-      'sympathetic post-ganglionic',
-      'Post ganglionic phenotype',
-      'parasympathetic pre-ganglionic',
-      'enteric',
+      OTHER_PHENOTYPE_LABEL,
     ];
     const phenoColor: Record<string, string> = {};
     phenotypesList.forEach((phenotype, index) => {

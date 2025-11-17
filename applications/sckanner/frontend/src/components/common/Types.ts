@@ -5,6 +5,7 @@ export type OptionDetail = {
   value: string; // The actual value/content for the property.
 };
 export type Option = {
+  fullPath: string;
   id: string;
   label: string;
   group: string;
