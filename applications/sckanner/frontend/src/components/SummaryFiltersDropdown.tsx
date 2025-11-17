@@ -52,6 +52,7 @@ const SummaryFiltersDropdown = ({
       label: nerves[nerve],
       group: 'Nerve',
       content: [],
+      fullPath: '',
     }));
   };
 
@@ -62,6 +63,7 @@ const SummaryFiltersDropdown = ({
         label: phenotype.toLowerCase(),
         group: 'Phenotype',
         content: [],
+        fullPath: '',
       }))
       .filter((phenotype) => phenotype.label !== OTHER_PHENOTYPE_LABEL);
   };

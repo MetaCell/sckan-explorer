@@ -102,8 +102,8 @@ function ConnectivityGrid() {
   }, [hierarchicalNodes, organs, knowledgeStatements, organizedFilters]);
 
   const { min, max } = useMemo(() => {
-    return getMinMaxKnowledgeStatements(connectionsMap);
-  }, [connectionsMap]);
+    return getMinMaxKnowledgeStatements(filteredConnectionsMap);
+  }, [filteredConnectionsMap]);
 
   useEffect(() => {
     const organList = getXAxisOrgans(organs);
@@ -266,12 +266,12 @@ function ConnectivityGrid() {
     ): void => {
       // When the primary heatmap cell is clicked - this sets the react-context state for Connections in SummaryType.summary
       setSelectedCell({ x, y });
-      
+
       // Check if this is a category click (collapsed X-axis hierarchy)
       const isCategoryClick = yId.includes(':category:');
       let actualYId = yId;
       let categoryLabel = '';
-      
+
       console.log('handleClick debug:', {
         x,
         y,
@@ -281,7 +281,7 @@ function ConnectivityGrid() {
         hasSynapticConnections: !!synapticConnections,
         synapticConnectionsLength: synapticConnections?.length || 0,
       });
-      
+
       if (isCategoryClick) {
         const parts = yId.split(':category:');
         actualYId = parts[0];
@@ -292,13 +292,13 @@ function ConnectivityGrid() {
           parts,
         });
       }
-      
+
       if (heatmapMode === HeatmapMode.Default) {
         const row = filteredConnectionsMap.get(actualYId);
         if (row) {
           let endOrgan = filteredXOrgans[x];
           let ksMap: KsRecord;
-          
+
           if (isCategoryClick) {
             // Handle category click - aggregate data from all organs in the category
             const category = xAxisHierarchy.find(
@@ -314,7 +314,7 @@ function ConnectivityGrid() {
               // We need to find the original indices of organs in this category
               // The filteredConnectionsMap is organized by original organ order, not hierarchical order
               const categoryOrganIndices: number[] = [];
-              
+
               // Find original organ indices for all children in this category
               category.children.forEach((child) => {
                 // Find the index in the filtered organs array
@@ -326,12 +326,12 @@ function ConnectivityGrid() {
                   categoryOrganIndices.push(filteredIndex);
                 }
               });
-              
+
               // Aggregate knowledge statements from all organs in the category
               // Use the same approach as individual organ clicks to get complete data
               const allKsIds = new Set<string>();
               let totalBeforeDedup = 0;
-              
+
               categoryOrganIndices.forEach((organIndex) => {
                 if (synapticConnections && synapticConnections[y]) {
                   // Get all synaptic and direct connections for this organ
@@ -340,7 +340,7 @@ function ConnectivityGrid() {
                     [];
                   const directUris =
                     synapticConnections[y].directConnections[organIndex] || [];
-                  
+
                   // Add synaptic connection URIs
                   synapticUris.forEach((path) => {
                     path.forEach((uri) => {
@@ -348,7 +348,7 @@ function ConnectivityGrid() {
                       totalBeforeDedup++;
                     });
                   });
-                  
+
                   // Add direct connection URIs
                   directUris.forEach((uri) => {
                     allKsIds.add(uri);
@@ -367,7 +367,7 @@ function ConnectivityGrid() {
                   }
                 }
               });
-              
+
               console.log('Knowledge statement aggregation:', {
                 totalBeforeDedup,
                 totalAfterDedup: allKsIds.size,
@@ -379,7 +379,7 @@ function ConnectivityGrid() {
                 categoryOrganIndices,
                 hasSynapticConnections: !!synapticConnections,
               });
-              
+
               // Only proceed if we have knowledge statements
               if (allKsIds.size === 0) {
                 console.warn(
@@ -388,15 +388,15 @@ function ConnectivityGrid() {
                 );
                 return;
               }
-              
+
               // Create aggregated knowledge statement map
               ksMap = getKnowledgeStatementMap(
                 Array.from(allKsIds),
                 knowledgeStatements,
               );
-              
+
               console.log('Final ksMap size:', Object.keys(ksMap).length);
-              
+
               // Create a virtual end organ representing the category
               // Use the first organ in the category as the base to ensure filtering works correctly
               const firstOrganInCategory = category.children[0];
@@ -409,7 +409,7 @@ function ConnectivityGrid() {
                   children: new Map(),
                   order: 0,
                 };
-              
+
               // Create children map with all organs in the category
               const categoryChildren = new Map();
               category.children.forEach((child) => {
@@ -423,7 +423,7 @@ function ConnectivityGrid() {
                   });
                 }
               });
-              
+
               endOrgan = {
                 ...baseOrgan,
                 name: categoryLabel,
@@ -433,7 +433,7 @@ function ConnectivityGrid() {
                 // Keep the original organ's ID to ensure filtering works correctly
                 // The name change will be visible in the UI
               };
-              
+
               console.log('Created virtual category organ:', {
                 categoryName: categoryLabel,
                 childrenCount: categoryChildren.size,
@@ -452,10 +452,10 @@ function ConnectivityGrid() {
                 children: new Map(),
                 order: 0,
               };
-              
+
               // Create empty children map for fallback
               const fallbackChildren = new Map();
-              
+
               endOrgan = {
                 ...fallbackOrgan,
                 name: categoryLabel,
@@ -467,7 +467,7 @@ function ConnectivityGrid() {
             // Normal single organ click
             ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
           }
-          
+
           const nodeData = detailedHeatmapData[y];
           const hierarchicalNode = hierarchicalNodes[nodeData.id];
 
@@ -483,7 +483,7 @@ function ConnectivityGrid() {
             endOrganId: endOrgan.id,
             ksMapSize: Object.keys(ksMap).length,
           });
-          
+
           updateConnectivityGridCellClick(
             removeSummaryFilters,
             isConnectionView ?? false,
@@ -495,7 +495,7 @@ function ConnectivityGrid() {
             endOrgan: endOrgan,
             hierarchicalNode: hierarchicalNode,
           });
-          
+
           console.log(
             'Summary set successfully - check filteredKnowledgeStatements in next update',
           );
@@ -517,7 +517,7 @@ function ConnectivityGrid() {
         const nodeData = detailedHeatmapData[y];
         const hierarchicalNode = hierarchicalNodes[nodeData.id];
         const allUris = new Set<string>();
-        
+
         if (synapticConnections && synapticConnections[y]) {
           synapticConnections[y].synapticConnections[x].forEach((path) => {
             path.forEach((uri) => allUris.add(uri));
@@ -611,11 +611,11 @@ function ConnectivityGrid() {
       const parts =
         widgetState.leftWidgetConnectionId.split(COORDINATE_SEPARATOR);
       const [x, y] = parts.map(Number);
-      
+
       // Check if this is a category coordinate
       const isCategoryCoordinate = parts.length > 2 && parts[2] === 'category';
       const categoryLabel = isCategoryCoordinate ? parts[3] : '';
-      
+
       console.log('useEffect processing coordinates:', {
         parts,
         x,
@@ -623,7 +623,7 @@ function ConnectivityGrid() {
         isCategoryCoordinate,
         categoryLabel,
       });
-      
+
       if (
         validateIfCoordinatesAreInBounds(
           x,
@@ -636,7 +636,7 @@ function ConnectivityGrid() {
         const yId = isCategoryCoordinate
           ? `${nodeData.id}:category:${categoryLabel}`
           : nodeData.id;
-          
+
         console.log('useEffect calling handleClick with:', {
           x,
           y,
@@ -682,14 +682,15 @@ function ConnectivityGrid() {
   const isLoading = yAxis.length == 0;
 
   const totalPopulationCount = useMemo(() => {
-    const filteredStatements = filterKnowledgeStatements(
-      knowledgeStatements,
-      hierarchicalNodes,
-      organizedFilters,
-      organs,
-    );
-    return Object.keys(filteredStatements).length;
-  }, [knowledgeStatements, hierarchicalNodes, organizedFilters, organs]);
+    // Count unique knowledge statements in the filtered connections map
+    const uniqueKnowledgeStatements = new Set<string>();
+    filteredConnectionsMap.forEach((connectionArray) => {
+      connectionArray.forEach((column) => {
+        column.forEach((ksId) => uniqueKnowledgeStatements.add(ksId));
+      });
+    });
+    return uniqueKnowledgeStatements.size;
+  }, [filteredConnectionsMap]);
 
   const checkIfAllFiltersAreEmpty = () => {
     return Object.values(organizedFilters).every((arr) => arr.length === 0);

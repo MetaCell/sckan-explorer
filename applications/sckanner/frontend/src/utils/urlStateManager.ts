@@ -91,6 +91,10 @@ export const encodeURLState = (state: URLState): string => {
     params.set('rwi', state.rightWidgetConnectionId);
   }
 
+  if (state?.connectionKsIds && state.connectionKsIds.length > 0) {
+    params.set('ks', btoa(JSON.stringify(state.connectionKsIds)));
+  }
+
   if (state?.connectionPage) {
     params.set('cp', state.connectionPage.toString());
   }
@@ -146,6 +150,16 @@ export const decodeURLState = (
   const rightWidgetConnectionId = searchParams.get('rwi');
   if (rightWidgetConnectionId) {
     state.rightWidgetConnectionId = rightWidgetConnectionId;
+  }
+
+  const connectionKsIds = searchParams.get('ks');
+  if (connectionKsIds) {
+    try {
+      state.connectionKsIds = JSON.parse(atob(connectionKsIds));
+    } catch (error) {
+      console.warn('Failed to parse connection KS IDs from URL:', error);
+      errors.push('Invalid connection knowledge statement IDs in URL');
+    }
   }
 
   const view = searchParams.get('v');
