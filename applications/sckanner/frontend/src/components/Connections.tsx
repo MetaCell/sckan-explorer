@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+} from 'react';
 import { Box, Chip, TextField, Typography } from '@mui/material';
 import { ArrowRightIcon } from './icons/index.tsx';
 import { vars } from '../theme/variables.ts';
@@ -96,6 +102,9 @@ function Connections() {
     useState<KsRecord>({});
   const [nerveFilters, setNerveFilters] = useState<Option[]>([]);
   const [phenotypeFilters, setPhenotypeFilters] = useState<Option[]>([]);
+
+  // Track if expanded state has been applied from URL
+  const expandedStateAppliedRef = useRef(false);
 
   const summaryFilters = useMemo(
     () => ({
@@ -216,7 +225,7 @@ function Connections() {
       x: number,
       y: number,
       yId: string,
-      updateWidgetState: boolean = true,
+      shouldUpdateWidgetState: boolean = true,
     ): void => {
       setSelectedCell({ x, y });
       const row = filteredConnectionsMap.get(yId);
@@ -236,9 +245,13 @@ function Connections() {
           setShowConnectionDetails(SummaryType.DetailedSummary);
           const ksMap = getKnowledgeStatementMap(ksIds, knowledgeStatements);
           setKnowledgeStatementsMap(ksMap);
+          setFilteredKsIds(new Set(ksIds));
 
-          if (updateWidgetState) {
-            goToConnectionDetailsView(x, y, widgetState.connectionPage ?? 1);
+          if (shouldUpdateWidgetState) {
+            // Store the KS IDs along with view and coordinates in one call
+            goToConnectionDetailsView(x, y, widgetState.connectionPage ?? 1, {
+              connectionKsIds: ksIds,
+            });
           }
         }
       }
@@ -344,6 +357,10 @@ function Connections() {
           yAxisWithExpandedState,
         );
         setYAxis(yAxisWithExpandedStateApplied);
+        expandedStateAppliedRef.current = true;
+      } else {
+        // No expanded state to apply, mark as ready
+        expandedStateAppliedRef.current = true;
       }
     }
   }, [
@@ -352,10 +369,43 @@ function Connections() {
     hierarchicalNodes,
   ]);
 
+  // Restore connection from KS IDs (new approach - more reliable)
   useEffect(() => {
     if (
       widgetState.view === 'connectionDetailsView' &&
+      widgetState.connectionKsIds &&
+      widgetState.connectionKsIds.length > 0 &&
+      selectedConnectionSummary
+    ) {
+      const ksMap = getKnowledgeStatementMap(
+        widgetState.connectionKsIds,
+        knowledgeStatements,
+      );
+      setKnowledgeStatementsMap(ksMap);
+      setFilteredKsIds(new Set(widgetState.connectionKsIds));
+      setShowConnectionDetails(SummaryType.DetailedSummary);
+      setConnectionPage(widgetState.connectionPage ?? 1);
+    }
+  }, [
+    widgetState.view,
+    widgetState.connectionKsIds,
+    widgetState.connectionPage,
+    selectedConnectionSummary,
+    knowledgeStatements,
+  ]);
+
+  // Restore connection from coordinates (legacy approach - kept for backwards compatibility)
+  useEffect(() => {
+    // Skip if we have KS IDs (new approach takes precedence)
+    if (widgetState.connectionKsIds && widgetState.connectionKsIds.length > 0) {
+      return;
+    }
+
+    if (
+      widgetState.view === 'connectionDetailsView' &&
       widgetState.rightWidgetConnectionId &&
+      selectedConnectionSummary && // Ensure selectedConnectionSummary exists first
+      expandedStateAppliedRef.current && // Wait for expanded state to be applied
       filteredConnectionsMap.size > 0 &&
       filteredXAxis.length > 0 &&
       filteredYAxis.length > 0
@@ -373,12 +423,21 @@ function Connections() {
       ) {
         const yId = filteredYAxis[y].id;
         handleCellSelection(x, y, yId, false);
+      } else {
+        // Gracefully degrade to first available connection
+        if (filteredXAxis.length > 0 && filteredYAxis.length > 0) {
+          const defaultX = Math.min(x, filteredXAxis.length - 1);
+          const defaultY = Math.min(y, filteredYAxis.length - 1);
+          const yId = filteredYAxis[defaultY].id;
+          handleCellSelection(defaultX, defaultY, yId, false);
+        }
       }
     }
   }, [
     widgetState.view,
     widgetState.rightWidgetConnectionId,
     widgetState.connectionPage,
+    widgetState.connectionKsIds,
     filteredConnectionsMap,
     filteredXAxis,
     filteredYAxis,

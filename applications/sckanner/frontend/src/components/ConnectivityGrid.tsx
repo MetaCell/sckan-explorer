@@ -98,8 +98,8 @@ function ConnectivityGrid() {
   }, [hierarchicalNodes, organs, knowledgeStatements, organizedFilters]);
 
   const { min, max } = useMemo(() => {
-    return getMinMaxKnowledgeStatements(connectionsMap);
-  }, [connectionsMap]);
+    return getMinMaxKnowledgeStatements(filteredConnectionsMap);
+  }, [filteredConnectionsMap]);
 
   useEffect(() => {
     const organList = getXAxisOrgans(organs);
@@ -364,6 +364,7 @@ function ConnectivityGrid() {
       const [x, y] = widgetState.leftWidgetConnectionId
         .split(COORDINATE_SEPARATOR)
         .map(Number);
+
       if (
         validateIfCoordinatesAreInBounds(
           x,
@@ -413,14 +414,15 @@ function ConnectivityGrid() {
   const isLoading = yAxis.length == 0;
 
   const totalPopulationCount = useMemo(() => {
-    const filteredStatements = filterKnowledgeStatements(
-      knowledgeStatements,
-      hierarchicalNodes,
-      organizedFilters,
-      organs,
-    );
-    return Object.keys(filteredStatements).length;
-  }, [knowledgeStatements, hierarchicalNodes, organizedFilters, organs]);
+    // Count unique knowledge statements in the filtered connections map
+    const uniqueKnowledgeStatements = new Set<string>();
+    filteredConnectionsMap.forEach((connectionArray) => {
+      connectionArray.forEach((column) => {
+        column.forEach((ksId) => uniqueKnowledgeStatements.add(ksId));
+      });
+    });
+    return uniqueKnowledgeStatements.size;
+  }, [filteredConnectionsMap]);
 
   const checkIfAllFiltersAreEmpty = () => {
     return Object.values(organizedFilters).every((arr) => arr.length === 0);
