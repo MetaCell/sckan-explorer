@@ -3,7 +3,7 @@ import tempfile
 import requests
 from django.core.files import File
 
-URL = "https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/a-b-via-c-2.json"
+URL = "https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/refs/heads/master/sckan-explorer/json/sckanner-data/hierarchy/sckanner-hierarchy.json"
 
 
 def add_abviac_to_existing_snapshots(apps, schema_editor):

@@ -55,15 +55,35 @@ KNOWLEDGE_STATEMENTS_BATCH_SIZE = 50  # original default value
 class Command(BaseCommand):
     help = "Fetch and update knowledge statements from an external server"
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--raw_data_url",
+            type=str,
+            default="https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/refs/heads/master/sckan-explorer/json/sckanner-data/hierarchy/sckanner-hierarchy.json",
+            help="The URL to the A-B-via-C JSON file",
+        )
+
     def handle(self, *args, **kwargs):
         self.stdout.write("Starting the ingestion process...")
 
         # Step 1: Fetch raw JSON from external source
-        raw_data_url = "https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/a-b-via-c-2.json"
+        raw_data_url = kwargs.get("raw_data_url")
         self.stdout.write(f"Fetching data from {raw_data_url}...")
-        response = requests.get(raw_data_url)
-        response.raise_for_status()
-        raw_data = JsonData(**response.json())
+        
+        # Check if it's a local file path
+        if raw_data_url.startswith('http://') or raw_data_url.startswith('https://'):
+            response = requests.get(raw_data_url)
+            response.raise_for_status()
+            raw_data = JsonData(**response.json())
+        else:
+            # It's a local file path
+            import json
+            import os
+            if os.path.isfile(raw_data_url):
+                with open(raw_data_url, 'r') as f:
+                    raw_data = JsonData(**json.load(f))
+            else:
+                raise FileNotFoundError(f"File not found: {raw_data_url}")
 
         # Step 2: Extract population IDs
         self.stdout.write("Processing raw data to extract population IDs...")

@@ -9,6 +9,7 @@ from pydantic import BaseModel
 import requests
 from itertools import batched
 import os
+import json
 
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -123,15 +124,24 @@ def fetch_paginated_data(population_ids: list[str], stdout=None):
 	return detailed_data
 
 
-def get_statements(version="", stdout=None):
+def get_statements(version="", raw_data_url=None, stdout=None):
     try:
-        # Step 1: Fetch raw JSON from external source
-        raw_data_url = "https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/a-b-via-c-2.json"
+        # Step 1: Fetch raw JSON from external source or local file
+        if raw_data_url is None:
+            raw_data_url = "https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/refs/heads/master/sckan-explorer/json/sckanner-data/hierarchy/sckanner-hierarchy.json"
+        
         if stdout:
             stdout.write(f"Fetching data from {raw_data_url}...\n")
-        response = requests.get(raw_data_url)
-        response.raise_for_status()
-        raw_data = JsonData(**response.json())
+        
+        # Check if it's a local file path
+        if os.path.isfile(raw_data_url):
+            with open(raw_data_url, 'r') as f:
+                raw_data = JsonData(**json.load(f))
+        else:
+            # It's a URL, fetch it
+            response = requests.get(raw_data_url)
+            response.raise_for_status()
+            raw_data = JsonData(**response.json())
 
         # Step 2: Extract population IDs
         if stdout:
