@@ -268,6 +268,7 @@ function ConnectivityGrid() {
       filteredKSs,
       filteredXOrgans,
       heatmapMode,
+      filteredXAxis,
     );
 
     // TODO change the return based on the type of heatmapMode
@@ -286,6 +287,7 @@ function ConnectivityGrid() {
     filteredConnectionsMap,
     filteredXOrgans,
     heatmapMode,
+    filteredXAxis,
   ]);
 
   const handleClick = useCallback(
