@@ -20,6 +20,7 @@ import { useWidgetStateActions } from '../hooks/useWidgetStateActions.ts';
 import {
   calculateConnections,
   getXAxisOrgans,
+  getHierarchicalXAxis,
   getYAxis,
   getHeatmapData,
   getKnowledgeStatementMap,
@@ -42,6 +43,7 @@ import { extractEndOrganFiltersFromEntities } from '../services/summaryHeatmapSe
 import { COORDINATE_SEPARATOR } from '../utils/urlStateManager.ts';
 import SynapticSVG from './assets/svg/synaptic.svg?url';
 import SynapticWhiteSVG from './assets/svg/synapticWhite.svg?url';
+import endorgansOrder from '../data/endorgansOrder.json';
 
 const { gray500, white: white, gray25, gray100, gray400, gray600A } = vars;
 
@@ -49,6 +51,8 @@ function ConnectivityGrid() {
   const {
     hierarchicalNodes,
     organs,
+    targetSystems,
+    targetSystemNames,
     knowledgeStatements,
     filters,
     setFilters,
@@ -67,6 +71,8 @@ function ConnectivityGrid() {
   );
   const [xAxisOrgans, setXAxisOrgans] = useState<Organ[]>([]);
   const [filteredXOrgans, setFilteredXOrgans] = useState<Organ[]>([]);
+  const [xAxis, setXAxis] = useState<HierarchicalItem[]>([]);
+  const [filteredXAxis, setFilteredXAxis] = useState<HierarchicalItem[]>([]);
   const [initialYAxis, setInitialYAxis] = useState<HierarchicalItem[]>([]);
 
   const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
@@ -104,7 +110,16 @@ function ConnectivityGrid() {
   useEffect(() => {
     const organList = getXAxisOrgans(organs);
     setXAxisOrgans(organList);
-  }, [organs]);
+
+    // Build hierarchical X-axis
+    const hierarchicalX = getHierarchicalXAxis(
+      targetSystems,
+      organs,
+      endorgansOrder,
+      targetSystemNames,
+    );
+    setXAxis(hierarchicalX);
+  }, [organs, targetSystems, targetSystemNames]);
 
   // Helper function to apply expand/collapse state to fresh yAxis
   const applyExpandedState = (
@@ -179,7 +194,7 @@ function ConnectivityGrid() {
   }, [widgetState.heatmapExpandedState, hierarchicalNodes]);
 
   useEffect(() => {
-    if (connectionsMap.size > 0 && yAxis.length > 0) {
+    if (connectionsMap.size > 0 && yAxis.length > 0 && xAxis.length > 0) {
       // Apply filtering logic
       const filteredYAxis = filterYAxis<Array<string>>(yAxis, connectionsMap);
       const columnsWithData = getNonEmptyColumns(filteredYAxis, connectionsMap);
@@ -192,11 +207,36 @@ function ConnectivityGrid() {
         columnsWithData.has(index),
       );
 
+      // Filter hierarchical X-axis based on which organs have data
+      const filteredOrganIds = new Set(filteredOrgans.map((o) => o.id));
+      const filteredHierarchicalX = xAxis
+        .map((item) => {
+          if (item.children && item.children.length > 0) {
+            // Filter children to only include those with data
+            const filteredChildren = item.children.filter((child) =>
+              filteredOrganIds.has(child.id),
+            );
+            // Only include parent if it has children with data
+            if (filteredChildren.length > 0) {
+              return {
+                ...item,
+                children: filteredChildren,
+              };
+            }
+            return null;
+          } else {
+            // Orphan organ - include if it has data
+            return filteredOrganIds.has(item.id) ? item : null;
+          }
+        })
+        .filter((item) => item !== null) as HierarchicalItem[];
+
       setFilteredYAxis(filteredYAxis);
       setFilteredXOrgans(filteredOrgans);
+      setFilteredXAxis(filteredHierarchicalX);
       setFilteredConnectionsMap(filteredConnectionsMap);
     }
-  }, [yAxis, connectionsMap, xAxisOrgans]);
+  }, [yAxis, connectionsMap, xAxisOrgans, xAxis]);
 
   // Reset summary widget when heatmap mode changes
   useEffect(() => {
@@ -553,11 +593,12 @@ function ConnectivityGrid() {
       <HeatmapGrid
         yAxis={filteredYAxis}
         setYAxis={handleYAxisUpdate}
+        xAxis={filteredXAxis}
+        setXAxis={setFilteredXAxis}
         heatmapData={
           heatmapMode === HeatmapMode.Default ? heatmapData : synapticData
         }
         setSelectedCell={setSelectedCell}
-        xAxis={filteredXOrgans.map((organ) => organ.name)}
         xAxisLabel={'End organ'}
         yAxisLabel={'Connection Origin'}
         onCellClick={(x, y, yId) => handleClick(x, y, yId, true, true)}

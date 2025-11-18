@@ -280,10 +280,12 @@ export const getOrgansAndTargetSystems = (
 ): {
   organs: Record<string, Organ>;
   targetSystems: Record<string, Organ[]>;
+  targetSystemNames: Record<string, string>;
 } => {
   const { bindings } = jsonData.results;
   const organsRecord: Record<string, Organ> = {};
   const targetSystemsMap: Record<string, Map<string, Organ>> = {};
+  const targetSystemNames: Record<string, string> = {};
 
   // Build a flat ordered list of organ IDs from endorgansOrder.json
   const orderedOrganIds: string[] = [];
@@ -332,6 +334,11 @@ export const getOrgansAndTargetSystems = (
 
       // Build target systems mapping
       if (targetSystemId && targetSystemName) {
+        // Store target system name
+        if (!targetSystemNames[targetSystemId]) {
+          targetSystemNames[targetSystemId] = targetSystemName;
+        }
+
         // Initialize target system if it doesn't exist
         if (!targetSystemsMap[targetSystemId]) {
           targetSystemsMap[targetSystemId] = new Map<string, Organ>();
@@ -420,6 +427,7 @@ export const getOrgansAndTargetSystems = (
   return {
     organs: organsRecord,
     targetSystems: targetSystemsResult,
+    targetSystemNames,
   };
 };
 

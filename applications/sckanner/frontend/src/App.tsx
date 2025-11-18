@@ -102,6 +102,9 @@ const AppContent = () => {
   const [targetSystems, setTargetSystems] = useState<Record<string, Organ[]>>(
     {},
   );
+  const [targetSystemNames, setTargetSystemNames] = useState<
+    Record<string, string>
+  >({});
   const [majorNerves, setMajorNerves] = useState<Set<string>>();
   const [knowledgeStatements, setKnowledgeStatements] = useState<
     Record<string, KnowledgeStatement>
@@ -155,9 +158,11 @@ const AppContent = () => {
   ) => {
     fetchJSON(datasnapshot.a_b_via_c_json_file).then((jsonData) => {
       setHierarchicalNodes(getHierarchicalNodes(jsonData, orderData));
-      const { organs, targetSystems } = getOrgansAndTargetSystems(jsonData);
+      const { organs, targetSystems, targetSystemNames } =
+        getOrgansAndTargetSystems(jsonData);
       setOrgans(organs);
       setTargetSystems(targetSystems);
+      setTargetSystemNames(targetSystemNames);
     });
   };
 
@@ -369,6 +374,7 @@ const AppContent = () => {
         hierarchicalNodes={hierarchicalNodes}
         organs={organs}
         targetSystems={targetSystems}
+        targetSystemNames={targetSystemNames}
         knowledgeStatements={knowledgeStatements}
       >
         <Box>

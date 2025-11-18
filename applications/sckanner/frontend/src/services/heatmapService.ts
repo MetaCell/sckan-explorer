@@ -48,6 +48,64 @@ export function getXAxisOrgans(organs: Record<string, Organ>): Organ[] {
     .map((organ) => organ);
 }
 
+export function getHierarchicalXAxis(
+  targetSystems: Record<string, Organ[]>,
+  organs: Record<string, Organ>,
+  endorgansOrder: Record<string, string[]>,
+  targetSystemNames: Record<string, string>,
+): HierarchicalItem[] {
+  const result: HierarchicalItem[] = [];
+  const organsInSystems = new Set<string>();
+
+  // Get ordered target system IDs from endorgansOrder
+  const orderedSystemIds = Object.keys(endorgansOrder);
+
+  // Build target system hierarchy
+  orderedSystemIds.forEach((systemId) => {
+    const systemOrgans = targetSystems[systemId];
+    if (systemOrgans && systemOrgans.length > 0) {
+      // Get the system name from targetSystemNames
+      const systemName =
+        targetSystemNames[systemId] ||
+        organs[systemId]?.name ||
+        systemId.split('/').pop() ||
+        systemId;
+
+      const children: HierarchicalItem[] = systemOrgans.map((organ) => {
+        organsInSystems.add(organ.id);
+        return {
+          id: organ.id,
+          label: organ.name,
+          children: [],
+          expanded: false,
+        };
+      });
+
+      result.push({
+        id: systemId,
+        label: systemName,
+        children,
+        expanded: false, // Start collapsed
+      });
+    }
+  });
+
+  // Add organs that are not part of any target system
+  const orphanOrgans = Object.values(organs)
+    .filter((organ) => !organsInSystems.has(organ.id))
+    .sort((a, b) => a.order - b.order)
+    .map((organ) => ({
+      id: organ.id,
+      label: organ.name,
+      children: [],
+      expanded: false,
+    }));
+
+  result.push(...orphanOrgans);
+
+  return result;
+}
+
 export function traceForwardConnectionPaths(
   startKsId: string,
   knowledgeStatements: Record<string, KnowledgeStatement>,

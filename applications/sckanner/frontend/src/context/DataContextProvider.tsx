@@ -37,6 +37,7 @@ export const DataContextProvider = ({
   hierarchicalNodes,
   organs,
   targetSystems,
+  targetSystemNames,
   majorNerves,
   knowledgeStatements,
   urlState,
@@ -47,6 +48,7 @@ export const DataContextProvider = ({
   hierarchicalNodes: Record<string, HierarchicalNode>;
   organs: Record<string, Organ>;
   targetSystems: Record<string, Organ[]>;
+  targetSystemNames: Record<string, string>;
   majorNerves: Set<string>;
   knowledgeStatements: Record<string, KnowledgeStatement>;
   urlState: URLState;
@@ -292,6 +294,7 @@ export const DataContextProvider = ({
     filters,
     organs,
     targetSystems,
+    targetSystemNames,
     majorNerves,
     hierarchicalNodes,
     knowledgeStatements,
