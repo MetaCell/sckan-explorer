@@ -36,6 +36,7 @@ import { encodeURLState } from '../utils/urlStateManager.ts';
 export const DataContextProvider = ({
   hierarchicalNodes,
   organs,
+  targetSystems,
   majorNerves,
   knowledgeStatements,
   urlState,
@@ -45,6 +46,7 @@ export const DataContextProvider = ({
 }: PropsWithChildren<{
   hierarchicalNodes: Record<string, HierarchicalNode>;
   organs: Record<string, Organ>;
+  targetSystems: Record<string, Organ[]>;
   majorNerves: Set<string>;
   knowledgeStatements: Record<string, KnowledgeStatement>;
   urlState: URLState;
@@ -289,6 +291,7 @@ export const DataContextProvider = ({
   const dataContextValue = {
     filters,
     organs,
+    targetSystems,
     majorNerves,
     hierarchicalNodes,
     knowledgeStatements,

@@ -60,6 +60,7 @@ export interface DataContext {
   filters: Filters;
   majorNerves: Set<string>;
   organs: Record<string, Organ>;
+  targetSystems: Record<string, Organ[]>;
   hierarchicalNodes: Record<string, HierarchicalNode>;
   knowledgeStatements: Record<string, KnowledgeStatement>;
   setFilters: React.Dispatch<React.SetStateAction<Filters>>;
@@ -91,6 +92,7 @@ export const DataContext = createContext<DataContext>({
   },
   majorNerves: new Set<string>(),
   organs: {},
+  targetSystems: {},
   hierarchicalNodes: {},
   knowledgeStatements: {},
   setFilters: () => {},

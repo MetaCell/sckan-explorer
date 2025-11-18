@@ -37,8 +37,8 @@ import {
 } from './models/explorer.ts';
 import {
   getHierarchicalNodes,
-  getOrgans,
-} from './services/hierarchyService.ts';
+  getOrgansAndTargetSystems,
+} from './services/hierarchyService';
 import ReactGA from 'react-ga4';
 import { Datasnapshot, OrderJson } from './models/json.ts';
 import { useDataContext } from './context/DataContext.ts';
@@ -99,6 +99,9 @@ const AppContent = () => {
     Record<string, HierarchicalNode>
   >({});
   const [organs, setOrgans] = useState<Record<string, Organ>>({});
+  const [targetSystems, setTargetSystems] = useState<Record<string, Organ[]>>(
+    {},
+  );
   const [majorNerves, setMajorNerves] = useState<Set<string>>();
   const [knowledgeStatements, setKnowledgeStatements] = useState<
     Record<string, KnowledgeStatement>
@@ -152,7 +155,9 @@ const AppContent = () => {
   ) => {
     fetchJSON(datasnapshot.a_b_via_c_json_file).then((jsonData) => {
       setHierarchicalNodes(getHierarchicalNodes(jsonData, orderData));
-      setOrgans(getOrgans(jsonData));
+      const { organs, targetSystems } = getOrgansAndTargetSystems(jsonData);
+      setOrgans(organs);
+      setTargetSystems(targetSystems);
     });
   };
 
@@ -363,6 +368,7 @@ const AppContent = () => {
         majorNerves={majorNerves ? majorNerves : new Set<string>()}
         hierarchicalNodes={hierarchicalNodes}
         organs={organs}
+        targetSystems={targetSystems}
         knowledgeStatements={knowledgeStatements}
       >
         <Box>

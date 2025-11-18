@@ -5,6 +5,7 @@ import {
   OTHER_X_AXIS_ID,
   OTHER_X_AXIS_LABEL,
 } from '../settings.ts';
+import endorgansOrder from '../data/endorgansOrder.json';
 
 interface RootNode {
   name: string;
@@ -274,10 +275,21 @@ function getRootNode(a_l1_name: string): string {
   return ROOTS.find((root) => root.isAncestor(a_l1_name))?.id || UNK.id;
 }
 
-export const getOrgans = (jsonData: JsonData): Record<string, Organ> => {
+export const getOrgansAndTargetSystems = (
+  jsonData: JsonData,
+): {
+  organs: Record<string, Organ>;
+  targetSystems: Record<string, Organ[]>;
+} => {
   const { bindings } = jsonData.results;
   const organsRecord: Record<string, Organ> = {};
-  let creationOrder = 0;
+  const targetSystemsMap: Record<string, Map<string, Organ>> = {};
+
+  // Build a flat ordered list of organ IDs from endorgansOrder.json
+  const orderedOrganIds: string[] = [];
+  Object.values(endorgansOrder).forEach((organIds) => {
+    orderedOrganIds.push(...organIds);
+  });
 
   organsRecord[OTHER_X_AXIS_ID] = {
     id: OTHER_X_AXIS_ID,
@@ -286,19 +298,23 @@ export const getOrgans = (jsonData: JsonData): Record<string, Organ> => {
     order: 0,
   };
 
+  // Single loop to build both organs and target systems
   bindings.forEach((binding: Binding) => {
+    const targetSystemId = binding.Target_System_IRI?.value;
+    const targetSystemName = binding.Target_System?.value;
     const organId = binding.Target_Organ_IRI?.value;
     const organName = binding.Target_Organ?.value;
     const childId = binding.B_ID?.value;
     const childName = binding.B?.value;
 
+    // Build organs record
     if (organId && organName) {
       if (!organsRecord[organId]) {
         organsRecord[organId] = {
           id: organId,
           name: organName,
           children: new Map<string, BaseEntity>(),
-          order: ++creationOrder,
+          order: 0, // Will be set later based on ordering
         };
       }
 
@@ -313,6 +329,24 @@ export const getOrgans = (jsonData: JsonData): Record<string, Organ> => {
           organ.children.set(childId, { id: childId, name: childName });
         }
       }
+
+      // Build target systems mapping
+      if (targetSystemId && targetSystemName) {
+        // Initialize target system if it doesn't exist
+        if (!targetSystemsMap[targetSystemId]) {
+          targetSystemsMap[targetSystemId] = new Map<string, Organ>();
+        }
+
+        // Add organ to target system if not already added
+        if (!targetSystemsMap[targetSystemId].has(organId)) {
+          targetSystemsMap[targetSystemId].set(organId, {
+            id: organId,
+            name: organName,
+            children: new Map<string, BaseEntity>(),
+            order: 0, // Will be set based on ordering
+          });
+        }
+      }
     } else {
       if (childId && childName) {
         const otherOrgan = organsRecord[OTHER_X_AXIS_ID];
@@ -323,10 +357,70 @@ export const getOrgans = (jsonData: JsonData): Record<string, Organ> => {
     }
   });
 
-  // Assign the highest order number to OTHER_X_AXIS_ID
-  organsRecord[OTHER_X_AXIS_ID].order = creationOrder + 1;
+  // Assign order values to organs based on the ordering from endorgansOrder.json
+  let orderIndex = 1;
 
-  return organsRecord;
+  // First, assign orders to organs in the predefined order
+  orderedOrganIds.forEach((organId) => {
+    if (organsRecord[organId]) {
+      organsRecord[organId].order = orderIndex++;
+    }
+  });
+
+  // Then, assign orders to any remaining organs not in the predefined order
+  Object.keys(organsRecord).forEach((organId) => {
+    if (organId !== OTHER_X_AXIS_ID && organsRecord[organId].order === 0) {
+      organsRecord[organId].order = orderIndex++;
+    }
+  });
+
+  // Assign the highest order number to OTHER_X_AXIS_ID
+  organsRecord[OTHER_X_AXIS_ID].order = orderIndex;
+
+  // Convert target systems to final structure and apply ordering
+  const targetSystemsResult: Record<string, Organ[]> = {};
+
+  Object.keys(targetSystemsMap).forEach((targetSystemId) => {
+    const organsMap = targetSystemsMap[targetSystemId];
+    const organsArray = Array.from(organsMap.values());
+
+    // Get ordering for this target system from endorgansOrder.json
+    const orderedOrganIds =
+      (endorgansOrder as Record<string, string[]>)[targetSystemId] || [];
+
+    // Sort organs based on the ordering
+    organsArray.sort((a, b) => {
+      const indexA = orderedOrganIds.indexOf(a.id);
+      const indexB = orderedOrganIds.indexOf(b.id);
+
+      // Both in order array
+      if (indexA !== -1 && indexB !== -1) {
+        return indexA - indexB;
+      }
+      // Only a is in order array
+      if (indexA !== -1) {
+        return -1;
+      }
+      // Only b is in order array
+      if (indexB !== -1) {
+        return 1;
+      }
+      // Neither in order array, sort alphabetically
+      return a.name.localeCompare(b.name);
+    });
+
+    // Assign order values
+    organsArray.forEach((organ, index) => {
+      organ.order = index + 1;
+    });
+
+    targetSystemsResult[targetSystemId] = organsArray;
+  });
+
+  return {
+    organs: organsRecord,
+    targetSystems: targetSystemsResult,
+  };
 };
 
 const naturalSort = (a: string, b: string) => {
