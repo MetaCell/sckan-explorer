@@ -49,7 +49,6 @@ import {
 } from '../utils/urlStateManager.ts';
 import SynapticSVG from './assets/svg/synaptic.svg?url';
 import SynapticWhiteSVG from './assets/svg/synapticWhite.svg?url';
-import endorgansOrder from '../data/endorgansOrder.json';
 
 const { gray500, white: white, gray25, gray100, gray400, gray600A } = vars;
 
@@ -65,6 +64,7 @@ function ConnectivityGrid() {
     setSelectedConnectionSummary,
     widgetState,
     heatmapMode,
+    endorgansOrder,
     // switchHeatmapMode,
   } = useDataContext();
 
@@ -129,6 +129,11 @@ function ConnectivityGrid() {
   }, [filteredConnectionsMap]);
 
   useEffect(() => {
+    // Only build X-axis once endorgansOrder is loaded
+    if (Object.keys(endorgansOrder).length === 0) {
+      return;
+    }
+
     const organList = getXAxisOrgans(organs);
     setXAxisOrgans(organList);
 
@@ -140,7 +145,7 @@ function ConnectivityGrid() {
       targetSystemNames,
     );
     setXAxis(hierarchicalX);
-  }, [organs, targetSystems, targetSystemNames]);
+  }, [organs, targetSystems, targetSystemNames, endorgansOrder]);
 
   // Helper function to apply expand/collapse state to fresh yAxis
   const applyExpandedState = (

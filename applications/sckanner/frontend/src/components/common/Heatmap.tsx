@@ -425,7 +425,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
 
       setHorizontalParents(newHorizontalParents);
     }, 50);
-  }, [xAxis, xAxisData.labels]);
+  }, [xAxis]);
 
   // Add click handler for X-axis labels
   useEffect(() => {

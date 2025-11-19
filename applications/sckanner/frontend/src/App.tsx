@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useDispatch, useStore } from 'react-redux';
 import { Box } from '@mui/material';
 import { getLayoutManagerInstance } from '@metacell/geppetto-meta-client/common/layout/LayoutManager';
@@ -28,6 +28,7 @@ import {
   fetchKnowledgeStatements,
   fetchMajorNerves,
   fetchOrderJson,
+  fetchEndorgansOrder,
 } from './services/fetchService.ts';
 import { getUniqueMajorNerves } from './services/filterValuesService.ts';
 import {
@@ -40,7 +41,7 @@ import {
   getOrgansAndTargetSystems,
 } from './services/hierarchyService';
 import ReactGA from 'react-ga4';
-import { Datasnapshot, OrderJson } from './models/json.ts';
+import { Datasnapshot, OrderJson, NerveResponse } from './models/json.ts';
 import { useDataContext } from './context/DataContext.ts';
 import LoadingOverlay from './components/common/LoadingOverlay.tsx';
 import ErrorModal from './components/common/ErrorModal.tsx';
@@ -114,6 +115,7 @@ const AppContent = () => {
     useState<string>('');
   const [hasValidatedInitialURL, setHasValidatedInitialURL] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(false);
+  const [hasCriticalError, setHasCriticalError] = useState(false);
   const [fetchError, setFetchError] = useState<{
     show: boolean;
     message: string;
@@ -126,6 +128,9 @@ const AppContent = () => {
   });
   const previousDatasnaphshot = useRef<string>('');
   const [orderData, setOrderData] = useState<OrderJson>({});
+  const [endorgansOrder, setEndorgansOrder] = useState<
+    Record<string, string[]>
+  >({});
   const [searchParams] = useSearchParams();
   const [urlState, setUrlState] = useState<URLState>({
     datasnapshot: null,
@@ -152,44 +157,106 @@ const AppContent = () => {
     dispatch(addWidget(connectionsWidget()));
   }, [LayoutComponent, dispatch]);
 
-  const fetchJSONAndSetHierarchicalNodes = (
-    datasnapshot: Datasnapshot,
-    orderData: OrderJson,
-  ) => {
-    fetchJSON(datasnapshot.a_b_via_c_json_file).then((jsonData) => {
-      setHierarchicalNodes(getHierarchicalNodes(jsonData, orderData));
-      const { organs, targetSystems, targetSystemNames } =
-        getOrgansAndTargetSystems(jsonData);
-      setOrgans(organs);
-      setTargetSystems(targetSystems);
-      setTargetSystemNames(targetSystemNames);
-    });
-  };
+  const fetchJSONAndSetHierarchicalNodes = useCallback(
+    (datasnapshot: Datasnapshot, orderData: OrderJson) => {
+      fetchJSON(datasnapshot.a_b_via_c_json_file).then((jsonData) => {
+        setHierarchicalNodes(getHierarchicalNodes(jsonData, orderData));
+        const { organs, targetSystems, targetSystemNames } =
+          getOrgansAndTargetSystems(jsonData, endorgansOrder);
+        setOrgans(organs);
+        setTargetSystems(targetSystems);
+        setTargetSystemNames(targetSystemNames);
+      });
+    },
+    [endorgansOrder],
+  );
 
   useEffect(() => {
     const fetchInitialData = async () => {
+      const failedResources: string[] = [];
+
       try {
-        const [orderDataFetched, majorNervesData, datasnapshots] =
-          await Promise.all([
-            fetchOrderJson(),
-            fetchMajorNerves(),
-            fetchDatasnapshots(),
-          ]);
+        const results = await Promise.allSettled([
+          fetchOrderJson().catch((err) => {
+            failedResources.push('Organ hierarchy order (GitHub)');
+            throw err;
+          }),
+          fetchMajorNerves().catch((err) => {
+            failedResources.push('Major nerves data (GitHub)');
+            throw err;
+          }),
+          fetchDatasnapshots().catch((err) => {
+            failedResources.push('Data snapshots (API)');
+            throw err;
+          }),
+          fetchEndorgansOrder().catch((err) => {
+            failedResources.push('End organs hierarchy (GitHub)');
+            throw err;
+          }),
+        ]);
+
+        // Check if any fetch failed
+        const failures = results.filter(
+          (result) => result.status === 'rejected',
+        );
+
+        if (failures.length > 0) {
+          const errorDetails = failures
+            .map((failure, index) => {
+              if (failure.status === 'rejected') {
+                const resourceNames = [
+                  'Organ hierarchy order (GitHub)',
+                  'Major nerves data (GitHub)',
+                  'Data snapshots (API)',
+                  'End organs hierarchy (GitHub)',
+                ];
+                return `• ${resourceNames[index]}: ${failure.reason instanceof Error ? failure.reason.message : String(failure.reason)}`;
+              }
+              return '';
+            })
+            .filter(Boolean)
+            .join('\n');
+
+          setHasCriticalError(true);
+          setFetchError({
+            show: true,
+            title: 'Resources Unavailable',
+            message:
+              'The resources needed to start the application are not available at the moment. Please try again later or contact support if the problem persists.',
+            details: `Failed to fetch:\n${errorDetails}`,
+          });
+          return; // Don't proceed with partial data
+        }
+
+        // All fetches succeeded, extract the data
+        const successfulResults = results.map((result) =>
+          result.status === 'fulfilled' ? result.value : null,
+        );
+
+        const orderDataFetched = successfulResults[0] as OrderJson;
+        const majorNervesData = successfulResults[1] as NerveResponse;
+        const datasnaphotsData = successfulResults[2] as Datasnapshot[];
+        const endorgansOrderFetched = successfulResults[3] as Record<
+          string,
+          string[]
+        >;
 
         setOrderData(orderDataFetched);
         setMajorNerves(getUniqueMajorNerves(majorNervesData));
-        setdatasnapshots(datasnapshots);
+        setdatasnapshots(datasnaphotsData);
+        setEndorgansOrder(endorgansOrderFetched);
       } catch (error) {
-        console.error('Failed to fetch initial data:', error);
+        // This catch is a fallback for unexpected errors
+        console.error('Unexpected error during initial data fetch:', error);
+        setHasCriticalError(true);
         setFetchError({
           show: true,
-          title: 'Data Loading Error',
+          title: 'Resources Unavailable',
           message:
-            'Failed to load initial application data. Please refresh the page.',
+            'The resources needed to start the application are not available at the moment. Please try again later.',
           details:
             error instanceof Error ? error.message : 'Unknown error occurred',
         });
-        setMajorNerves(undefined);
       }
     };
 
@@ -251,10 +318,20 @@ const AppContent = () => {
     const selectedSnapshotObj = datasnapshots.find(
       (ds: Datasnapshot) => ds.id === parseInt(selectedDatasnaphshot),
     );
-    if (selectedSnapshotObj && Object.keys(orderData).length > 0) {
+    if (
+      selectedSnapshotObj &&
+      Object.keys(orderData).length > 0 &&
+      Object.keys(endorgansOrder).length > 0
+    ) {
       fetchJSONAndSetHierarchicalNodes(selectedSnapshotObj, orderData);
     }
-  }, [selectedDatasnaphshot, orderData, datasnapshots]);
+  }, [
+    selectedDatasnaphshot,
+    orderData,
+    datasnapshots,
+    endorgansOrder,
+    fetchJSONAndSetHierarchicalNodes,
+  ]);
 
   useEffect(() => {
     if (Object.keys(hierarchicalNodes).length > 0 && selectedDatasnaphshot) {
@@ -334,7 +411,7 @@ const AppContent = () => {
     Object.keys(knowledgeStatements).length == 0,
   ];
 
-  const isLoading = loadingConditions.some(Boolean);
+  const isLoading = !hasCriticalError && loadingConditions.some(Boolean);
   const loadingProgress =
     (loadingConditions.filter((c) => !c).length / loadingConditions.length) *
     100;
@@ -376,6 +453,7 @@ const AppContent = () => {
         targetSystems={targetSystems}
         targetSystemNames={targetSystemNames}
         knowledgeStatements={knowledgeStatements}
+        endorgansOrder={endorgansOrder}
       >
         <Box>
           <Header

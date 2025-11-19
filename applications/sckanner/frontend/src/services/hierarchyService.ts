@@ -5,7 +5,6 @@ import {
   OTHER_X_AXIS_ID,
   OTHER_X_AXIS_LABEL,
 } from '../settings.ts';
-import endorgansOrder from '../data/endorgansOrder.json';
 
 interface RootNode {
   name: string;
@@ -277,6 +276,7 @@ function getRootNode(a_l1_name: string): string {
 
 export const getOrgansAndTargetSystems = (
   jsonData: JsonData,
+  endorgansOrder: Record<string, string[]>,
 ): {
   organs: Record<string, Organ>;
   targetSystems: Record<string, Organ[]>;
@@ -289,7 +289,7 @@ export const getOrgansAndTargetSystems = (
   // Track which organs have been assigned to a target system to prevent duplicates
   const organToTargetSystemMap: Record<string, string> = {};
 
-  // Build a flat ordered list of organ IDs from endorgansOrder.json
+  // Build a flat ordered list of organ IDs from endorgansOrder
   const orderedOrganIds: string[] = [];
   Object.values(endorgansOrder).forEach((organIds) => {
     orderedOrganIds.push(...organIds);

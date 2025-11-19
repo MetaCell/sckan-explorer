@@ -43,6 +43,7 @@ export const DataContextProvider = ({
   urlState,
   setUrlState,
   selectedDatasnapshot,
+  endorgansOrder,
   children,
 }: PropsWithChildren<{
   hierarchicalNodes: Record<string, HierarchicalNode>;
@@ -54,6 +55,7 @@ export const DataContextProvider = ({
   urlState: URLState;
   setUrlState: (urlState: URLState) => void;
   selectedDatasnapshot: string;
+  endorgansOrder: Record<string, string[]>;
 }>) => {
   const initialFilters = useMemo<Filters>(
     () =>
@@ -304,6 +306,7 @@ export const DataContextProvider = ({
     majorNerves,
     hierarchicalNodes,
     knowledgeStatements,
+    endorgansOrder,
     setFilters,
     selectedConnectionSummary,
     setSelectedConnectionSummary: handleSetSelectedConnectionSummary,
