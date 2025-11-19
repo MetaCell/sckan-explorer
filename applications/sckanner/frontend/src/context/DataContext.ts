@@ -41,14 +41,17 @@ export interface InitialFilterOptions {
 export interface WidgetState {
   datasnapshot: string | null;
   view: 'connectionView' | 'connectionDetailsView' | null;
-  leftWidgetConnectionId?: string | null;
+  leftWidgetConnectionId?: string | null; // Deprecated - keeping for backward compatibility
   rightWidgetConnectionId?: string | null;
   connectionKsIds?: string[] | null;
   filters?: Filters | null;
   summaryFilters?: SummaryFilters | null;
   connectionPage?: number | null;
-  heatmapExpandedState?: string[] | null;
-  secondaryHeatmapExpandedState?: string[] | null;
+  heatmapExpandedState?: string[] | null; // Deprecated
+  secondaryHeatmapExpandedState?: string[] | null; // Deprecated
+  // New path-based cell selection (replaces leftWidgetConnectionId)
+  cellXPath?: string[] | null; // Path from target system to organ (or just organ ID for orphans)
+  cellYPath?: string[] | null; // Path from root to clicked node in Y-axis hierarchy
 }
 
 export interface URLState extends WidgetState {
@@ -119,6 +122,8 @@ export const DataContext = createContext<DataContext>({
     filters: null,
     leftWidgetConnectionId: null,
     rightWidgetConnectionId: null,
+    cellXPath: null,
+    cellYPath: null,
     summaryFilters: null,
     connectionPage: null,
     heatmapExpandedState: null,

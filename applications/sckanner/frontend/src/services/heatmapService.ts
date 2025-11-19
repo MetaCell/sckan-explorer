@@ -915,3 +915,140 @@ export const assignExpandedState = (
       : item.children,
   }));
 };
+
+/**
+ * Find and expand nodes along a Y-axis path
+ * Returns the modified yAxis with necessary nodes expanded and the visual Y coordinate
+ * @param yAxis - The hierarchical Y-axis structure
+ * @param yPath - Array of node IDs from root to target (e.g., ['parent', 'child', 'grandchild'])
+ * @returns { yAxis: modified hierarchy with expanded nodes, visualY: row index or null if path not found }
+ */
+export const expandAndFindYPath = (
+  yAxis: HierarchicalItem[],
+  yPath: string[],
+): { yAxis: HierarchicalItem[]; visualY: number | null } => {
+  if (!yPath || yPath.length === 0) {
+    return { yAxis, visualY: null };
+  }
+
+  let visualY = 0;
+  let found = false;
+
+  const expandPath = (
+    items: HierarchicalItem[],
+    pathIndex: number,
+  ): HierarchicalItem[] => {
+    return items.map((item) => {
+      if (found) return item;
+
+      const targetId = yPath[pathIndex];
+      const isTarget = item.id === targetId;
+
+      if (isTarget) {
+        if (pathIndex === yPath.length - 1) {
+          // Found the final target
+          found = true;
+          return item;
+        } else {
+          // This is an intermediate node in the path - expand it and continue
+          visualY += 1; // Count this node
+          const expandedChildren = item.children
+            ? expandPath(item.children, pathIndex + 1)
+            : item.children;
+          return {
+            ...item,
+            expanded: true,
+            children: expandedChildren,
+          };
+        }
+      } else {
+        // Not in the path - keep as is but count if visible
+        visualY += 1;
+        if (item.expanded && item.children && item.children.length > 0) {
+          return {
+            ...item,
+            children: expandPath(item.children, pathIndex),
+          };
+        }
+        return item;
+      }
+    });
+  };
+
+  const modifiedYAxis = expandPath(yAxis, 0);
+
+  return {
+    yAxis: modifiedYAxis,
+    visualY: found ? visualY : null,
+  };
+};
+
+/**
+ * Find and expand target system along an X-axis path if needed
+ * Returns the modified xAxis with target system expanded and the visual X coordinate
+ * @param xAxis - The hierarchical X-axis structure
+ * @param xPath - Array with [targetSystemId, organId] or [organId] for orphans
+ * @returns { xAxis: modified hierarchy with expanded target system, visualX: column index or null if path not found }
+ */
+export const expandAndFindXPath = (
+  xAxis: HierarchicalItem[],
+  xPath: string[],
+): { xAxis: HierarchicalItem[]; visualX: number | null } => {
+  if (!xPath || xPath.length === 0) {
+    return { xAxis, visualX: null };
+  }
+
+  let visualX = 0;
+
+  if (xPath.length === 1) {
+    // Orphan organ or collapsed target system
+    const targetId = xPath[0];
+    for (const item of xAxis) {
+      if (item.id === targetId) {
+        return { xAxis, visualX };
+      }
+      const hasChildren = item.children && item.children.length > 0;
+      visualX += hasChildren ? (item.expanded ? item.children.length : 1) : 1;
+    }
+    return { xAxis, visualX: null }; // Not found
+  } else {
+    // [targetSystemId, organId]
+    const [targetSystemId, organId] = xPath;
+
+    // First, expand the target system
+    const modifiedXAxis = xAxis.map((item) => {
+      if (item.id === targetSystemId) {
+        return {
+          ...item,
+          expanded: true,
+        };
+      }
+      return item;
+    });
+
+    // Calculate visualX by counting columns before the target organ
+    let finalVisualX = 0;
+    for (const item of modifiedXAxis) {
+      if (item.id === targetSystemId) {
+        // Found the target system - now find the child index
+        const childIndex = item.children?.findIndex((c) => c.id === organId);
+        if (childIndex !== undefined && childIndex >= 0) {
+          finalVisualX += childIndex;
+          return { xAxis: modifiedXAxis, visualX: finalVisualX };
+        } else {
+          // Child not found in this target system
+          return { xAxis, visualX: null };
+        }
+      }
+      // Count columns for items before the target system
+      const hasChildren = item.children && item.children.length > 0;
+      finalVisualX += hasChildren
+        ? item.expanded
+          ? item.children.length
+          : 1
+        : 1;
+    }
+
+    return { xAxis, visualX: null }; // Target system not found
+  }
+};

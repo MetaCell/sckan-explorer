@@ -30,6 +30,8 @@ import {
   filterKnowledgeStatements,
   assignExpandedState,
   getMinMaxKnowledgeStatements,
+  expandAndFindYPath,
+  expandAndFindXPath,
 } from '../services/heatmapService.ts';
 import FiltersDropdowns from './FiltersDropdowns.tsx';
 import {
@@ -40,7 +42,11 @@ import {
 import { Organ, BaseEntity } from '../models/explorer.ts';
 import LoaderSpinner from './common/LoaderSpinner.tsx';
 import { extractEndOrganFiltersFromEntities } from '../services/summaryHeatmapService.ts';
-import { COORDINATE_SEPARATOR } from '../utils/urlStateManager.ts';
+import {
+  COORDINATE_SEPARATOR,
+  buildXPath,
+  buildYPath,
+} from '../utils/urlStateManager.ts';
 import SynapticSVG from './assets/svg/synaptic.svg?url';
 import SynapticWhiteSVG from './assets/svg/synapticWhite.svg?url';
 import endorgansOrder from '../data/endorgansOrder.json';
@@ -92,6 +98,21 @@ function ConnectivityGrid() {
   } | null>(null);
 
   const prevHeatmapModeRef = useRef<HeatmapMode>(heatmapMode);
+  const initialPathsRef = useRef<{
+    xPath: string[] | null;
+    yPath: string[] | null;
+    legacyId: string | null;
+  }>({
+    xPath: widgetState.cellXPath ?? null,
+    yPath: widgetState.cellYPath ?? null,
+    legacyId: widgetState.leftWidgetConnectionId ?? null,
+  });
+  const pendingCellClickRef = useRef<{
+    visualX: number;
+    visualY: number;
+    yId: string;
+    isConnectionView: boolean;
+  } | null>(null);
 
   useEffect(() => {
     const connections = calculateConnections(
@@ -367,10 +388,14 @@ function ConnectivityGrid() {
                   const hierarchicalNode = hierarchicalNodes[nodeData.id];
 
                   const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
+                  const xPath = buildXPath(filteredXAxis, x);
+                  const yPath = buildYPath(filteredYAxis, y);
                   updateConnectivityGridCellClick(
                     removeSummaryFilters,
                     isConnectionView ?? false,
                     leftSideHeatmapCoordinates,
+                    xPath,
+                    yPath,
                   );
 
                   // Create a target system representation with all children
@@ -419,10 +444,14 @@ function ConnectivityGrid() {
           );
 
           const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
+          const xPath = buildXPath(filteredXAxis, x);
+          const yPath = buildYPath(filteredYAxis, y);
           updateConnectivityGridCellClick(
             removeSummaryFilters,
             isConnectionView ?? false,
             leftSideHeatmapCoordinates,
+            xPath,
+            yPath,
           );
 
           setSelectedConnectionSummary({
@@ -508,10 +537,14 @@ function ConnectivityGrid() {
           );
 
           const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
+          const xPath = buildXPath(filteredXAxis, x);
+          const yPath = buildYPath(filteredYAxis, y);
           updateConnectivityGridCellClick(
             removeSummaryFilters,
             isConnectionView ?? false,
             leftSideHeatmapCoordinates,
+            xPath,
+            yPath,
           );
 
           // Create target system with all children
@@ -565,10 +598,14 @@ function ConnectivityGrid() {
           );
 
           const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
+          const xPath = buildXPath(filteredXAxis, x);
+          const yPath = buildYPath(filteredYAxis, y);
           updateConnectivityGridCellClick(
             removeSummaryFilters,
             isConnectionView ?? false,
             leftSideHeatmapCoordinates,
+            xPath,
+            yPath,
           );
 
           setSelectedConnectionSummary({
@@ -584,6 +621,7 @@ function ConnectivityGrid() {
       filteredConnectionsMap,
       filteredXOrgans,
       filteredXAxis,
+      filteredYAxis,
       detailedHeatmapData,
       hierarchicalNodes,
       knowledgeStatements,
@@ -611,14 +649,67 @@ function ConnectivityGrid() {
   };
 
   useEffect(() => {
-    if (
+    // Only restore from URL on initial load - check if paths match what we started with
+    const isInitialPathRestoration =
+      widgetState.cellXPath &&
+      widgetState.cellYPath &&
+      JSON.stringify(widgetState.cellXPath) ===
+        JSON.stringify(initialPathsRef.current.xPath) &&
+      JSON.stringify(widgetState.cellYPath) ===
+        JSON.stringify(initialPathsRef.current.yPath);
+
+    const isInitialLegacyRestoration =
       widgetState.leftWidgetConnectionId &&
+      widgetState.leftWidgetConnectionId === initialPathsRef.current.legacyId;
+
+    // New path-based cell selection restoration (only on initial load)
+    if (
+      isInitialPathRestoration &&
+      filteredConnectionsMap.size > 0 &&
+      detailedHeatmapData.length > 0 &&
+      yAxis.length > 0 &&
+      xAxis.length > 0
+    ) {
+      // Clear the ref so we don't restore again
+      initialPathsRef.current.xPath = null;
+      initialPathsRef.current.yPath = null;
+
+      // Expand Y-axis based on path and get visual Y coordinate
+      const yResult = expandAndFindYPath(yAxis, widgetState.cellYPath!);
+      if (yResult.visualY !== null) {
+        setYAxis(yResult.yAxis);
+
+        // Expand X-axis based on path and get visual X coordinate
+        const xResult = expandAndFindXPath(xAxis, widgetState.cellXPath!);
+        if (xResult.visualX !== null) {
+          setXAxis(xResult.xAxis);
+
+          // Store the pending click to be executed after filteredXAxis updates
+          const visualY = yResult.visualY;
+          const visualX = xResult.visualX;
+          const nodeData = detailedHeatmapData[visualY];
+          if (nodeData) {
+            pendingCellClickRef.current = {
+              visualX,
+              visualY,
+              yId: nodeData.id,
+              isConnectionView: widgetState.view === 'connectionView',
+            };
+          }
+        }
+      }
+    } else if (
+      // Legacy support - old coordinate-based restoration (only on initial load)
+      isInitialLegacyRestoration &&
       filteredConnectionsMap.size > 0 &&
       detailedHeatmapData.length > 0 &&
       yAxis.length > 0
     ) {
-      const [x, y] = widgetState.leftWidgetConnectionId
-        .split(COORDINATE_SEPARATOR)
+      // Clear the ref so we don't restore again
+      initialPathsRef.current.legacyId = null;
+
+      const [x, y] = widgetState
+        .leftWidgetConnectionId!.split(COORDINATE_SEPARATOR)
         .map(Number);
 
       if (
@@ -636,12 +727,56 @@ function ConnectivityGrid() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    widgetState.leftWidgetConnectionId,
     filteredConnectionsMap,
     filteredXOrgans,
     detailedHeatmapData,
-    yAxis,
+    // Note: yAxis and xAxis are intentionally not in deps to avoid infinite loops
+    // Note: widgetState paths are NOT in deps - we only want to run this on data load
   ]);
+
+  // Execute pending cell click after filteredXAxis has been updated with expanded state
+  useEffect(() => {
+    if (
+      pendingCellClickRef.current &&
+      filteredXAxis.length > 0 &&
+      filteredConnectionsMap
+    ) {
+      const pending = pendingCellClickRef.current;
+
+      // Validate that the coordinates are within bounds
+      if (
+        pending.visualY >= 0 &&
+        pending.visualY < filteredYAxis.length &&
+        pending.visualX >= 0 &&
+        pending.visualX < filteredXAxis.length
+      ) {
+        // Additional validation: check if the cell has data (use yId to get row from Map)
+        const row = filteredConnectionsMap.get(pending.yId);
+        if (row && row.length > 0) {
+          pendingCellClickRef.current = null; // Clear it so we don't execute again
+
+          // Execute the click now that filteredXAxis has the expanded target system
+          handleClick(
+            pending.visualX,
+            pending.visualY,
+            pending.yId,
+            pending.isConnectionView,
+          );
+        } else {
+          // Data not ready yet, keep pending for next effect run
+          console.warn(
+            'Pending click coordinates valid but row data not available yet',
+          );
+        }
+      } else {
+        // Coordinates are out of bounds - clear the pending click to avoid infinite loop
+        console.error(
+          `Pending click coordinates out of bounds: visualX=${pending.visualX}, visualY=${pending.visualY}, filteredXAxis.length=${filteredXAxis.length}, filteredYAxis.length=${filteredYAxis.length}`,
+        );
+        pendingCellClickRef.current = null;
+      }
+    }
+  }, [filteredXAxis, filteredYAxis, filteredConnectionsMap, handleClick]);
 
   // Custom handler for updating yAxis from the heatmap collapsible list
   const handleYAxisUpdate = (updatedFilteredYAxis: HierarchicalItem[]) => {
