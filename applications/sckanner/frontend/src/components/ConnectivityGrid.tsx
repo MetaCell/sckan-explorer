@@ -37,7 +37,7 @@ import {
   HierarchicalItem,
   HeatmapMode,
 } from './common/Types.ts';
-import { Organ } from '../models/explorer.ts';
+import { Organ, BaseEntity } from '../models/explorer.ts';
 import LoaderSpinner from './common/LoaderSpinner.tsx';
 import { extractEndOrganFiltersFromEntities } from '../services/summaryHeatmapService.ts';
 import { COORDINATE_SEPARATOR } from '../utils/urlStateManager.ts';
@@ -318,10 +318,105 @@ function ConnectivityGrid() {
       if (heatmapMode === HeatmapMode.Default) {
         const row = filteredConnectionsMap.get(yId);
         if (row) {
-          const endOrgan = filteredXOrgans[x];
+          // Map visual X coordinate to actual organ index in filteredXOrgans
+          // This accounts for collapsed target systems
+          let actualOrganIndex = 0;
+          let visualIndex = 0;
+
+          for (let i = 0; i < filteredXAxis.length; i++) {
+            const item = filteredXAxis[i];
+            const hasChildren = item.children && item.children.length > 0;
+
+            // Advance indices
+            if (hasChildren) {
+              if (item.expanded) {
+                // Expanded: each child is a separate column
+                if (visualIndex + item.children.length > x) {
+                  // Click is within this target system's children
+                  const childOffset = x - visualIndex;
+                  actualOrganIndex = actualOrganIndex + childOffset;
+                  break;
+                }
+                actualOrganIndex += item.children.length;
+                visualIndex += item.children.length;
+              } else {
+                // Collapsed: single column for all children
+                if (visualIndex === x) {
+                  // Clicked on a collapsed target system
+                  // Merge all knowledge statements from children organs
+                  const allKsIds = new Set<string>();
+                  const childOrgans: Organ[] = [];
+
+                  item.children.forEach((child) => {
+                    const childOrganIndex = filteredXOrgans.findIndex(
+                      (o) => o.id === child.id,
+                    );
+                    if (childOrganIndex !== -1 && row[childOrganIndex]) {
+                      row[childOrganIndex].forEach((ksId) =>
+                        allKsIds.add(ksId),
+                      );
+                      childOrgans.push(filteredXOrgans[childOrganIndex]);
+                    }
+                  });
+
+                  const ksMap = getKnowledgeStatementMap(
+                    Array.from(allKsIds),
+                    knowledgeStatements,
+                  );
+                  const nodeData = detailedHeatmapData[y];
+                  const hierarchicalNode = hierarchicalNodes[nodeData.id];
+
+                  const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
+                  updateConnectivityGridCellClick(
+                    removeSummaryFilters,
+                    isConnectionView ?? false,
+                    leftSideHeatmapCoordinates,
+                  );
+
+                  // Create a target system representation with all children
+                  const allChildren = new Map();
+                  childOrgans.forEach((organ) => {
+                    allChildren.set(organ.id, organ);
+                    if (organ.children instanceof Map) {
+                      organ.children.forEach((child) => {
+                        allChildren.set(child.id, child);
+                      });
+                    }
+                  });
+
+                  setSelectedConnectionSummary({
+                    connections: ksMap,
+                    endOrgan: {
+                      id: item.id,
+                      name: item.label,
+                      children: allChildren,
+                      order: 0,
+                    },
+                    hierarchicalNode: hierarchicalNode,
+                  });
+                  return;
+                }
+                actualOrganIndex += item.children.length;
+                visualIndex += 1;
+              }
+            } else {
+              // Orphan organ
+              if (visualIndex === x) {
+                break;
+              }
+              actualOrganIndex += 1;
+              visualIndex += 1;
+            }
+          }
+
+          // Handle regular organ click
+          const endOrgan = filteredXOrgans[actualOrganIndex];
           const nodeData = detailedHeatmapData[y];
           const hierarchicalNode = hierarchicalNodes[nodeData.id];
-          const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
+          const ksMap = getKnowledgeStatementMap(
+            row[actualOrganIndex],
+            knowledgeStatements,
+          );
 
           const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
           updateConnectivityGridCellClick(
@@ -337,54 +432,158 @@ function ConnectivityGrid() {
           });
         }
       } else {
-        const endOrgan = filteredXOrgans[x];
-        // synaptic connections might be developed over other destinations, so I will pass all the possible
-        // destinations and then purge the empty columns in the connections component or the summaryheatmapservice
-        const allChildren = new Map();
-        filteredXOrgans.forEach((org) => {
-          org.children.forEach((child) => {
-            allChildren.set(child.id, child);
-          });
-        });
-        const endOrganWithChildren = {
-          ...endOrgan,
-          children: allChildren,
-        };
-        const nodeData = detailedHeatmapData[y];
-        const hierarchicalNode = hierarchicalNodes[nodeData.id];
-        const allUris = new Set<string>();
-        if (synapticConnections) {
-          synapticConnections[y].synapticConnections[x].forEach((path) => {
-            path.forEach((uri) => allUris.add(uri));
-          });
-          synapticConnections[y].directConnections[x].forEach((path) => {
-            allUris.add(path);
-          });
+        // Synaptic mode - handle collapsed target systems similarly
+        let actualOrganIndex = 0;
+        let visualIndex = 0;
+        let clickedItem: HierarchicalItem | null = null;
+
+        for (let i = 0; i < filteredXAxis.length; i++) {
+          const item = filteredXAxis[i];
+          const hasChildren = item.children && item.children.length > 0;
+
+          // Advance indices
+          if (hasChildren) {
+            if (item.expanded) {
+              if (visualIndex + item.children.length > x) {
+                const childOffset = x - visualIndex;
+                actualOrganIndex = actualOrganIndex + childOffset;
+                clickedItem = item.children[childOffset];
+                break;
+              }
+              actualOrganIndex += item.children.length;
+              visualIndex += item.children.length;
+            } else {
+              if (visualIndex === x) {
+                clickedItem = item;
+                break;
+              }
+              actualOrganIndex += item.children.length;
+              visualIndex += 1;
+            }
+          } else {
+            if (visualIndex === x) {
+              clickedItem = item;
+              break;
+            }
+            actualOrganIndex += 1;
+            visualIndex += 1;
+          }
         }
 
-        const ksMap = getKnowledgeStatementMap(
-          Array.from(allUris),
-          knowledgeStatements,
-        );
+        const nodeData = detailedHeatmapData[y];
+        const hierarchicalNode = hierarchicalNodes[nodeData.id];
 
-        const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
-        updateConnectivityGridCellClick(
-          removeSummaryFilters,
-          isConnectionView ?? false,
-          leftSideHeatmapCoordinates,
-        );
+        if (
+          clickedItem &&
+          clickedItem.children &&
+          clickedItem.children.length > 0 &&
+          !clickedItem.expanded
+        ) {
+          // Clicked on a collapsed target system in synaptic mode
+          const allUris = new Set<string>();
+          const childOrgans: Organ[] = [];
 
-        setSelectedConnectionSummary({
-          connections: ksMap,
-          endOrgan: endOrganWithChildren,
-          hierarchicalNode: hierarchicalNode,
-        });
+          clickedItem.children.forEach((child) => {
+            const childOrganIndex = filteredXOrgans.findIndex(
+              (o) => o.id === child.id,
+            );
+            if (childOrganIndex !== -1 && synapticConnections) {
+              synapticConnections[y].synapticConnections[
+                childOrganIndex
+              ].forEach((path) => {
+                path.forEach((uri) => allUris.add(uri));
+              });
+              synapticConnections[y].directConnections[childOrganIndex].forEach(
+                (path) => {
+                  allUris.add(path);
+                },
+              );
+              childOrgans.push(filteredXOrgans[childOrganIndex]);
+            }
+          });
+
+          const ksMap = getKnowledgeStatementMap(
+            Array.from(allUris),
+            knowledgeStatements,
+          );
+
+          const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
+          updateConnectivityGridCellClick(
+            removeSummaryFilters,
+            isConnectionView ?? false,
+            leftSideHeatmapCoordinates,
+          );
+
+          // Create target system with all children
+          const allChildren = new Map();
+          childOrgans.forEach((organ) => {
+            allChildren.set(organ.id, organ);
+            if (organ.children instanceof Map) {
+              organ.children.forEach((child: BaseEntity) => {
+                allChildren.set(child.id, child);
+              });
+            }
+          });
+
+          setSelectedConnectionSummary({
+            connections: ksMap,
+            endOrgan: {
+              id: clickedItem.id,
+              name: clickedItem.label,
+              children: allChildren,
+              order: 0,
+            },
+            hierarchicalNode: hierarchicalNode,
+          });
+        } else {
+          // Regular organ click in synaptic mode
+          const endOrgan = filteredXOrgans[actualOrganIndex];
+          const allChildren = new Map();
+          filteredXOrgans.forEach((org) => {
+            org.children.forEach((child: BaseEntity) => {
+              allChildren.set(child.id, child);
+            });
+          });
+          const endOrganWithChildren = {
+            ...endOrgan,
+            children: allChildren,
+          };
+
+          const allUris = new Set<string>();
+          if (synapticConnections) {
+            synapticConnections[y].synapticConnections[x].forEach((path) => {
+              path.forEach((uri) => allUris.add(uri));
+            });
+            synapticConnections[y].directConnections[x].forEach((path) => {
+              allUris.add(path);
+            });
+          }
+
+          const ksMap = getKnowledgeStatementMap(
+            Array.from(allUris),
+            knowledgeStatements,
+          );
+
+          const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
+          updateConnectivityGridCellClick(
+            removeSummaryFilters,
+            isConnectionView ?? false,
+            leftSideHeatmapCoordinates,
+          );
+
+          setSelectedConnectionSummary({
+            connections: ksMap,
+            endOrgan: endOrganWithChildren,
+            hierarchicalNode: hierarchicalNode,
+          });
+        }
       }
     },
     [
       heatmapMode,
       filteredConnectionsMap,
       filteredXOrgans,
+      filteredXAxis,
       detailedHeatmapData,
       hierarchicalNodes,
       knowledgeStatements,

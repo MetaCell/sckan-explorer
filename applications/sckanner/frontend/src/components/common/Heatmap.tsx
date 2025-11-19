@@ -6,7 +6,13 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { Box, Button, Typography, Tooltip } from '@mui/material';
+import {
+  Box,
+  Button,
+  Typography,
+  Tooltip,
+  CircularProgress,
+} from '@mui/material';
 import { vars } from '../../theme/variables.ts';
 import CollapsibleList from './CollapsibleList.tsx';
 import HeatMap from 'react-heatmap-fork';
@@ -113,6 +119,7 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
 
   const heatmapContainerRef = useRef<HTMLDivElement>(null);
   const [xAxisHeight, setXAxisHeight] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const secondary = !!secondaryHeatmapData;
   const yAxisData = generateYLabelsAndIds(yAxis);
@@ -218,6 +225,9 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
   );
 
   const handleExpandAll = useCallback(() => {
+    // Show loading overlay
+    setIsLoading(true);
+
     const updateList = (list: HierarchicalItem[]): HierarchicalItem[] => {
       return list?.map((listItem) => {
         if (listItem.children && listItem.children.length > 0) {
@@ -240,6 +250,11 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     // Expand X-axis target systems
     const updatedXList = updateList(xAxis);
     setXAxis(updatedXList);
+
+    // Hide loading overlay after layout is complete
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
   }, [
     yAxis,
     xAxis,
@@ -251,6 +266,9 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
   ]);
 
   const handleCompressAll = useCallback(() => {
+    // Show loading overlay
+    setIsLoading(true);
+
     const updateList = (list: HierarchicalItem[]): HierarchicalItem[] => {
       return list?.map((listItem) => {
         if (listItem.children) {
@@ -275,6 +293,11 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
     // Compress X-axis target systems
     const updatedXList = updateList(xAxis);
     setXAxis(updatedXList);
+
+    // Hide loading overlay after layout is complete
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
   }, [
     yAxis,
     xAxis,
@@ -1010,6 +1033,25 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
                   </Box>
                 </Tooltip>
               ))}
+            </Box>
+          )}
+          {/* Loading overlay for expand/compress all operations */}
+          {isLoading && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 1000,
+              }}
+            >
+              <CircularProgress size={90} sx={{ color: primaryPurple500 }} />
             </Box>
           )}
         </Box>
