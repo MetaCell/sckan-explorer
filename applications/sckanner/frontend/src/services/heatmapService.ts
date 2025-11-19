@@ -295,53 +295,65 @@ export function getHeatmapData(
       let transformedConnections = itemConnections;
 
       if (xAxis && xAxis.length > 0) {
-        // Transform the flat organ array based on target system expand/collapse states
-        transformedConnections = [];
-        let currentIndex = 0; // Tracks position in the flat itemConnections array
+        // Check if this is a flat list (all items have no children)
+        // This happens when end organ filter is active
+        const isFlatList = xAxis.every(
+          (item) => !item.children || item.children.length === 0,
+        );
 
-        xAxis.forEach((targetSystem) => {
-          const hasChildren =
-            targetSystem.children && targetSystem.children.length > 0;
+        if (isFlatList) {
+          // For flat list (end organ filter active), use data as-is without transformation
+          // Each organ gets its own column directly
+          transformedConnections = itemConnections;
+        } else {
+          // Transform the flat organ array based on target system expand/collapse states
+          transformedConnections = [];
+          let currentIndex = 0; // Tracks position in the flat itemConnections array
 
-          if (hasChildren) {
-            // This is a target system with child organs
-            const childrenCount = targetSystem.children.length;
+          xAxis.forEach((targetSystem) => {
+            const hasChildren =
+              targetSystem.children && targetSystem.children.length > 0;
 
-            if (targetSystem.expanded) {
-              // EXPANDED: Show each child organ as a separate column
-              // Add each child's data individually without merging
-              for (let i = 0; i < childrenCount; i++) {
-                if (currentIndex + i < itemConnections.length) {
-                  transformedConnections.push(
-                    itemConnections[currentIndex + i],
-                  );
+            if (hasChildren) {
+              // This is a target system with child organs
+              const childrenCount = targetSystem.children.length;
+
+              if (targetSystem.expanded) {
+                // EXPANDED: Show each child organ as a separate column
+                // Add each child's data individually without merging
+                for (let i = 0; i < childrenCount; i++) {
+                  if (currentIndex + i < itemConnections.length) {
+                    transformedConnections.push(
+                      itemConnections[currentIndex + i],
+                    );
+                  }
                 }
+              } else {
+                // COLLAPSED: Show target system as a single column
+                // Merge all children's connection data into one aggregated array
+                const mergedData: string[] = [];
+                for (let i = 0; i < childrenCount; i++) {
+                  if (currentIndex + i < itemConnections.length) {
+                    // Combine connections from all child organs
+                    mergedData.push(...itemConnections[currentIndex + i]);
+                  }
+                }
+                // Remove duplicates after merging (same connection shouldn't be counted twice)
+                transformedConnections.push([...new Set(mergedData)]);
               }
+
+              // Advance index by the number of children processed
+              currentIndex += childrenCount;
             } else {
-              // COLLAPSED: Show target system as a single column
-              // Merge all children's connection data into one aggregated array
-              const mergedData: string[] = [];
-              for (let i = 0; i < childrenCount; i++) {
-                if (currentIndex + i < itemConnections.length) {
-                  // Combine connections from all child organs
-                  mergedData.push(...itemConnections[currentIndex + i]);
-                }
+              // This is an orphan organ (not part of any target system)
+              // Add its data as-is without modification
+              if (currentIndex < itemConnections.length) {
+                transformedConnections.push(itemConnections[currentIndex]);
               }
-              // Remove duplicates after merging (same connection shouldn't be counted twice)
-              transformedConnections.push([...new Set(mergedData)]);
+              currentIndex += 1;
             }
-
-            // Advance index by the number of children processed
-            currentIndex += childrenCount;
-          } else {
-            // This is an orphan organ (not part of any target system)
-            // Add its data as-is without modification
-            if (currentIndex < itemConnections.length) {
-              transformedConnections.push(itemConnections[currentIndex]);
-            }
-            currentIndex += 1;
-          }
-        });
+          });
+        }
       }
 
       const itemConnectionsCount = transformedConnections.map(

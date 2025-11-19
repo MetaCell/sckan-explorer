@@ -230,14 +230,21 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         return listItem;
       });
     };
-    const updatedList = updateList(yAxis);
-    const expandedIds = getExpandedIds(updatedList);
+    // Expand Y-axis
+    const updatedYList = updateList(yAxis);
+    const expandedIds = getExpandedIds(updatedYList);
     updateWidgetExpandedState(expandedIds);
     setSelectedCell(null);
-    setYAxis(updatedList);
+    setYAxis(updatedYList);
+
+    // Expand X-axis target systems
+    const updatedXList = updateList(xAxis);
+    setXAxis(updatedXList);
   }, [
     yAxis,
+    xAxis,
     setYAxis,
+    setXAxis,
     setSelectedCell,
     getExpandedIds,
     updateWidgetExpandedState,
@@ -258,14 +265,21 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
         return listItem;
       });
     };
-    const updatedList = updateList(yAxis);
-    const expandedIds = getExpandedIds(updatedList);
+    // Compress Y-axis
+    const updatedYList = updateList(yAxis);
+    const expandedIds = getExpandedIds(updatedYList);
     updateWidgetExpandedState(expandedIds);
     setSelectedCell(null);
-    setYAxis(updatedList);
+    setYAxis(updatedYList);
+
+    // Compress X-axis target systems
+    const updatedXList = updateList(xAxis);
+    setXAxis(updatedXList);
   }, [
     yAxis,
+    xAxis,
     setYAxis,
+    setXAxis,
     getExpandedIds,
     updateWidgetExpandedState,
     setSelectedCell,

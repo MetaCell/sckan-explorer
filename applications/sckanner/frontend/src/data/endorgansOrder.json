@@ -26,13 +26,12 @@
         "http://purl.obolibrary.org/obo/UBERON_0000059",
         "http://purl.obolibrary.org/obo/UBERON_0001155",
         "http://purl.obolibrary.org/obo/UBERON_0001158",
-        "http://purl.obolibrary.org/obo/UBERON_0002107",
-        "http://purl.obolibrary.org/obo/UBERON_0001264"
+        "http://purl.obolibrary.org/obo/UBERON_0001264",
+        "http://purl.obolibrary.org/obo/UBERON_0002107"
     ],
     "http://purl.obolibrary.org/obo/UBERON_0000949": [
         "http://purl.obolibrary.org/obo/UBERON_0002369",
-        "http://purl.obolibrary.org/obo/UBERON_0002368",
-        "http://purl.obolibrary.org/obo/UBERON_0002107"
+        "http://purl.obolibrary.org/obo/UBERON_0002368"
     ],
     "http://purl.obolibrary.org/obo/UBERON_0001008": [
         "http://purl.obolibrary.org/obo/UBERON_0002113",

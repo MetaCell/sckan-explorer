@@ -207,36 +207,51 @@ function ConnectivityGrid() {
         columnsWithData.has(index),
       );
 
-      // Filter hierarchical X-axis based on which organs have data
-      const filteredOrganIds = new Set(filteredOrgans.map((o) => o.id));
-      const filteredHierarchicalX = xAxis
-        .map((item) => {
-          if (item.children && item.children.length > 0) {
-            // Filter children to only include those with data
-            const filteredChildren = item.children.filter((child) =>
-              filteredOrganIds.has(child.id),
-            );
-            // Only include parent if it has children with data
-            if (filteredChildren.length > 0) {
-              return {
-                ...item,
-                children: filteredChildren,
-              };
+      // Check if end organ filter is active
+      const hasEndOrganFilter = filters.EndOrgan.length > 0;
+
+      let filteredHierarchicalX: HierarchicalItem[];
+
+      if (hasEndOrganFilter) {
+        // When end organ filter is set, use flat list of organs (no target systems)
+        filteredHierarchicalX = filteredOrgans.map((organ) => ({
+          id: organ.id,
+          label: organ.name,
+          children: [],
+          expanded: false,
+        }));
+      } else {
+        // Normal hierarchical behavior with target systems
+        const filteredOrganIds = new Set(filteredOrgans.map((o) => o.id));
+        filteredHierarchicalX = xAxis
+          .map((item) => {
+            if (item.children && item.children.length > 0) {
+              // Filter children to only include those with data
+              const filteredChildren = item.children.filter((child) =>
+                filteredOrganIds.has(child.id),
+              );
+              // Only include parent if it has children with data
+              if (filteredChildren.length > 0) {
+                return {
+                  ...item,
+                  children: filteredChildren,
+                };
+              }
+              return null;
+            } else {
+              // Orphan organ - include if it has data
+              return filteredOrganIds.has(item.id) ? item : null;
             }
-            return null;
-          } else {
-            // Orphan organ - include if it has data
-            return filteredOrganIds.has(item.id) ? item : null;
-          }
-        })
-        .filter((item) => item !== null) as HierarchicalItem[];
+          })
+          .filter((item) => item !== null) as HierarchicalItem[];
+      }
 
       setFilteredYAxis(filteredYAxis);
       setFilteredXOrgans(filteredOrgans);
       setFilteredXAxis(filteredHierarchicalX);
       setFilteredConnectionsMap(filteredConnectionsMap);
     }
-  }, [yAxis, connectionsMap, xAxisOrgans, xAxis]);
+  }, [yAxis, connectionsMap, xAxisOrgans, xAxis, filters.EndOrgan]);
 
   // Reset summary widget when heatmap mode changes
   useEffect(() => {
@@ -437,6 +452,14 @@ function ConnectivityGrid() {
     );
   };
 
+  // Custom handler for updating xAxis from the heatmap
+  const handleXAxisUpdate = (updatedFilteredXAxis: HierarchicalItem[]) => {
+    // Apply the expand/collapse changes from the filtered xAxis back to the original xAxis
+    setXAxis((currentXAxis) =>
+      applyExpandedState(currentXAxis, updatedFilteredXAxis),
+    );
+  };
+
   const handleReset = () => {
     setYAxis(initialYAxis);
     setFilters({
@@ -596,7 +619,7 @@ function ConnectivityGrid() {
         yAxis={filteredYAxis}
         setYAxis={handleYAxisUpdate}
         xAxis={filteredXAxis}
-        setXAxis={setFilteredXAxis}
+        setXAxis={handleXAxisUpdate}
         heatmapData={
           heatmapMode === HeatmapMode.Default ? heatmapData : synapticData
         }

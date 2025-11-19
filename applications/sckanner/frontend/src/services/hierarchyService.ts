@@ -286,6 +286,8 @@ export const getOrgansAndTargetSystems = (
   const organsRecord: Record<string, Organ> = {};
   const targetSystemsMap: Record<string, Map<string, Organ>> = {};
   const targetSystemNames: Record<string, string> = {};
+  // Track which organs have been assigned to a target system to prevent duplicates
+  const organToTargetSystemMap: Record<string, string> = {};
 
   // Build a flat ordered list of organ IDs from endorgansOrder.json
   const orderedOrganIds: string[] = [];
@@ -344,8 +346,13 @@ export const getOrgansAndTargetSystems = (
           targetSystemsMap[targetSystemId] = new Map<string, Organ>();
         }
 
-        // Add organ to target system if not already added
-        if (!targetSystemsMap[targetSystemId].has(organId)) {
+        // Only add organ to target system if it hasn't been assigned to any target system yet
+        // This ensures each organ appears in only one target system (the first one encountered)
+        if (!organToTargetSystemMap[organId]) {
+          // Mark this organ as assigned to this target system
+          organToTargetSystemMap[organId] = targetSystemId;
+
+          // Add organ to target system
           targetSystemsMap[targetSystemId].set(organId, {
             id: organId,
             name: organName,
@@ -353,6 +360,7 @@ export const getOrgansAndTargetSystems = (
             order: 0, // Will be set based on ordering
           });
         }
+        // If organ is already assigned to a different target system, skip it to avoid duplicates
       }
     } else {
       if (childId && childName) {
