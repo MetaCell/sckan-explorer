@@ -276,6 +276,10 @@ function ConnectivityGrid() {
       setFilteredXOrgans(filteredOrgans);
       setFilteredXAxis(filteredHierarchicalX);
       setFilteredConnectionsMap(filteredConnectionsMap);
+    } else if (xAxis.length === 0 && yAxis.length > 0) {
+      // When xAxis is empty (e.g., datasnapshot without target systems), clear filtered state
+      setFilteredXAxis([]);
+      setFilteredXOrgans([]);
     }
   }, [yAxis, connectionsMap, xAxisOrgans, xAxis, filters.EndOrgan]);
 

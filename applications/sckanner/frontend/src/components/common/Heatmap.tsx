@@ -322,6 +322,26 @@ const HeatmapGrid: FC<HeatmapGridProps> = ({
 
     if (!hasHierarchy || !heatmapContainerRef.current) {
       setHorizontalParents([]);
+      
+      // Clear any leftover data attributes from previous datasnapshot
+      if (heatmapContainerRef.current) {
+        const xLabelsContainer = heatmapContainerRef.current.querySelector(
+          '& > div:first-of-type > div:first-of-type',
+        );
+        if (xLabelsContainer) {
+          const labelElements = Array.from(
+            xLabelsContainer.querySelectorAll('& > div'),
+          ) as HTMLElement[];
+          
+          // Clear attributes from all X-axis labels
+          labelElements.slice(1).forEach((element) => {
+            element.removeAttribute('data-x-label-index');
+            element.removeAttribute('data-is-child');
+            element.removeAttribute('data-is-collapsed');
+          });
+        }
+      }
+      
       return;
     }
 
