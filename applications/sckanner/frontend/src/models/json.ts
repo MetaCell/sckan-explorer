@@ -18,10 +18,13 @@ export interface Binding {
   C_ID?: Variable;
   C?: Variable;
   C_Type?: Variable;
+  C_Type_ID?: Variable;
   B_ID?: Variable;
   B?: Variable;
   Target_Organ_IRI?: Variable;
   Target_Organ?: Variable;
+  Target_System_IRI?: Variable;
+  Target_System?: Variable;
 
   [key: string]: Variable | undefined; // This allows for any additional variable that follows the same pattern
 }

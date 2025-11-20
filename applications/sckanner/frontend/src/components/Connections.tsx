@@ -629,7 +629,13 @@ function Connections() {
             <HeatmapGrid
               yAxis={filteredYAxis}
               setYAxis={setYAxis}
-              xAxis={reorderedAxis}
+              xAxis={reorderedAxis.map((label) => ({
+                id: label,
+                label: label,
+                children: [],
+                expanded: false,
+              }))}
+              setXAxis={() => {}} // No-op for secondary heatmap
               onCellClick={handleCellClick}
               selectedCell={selectedCell}
               setSelectedCell={setSelectedCell}

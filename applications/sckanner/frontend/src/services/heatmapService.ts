@@ -48,6 +48,67 @@ export function getXAxisOrgans(organs: Record<string, Organ>): Organ[] {
     .map((organ) => organ);
 }
 
+export function getHierarchicalXAxis(
+  targetSystems: Record<string, Organ[]>,
+  organs: Record<string, Organ>,
+  endorgansOrder: Record<string, string[]>,
+  targetSystemNames: Record<string, string>,
+): HierarchicalItem[] {
+  const result: HierarchicalItem[] = [];
+  const organsInSystems = new Set<string>();
+
+  // Get ordered target system IDs from endorgansOrder
+  const orderedSystemIds = Object.keys(endorgansOrder);
+
+  // Build target system hierarchy - only include systems with actual organ children
+  orderedSystemIds.forEach((systemId) => {
+    const systemOrgans = targetSystems[systemId];
+    // Skip if no organs exist for this target system or the array is empty
+    if (!systemOrgans || systemOrgans.length === 0) {
+      return;
+    }
+
+    // Get the system name from targetSystemNames
+    const systemName =
+      targetSystemNames[systemId] ||
+      organs[systemId]?.name ||
+      systemId.split('/').pop() ||
+      systemId;
+
+    const children: HierarchicalItem[] = systemOrgans.map((organ) => {
+      organsInSystems.add(organ.id);
+      return {
+        id: organ.id,
+        label: organ.name,
+        children: [],
+        expanded: false,
+      };
+    });
+
+    result.push({
+      id: systemId,
+      label: systemName,
+      children,
+      expanded: false, // Start collapsed
+    });
+  });
+
+  // Add organs that are not part of any target system
+  const orphanOrgans = Object.values(organs)
+    .filter((organ) => !organsInSystems.has(organ.id))
+    .sort((a, b) => a.order - b.order)
+    .map((organ) => ({
+      id: organ.id,
+      label: organ.name,
+      children: [],
+      expanded: false,
+    }));
+
+  result.push(...orphanOrgans);
+
+  return result;
+}
+
 export function traceForwardConnectionPaths(
   startKsId: string,
   knowledgeStatements: Record<string, KnowledgeStatement>,
@@ -201,6 +262,7 @@ export function getHeatmapData(
   knowledgeStatements: Record<string, KnowledgeStatement>,
   filteredOrgans: Organ[],
   heatmapMode: HeatmapMode = HeatmapMode.Default,
+  xAxis?: HierarchicalItem[], // Optional: hierarchical X-axis with target systems and their organ children
 ) {
   const heatmapInformation: HeatmapMatrixInformation = {
     heatmapMatrix: [],
@@ -214,12 +276,97 @@ export function getHeatmapData(
       ?.get(item.id)
       ?.map((level) => [...new Set(level)]);
     if (itemConnections) {
-      const itemConnectionsCount = itemConnections.map((arr) => arr.length);
+      /**
+       * HIERARCHICAL X-AXIS DATA TRANSFORMATION
+       *
+       * itemConnections is a flat array where each index corresponds to an end organ.
+       * The organs are ordered based on endorgansOrder.json (target systems first, then orphans).
+       *
+       * When target systems are involved, we need to transform this flat structure:
+       * - If a target system is EXPANDED: Keep each child organ's data separate
+       * - If a target system is COLLAPSED: Merge all child organ data into a single array
+       *
+       * Example:
+       * - Central Nervous System (collapsed, 2 children: brain, spinal cord)
+       *   itemConnections[0] = brain connections (14 items)
+       *   itemConnections[1] = spinal cord connections (5 items)
+       *   → Result: Single merged array with all unique connections
+       *
+       * - If Central Nervous System were expanded:
+       *   → Result: Two separate arrays (brain data, spinal cord data)
+       */
+      let transformedConnections = itemConnections;
+
+      if (xAxis && xAxis.length > 0) {
+        // Check if this is a flat list (all items have no children)
+        // This happens when end organ filter is active
+        const isFlatList = xAxis.every(
+          (item) => !item.children || item.children.length === 0,
+        );
+
+        if (isFlatList) {
+          // For flat list (end organ filter active), use data as-is without transformation
+          // Each organ gets its own column directly
+          transformedConnections = itemConnections;
+        } else {
+          // Transform the flat organ array based on target system expand/collapse states
+          transformedConnections = [];
+          let currentIndex = 0; // Tracks position in the flat itemConnections array
+
+          xAxis.forEach((targetSystem) => {
+            const hasChildren =
+              targetSystem.children && targetSystem.children.length > 0;
+
+            if (hasChildren) {
+              // This is a target system with child organs
+              const childrenCount = targetSystem.children.length;
+
+              if (targetSystem.expanded) {
+                // EXPANDED: Show each child organ as a separate column
+                // Add each child's data individually without merging
+                for (let i = 0; i < childrenCount; i++) {
+                  if (currentIndex + i < itemConnections.length) {
+                    transformedConnections.push(
+                      itemConnections[currentIndex + i],
+                    );
+                  }
+                }
+              } else {
+                // COLLAPSED: Show target system as a single column
+                // Merge all children's connection data into one aggregated array
+                const mergedData: string[] = [];
+                for (let i = 0; i < childrenCount; i++) {
+                  if (currentIndex + i < itemConnections.length) {
+                    // Combine connections from all child organs
+                    mergedData.push(...itemConnections[currentIndex + i]);
+                  }
+                }
+                // Remove duplicates after merging (same connection shouldn't be counted twice)
+                transformedConnections.push([...new Set(mergedData)]);
+              }
+
+              // Advance index by the number of children processed
+              currentIndex += childrenCount;
+            } else {
+              // This is an orphan organ (not part of any target system)
+              // Add its data as-is without modification
+              if (currentIndex < itemConnections.length) {
+                transformedConnections.push(itemConnections[currentIndex]);
+              }
+              currentIndex += 1;
+            }
+          });
+        }
+      }
+
+      const itemConnectionsCount = transformedConnections.map(
+        (arr) => arr.length,
+      );
       heatmapInformation.heatmapMatrix.push(itemConnectionsCount);
       heatmapInformation.detailedHeatmap.push({
         label: item.label,
         id: item.id || '',
-        data: itemConnections || [],
+        data: transformedConnections || [],
       });
     }
   }
@@ -241,16 +388,63 @@ export function getHeatmapData(
   // Start traversal with the initial yAxis, allowing to fetch immediate children of the root if expanded
   traverseItems(yAxis, true);
 
-  // iterate all the organs and all their children to create a map where from the children id we can get the index of the organ in the sortedOrgans array
+  /**
+   * SYNAPTIC CONNECTIONS: Handle organ-to-target-system mapping for collapsed states
+   *
+   * When a target system is collapsed, synaptic connections that would normally point
+   * to individual child organs need to be redirected to the target system itself.
+   * This ensures the aggregated column receives all relevant connection data.
+   */
+
+  // Build a map from organ IDs to target system IDs (for collapsed target systems only)
+  // This redirects organ lookups to their parent target system when collapsed
+  const organToTargetSystemMap = new Map<string, string>();
+  if (xAxis) {
+    xAxis.forEach((targetSystem) => {
+      // Check if this is a target system (has children) and is collapsed
+      if (
+        targetSystem.children &&
+        targetSystem.children.length > 0 &&
+        !targetSystem.expanded
+      ) {
+        // Map all children organ IDs to this target system's ID
+        // Example: brain → central_nervous_system, spinal_cord → central_nervous_system
+        targetSystem.children.forEach((child) => {
+          organToTargetSystemMap.set(child.id, targetSystem.id);
+        });
+      }
+    });
+  }
+
+  /**
+   * Build childToParentMap for sub-organ lookups
+   *
+   * Maps sub-organ IDs to their parent organ (or target system if collapsed).
+   * Used in synaptic connection tracing to find the correct column index.
+   */
   const childToParentMap = new Map<string, string>();
   Object.values(filteredOrgans).forEach((organ) => {
     if (organ.children instanceof Map) {
       organ.children.forEach((childOrgan) => {
-        childToParentMap.set(childOrgan.id, organ.id);
+        // Check if this organ belongs to a collapsed target system
+        const targetSystemId = organToTargetSystemMap.get(organ.id);
+        // Use target system ID if collapsed, otherwise use organ ID
+        // Example: If "brain" belongs to collapsed "central_nervous_system",
+        // then brain's children map to "central_nervous_system" instead of "brain"
+        childToParentMap.set(
+          childOrgan.id,
+          targetSystemId ? targetSystemId : organ.id,
+        );
       });
     }
   });
 
+  /**
+   * Build organIndexMap for quick column index lookups
+   *
+   * Maps organ IDs (and target system IDs when collapsed) to their column indices
+   * in the heatmap matrix.
+   */
   const organIndexMap = filteredOrgans.reduce<Record<string, number>>(
     (map, organ, index) => {
       map[organ.id] = index;
@@ -258,6 +452,27 @@ export function getHeatmapData(
     },
     {},
   );
+
+  // Add target system IDs to the organIndexMap when they are collapsed
+  // This allows synaptic connection code to find the correct column index
+  // when an entity ID matches a collapsed target system
+  if (xAxis) {
+    xAxis.forEach((targetSystem) => {
+      if (
+        targetSystem.children &&
+        targetSystem.children.length > 0 &&
+        !targetSystem.expanded
+      ) {
+        // Use the first child's index for the collapsed target system
+        // All children share the same aggregated column when collapsed
+        const firstChildId = targetSystem.children[0].id;
+        const childIndex = organIndexMap[firstChildId];
+        if (childIndex !== undefined) {
+          organIndexMap[targetSystem.id] = childIndex;
+        }
+      }
+    });
+  }
 
   if (heatmapMode === HeatmapMode.Synaptic) {
     const fwsMap = mapForwardConnections(knowledgeStatements);
@@ -702,4 +917,141 @@ export const assignExpandedState = (
       ? assignExpandedState(item.children, expandedState)
       : item.children,
   }));
+};
+
+/**
+ * Find and expand nodes along a Y-axis path
+ * Returns the modified yAxis with necessary nodes expanded and the visual Y coordinate
+ * @param yAxis - The hierarchical Y-axis structure
+ * @param yPath - Array of node IDs from root to target (e.g., ['parent', 'child', 'grandchild'])
+ * @returns { yAxis: modified hierarchy with expanded nodes, visualY: row index or null if path not found }
+ */
+export const expandAndFindYPath = (
+  yAxis: HierarchicalItem[],
+  yPath: string[],
+): { yAxis: HierarchicalItem[]; visualY: number | null } => {
+  if (!yPath || yPath.length === 0) {
+    return { yAxis, visualY: null };
+  }
+
+  let visualY = 0;
+  let found = false;
+
+  const expandPath = (
+    items: HierarchicalItem[],
+    pathIndex: number,
+  ): HierarchicalItem[] => {
+    return items.map((item) => {
+      if (found) return item;
+
+      const targetId = yPath[pathIndex];
+      const isTarget = item.id === targetId;
+
+      if (isTarget) {
+        if (pathIndex === yPath.length - 1) {
+          // Found the final target
+          found = true;
+          return item;
+        } else {
+          // This is an intermediate node in the path - expand it and continue
+          visualY += 1; // Count this node
+          const expandedChildren = item.children
+            ? expandPath(item.children, pathIndex + 1)
+            : item.children;
+          return {
+            ...item,
+            expanded: true,
+            children: expandedChildren,
+          };
+        }
+      } else {
+        // Not in the path - keep as is but count if visible
+        visualY += 1;
+        if (item.expanded && item.children && item.children.length > 0) {
+          return {
+            ...item,
+            children: expandPath(item.children, pathIndex),
+          };
+        }
+        return item;
+      }
+    });
+  };
+
+  const modifiedYAxis = expandPath(yAxis, 0);
+
+  return {
+    yAxis: modifiedYAxis,
+    visualY: found ? visualY : null,
+  };
+};
+
+/**
+ * Find and expand target system along an X-axis path if needed
+ * Returns the modified xAxis with target system expanded and the visual X coordinate
+ * @param xAxis - The hierarchical X-axis structure
+ * @param xPath - Array with [targetSystemId, organId] or [organId] for orphans
+ * @returns { xAxis: modified hierarchy with expanded target system, visualX: column index or null if path not found }
+ */
+export const expandAndFindXPath = (
+  xAxis: HierarchicalItem[],
+  xPath: string[],
+): { xAxis: HierarchicalItem[]; visualX: number | null } => {
+  if (!xPath || xPath.length === 0) {
+    return { xAxis, visualX: null };
+  }
+
+  let visualX = 0;
+
+  if (xPath.length === 1) {
+    // Orphan organ or collapsed target system
+    const targetId = xPath[0];
+    for (const item of xAxis) {
+      if (item.id === targetId) {
+        return { xAxis, visualX };
+      }
+      const hasChildren = item.children && item.children.length > 0;
+      visualX += hasChildren ? (item.expanded ? item.children.length : 1) : 1;
+    }
+    return { xAxis, visualX: null }; // Not found
+  } else {
+    // [targetSystemId, organId]
+    const [targetSystemId, organId] = xPath;
+
+    // First, expand the target system
+    const modifiedXAxis = xAxis.map((item) => {
+      if (item.id === targetSystemId) {
+        return {
+          ...item,
+          expanded: true,
+        };
+      }
+      return item;
+    });
+
+    // Calculate visualX by counting columns before the target organ
+    let finalVisualX = 0;
+    for (const item of modifiedXAxis) {
+      if (item.id === targetSystemId) {
+        // Found the target system - now find the child index
+        const childIndex = item.children?.findIndex((c) => c.id === organId);
+        if (childIndex !== undefined && childIndex >= 0) {
+          finalVisualX += childIndex;
+          return { xAxis: modifiedXAxis, visualX: finalVisualX };
+        } else {
+          // Child not found in this target system
+          return { xAxis, visualX: null };
+        }
+      }
+      // Count columns for items before the target system
+      const hasChildren = item.children && item.children.length > 0;
+      finalVisualX += hasChildren
+        ? item.expanded
+          ? item.children.length
+          : 1
+        : 1;
+    }
+
+    return { xAxis, visualX: null }; // Target system not found
+  }
 };

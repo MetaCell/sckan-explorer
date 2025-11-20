@@ -5,7 +5,11 @@ import {
   InitialFilterOptions,
 } from '../context/DataContext';
 import { Datasnapshot } from '../models/json';
-import { Option, HeatmapMode } from '../components/common/Types';
+import {
+  Option,
+  HeatmapMode,
+  HierarchicalItem,
+} from '../components/common/Types';
 
 // Utility to check if any filter is set
 export function hasActiveFilters(filters: Filters | SummaryFilters): boolean {
@@ -84,6 +88,16 @@ export const encodeURLState = (state: URLState): string => {
     params.set('v', state.view);
   }
 
+  // New path-based cell selection
+  // Use '|' as separator since IDs may contain '/'
+  if (state?.cellXPath && state.cellXPath.length > 0) {
+    params.set('xp', state.cellXPath.join('|'));
+  }
+  if (state?.cellYPath && state.cellYPath.length > 0) {
+    params.set('yp', state.cellYPath.join('|'));
+  }
+
+  // Legacy support - keep for backward compatibility
   if (state?.leftWidgetConnectionId) {
     params.set('lwi', state.leftWidgetConnectionId);
   }
@@ -143,6 +157,19 @@ export const decodeURLState = (
     state.datasnapshot = datasnapshot;
   }
 
+  // New path-based cell selection
+  // Use '|' as separator since IDs may contain '/'
+  const cellXPath = searchParams.get('xp');
+  if (cellXPath) {
+    state.cellXPath = cellXPath.split('|').filter((id) => id.length > 0);
+  }
+
+  const cellYPath = searchParams.get('yp');
+  if (cellYPath) {
+    state.cellYPath = cellYPath.split('|').filter((id) => id.length > 0);
+  }
+
+  // Legacy support - keep for backward compatibility
   const leftWidgetConnectionId = searchParams.get('lwi');
   if (leftWidgetConnectionId) {
     state.leftWidgetConnectionId = leftWidgetConnectionId;
@@ -264,4 +291,76 @@ export const getDatasnapshotFromURLStateOrDefault = (
   return defaultSnapshot
     ? defaultSnapshot.id.toString()
     : datasnapshots[0]?.id.toString() || '';
+};
+
+/**
+ * Build X-axis path from visual column index
+ * Returns an array: [targetSystemId, organId] or [organId] for orphan organs
+ */
+export const buildXPath = (
+  filteredXAxis: HierarchicalItem[],
+  visualX: number,
+): string[] | null => {
+  let visualIndex = 0;
+
+  for (const item of filteredXAxis) {
+    const hasChildren = item.children && item.children.length > 0;
+
+    if (hasChildren) {
+      if (item.expanded) {
+        // Expanded: each child is a separate column
+        if (visualIndex + item.children.length > visualX) {
+          const childOffset = visualX - visualIndex;
+          const child = item.children[childOffset];
+          return [item.id, child.id]; // [targetSystem, organ]
+        }
+        visualIndex += item.children.length;
+      } else {
+        // Collapsed: single column
+        if (visualIndex === visualX) {
+          return [item.id]; // Just the target system (represents all children)
+        }
+        visualIndex += 1;
+      }
+    } else {
+      // Orphan organ
+      if (visualIndex === visualX) {
+        return [item.id]; // Just the organ ID
+      }
+      visualIndex += 1;
+    }
+  }
+
+  return null; // Invalid index
+};
+
+/**
+ * Build Y-axis path from visual row index
+ * Returns an array of IDs from root to the clicked node
+ */
+export const buildYPath = (
+  filteredYAxis: HierarchicalItem[],
+  visualY: number,
+): string[] | null => {
+  let visualIndex = 0;
+
+  const traverse = (
+    items: HierarchicalItem[],
+    path: string[],
+  ): string[] | null => {
+    for (const item of items) {
+      if (visualIndex === visualY) {
+        return [...path, item.id];
+      }
+      visualIndex += 1;
+
+      if (item.expanded && item.children && item.children.length > 0) {
+        const result = traverse(item.children, [...path, item.id]);
+        if (result) return result;
+      }
+    }
+    return null;
+  };
+
+  return traverse(filteredYAxis, []);
 };

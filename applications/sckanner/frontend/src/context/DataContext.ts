@@ -41,14 +41,17 @@ export interface InitialFilterOptions {
 export interface WidgetState {
   datasnapshot: string | null;
   view: 'connectionView' | 'connectionDetailsView' | null;
-  leftWidgetConnectionId?: string | null;
+  leftWidgetConnectionId?: string | null; // Deprecated - keeping for backward compatibility
   rightWidgetConnectionId?: string | null;
   connectionKsIds?: string[] | null;
   filters?: Filters | null;
   summaryFilters?: SummaryFilters | null;
   connectionPage?: number | null;
-  heatmapExpandedState?: string[] | null;
-  secondaryHeatmapExpandedState?: string[] | null;
+  heatmapExpandedState?: string[] | null; // Deprecated
+  secondaryHeatmapExpandedState?: string[] | null; // Deprecated
+  // New path-based cell selection (replaces leftWidgetConnectionId)
+  cellXPath?: string[] | null; // Path from target system to organ (or just organ ID for orphans)
+  cellYPath?: string[] | null; // Path from root to clicked node in Y-axis hierarchy
 }
 
 export interface URLState extends WidgetState {
@@ -60,8 +63,11 @@ export interface DataContext {
   filters: Filters;
   majorNerves: Set<string>;
   organs: Record<string, Organ>;
+  targetSystems: Record<string, Organ[]>;
+  targetSystemNames: Record<string, string>;
   hierarchicalNodes: Record<string, HierarchicalNode>;
   knowledgeStatements: Record<string, KnowledgeStatement>;
+  endorgansOrder: Record<string, string[]>;
   setFilters: React.Dispatch<React.SetStateAction<Filters>>;
   selectedConnectionSummary: ConnectionSummary | null;
   setSelectedConnectionSummary: (
@@ -91,8 +97,11 @@ export const DataContext = createContext<DataContext>({
   },
   majorNerves: new Set<string>(),
   organs: {},
+  targetSystems: {},
+  targetSystemNames: {},
   hierarchicalNodes: {},
   knowledgeStatements: {},
+  endorgansOrder: {},
   setFilters: () => {},
   selectedConnectionSummary: null,
   setSelectedConnectionSummary: () => {},
@@ -115,6 +124,8 @@ export const DataContext = createContext<DataContext>({
     filters: null,
     leftWidgetConnectionId: null,
     rightWidgetConnectionId: null,
+    cellXPath: null,
+    cellYPath: null,
     summaryFilters: null,
     connectionPage: null,
     heatmapExpandedState: null,

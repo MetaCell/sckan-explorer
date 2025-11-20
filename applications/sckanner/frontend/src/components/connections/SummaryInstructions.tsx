@@ -21,7 +21,7 @@ const SummaryInstructions = () => {
           height: '40rem',
         }}
       >
-        <Typography
+        <Box
           className="SummaryInstructions"
           sx={{
             fontSize: '1rem',
@@ -157,7 +157,7 @@ const SummaryInstructions = () => {
               </p>
             </a>
           </Box>
-        </Typography>
+        </Box>
       </Box>
     </Box>
   );

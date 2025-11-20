@@ -30,6 +30,8 @@ interface UseWidgetStateActionsReturn {
     removeSummaryFilters: boolean,
     isConnectionView: boolean,
     leftSideHeatmapCoordinates: string,
+    cellXPath?: string[] | null,
+    cellYPath?: string[] | null,
   ) => void;
 
   // Heatmap state management
@@ -103,6 +105,8 @@ export const useWidgetStateActions = (): UseWidgetStateActionsReturn => {
       view: null,
       leftWidgetConnectionId: null,
       rightWidgetConnectionId: null,
+      cellXPath: null,
+      cellYPath: null,
     });
   }, [updateWidgetState]);
 
@@ -137,12 +141,16 @@ export const useWidgetStateActions = (): UseWidgetStateActionsReturn => {
       removeSummaryFilters: boolean,
       isConnectionView: boolean,
       leftSideHeatmapCoordinates: string,
+      cellXPath?: string[] | null,
+      cellYPath?: string[] | null,
     ) => {
       updateWidgetState({
         summaryFilters: removeSummaryFilters
           ? null
           : widgetState.summaryFilters,
-        leftWidgetConnectionId: leftSideHeatmapCoordinates,
+        leftWidgetConnectionId: leftSideHeatmapCoordinates, // Keep for backward compatibility
+        cellXPath: cellXPath ?? null,
+        cellYPath: cellYPath ?? null,
         rightWidgetConnectionId: isConnectionView
           ? null
           : widgetState.rightWidgetConnectionId,
@@ -196,6 +204,8 @@ export const useWidgetStateActions = (): UseWidgetStateActionsReturn => {
         summaryFilters: null,
         leftWidgetConnectionId: null,
         rightWidgetConnectionId: null,
+        cellXPath: null,
+        cellYPath: null,
         connectionPage: null,
         view: null,
         secondaryHeatmapExpandedState: null,
@@ -212,6 +222,8 @@ export const useWidgetStateActions = (): UseWidgetStateActionsReturn => {
       summaryFilters: null,
       leftWidgetConnectionId: null,
       rightWidgetConnectionId: null,
+      cellXPath: null,
+      cellYPath: null,
       connectionPage: null,
       heatmapExpandedState: null,
       secondaryHeatmapExpandedState: null,
