@@ -52,7 +52,7 @@ export const fetchEndorgansOrder = async (): Promise<
 > => {
   try {
     return await fetchData<Record<string, string[]>>(
-      'https://raw.githubusercontent.com/ddelpiano/SCKAN-Apps/refs/heads/master/sckan-explorer/json/sckanner-data/hierarchy/endorgansHierarchy.json',
+      'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/refs/heads/master/sckan-explorer/json/sckanner-data/hierarchy/endorgansHierarchy.json',
     );
   } catch (error) {
     throw new Error(

@@ -1,13 +1,13 @@
 export const SCKAN_ORDER_JSON_URL =
   'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/refs/heads/master/sckan-explorer/json/sckanner-data/order.json';
 export const SCKAN_MAJOR_NERVES_JSON_URL =
-  'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/major-nerves.json';
+  'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/refs/heads/master/sckan-explorer/json/major-nerves.json';
 
 export const SCKAN_DATABASE_SUMMARY_URL_LATEST =
   'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/refs/heads/master/sckan-explorer/json/sckanner-data/stats/sckan-version-2024-09-21/';
 
 export const SCKAN_DATABASE_SUMMARY_URL_PREVIOUS =
-  'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/sckan-stats/sckan-version-2024-03-04/';
+  'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/refs/heads/master/sckan-explorer/json/sckanner-data/stats/prod/';
 
 export const FILES = {
   POPULATION: 'POPULATION',
