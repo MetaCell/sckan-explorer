@@ -1,0 +1,53 @@
+{
+    "http://purl.obolibrary.org/obo/UBERON_0001017": [
+        "http://purl.obolibrary.org/obo/UBERON_0000955",
+        "http://purl.obolibrary.org/obo/UBERON_0002240"
+    ],
+    "http://purl.obolibrary.org/obo/UBERON_0000010": [
+        "http://purl.obolibrary.org/obo/UBERON_0001807",
+        "http://purl.obolibrary.org/obo/UBERON_0003964"
+    ],
+    "http://purl.obolibrary.org/obo/UBERON_0001004": [
+        "http://purl.obolibrary.org/obo/UBERON_0000065",
+        "http://purl.obolibrary.org/obo/UBERON_0001557",
+        "http://purl.obolibrary.org/obo/UBERON_0001558",
+        "http://purl.obolibrary.org/obo/UBERON_0002048"
+    ],
+    "http://purl.obolibrary.org/obo/UBERON_0004535": [
+        "http://purl.obolibrary.org/obo/UBERON_0000948",
+        "http://purl.obolibrary.org/obo/UBERON_0004572"
+    ],
+    "http://purl.obolibrary.org/obo/UBERON_0001007": [
+        "http://purl.obolibrary.org/obo/UBERON_0001555",
+        "http://purl.obolibrary.org/obo/UBERON_0001723",
+        "http://purl.obolibrary.org/obo/UBERON_0010047",
+        "http://purl.obolibrary.org/obo/UBERON_0001043",
+        "http://purl.obolibrary.org/obo/UBERON_0000945",
+        "http://purl.obolibrary.org/obo/UBERON_0000059",
+        "http://purl.obolibrary.org/obo/UBERON_0001155",
+        "http://purl.obolibrary.org/obo/UBERON_0001158",
+        "http://purl.obolibrary.org/obo/UBERON_0001264",
+        "http://purl.obolibrary.org/obo/UBERON_0002107"
+    ],
+    "http://purl.obolibrary.org/obo/UBERON_0000949": [
+        "http://purl.obolibrary.org/obo/UBERON_0002369",
+        "http://purl.obolibrary.org/obo/UBERON_0002368"
+    ],
+    "http://purl.obolibrary.org/obo/UBERON_0001008": [
+        "http://purl.obolibrary.org/obo/UBERON_0002113",
+        "http://purl.obolibrary.org/obo/UBERON_0001556",
+        "http://purl.obolibrary.org/obo/UBERON_0001255",
+        "http://purl.obolibrary.org/obo/UBERON_0000057"
+    ],
+    "http://purl.obolibrary.org/obo/UBERON_0000474": [
+        "http://purl.obolibrary.org/obo/UBERON_0000992",
+        "http://purl.obolibrary.org/obo/UBERON_0000995",
+        "http://purl.obolibrary.org/obo/UBERON_0000996",
+        "http://purl.obolibrary.org/obo/UBERON_0002411"
+    ],
+    "http://purl.obolibrary.org/obo/UBERON_0000079": [
+        "http://purl.obolibrary.org/obo/UBERON_0002367",
+        "http://purl.obolibrary.org/obo/UBERON_0000998",
+        "http://purl.obolibrary.org/obo/UBERON_0000989"
+    ]
+}

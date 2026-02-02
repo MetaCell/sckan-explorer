@@ -36,20 +36,26 @@ import { encodeURLState } from '../utils/urlStateManager.ts';
 export const DataContextProvider = ({
   hierarchicalNodes,
   organs,
+  targetSystems,
+  targetSystemNames,
   majorNerves,
   knowledgeStatements,
   urlState,
   setUrlState,
   selectedDatasnapshot,
+  endorgansOrder,
   children,
 }: PropsWithChildren<{
   hierarchicalNodes: Record<string, HierarchicalNode>;
   organs: Record<string, Organ>;
+  targetSystems: Record<string, Organ[]>;
+  targetSystemNames: Record<string, string>;
   majorNerves: Set<string>;
   knowledgeStatements: Record<string, KnowledgeStatement>;
   urlState: URLState;
   setUrlState: (urlState: URLState) => void;
   selectedDatasnapshot: string;
+  endorgansOrder: Record<string, string[]>;
 }>) => {
   const initialFilters = useMemo<Filters>(
     () =>
@@ -102,6 +108,8 @@ export const DataContextProvider = ({
       view: null,
       leftWidgetConnectionId: null,
       rightWidgetConnectionId: null,
+      cellXPath: null,
+      cellYPath: null,
       filters: null,
       summaryFilters: null,
       connectionPage: null,
@@ -128,6 +136,8 @@ export const DataContextProvider = ({
       filters: widgetState.filters,
       leftWidgetConnectionId: widgetState.leftWidgetConnectionId,
       rightWidgetConnectionId: widgetState.rightWidgetConnectionId,
+      cellXPath: widgetState.cellXPath,
+      cellYPath: widgetState.cellYPath,
       view: widgetState.view,
       summaryFilters: widgetState?.summaryFilters,
       connectionPage: widgetState?.connectionPage,
@@ -145,6 +155,8 @@ export const DataContextProvider = ({
     widgetState.filters,
     widgetState.leftWidgetConnectionId,
     widgetState.rightWidgetConnectionId,
+    widgetState.cellXPath,
+    widgetState.cellYPath,
     widgetState.view,
     widgetState?.summaryFilters,
     widgetState?.connectionPage,
@@ -289,9 +301,12 @@ export const DataContextProvider = ({
   const dataContextValue = {
     filters,
     organs,
+    targetSystems,
+    targetSystemNames,
     majorNerves,
     hierarchicalNodes,
     knowledgeStatements,
+    endorgansOrder,
     setFilters,
     selectedConnectionSummary,
     setSelectedConnectionSummary: handleSetSelectedConnectionSummary,

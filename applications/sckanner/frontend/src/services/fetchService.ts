@@ -31,13 +31,34 @@ export const fetchOrderJson = async (): Promise<OrderJson> => {
   try {
     return await fetchData<OrderJson>(SCKAN_ORDER_JSON_URL);
   } catch (error) {
-    console.warn('Failed to fetch order JSON:', error);
-    return {};
+    throw new Error(
+      `Failed to fetch organ hierarchy order from GitHub: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 };
 
 export const fetchMajorNerves = async (): Promise<NerveResponse> => {
-  return await fetchData<NerveResponse>(SCKAN_MAJOR_NERVES_JSON_URL);
+  try {
+    return await fetchData<NerveResponse>(SCKAN_MAJOR_NERVES_JSON_URL);
+  } catch (error) {
+    throw new Error(
+      `Failed to fetch major nerves data from GitHub: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+};
+
+export const fetchEndorgansOrder = async (): Promise<
+  Record<string, string[]>
+> => {
+  try {
+    return await fetchData<Record<string, string[]>>(
+      'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/refs/heads/master/sckan-explorer/json/sckanner-data/hierarchy/endorgansHierarchy.json',
+    );
+  } catch (error) {
+    throw new Error(
+      `Failed to fetch end organs hierarchy from GitHub: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
 };
 
 export const fetchDatasnapshots = async (): Promise<Datasnapshot[]> => {

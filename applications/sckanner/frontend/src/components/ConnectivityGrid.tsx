@@ -20,6 +20,7 @@ import { useWidgetStateActions } from '../hooks/useWidgetStateActions.ts';
 import {
   calculateConnections,
   getXAxisOrgans,
+  getHierarchicalXAxis,
   getYAxis,
   getHeatmapData,
   getKnowledgeStatementMap,
@@ -29,6 +30,8 @@ import {
   filterKnowledgeStatements,
   assignExpandedState,
   getMinMaxKnowledgeStatements,
+  expandAndFindYPath,
+  expandAndFindXPath,
 } from '../services/heatmapService.ts';
 import FiltersDropdowns from './FiltersDropdowns.tsx';
 import {
@@ -36,10 +39,14 @@ import {
   HierarchicalItem,
   HeatmapMode,
 } from './common/Types.ts';
-import { Organ } from '../models/explorer.ts';
+import { Organ, BaseEntity } from '../models/explorer.ts';
 import LoaderSpinner from './common/LoaderSpinner.tsx';
 import { extractEndOrganFiltersFromEntities } from '../services/summaryHeatmapService.ts';
-import { COORDINATE_SEPARATOR } from '../utils/urlStateManager.ts';
+import {
+  COORDINATE_SEPARATOR,
+  buildXPath,
+  buildYPath,
+} from '../utils/urlStateManager.ts';
 import SynapticSVG from './assets/svg/synaptic.svg?url';
 import SynapticWhiteSVG from './assets/svg/synapticWhite.svg?url';
 
@@ -49,12 +56,15 @@ function ConnectivityGrid() {
   const {
     hierarchicalNodes,
     organs,
+    targetSystems,
+    targetSystemNames,
     knowledgeStatements,
     filters,
     setFilters,
     setSelectedConnectionSummary,
     widgetState,
     heatmapMode,
+    endorgansOrder,
     // switchHeatmapMode,
   } = useDataContext();
 
@@ -67,6 +77,8 @@ function ConnectivityGrid() {
   );
   const [xAxisOrgans, setXAxisOrgans] = useState<Organ[]>([]);
   const [filteredXOrgans, setFilteredXOrgans] = useState<Organ[]>([]);
+  const [xAxis, setXAxis] = useState<HierarchicalItem[]>([]);
+  const [filteredXAxis, setFilteredXAxis] = useState<HierarchicalItem[]>([]);
   const [initialYAxis, setInitialYAxis] = useState<HierarchicalItem[]>([]);
 
   const [yAxis, setYAxis] = useState<HierarchicalItem[]>([]);
@@ -86,6 +98,21 @@ function ConnectivityGrid() {
   } | null>(null);
 
   const prevHeatmapModeRef = useRef<HeatmapMode>(heatmapMode);
+  const initialPathsRef = useRef<{
+    xPath: string[] | null;
+    yPath: string[] | null;
+    legacyId: string | null;
+  }>({
+    xPath: widgetState.cellXPath ?? null,
+    yPath: widgetState.cellYPath ?? null,
+    legacyId: widgetState.leftWidgetConnectionId ?? null,
+  });
+  const pendingCellClickRef = useRef<{
+    visualX: number;
+    visualY: number;
+    yId: string;
+    isConnectionView: boolean;
+  } | null>(null);
 
   useEffect(() => {
     const connections = calculateConnections(
@@ -102,9 +129,23 @@ function ConnectivityGrid() {
   }, [filteredConnectionsMap]);
 
   useEffect(() => {
+    // Only build X-axis once endorgansOrder is loaded
+    if (Object.keys(endorgansOrder).length === 0) {
+      return;
+    }
+
     const organList = getXAxisOrgans(organs);
     setXAxisOrgans(organList);
-  }, [organs]);
+
+    // Build hierarchical X-axis
+    const hierarchicalX = getHierarchicalXAxis(
+      targetSystems,
+      organs,
+      endorgansOrder,
+      targetSystemNames,
+    );
+    setXAxis(hierarchicalX);
+  }, [organs, targetSystems, targetSystemNames, endorgansOrder]);
 
   // Helper function to apply expand/collapse state to fresh yAxis
   const applyExpandedState = (
@@ -179,7 +220,7 @@ function ConnectivityGrid() {
   }, [widgetState.heatmapExpandedState, hierarchicalNodes]);
 
   useEffect(() => {
-    if (connectionsMap.size > 0 && yAxis.length > 0) {
+    if (connectionsMap.size > 0 && yAxis.length > 0 && xAxis.length > 0) {
       // Apply filtering logic
       const filteredYAxis = filterYAxis<Array<string>>(yAxis, connectionsMap);
       const columnsWithData = getNonEmptyColumns(filteredYAxis, connectionsMap);
@@ -192,11 +233,55 @@ function ConnectivityGrid() {
         columnsWithData.has(index),
       );
 
+      // Check if end organ filter is active
+      const hasEndOrganFilter = filters.EndOrgan.length > 0;
+
+      let filteredHierarchicalX: HierarchicalItem[];
+
+      if (hasEndOrganFilter) {
+        // When end organ filter is set, use flat list of organs (no target systems)
+        filteredHierarchicalX = filteredOrgans.map((organ) => ({
+          id: organ.id,
+          label: organ.name,
+          children: [],
+          expanded: false,
+        }));
+      } else {
+        // Normal hierarchical behavior with target systems
+        const filteredOrganIds = new Set(filteredOrgans.map((o) => o.id));
+        filteredHierarchicalX = xAxis
+          .map((item) => {
+            if (item.children && item.children.length > 0) {
+              // Filter children to only include those with data
+              const filteredChildren = item.children.filter((child) =>
+                filteredOrganIds.has(child.id),
+              );
+              // Only include parent if it has children with data
+              if (filteredChildren.length > 0) {
+                return {
+                  ...item,
+                  children: filteredChildren,
+                };
+              }
+              return null;
+            } else {
+              // Orphan organ - include if it has data
+              return filteredOrganIds.has(item.id) ? item : null;
+            }
+          })
+          .filter((item) => item !== null) as HierarchicalItem[];
+      }
+
       setFilteredYAxis(filteredYAxis);
       setFilteredXOrgans(filteredOrgans);
+      setFilteredXAxis(filteredHierarchicalX);
       setFilteredConnectionsMap(filteredConnectionsMap);
+    } else if (xAxis.length === 0 && yAxis.length > 0) {
+      // When xAxis is empty (e.g., datasnapshot without target systems), clear filtered state
+      setFilteredXAxis([]);
+      setFilteredXOrgans([]);
     }
-  }, [yAxis, connectionsMap, xAxisOrgans]);
+  }, [yAxis, connectionsMap, xAxisOrgans, xAxis, filters.EndOrgan]);
 
   // Reset summary widget when heatmap mode changes
   useEffect(() => {
@@ -228,6 +313,7 @@ function ConnectivityGrid() {
       filteredKSs,
       filteredXOrgans,
       heatmapMode,
+      filteredXAxis,
     );
 
     // TODO change the return based on the type of heatmapMode
@@ -246,6 +332,7 @@ function ConnectivityGrid() {
     filteredConnectionsMap,
     filteredXOrgans,
     heatmapMode,
+    filteredXAxis,
   ]);
 
   const handleClick = useCallback(
@@ -261,16 +348,119 @@ function ConnectivityGrid() {
       if (heatmapMode === HeatmapMode.Default) {
         const row = filteredConnectionsMap.get(yId);
         if (row) {
-          const endOrgan = filteredXOrgans[x];
+          // Map visual X coordinate to actual organ index in filteredXOrgans
+          // This accounts for collapsed target systems
+          let actualOrganIndex = 0;
+          let visualIndex = 0;
+
+          for (let i = 0; i < filteredXAxis.length; i++) {
+            const item = filteredXAxis[i];
+            const hasChildren = item.children && item.children.length > 0;
+
+            // Advance indices
+            if (hasChildren) {
+              if (item.expanded) {
+                // Expanded: each child is a separate column
+                if (visualIndex + item.children.length > x) {
+                  // Click is within this target system's children
+                  const childOffset = x - visualIndex;
+                  actualOrganIndex = actualOrganIndex + childOffset;
+                  break;
+                }
+                actualOrganIndex += item.children.length;
+                visualIndex += item.children.length;
+              } else {
+                // Collapsed: single column for all children
+                if (visualIndex === x) {
+                  // Clicked on a collapsed target system
+                  // Merge all knowledge statements from children organs
+                  const allKsIds = new Set<string>();
+                  const childOrgans: Organ[] = [];
+
+                  item.children.forEach((child) => {
+                    const childOrganIndex = filteredXOrgans.findIndex(
+                      (o) => o.id === child.id,
+                    );
+                    if (childOrganIndex !== -1 && row[childOrganIndex]) {
+                      row[childOrganIndex].forEach((ksId) =>
+                        allKsIds.add(ksId),
+                      );
+                      childOrgans.push(filteredXOrgans[childOrganIndex]);
+                    }
+                  });
+
+                  const ksMap = getKnowledgeStatementMap(
+                    Array.from(allKsIds),
+                    knowledgeStatements,
+                  );
+                  const nodeData = detailedHeatmapData[y];
+                  const hierarchicalNode = hierarchicalNodes[nodeData.id];
+
+                  const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
+                  const xPath = buildXPath(filteredXAxis, x);
+                  const yPath = buildYPath(filteredYAxis, y);
+                  updateConnectivityGridCellClick(
+                    removeSummaryFilters,
+                    isConnectionView ?? false,
+                    leftSideHeatmapCoordinates,
+                    xPath,
+                    yPath,
+                  );
+
+                  // Create a target system representation with all children
+                  const allChildren = new Map();
+                  childOrgans.forEach((organ) => {
+                    allChildren.set(organ.id, organ);
+                    if (organ.children instanceof Map) {
+                      organ.children.forEach((child) => {
+                        allChildren.set(child.id, child);
+                      });
+                    }
+                  });
+
+                  setSelectedConnectionSummary({
+                    connections: ksMap,
+                    endOrgan: {
+                      id: item.id,
+                      name: item.label,
+                      children: allChildren,
+                      order: 0,
+                    },
+                    hierarchicalNode: hierarchicalNode,
+                  });
+                  return;
+                }
+                actualOrganIndex += item.children.length;
+                visualIndex += 1;
+              }
+            } else {
+              // Orphan organ
+              if (visualIndex === x) {
+                break;
+              }
+              actualOrganIndex += 1;
+              visualIndex += 1;
+            }
+          }
+
+          // Handle regular organ click
+          const endOrgan = filteredXOrgans[actualOrganIndex];
           const nodeData = detailedHeatmapData[y];
           const hierarchicalNode = hierarchicalNodes[nodeData.id];
-          const ksMap = getKnowledgeStatementMap(row[x], knowledgeStatements);
+          const ksMap = getKnowledgeStatementMap(
+            row[actualOrganIndex],
+            knowledgeStatements,
+          );
 
           const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
+          const xPath = buildXPath(filteredXAxis, x);
+          const yPath = buildYPath(filteredYAxis, y);
           updateConnectivityGridCellClick(
             removeSummaryFilters,
             isConnectionView ?? false,
             leftSideHeatmapCoordinates,
+            xPath,
+            yPath,
           );
 
           setSelectedConnectionSummary({
@@ -280,54 +470,167 @@ function ConnectivityGrid() {
           });
         }
       } else {
-        const endOrgan = filteredXOrgans[x];
-        // synaptic connections might be developed over other destinations, so I will pass all the possible
-        // destinations and then purge the empty columns in the connections component or the summaryheatmapservice
-        const allChildren = new Map();
-        filteredXOrgans.forEach((org) => {
-          org.children.forEach((child) => {
-            allChildren.set(child.id, child);
-          });
-        });
-        const endOrganWithChildren = {
-          ...endOrgan,
-          children: allChildren,
-        };
-        const nodeData = detailedHeatmapData[y];
-        const hierarchicalNode = hierarchicalNodes[nodeData.id];
-        const allUris = new Set<string>();
-        if (synapticConnections) {
-          synapticConnections[y].synapticConnections[x].forEach((path) => {
-            path.forEach((uri) => allUris.add(uri));
-          });
-          synapticConnections[y].directConnections[x].forEach((path) => {
-            allUris.add(path);
-          });
+        // Synaptic mode - handle collapsed target systems similarly
+        let actualOrganIndex = 0;
+        let visualIndex = 0;
+        let clickedItem: HierarchicalItem | null = null;
+
+        for (let i = 0; i < filteredXAxis.length; i++) {
+          const item = filteredXAxis[i];
+          const hasChildren = item.children && item.children.length > 0;
+
+          // Advance indices
+          if (hasChildren) {
+            if (item.expanded) {
+              if (visualIndex + item.children.length > x) {
+                const childOffset = x - visualIndex;
+                actualOrganIndex = actualOrganIndex + childOffset;
+                clickedItem = item.children[childOffset];
+                break;
+              }
+              actualOrganIndex += item.children.length;
+              visualIndex += item.children.length;
+            } else {
+              if (visualIndex === x) {
+                clickedItem = item;
+                break;
+              }
+              actualOrganIndex += item.children.length;
+              visualIndex += 1;
+            }
+          } else {
+            if (visualIndex === x) {
+              clickedItem = item;
+              break;
+            }
+            actualOrganIndex += 1;
+            visualIndex += 1;
+          }
         }
 
-        const ksMap = getKnowledgeStatementMap(
-          Array.from(allUris),
-          knowledgeStatements,
-        );
+        const nodeData = detailedHeatmapData[y];
+        const hierarchicalNode = hierarchicalNodes[nodeData.id];
 
-        const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
-        updateConnectivityGridCellClick(
-          removeSummaryFilters,
-          isConnectionView ?? false,
-          leftSideHeatmapCoordinates,
-        );
+        if (
+          clickedItem &&
+          clickedItem.children &&
+          clickedItem.children.length > 0 &&
+          !clickedItem.expanded
+        ) {
+          // Clicked on a collapsed target system in synaptic mode
+          const allUris = new Set<string>();
+          const childOrgans: Organ[] = [];
 
-        setSelectedConnectionSummary({
-          connections: ksMap,
-          endOrgan: endOrganWithChildren,
-          hierarchicalNode: hierarchicalNode,
-        });
+          clickedItem.children.forEach((child) => {
+            const childOrganIndex = filteredXOrgans.findIndex(
+              (o) => o.id === child.id,
+            );
+            if (childOrganIndex !== -1 && synapticConnections) {
+              synapticConnections[y].synapticConnections[
+                childOrganIndex
+              ].forEach((path) => {
+                path.forEach((uri) => allUris.add(uri));
+              });
+              synapticConnections[y].directConnections[childOrganIndex].forEach(
+                (path) => {
+                  allUris.add(path);
+                },
+              );
+              childOrgans.push(filteredXOrgans[childOrganIndex]);
+            }
+          });
+
+          const ksMap = getKnowledgeStatementMap(
+            Array.from(allUris),
+            knowledgeStatements,
+          );
+
+          const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
+          const xPath = buildXPath(filteredXAxis, x);
+          const yPath = buildYPath(filteredYAxis, y);
+          updateConnectivityGridCellClick(
+            removeSummaryFilters,
+            isConnectionView ?? false,
+            leftSideHeatmapCoordinates,
+            xPath,
+            yPath,
+          );
+
+          // Create target system with all children
+          const allChildren = new Map();
+          childOrgans.forEach((organ) => {
+            allChildren.set(organ.id, organ);
+            if (organ.children instanceof Map) {
+              organ.children.forEach((child: BaseEntity) => {
+                allChildren.set(child.id, child);
+              });
+            }
+          });
+
+          setSelectedConnectionSummary({
+            connections: ksMap,
+            endOrgan: {
+              id: clickedItem.id,
+              name: clickedItem.label,
+              children: allChildren,
+              order: 0,
+            },
+            hierarchicalNode: hierarchicalNode,
+          });
+        } else {
+          // Regular organ click in synaptic mode
+          const endOrgan = filteredXOrgans[actualOrganIndex];
+          const allChildren = new Map();
+          filteredXOrgans.forEach((org) => {
+            org.children.forEach((child: BaseEntity) => {
+              allChildren.set(child.id, child);
+            });
+          });
+          const endOrganWithChildren = {
+            ...endOrgan,
+            children: allChildren,
+          };
+
+          const allUris = new Set<string>();
+          if (synapticConnections) {
+            synapticConnections[y].synapticConnections[x].forEach((path) => {
+              path.forEach((uri) => allUris.add(uri));
+            });
+            synapticConnections[y].directConnections[x].forEach((path) => {
+              allUris.add(path);
+            });
+          }
+
+          const ksMap = getKnowledgeStatementMap(
+            Array.from(allUris),
+            knowledgeStatements,
+          );
+
+          const leftSideHeatmapCoordinates = `${x}${COORDINATE_SEPARATOR}${y}`;
+          const xPath = buildXPath(filteredXAxis, x);
+          const yPath = buildYPath(filteredYAxis, y);
+          updateConnectivityGridCellClick(
+            removeSummaryFilters,
+            isConnectionView ?? false,
+            leftSideHeatmapCoordinates,
+            xPath,
+            yPath,
+          );
+
+          setSelectedConnectionSummary({
+            connections: ksMap,
+            endOrgan: endOrganWithChildren,
+            hierarchicalNode: hierarchicalNode,
+          });
+        }
       }
     },
     [
       heatmapMode,
       filteredConnectionsMap,
       filteredXOrgans,
+      filteredXAxis,
+      filteredYAxis,
       detailedHeatmapData,
       hierarchicalNodes,
       knowledgeStatements,
@@ -355,14 +658,67 @@ function ConnectivityGrid() {
   };
 
   useEffect(() => {
-    if (
+    // Only restore from URL on initial load - check if paths match what we started with
+    const isInitialPathRestoration =
+      widgetState.cellXPath &&
+      widgetState.cellYPath &&
+      JSON.stringify(widgetState.cellXPath) ===
+        JSON.stringify(initialPathsRef.current.xPath) &&
+      JSON.stringify(widgetState.cellYPath) ===
+        JSON.stringify(initialPathsRef.current.yPath);
+
+    const isInitialLegacyRestoration =
       widgetState.leftWidgetConnectionId &&
+      widgetState.leftWidgetConnectionId === initialPathsRef.current.legacyId;
+
+    // New path-based cell selection restoration (only on initial load)
+    if (
+      isInitialPathRestoration &&
+      filteredConnectionsMap.size > 0 &&
+      detailedHeatmapData.length > 0 &&
+      yAxis.length > 0 &&
+      xAxis.length > 0
+    ) {
+      // Clear the ref so we don't restore again
+      initialPathsRef.current.xPath = null;
+      initialPathsRef.current.yPath = null;
+
+      // Expand Y-axis based on path and get visual Y coordinate
+      const yResult = expandAndFindYPath(yAxis, widgetState.cellYPath!);
+      if (yResult.visualY !== null) {
+        setYAxis(yResult.yAxis);
+
+        // Expand X-axis based on path and get visual X coordinate
+        const xResult = expandAndFindXPath(xAxis, widgetState.cellXPath!);
+        if (xResult.visualX !== null) {
+          setXAxis(xResult.xAxis);
+
+          // Store the pending click to be executed after filteredXAxis updates
+          const visualY = yResult.visualY;
+          const visualX = xResult.visualX;
+          const nodeData = detailedHeatmapData[visualY];
+          if (nodeData) {
+            pendingCellClickRef.current = {
+              visualX,
+              visualY,
+              yId: nodeData.id,
+              isConnectionView: widgetState.view === 'connectionView',
+            };
+          }
+        }
+      }
+    } else if (
+      // Legacy support - old coordinate-based restoration (only on initial load)
+      isInitialLegacyRestoration &&
       filteredConnectionsMap.size > 0 &&
       detailedHeatmapData.length > 0 &&
       yAxis.length > 0
     ) {
-      const [x, y] = widgetState.leftWidgetConnectionId
-        .split(COORDINATE_SEPARATOR)
+      // Clear the ref so we don't restore again
+      initialPathsRef.current.legacyId = null;
+
+      const [x, y] = widgetState
+        .leftWidgetConnectionId!.split(COORDINATE_SEPARATOR)
         .map(Number);
 
       if (
@@ -380,18 +736,70 @@ function ConnectivityGrid() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    widgetState.leftWidgetConnectionId,
     filteredConnectionsMap,
     filteredXOrgans,
     detailedHeatmapData,
-    yAxis,
+    // Note: yAxis and xAxis are intentionally not in deps to avoid infinite loops
+    // Note: widgetState paths are NOT in deps - we only want to run this on data load
   ]);
+
+  // Execute pending cell click after filteredXAxis has been updated with expanded state
+  useEffect(() => {
+    if (
+      pendingCellClickRef.current &&
+      filteredXAxis.length > 0 &&
+      filteredConnectionsMap
+    ) {
+      const pending = pendingCellClickRef.current;
+
+      // Validate that the coordinates are within bounds
+      if (
+        pending.visualY >= 0 &&
+        pending.visualY < filteredYAxis.length &&
+        pending.visualX >= 0 &&
+        pending.visualX < filteredXAxis.length
+      ) {
+        // Additional validation: check if the cell has data (use yId to get row from Map)
+        const row = filteredConnectionsMap.get(pending.yId);
+        if (row && row.length > 0) {
+          pendingCellClickRef.current = null; // Clear it so we don't execute again
+
+          // Execute the click now that filteredXAxis has the expanded target system
+          handleClick(
+            pending.visualX,
+            pending.visualY,
+            pending.yId,
+            pending.isConnectionView,
+          );
+        } else {
+          // Data not ready yet, keep pending for next effect run
+          console.warn(
+            'Pending click coordinates valid but row data not available yet',
+          );
+        }
+      } else {
+        // Coordinates are out of bounds - clear the pending click to avoid infinite loop
+        console.error(
+          `Pending click coordinates out of bounds: visualX=${pending.visualX}, visualY=${pending.visualY}, filteredXAxis.length=${filteredXAxis.length}, filteredYAxis.length=${filteredYAxis.length}`,
+        );
+        pendingCellClickRef.current = null;
+      }
+    }
+  }, [filteredXAxis, filteredYAxis, filteredConnectionsMap, handleClick]);
 
   // Custom handler for updating yAxis from the heatmap collapsible list
   const handleYAxisUpdate = (updatedFilteredYAxis: HierarchicalItem[]) => {
     // Apply the expand/collapse changes from the filtered yAxis back to the original yAxis
     setYAxis((currentYAxis) =>
       applyExpandedState(currentYAxis, updatedFilteredYAxis),
+    );
+  };
+
+  // Custom handler for updating xAxis from the heatmap
+  const handleXAxisUpdate = (updatedFilteredXAxis: HierarchicalItem[]) => {
+    // Apply the expand/collapse changes from the filtered xAxis back to the original xAxis
+    setXAxis((currentXAxis) =>
+      applyExpandedState(currentXAxis, updatedFilteredXAxis),
     );
   };
 
@@ -553,11 +961,12 @@ function ConnectivityGrid() {
       <HeatmapGrid
         yAxis={filteredYAxis}
         setYAxis={handleYAxisUpdate}
+        xAxis={filteredXAxis}
+        setXAxis={handleXAxisUpdate}
         heatmapData={
           heatmapMode === HeatmapMode.Default ? heatmapData : synapticData
         }
         setSelectedCell={setSelectedCell}
-        xAxis={filteredXOrgans.map((organ) => organ.name)}
         xAxisLabel={'End organ'}
         yAxisLabel={'Connection Origin'}
         onCellClick={(x, y, yId) => handleClick(x, y, yId, true, true)}

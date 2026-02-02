@@ -55,13 +55,24 @@ KNOWLEDGE_STATEMENTS_BATCH_SIZE = 50  # original default value
 class Command(BaseCommand):
     help = "Fetch and update knowledge statements from an external server"
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--a_b_via_c_json_url',
+            type=str,
+            help='URL to the A-B-via-C JSON file',
+        )
+
     def handle(self, *args, **kwargs):
         self.stdout.write("Starting the ingestion process...")
+        a_b_via_c_json_url = kwargs.get('a_b_via_c_json_url')
 
-        # Step 1: Fetch raw JSON from external source
-        raw_data_url = "https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/master/sckan-explorer/json/a-b-via-c-2.json"
-        self.stdout.write(f"Fetching data from {raw_data_url}...")
-        response = requests.get(raw_data_url)
+        # Step 1: Fetch raw JSON from URL
+        if not a_b_via_c_json_url:
+            # Fallback to hardcoded URL (for backward compatibility)
+            a_b_via_c_json_url = "https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/refs/heads/master/sckan-explorer/json/sckanner-data/hierarchy/sckanner-hierarchy.json"
+        
+        self.stdout.write(f"Fetching data from {a_b_via_c_json_url}...")
+        response = requests.get(a_b_via_c_json_url)
         response.raise_for_status()
         raw_data = JsonData(**response.json())
 
