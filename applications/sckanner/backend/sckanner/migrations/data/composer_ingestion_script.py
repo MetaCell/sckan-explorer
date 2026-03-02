@@ -123,7 +123,11 @@ def fetch_paginated_data(population_ids: list[str], stdout=None):
 	return detailed_data
 
 
-def get_statements(version="", stdout=None, a_b_via_c_json_file_path=None):
+def get_statements(version="", **kwargs):
+    # Extract parameters from kwargs with defaults
+    stdout = kwargs.get('stdout', None)
+    a_b_via_c_json_file_path = kwargs.get('a_b_via_c_json_file_path', None)
+    
     try:
         # Step 1: Load raw JSON from file or external source
         if a_b_via_c_json_file_path:

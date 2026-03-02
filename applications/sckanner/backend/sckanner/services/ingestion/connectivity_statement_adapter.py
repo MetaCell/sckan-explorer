@@ -40,15 +40,13 @@ class ConnectivityStatementAdapter:
 
         # Get statements from the uploaded module
         if hasattr(module, "get_statements") and callable(module.get_statements):
-            # Pass the a_b_via_c_json_file path if available
-            a_b_via_c_json_file_path = None
+            # Prepare kwargs to pass to get_statements
+            kwargs = {}
             if self.snapshot.a_b_via_c_json_file:
-                a_b_via_c_json_file_path = self.snapshot.a_b_via_c_json_file.path
+                kwargs['a_b_via_c_json_file_path'] = self.snapshot.a_b_via_c_json_file.path
             
-            statements = module.get_statements(
-                self.snapshot.version, 
-                a_b_via_c_json_file_path=a_b_via_c_json_file_path
-            )
+            # Call get_statements with version and any additional kwargs
+            statements = module.get_statements(self.snapshot.version, **kwargs)
             try:
                 # Validate the statements against the schema
                 current_path = os.path.dirname(os.path.abspath(__file__))
