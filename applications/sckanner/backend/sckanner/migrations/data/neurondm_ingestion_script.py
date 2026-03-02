@@ -1082,7 +1082,11 @@ def refine_statement(statement: Dict) -> Dict:
 
 ## Based on:
 ## https://github.com/tgbugs/pyontutils/blob/30c415207b11644808f70c8caecc0c75bd6acb0a/neurondm/docs/composer.py#L668-L698
-def get_statements(version="", local=False, full_imports=[], label_imports=[]):
+def get_statements(version="", **kwargs):
+    # Extract parameters from kwargs with defaults
+    local = kwargs.get('local', False)
+    full_imports = kwargs.get('full_imports', [])
+    label_imports = kwargs.get('label_imports', [])
 
     config = Config('random-merge')
     g = OntGraph()  # load and query graph
