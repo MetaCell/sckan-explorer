@@ -3,10 +3,10 @@ export const SCKAN_ORDER_JSON_URL =
 export const SCKAN_MAJOR_NERVES_JSON_URL =
   'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/refs/heads/master/sckan-explorer/json/major-nerves.json';
 
-export const SCKAN_DATABASE_SUMMARY_URL_LATEST =
+export const SCKAN_DATABASE_SUMMARY_URL_PREVIOUS =
   'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/refs/heads/master/sckan-explorer/json/sckanner-data/stats/sckan-version-2024-09-21/';
 
-export const SCKAN_DATABASE_SUMMARY_URL_PREVIOUS =
+export const SCKAN_DATABASE_SUMMARY_URL_LATEST =
   'https://raw.githubusercontent.com/smtifahim/SCKAN-Apps/refs/heads/master/sckan-explorer/json/sckanner-data/stats/prod/';
 
 export const FILES = {
@@ -14,6 +14,7 @@ export const FILES = {
   PHENOTYPE: 'PHENOTYPE',
   SPECIES: 'SPECIES',
   CATEGORY: 'CATEGORY',
+  INFO: 'INFO',
 };
 
 export const DATABASE_FILES = {
@@ -21,6 +22,7 @@ export const DATABASE_FILES = {
   [FILES.PHENOTYPE]: 'stats-phenotype-count.json',
   [FILES.SPECIES]: 'stats-phenotype-value-count.json',
   [FILES.CATEGORY]: 'stats-population-category-count.json',
+  [FILES.INFO]: 'sckan-version-info.json',
 };
 
 export const OTHER_X_AXIS_ID = 'OTHER_X';
@@ -77,5 +79,26 @@ export const STRINGS_NUMBERS = [
 // Get version from Vite environment variable (set at build time)
 export const SCKANNER_VERSION = import.meta.env.VITE_APP_VERSION || '3.1.1';
 export const COMPOSER_VERSION = '6.0.0';
-export const NEURONDM_VERSION = '2025-10-27';
+
+// Fetch NEURONDM version from remote sckan-version-info.json
+const fetchNeurondmVersion = (): string => {
+  try {
+    const request = new XMLHttpRequest();
+    request.open(
+      'GET',
+      SCKAN_DATABASE_SUMMARY_URL_LATEST + DATABASE_FILES[FILES.INFO],
+      false,
+    );
+    request.send(null);
+    if (request.status === 200) {
+      const data = JSON.parse(request.responseText);
+      return data?.results?.bindings?.[0]?.sckan_version?.value || '';
+    }
+  } catch {
+    // fallback on error
+  }
+  return '';
+};
+export const NEURONDM_VERSION = fetchNeurondmVersion();
+
 export const KNOWLEDGE_STATEMENTS_BATCH_SIZE = 15;
