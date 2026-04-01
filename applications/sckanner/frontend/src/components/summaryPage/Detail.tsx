@@ -11,7 +11,13 @@ interface DetailProps {
   index: number;
   change?: number;
 }
-export const Detail = ({ keyName, value, labels, index, change }: DetailProps) => (
+export const Detail = ({
+  keyName,
+  value,
+  labels,
+  index,
+  change,
+}: DetailProps) => (
   <Stack
     key={keyName}
     direction="row"
