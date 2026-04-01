@@ -17,10 +17,20 @@ import descriptionsData from '../data/descriptions.json';
 
 const { primaryPurple600, gray500, white } = vars;
 
+const formatDate = (dateStr: string): string => {
+  const date = new Date(dateStr + 'T00:00:00');
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
 const SummaryPage = () => {
   const [data, setData] = useState<{ [x: string]: null }>({});
   const [loaded, setLoaded] = useState(false);
   const [value, setValue] = useState(0);
+  const [lastUpdated, setLastUpdated] = useState<string>('');
 
   // @ts-expect-error Explanation: Handling Event properly
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -50,7 +60,14 @@ const SummaryPage = () => {
       [FILES.CATEGORY]: null,
     };
 
-    for (const file in FILES) {
+    const statFiles = [
+      FILES.POPULATION,
+      FILES.PHENOTYPE,
+      FILES.SPECIES,
+      FILES.CATEGORY,
+    ];
+
+    for (const file of statFiles) {
       const request = new XMLHttpRequest();
       request.open(
         'GET',
@@ -63,7 +80,7 @@ const SummaryPage = () => {
       }
     }
 
-    for (const file in FILES) {
+    for (const file of statFiles) {
       const request = new XMLHttpRequest();
       request.open(
         'GET',
@@ -196,20 +213,40 @@ const SummaryPage = () => {
       }
     });
 
+    // Fetch version info for "last updated" date
+    const versionRequest = new XMLHttpRequest();
+    versionRequest.open(
+      'GET',
+      SCKAN_DATABASE_SUMMARY_URL_LATEST + DATABASE_FILES[FILES.INFO],
+      false,
+    );
+    versionRequest.send(null);
+    if (versionRequest.status === 200) {
+      const versionData = JSON.parse(versionRequest.responseText);
+      const dateValue =
+        versionData?.results?.bindings?.[0]?.sckan_version?.value;
+      if (dateValue) {
+        setLastUpdated(formatDate(dateValue));
+      }
+    }
+
     setLoaded(true);
     setData(results);
   }, []);
 
   const getDataPerSection = (section: any) => {
     let total = 0;
+    let totalChange = 0;
     const results = section.map((item: any) => {
       total += Number(item.count);
+      totalChange += Number(item.change || 0);
       return (
         <Detail
           keyName={item.label}
           value={item.count}
           labels={item.label}
           index={Math.random()}
+          change={Number(item.change)}
         />
       );
     });
@@ -219,6 +256,7 @@ const SummaryPage = () => {
         value={total}
         labels="Total"
         index={Math.random()}
+        change={totalChange}
       />,
     );
     return results;
@@ -278,9 +316,11 @@ const SummaryPage = () => {
         >
           Database summary
         </Typography>
-        <Typography variant="body1" color={gray500}>
-          Last updated on Apr 24, 2025
-        </Typography>
+        {lastUpdated && (
+          <Typography variant="body1" color={gray500}>
+            Last updated on {lastUpdated}
+          </Typography>
+        )}
       </Stack>
       <Box
         sx={{

@@ -1,4 +1,8 @@
-import { COMPOSER_VERSION, NEURONDM_VERSION } from '../settings';
+import {
+  COMPOSER_VERSION,
+  NEURONDM_VERSION,
+  SCKANNER_VERSION,
+} from '../settings';
 
 export const sckanInfoText = {
   summary: {
@@ -40,7 +44,7 @@ export const sckanInfoText = {
   versions: {
     title: 'Versions',
     bulletPoints: [
-      'SCKANNER Version: 1.0.0-beta',
+      'SCKANNER Version: ' + SCKANNER_VERSION,
       'Composer Version: ' + COMPOSER_VERSION,
       'SCKAN Version: ' + NEURONDM_VERSION,
     ],

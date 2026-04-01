@@ -60,6 +60,7 @@ interface KnowledgeStatementAPI {
   sex: Sex;
   statement_preview: string;
   statement_alerts: StatementAlert[];
+  curie_id: string;
 }
 
 export function mapApiResponseToKnowledgeStatements(
@@ -112,6 +113,7 @@ export function mapApiResponseToKnowledgeStatements(
     sex: ks.sex || {},
     statement_preview: ks.statement_preview || '',
     statement_alerts: ks.statement_alerts || [],
+    curie_id: ks.curie_id || '',
   }));
 }
 

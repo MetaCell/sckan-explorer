@@ -74,7 +74,9 @@ const SummaryDetails = ({
   const getForwardConnections = () => {
     const forwardConnections: string[] = [];
     connectionDetails?.forwardConnections.forEach((conn) => {
-      if (conn?.reference_uri !== undefined) {
+      if (conn?.curie_id !== undefined) {
+        forwardConnections.push(conn.curie_id);
+      } else if (conn?.reference_uri !== undefined) {
         forwardConnections.push(conn.reference_uri);
       }
     });
@@ -84,8 +86,8 @@ const SummaryDetails = ({
   // Details shown in the dropdown - from composer
   const detailsObject = [
     {
-      label: 'Connection Id',
-      value: connectionDetails?.id || '-',
+      label: 'Curie ID',
+      value: connectionDetails?.curie_id || '-',
       icon: undefined,
     },
     {
