@@ -78,7 +78,26 @@ export const STRINGS_NUMBERS = [
 
 // Get version from Vite environment variable (set at build time)
 export const SCKANNER_VERSION = import.meta.env.VITE_APP_VERSION || '3.1.1';
-export const COMPOSER_VERSION = '6.0.0';
+
+const COMPOSER_PACKAGE_JSON_URL =
+  'https://raw.githubusercontent.com/MetaCell/sckan-composer/refs/heads/main/applications/composer/frontend/package.json';
+
+// Fetch Composer version from its package.json on GitHub
+const fetchComposerVersion = (): string => {
+  try {
+    const request = new XMLHttpRequest();
+    request.open('GET', COMPOSER_PACKAGE_JSON_URL, false);
+    request.send(null);
+    if (request.status === 200) {
+      const data = JSON.parse(request.responseText);
+      return data?.version || '';
+    }
+  } catch {
+    // fallback on error
+  }
+  return '';
+};
+export const COMPOSER_VERSION = fetchComposerVersion();
 
 // Fetch NEURONDM version from remote sckan-version-info.json
 const fetchNeurondmVersion = (): string => {
